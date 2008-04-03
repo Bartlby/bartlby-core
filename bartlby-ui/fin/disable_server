@@ -1,0 +1,1 @@
+<span style="font-weight: bold;">Disable Service Checks for whole server<br /></span>Checks have been disabled for server: '<span style="font-weight: bold;">$global_msg[server_name]</span>'<span style="font-weight: bold;"><br /></span>

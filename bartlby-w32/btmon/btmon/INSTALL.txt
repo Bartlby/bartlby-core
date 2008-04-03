@@ -1,0 +1,7 @@
+﻿as i am not sure about binary distribution thingy's in windows env's 
+go and get a copy of "SharpDevelop2" for free and compile it your self ;)
+
+http://www.icsharpcode.com/OpenSource/SD/
+
+just install it and open the .sln file and compile it
+

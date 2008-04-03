@@ -1,0 +1,125 @@
+#!/bin/sh
+#int main(int argc, char ** argv) {
+#		double loadavgs[3];
+#		int rtc;
+#		
+#		parse_options(argc, argv);
+#		rtc=getloadavg(loadavgs, 3);
+#		if(rtc == -1) {
+#			printf("Load averages is unobtainable");
+#			exit(STATE_CRITICAL);	
+#		}
+#		if(perf_mode == 1) {
+#			printf("PERF: %.2f %.2f %.2f last\n", loadavgs[0], loadavgs[1], loadavgs[2]);
+#		}
+#		
+#		printf("Load(%.2f): %.2f %.2f %.2f ",def_critical_level, loadavgs[0], loadavgs[1], loadavgs[2]);
+#		//if( $1 >= lim*2 || $2 >= lim*1.5 || $3 >= lim) { print "1 " $0; } else {print "0 " $0  }}
+#		
+#		if(loadavgs[0] >= def_critical_level*2 || loadavgs[1] >= def_critical_level*1.5 || loadavgs[2] >= def_critical_level) {
+#			printf("CRITICAL\n");
+#			exit(STATE_CRITICAL);	
+#		} else {
+#			printf("OK\n");
+#			exit(STATE_OK);
+#		}
+#		printf("\n");
+#		
+#		exit(STATE_UNKOWN);
+#		
+#}
+
+VERSION="0.1";
+MY_PATH=`echo $0 | sed -e 's,[\\/][^\\/][^\\/]*$,,'`
+if [ -f $MY_PATH/bartlby.funcs ]; then
+	. $MY_PATH/bartlby.funcs
+	plg_init_args $*;
+	
+else
+	echo "your setup doesnt look fine cant locate 'bartlby.funcs'";
+	exit 2;
+fi;
+
+set_my_name "bartlby_load.sh"
+
+
+has_executable "cat"
+
+plg_get_arg "h" "IS_HELP";
+plg_get_arg "p" "PERFIT";
+plg_get_arg "c" "C_LEVEL";
+
+plg_get_arg "S" "SNMP";
+plg_get_arg "C" "SNMP_COMM";
+plg_get_arg "H" "SNMP_HOST";
+plg_get_arg "v" "SNMP_VER";
+
+
+if [ "$SNMP_HOST" = "false" ];
+then
+	SNMP_HOST="localhost";
+fi;
+if [ "$SNMP_COMM" = "false" ];
+then
+	SNMP_COMM="public";
+fi;
+if [ "$SNMP_VER" = "false" ];
+then
+	SNMP_VER="1";
+fi;
+
+if [ "$C_LEVEL" = "false" ];
+then
+	C_LEVEL="5";
+fi;
+
+if [ "$IS_HELP" != "false" ]; 
+then
+	echo "Bartlby Check Load $VERSION";
+	echo "***************************";
+	echo "-h Display Help";
+	echo "-c critical on";
+	echo "-S SNMP Mode";
+	echo "  -C Community (default: public)";
+	echo "  -H Host (default: localhost)";
+	echo "  -i interface index (default: 1)";
+	echo "  -v version (default: 1), 1 or 2c";
+	end_warning "";
+fi;
+
+
+if [ "$SNMP" = "false" ];
+then
+	load1l=$(cat /proc/loadavg|awk '{print $1}');
+	load2l=$(cat /proc/loadavg|awk '{print $2}');
+	load3l=$(cat /proc/loadavg|awk '{print $3}');
+else
+	has_executable "snmpget"
+	#UCD-SNMP-MIB::laLoad.1
+	load1l=$(snmpget -t 3 -Oqv -v $SNMP_VER -c $SNMP_COMM $SNMP_HOST UCD-SNMP-MIB::laLoad.1);
+	load2l=$(snmpget -t 3 -Oqv -v $SNMP_VER -c $SNMP_COMM $SNMP_HOST UCD-SNMP-MIB::laLoad.2);
+	load3l=$(snmpget -t 3 -Oqv -v $SNMP_VER -c $SNMP_COMM $SNMP_HOST UCD-SNMP-MIB::laLoad.3);
+	
+fi;
+
+
+
+
+if [ "$PERFIT" = "true" ];
+then
+	echo "PERF: $load1l $load2l $load3l last";
+fi;
+
+
+echo "$load1l $load2l $load3l"| awk -v lim=$C_LEVEL '{if( $1 >= lim*2 || $2 >= lim*1.5 || $3 >= lim) { print "1 " $0; } else {print "0 " $0  }}'|while read stat txt
+do
+        
+        if [ $stat -gt 0 ];
+        then
+                
+                end_critical "load: $C_LEVEL , $txt";
+        else
+                
+                end_ok "load: $C_LEVEL , $txt";
+        fi;
+done;

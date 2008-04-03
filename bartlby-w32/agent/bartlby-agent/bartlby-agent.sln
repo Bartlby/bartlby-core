@@ -1,0 +1,46 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 9.00
+# Visual Studio 2005
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BartlbyAgent", "WindowsService1\BartlbyAgent.csproj", "{39D04CE2-A975-4B0F-BFA1-F656580A6CF8}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ServiceInstaller", "ServiceInstaller\ServiceInstaller.vcproj", "{04BF2C48-7E08-4445-B6EF-93958A9C4A21}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|Mixed Platforms = Debug|Mixed Platforms
+		Debug|Win32 = Debug|Win32
+		Release|Any CPU = Release|Any CPU
+		Release|Mixed Platforms = Release|Mixed Platforms
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{39D04CE2-A975-4B0F-BFA1-F656580A6CF8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{39D04CE2-A975-4B0F-BFA1-F656580A6CF8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{39D04CE2-A975-4B0F-BFA1-F656580A6CF8}.Debug|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{39D04CE2-A975-4B0F-BFA1-F656580A6CF8}.Debug|Mixed Platforms.Build.0 = Release|Any CPU
+		{39D04CE2-A975-4B0F-BFA1-F656580A6CF8}.Debug|Win32.ActiveCfg = Debug|Any CPU
+		{39D04CE2-A975-4B0F-BFA1-F656580A6CF8}.Debug|Win32.Build.0 = Debug|Win32
+		{39D04CE2-A975-4B0F-BFA1-F656580A6CF8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{39D04CE2-A975-4B0F-BFA1-F656580A6CF8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{39D04CE2-A975-4B0F-BFA1-F656580A6CF8}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{39D04CE2-A975-4B0F-BFA1-F656580A6CF8}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{39D04CE2-A975-4B0F-BFA1-F656580A6CF8}.Release|Win32.ActiveCfg = Release|Any CPU
+		{39D04CE2-A975-4B0F-BFA1-F656580A6CF8}.Release|Win32.Build.0 = Release|Win32
+		{04BF2C48-7E08-4445-B6EF-93958A9C4A21}.Debug|Any CPU.ActiveCfg = Debug|Win32
+		{04BF2C48-7E08-4445-B6EF-93958A9C4A21}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{04BF2C48-7E08-4445-B6EF-93958A9C4A21}.Debug|Mixed Platforms.ActiveCfg = Release|Win32
+		{04BF2C48-7E08-4445-B6EF-93958A9C4A21}.Debug|Mixed Platforms.Build.0 = Release|Win32
+		{04BF2C48-7E08-4445-B6EF-93958A9C4A21}.Debug|Win32.ActiveCfg = Debug|Win32
+		{04BF2C48-7E08-4445-B6EF-93958A9C4A21}.Debug|Win32.Build.0 = Debug|Win32
+		{04BF2C48-7E08-4445-B6EF-93958A9C4A21}.Release|Any CPU.ActiveCfg = Release|Win32
+		{04BF2C48-7E08-4445-B6EF-93958A9C4A21}.Release|Any CPU.Build.0 = Release|Any CPU
+		{04BF2C48-7E08-4445-B6EF-93958A9C4A21}.Release|Mixed Platforms.ActiveCfg = Release|Win32
+		{04BF2C48-7E08-4445-B6EF-93958A9C4A21}.Release|Mixed Platforms.Build.0 = Release|Win32
+		{04BF2C48-7E08-4445-B6EF-93958A9C4A21}.Release|Win32.ActiveCfg = Release|Win32
+		{04BF2C48-7E08-4445-B6EF-93958A9C4A21}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

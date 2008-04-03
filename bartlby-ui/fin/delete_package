@@ -1,0 +1,1 @@
+  <font size="2"><span style="font-family: Tahoma; font-weight: bold;">Delete Package<br /></span><span style="font-family: Tahoma;">Package '<span style="font-weight: bold;">$_GET[package_name]</span>'&nbsp; has been deleted</span></font>
