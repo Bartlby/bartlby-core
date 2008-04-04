@@ -211,7 +211,7 @@ int main(int argc, char ** argv) {
         free(allowed_ip_list);
         if(ip_ok < 0) {
         	//sleep(1);
-        	sprintf(svc_back, "2|IP Blocked \n");
+        	sprintf(svc_back, "2|IP Blocked '%s'\n", inet_ntoa(name.sin_addr));
         	
 		printf("%s\n", svc_back);
 		fflush(stdout);	
