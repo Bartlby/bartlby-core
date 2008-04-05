@@ -257,6 +257,70 @@ void * bartlby_get_shm(char * cfgfile) {
 	}
 }
 
+
+
+void bartlby_mark_object_gone(char * cfg, long id, int type, char * msg) {
+	
+	char * shmtok;
+	int shm_id;
+	void * bartlby_address;
+	int x;
+	struct shm_header * shm_hdr;
+	struct service * svcmap;
+	struct server * srvmap;	
+	struct worker * wrkmap;
+	struct downtime * dtmap;
+	char * tmpstr;
+	
+	bartlby_address=bartlby_get_shm(cfg); 
+	if(bartlby_address != NULL) {
+	
+		shm_hdr=(struct shm_header *)(void *)bartlby_address;
+		svcmap=(struct service *)(void *)bartlby_address+sizeof(struct shm_header);
+		wrkmap=(struct worker *)(void*)&svcmap[shm_hdr->svccount]+20;
+		dtmap=(struct downtime *)(void *)&wrkmap[shm_hdr->wrkcount]+20;
+		srvmap=(struct server *)(void*)&dtmap[shm_hdr->dtcount]+20;
+	} else {
+		return; //SHM ERROR
+	}
+
+	switch(type) {
+		case BARTLBY_SERVICE_GONE:
+			for(x=0; x<shm_hdr->svccount; x++) {
+				if(svcmap[x].service_id == id) {
+					
+					tmpstr = strdup(svcmap[x].service_name);
+					sprintf(svcmap[x].service_name,"%s [%s]" , tmpstr, msg);
+					free(tmpstr);
+							
+				}	
+			}	
+	
+		break;
+		case BARTLBY_SERVER_GONE:
+			for(x=0; x<shm_hdr->srvcount; x++) {
+				if(srvmap[x].server_id == id) {
+					tmpstr = strdup(srvmap[x].server_name);
+					sprintf(srvmap[x].server_name,"%s [%s]" , tmpstr, msg);
+					free(tmpstr);		
+				}	
+			}	
+		break;
+		case BARTLBY_WORKER_GONE:
+			for(x=0; x<shm_hdr->wrkcount; x++) {
+				if(wrkmap[x].worker_id == id) {
+					tmpstr = strdup(wrkmap[x].name);
+					sprintf(wrkmap[x].name,"%s [%s]" , tmpstr, msg);
+					free(tmpstr);		
+				}	
+			}	
+		break;
+		default:
+			return;
+	}
+}
+
+
 /* {{{ PHP_MINIT_FUNCTION
  */
 PHP_MINIT_FUNCTION(bartlby)
@@ -1859,6 +1923,8 @@ PHP_FUNCTION(bartlby_delete_worker) {
 	ret=DeleteWorker(Z_LVAL_P(worker_id),Z_STRVAL_P(bartlby_config));
 	
 	dlclose(SOHandle);
+	bartlby_mark_object_gone(Z_STRVAL_P(bartlby_config),Z_LVAL_P(worker_id), BARTLBY_WORKER_GONE, "[DELETED]");
+
 	RETURN_LONG(ret);	
 }
 
@@ -1932,6 +1998,9 @@ PHP_FUNCTION(bartlby_modify_worker) {
 	
 	dlclose(SOHandle);
 	RETURN_STRING(Z_STRVAL_P(icq),1);
+	//Mark as gone
+	bartlby_mark_object_gone(Z_STRVAL_P(bartlby_config),Z_LVAL_P(worker_id), BARTLBY_WORKER_GONE, "[CHANGED]");
+	
 	RETURN_LONG(ret);		
 }
 
@@ -2105,6 +2174,8 @@ PHP_FUNCTION(bartlby_delete_server) {
 	ret=DeleteServer(Z_LVAL_P(server_id),Z_STRVAL_P(bartlby_config));
 	
 	dlclose(SOHandle);
+	bartlby_mark_object_gone(Z_STRVAL_P(bartlby_config),Z_LVAL_P(server_id), BARTLBY_SERVER_GONE, "[DELETED]");
+
 	RETURN_LONG(ret);
 }
 PHP_FUNCTION(bartlby_get_service_by_id) {
@@ -2240,6 +2311,9 @@ PHP_FUNCTION(bartlby_delete_service) {
 	ret=DeleteService(Z_LVAL_P(service_id),Z_STRVAL_P(bartlby_config));
 	
 	dlclose(SOHandle);
+	//Mark as delted
+	bartlby_mark_object_gone(Z_STRVAL_P(bartlby_config),Z_LVAL_P(service_id), BARTLBY_SERVICE_GONE, "[DELETED]");
+	
 	RETURN_LONG(ret);
 	
 }
@@ -2359,8 +2433,10 @@ PHP_FUNCTION(bartlby_modify_service) {
 	LOAD_SYMBOL(UpdateService,SOHandle, "UpdateService");
 	
 	rtc=UpdateService(&svc, Z_STRVAL_P(bartlby_config));
-	
 	dlclose(SOHandle);
+	//Mark as changed
+	bartlby_mark_object_gone(Z_STRVAL_P(bartlby_config),Z_LVAL_P(service_id), BARTLBY_SERVICE_GONE, "[CHANGED]");
+
 	RETURN_LONG(rtc);
 	
 	
@@ -2610,6 +2686,8 @@ PHP_FUNCTION(bartlby_modify_server) {
 	ret=ModifyServer(&srv, Z_STRVAL_P(bartlby_config));
 	
 	dlclose(SOHandle);
+	bartlby_mark_object_gone(Z_STRVAL_P(bartlby_config),Z_LVAL_P(server_id), BARTLBY_SERVER_GONE, "[CHANGED]");
+
 	RETURN_LONG(ret);
 }
 
