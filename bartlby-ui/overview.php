@@ -12,6 +12,8 @@
 	$lib=bartlby_lib_info($btl->CFG);
 	$info=$btl->info;
 	
+	$reload_status="data is up-to-date";
+	
 	if ($info[sirene_mode] == 0) {
 		$sir="<a href='#' title='Enable Sirene' onClick=\"document.location.href='bartlby_action.php?action=sirene_enable';\"><img border=0 title='Enable Sirene' src='images/Disable-Sirene.gif'></A>";	
 	} else {
@@ -105,7 +107,7 @@
 			$gdelay_sum += $v[$y][service_delay_sum];
 			$gdelay_count += $v[$y][service_delay_count];
 			
-			
+			if($v[$y][is_gone]) $reload_status="<font color=red>Reload needed</font>";		
 			
 			$qck[$v[$y][server_id]][$v[$y][current_state]]++;	
 			$qck[$v[$y][server_id]][10]=$v[$y][server_id];
@@ -319,6 +321,10 @@
 		
 		<tr>
 			<td colspan=2 class='font1'>Version: <font class='font2'>" . $btl->getRelease() . "</font></td>
+			
+		</tr>
+		<tr>
+			<td colspan=2 class='font1'>Reload: <font class='font2'>" . $reload_status . "</font></td>
 			
 		</tr>
 		
