@@ -47,7 +47,7 @@ $ticker="|";
 
 $ncurses_session = ncurses_init();
 $main = ncurses_newwin(0, 0, 0, 0); // main window
-ncurses_getmaxyx(&$main, $lines, $columns);
+
 ncurses_border(0,0, 0,0, 0,0, 0,0);
 
 ncurses_start_color();
@@ -64,6 +64,7 @@ ncurses_init_pair(5,NCURSES_COLOR_BLACK,NCURSES_COLOR_WHITE);
 
 while(1){
 
+	ncurses_getmaxyx(&$main, $lines, $columns);
 	ncurses_timeout(2);
 	$k = ncurses_getch();
 	$info = @bartlby_get_info($btl->CFG);
