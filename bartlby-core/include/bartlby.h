@@ -2,7 +2,7 @@
 #define PROGNAME "bartlby"
 #define REL_NAME "autobot"
 #define VERSION  "1.3.1"
-#define EXPECTCORE 1103251 //Module V Check's
+#define EXPECTCORE 1103381 //Module V Check's
 
 #define MAX_CCACHE 1024
 #define MAX_CCACHE_KEY 1024
@@ -170,7 +170,8 @@ struct server {
 	int flap_count;
 	int last_notify_send;
 	struct service * dead_marker;
-	
+	int is_gone;
+		
 } xxyz;
 
 
@@ -240,6 +241,8 @@ struct service {
 	/**/
 	long renotify_interval; // interval to renotify
 	long escalate_divisor; //
+
+	int is_gone;
 };
 
 struct service_sort {
@@ -265,7 +268,7 @@ struct worker {
 	char t[500];
 	long escalation_limit;
 	long escalation_minutes;
-
+	int is_gone;
 }sa;
 
 
@@ -277,6 +280,7 @@ struct downtime {
 	char downtime_notice[2048];
 	int service_id;
 	
+	int is_gone;
 }sb;
 
 struct btl_event {

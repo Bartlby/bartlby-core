@@ -840,6 +840,7 @@ int GetDowntimeMap(struct downtime * svcs, char * config) {
       				svcs[i].service_id = -1;    				
       			}
       			
+			svcs[i].is_gone=0;		
       			
       			i++;
       		}
@@ -973,8 +974,9 @@ int GetWorkerById(int worker_id, struct worker * svc, char * config) {
       		} else {
       			sprintf(svc->notify_plan, " ");	
       		}
+		svc->is_gone=0;
       		tmprc=0;
-      		printf("limit: %ld, minutes: %ld", svc->escalation_limit, svc->escalation_minutes);
+      		//printf("limit: %ld, minutes: %ld", svc->escalation_limit, svc->escalation_minutes);
       	} else {
 			tmprc=-1;
 	}
@@ -1318,8 +1320,8 @@ int GetServiceById(int service_id, struct service * svc, char * config) {
       		
       		svc->renotify_interval=atoi(row[33]);
       		svc->escalate_divisor=atoi(row[34]);
-      		
-      		
+	
+    		svc->is_gone = 0;  		
       		tmprc=0;
       	} else {
 		tmprc=-1;
@@ -1650,8 +1652,10 @@ int GetServerById(int server_id, struct server * svc, char * config) {
       		svc->server_notify=atoi(row[5]);
       		svc->server_flap_seconds=atoi(row[6]);
       		svc->server_dead=atoi(row[7]);
+
+		svc->is_gone=0;  		
       		
-      		tmprc=0;
+		tmprc=0;
       	} else {
 			tmprc=-1;
 	}
@@ -2034,7 +2038,8 @@ int GetWorkerMap(struct worker * svcs, char * config) {
       			//_log("%d escal", svcs[i].escalation_limit);
       			svcs[i].escalation_count=0;
       			svcs[i].escalation_time=time(NULL);
-      			i++;
+			svcs[i].is_gone = 0;      	
+			i++;
       		}
       		
       		mysql_free_result(res);
@@ -2240,7 +2245,8 @@ int GetServiceMap(struct service * svcs, char * config) {
       			svcs[i].renotify_interval=atoi(row[33]);
       			svcs[i].escalate_divisor=atoi(row[34]);
       			
-      			
+			svcs[i].is_gone = 0;	
+      				
       			bartlby_replace_svc_in_str(svcs[i].plugin_arguments, &svcs[i], 2048);
       			i++;
       		}
@@ -2344,7 +2350,7 @@ int GetServerMap(struct server * srv, char * config) {
       				sprintf(srv[i].server_icon, "(null)");
       			}
       			
-      			
+ 			srv[i].is_gone=0;     			
       			i++;
       		}
       		
