@@ -24,6 +24,8 @@
 #define BARTLBY_WORKER_GONE 3
 #define BARTLBY_DOWNTIME_GONE 4
 
+#define BARTLBY_OBJECT_CHANGED 1
+#define BARTLBY_OBJECT_DELETED 2
 
 
 #define DT_SERVICE 1
@@ -231,6 +233,7 @@ struct server {
 	int flap_count;
 	int last_notify_send;
 	struct service * dead_marker;
+	int is_gone;
 	
 } xxyz;
 
@@ -301,6 +304,7 @@ struct service {
 	/**/
 	long renotify_interval; // interval to renotify
 	long escalate_divisor; //
+	int is_gone;
 };
 
 struct service_sort {
@@ -326,7 +330,7 @@ struct worker {
 	char t[500];
 	long escalation_limit;
 	long escalation_minutes;
-
+	int is_gone;
 }sa;
 
 
@@ -337,6 +341,7 @@ struct downtime {
 	int downtime_to;
 	char downtime_notice[2048];
 	int service_id;
+	int is_gone;
 	
 }sb;
 
