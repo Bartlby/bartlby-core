@@ -398,7 +398,9 @@ function ServiceSearch($what, $script='modify_service.php') {
 		for($x=0; $x<count($servs); $x++) {
 			$ostr=$servs[$x][server_name] . "/" . $servs[$x][service_name];
 			if(preg_match("/" . $what . "/i", $ostr)) {
-				$output .= "<a href=\"javascript:void(0);\" onClick=\"xajax_jumpToServiceId('" . $servs[$x][service_id] . "', '$script');\">$ostr</a><br>";
+				$is_gone=$btl->is_gone($servs[$x][is_gone]);
+		
+				$output .= "<a href=\"javascript:void(0);\" onClick=\"xajax_jumpToServiceId('" . $servs[$x][service_id] . "', '$script');\">$ostr</a> $is_gone <br>";
 				$y++;
 			}		
 			if($y>20) {
@@ -463,6 +465,7 @@ function ServerSearch($what, $script='modify_server.php') {
 	while(list($k, $v) = @each($servs)) {
 		
 		if(preg_match("/" . $what . "/i", $v)) {
+			
 			$output .= "<a href=\"javascript:void(0);\" onClick=\"xajax_jumpToServerId('" . $k . "', '$script');\">$v</a><br>";
 			$y++;
 		}
@@ -493,6 +496,9 @@ function QuickLook($what) {
 	while(list($k, $v) = @each($servers)) {
 		
 		if(@preg_match("/" . $what . "/i", $v[0][server_name])) {
+	
+			
+			
 			
 			$rq .= "<tr><td><a href='server_detail.php?server_id=" . $v[0][server_id] . "'><font size=1>" . $v[0][server_name] . "</font></A>(<a href='services.php?server_id=" . $v[0][server_id] . "'><font size=1>Services</font></A>)</td><td>" . $btl->getserveroptions($v[0], $layout) . "</td></tr>";	
 			$sfound=true;
@@ -522,6 +528,7 @@ function QuickLook($what) {
 		
 		for($x=0; $x<count($v); $x++) {
 			if(@preg_match("/" . $what . "/i", $v[$x][server_name] . "/" . $v[$x][service_name])) {
+						
 				$rq .= "<tr><td><a href='service_detail.php?service_place=" . $v[$x][shm_place] . "'><font size=1>" . $v[$x][server_name] . "/" . $v[$x][service_name] . "</A></font></td><td>" . $btl->getServiceOptions($v[$x], $layout) . "</td>";	
 				$svcfound=true;
 			}

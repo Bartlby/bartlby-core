@@ -1101,6 +1101,16 @@ class BartlbyUi {
 			
 		
 	}
+	function is_gone($state) {
+		switch($state) {
+			case 1:
+				return "<img src='images/emblem-generic.png' alt='Object changed you should reload' border=0>";
+			case 2:
+				return "<img src='images/emblem-important.png' alt='Object deleted you should reload' border=0>";
+			default:
+				return "";
+		}
+	}	
 	function GetSVCMap($state=false) {
 		//array(2555, 3191,2558)
 		#view_service_output
@@ -1121,6 +1131,7 @@ class BartlbyUi {
         			$r[$x][new_server_text] = "you are missing: view_service_output right";	
         		}
         		
+			
         		array_push($map[$r[$x][server_id]], $r[$x]);
         	}
         	@ksort($map);
@@ -1821,9 +1832,9 @@ function create_package($package_name, $in_services = array(), $with_plugins, $w
 		} else {
 			$notifys = "<a href='javascript:void(0);' onClick=\"xajax_toggle_server_notify_check('" . $defaults[server_id] . "', '" . $defaults[service_id] . "')\"><img id='trigger_" . $defaults[server_id] . "' src='images/notrigger.gif' title='Enable Notifications for this Service' border=0></A>";
 		}
+		$is_gone=$this->is_gone($defaults[server_gone]);
 		
-		
-		return $notifys . " " .  $check . " " . $modify . " " . $copy . " " . $logview;
+		return $is_gone . " " . $notifys . " " .  $check . " " . $modify . " " . $copy . " " . $logview;
 	}
 
 	function getserviceOptions($defaults, $layout) {
@@ -1855,7 +1866,11 @@ function create_package($package_name, $in_services = array(), $with_plugins, $w
 			$stat = "";
 		}
 		$copy = "<a href='modify_service.php?copy=true&service_id=" . $defaults[service_id] . "'><img src='images/edit-copy.gif' title='Copy (Create a similar) this Service' border=0></A>";				
-		$ret ="$notifys $check $logview $comments $modify $force $downtime $copy $reports $stat";
+
+		$is_gone=$this->is_gone($defaults[is_gone]);
+				
+		$ret ="$is_gone $notifys $check $logview $comments $modify $force $downtime $copy $reports $stat";
+		
 		
 		return $ret;
 	}
