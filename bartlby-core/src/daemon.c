@@ -1,7 +1,9 @@
-/* $Id: daemon.c,v 1.13 2008/03/16 21:23:05 hjanuschka Exp $ */
+/* $Id: shmt.c,v 1.7 2008/03/03 12:01:27 hjanuschka Exp $ */
 /* ----------------------------------------------------------------------- *
  *
- *   Copyright 2005 Helmut Januschka - All Rights Reserved
+ *   Copyright 2005-2008 Helmut Januschka - All Rights Reserved
+ *   Contact: <helmut@januschka.com>, <contact@bartlby.org>
+ *
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -9,78 +11,13 @@
  *   USA; either version 2 of the License, or (at your option) any later
  *   version; incorporated herein by reference.
  *
+ *   visit: www.bartlby.org for support
  * ----------------------------------------------------------------------- */
 /*
-$Revision: 1.13 $
-$Source: /cvsroot/bartlby/bartlby-core/src/daemon.c,v $
-
-
-$Log: daemon.c,v $
-Revision 1.13  2008/03/16 21:23:05  hjanuschka
-auto commit
-
-Revision 1.12  2008/03/15 18:25:28  hjanuschka
-auto commit
-
-Revision 1.11  2006/09/09 19:38:34  hjanuschka
-auto commit
-
-Revision 1.10  2006/06/04 23:55:28  hjanuschka
-core: SSL_connect (timeout issue's solved , at least i hope :))
-core: when perfhandlers_enabled == false, you now can enable single services
-core: plugin_arguments supports $MACROS
-core: config variables try now to cache themselfe to minimize I/O activity
-core: .so extensions support added
-
-Revision 1.9  2006/05/21 21:18:10  hjanuschka
-commit before workweek
-
-Revision 1.8  2006/05/20 20:52:18  hjanuschka
-set core dump limit in deamon mode
-snmp minimal fixes
-announce if SNMP is compiled in on startup
-
-Revision 1.7  2005/12/13 23:17:53  hjanuschka
-setuid before creating shm segment
-
-Revision 1.6  2005/11/27 02:04:42  hjanuschka
-setuid/setgid for security and web ui
-
-Revision 1.5  2005/09/28 21:46:30  hjanuschka
-converted files to unix
-jabber.sh -> disabled core dumps -> jabblibs segfaults
-                                    will try to patch it later
-
-Revision 1.4  2005/09/25 13:30:18  hjanuschka
-cfg: jabber variables
-daemon: setenv BARTLBY_HOME (for triggers)
-sched: wait_open timeout
-mail.sh: sendmail trigger
-trigger: $1 == email
-$2 == icq
-$3 == name
-$4 == msg
-
-Revision 1.3  2005/09/13 19:43:31  hjanuschka
-human readable release code name REL_NAME
-fixed printf() in shutdown daemon *fg*
-
-Revision 1.2  2005/09/13 19:29:18  hjanuschka
-daemon: pidfile, remove pidfile at end
-mysql.c: fixed 2 segfaults under _MALLOC_CHECK=2
-
-Revision 1.1  2005/09/05 19:53:57  hjanuschka
-daemon maybe safe shutdown by SIGINT SIGUSR1
-
-Revision 1.5  2005/09/03 20:11:22  hjanuschka
-fixups
-
-added addworker, deleteworker, modifyworker, getworkerbyid
-
-Revision 1.4  2005/08/28 16:02:59  hjanuschka
-CVS Header
-
-
+$Revision$
+$HeadURL$
+$Date$
+$Author$ 
 */
 #include <sys/time.h>
 #include <sys/resource.h>

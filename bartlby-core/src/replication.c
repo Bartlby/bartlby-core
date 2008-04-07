@@ -1,7 +1,9 @@
-/* $Id: replication.c,v 1.8 2006/06/05 21:06:07 hjanuschka Exp $ */
+/* $Id: shmt.c,v 1.7 2008/03/03 12:01:27 hjanuschka Exp $ */
 /* ----------------------------------------------------------------------- *
  *
- *   Copyright 2005 Helmut Januschka - All Rights Reserved
+ *   Copyright 2005-2008 Helmut Januschka - All Rights Reserved
+ *   Contact: <helmut@januschka.com>, <contact@bartlby.org>
+ *
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -9,53 +11,13 @@
  *   USA; either version 2 of the License, or (at your option) any later
  *   version; incorporated herein by reference.
  *
+ *   visit: www.bartlby.org for support
  * ----------------------------------------------------------------------- */
 /*
-$Revision: 1.8 $
-$Source: /cvsroot/bartlby/bartlby-core/src/replication.c,v $
-
-
-$Log: replication.c,v $
-Revision 1.8  2006/06/05 21:06:07  hjanuschka
-*** empty log message ***
-
-Revision 1.7  2006/04/23 18:07:43  hjanuschka
-core/ui/php: checks can now be forced
-ui: remote xml special_addon support
-core: svc perf MS
-core: round perf MS
-php: svcmap, get_service perf MS
-ui: perf MS
-
-Revision 1.6  2005/10/25 20:36:32  hjanuschka
-startup time is'nt reset on cfg reload now
-
-Revision 1.5  2005/09/28 21:46:30  hjanuschka
-converted files to unix
-jabber.sh -> disabled core dumps -> jabblibs segfaults
-                                    will try to patch it later
-
-Revision 1.4  2005/09/18 11:28:12  hjanuschka
-replication now works :-)
-core: can run as slave and load data from a file instead of data_lib
-ui: displays a warning if in slave mode to not add/modify servers/services
-portier: recieves and writes shm dump to disk
-so hot stand by should be possible ;-)
-slave also does service checking
-
-Revision 1.3  2005/09/18 05:03:52  hjanuschka
-replication is false by default now
-need to fix the damn write()/read() -> while() sh**
-
-Revision 1.2  2005/09/18 04:04:52  hjanuschka
-replication interface (currently just a try out)
-one instance can now replicate itself to another using portier as a transport way
-FIXME: need to sort out a binary write() problem
-
-Revision 1.1  2005/09/18 01:33:54  hjanuschka
-*** empty log message ***
-
-
+$Revision$
+$HeadURL$
+$Date$
+$Author$ 
 */
 
 #include <dlfcn.h>

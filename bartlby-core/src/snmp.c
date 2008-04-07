@@ -1,7 +1,9 @@
-/* $Id: snmp.c,v 1.6 2008/03/28 04:34:23 hjanuschka Exp $ */
+/* $Id: shmt.c,v 1.7 2008/03/03 12:01:27 hjanuschka Exp $ */
 /* ----------------------------------------------------------------------- *
  *
- *   Copyright 2005 Helmut Januschka - All Rights Reserved
+ *   Copyright 2005-2008 Helmut Januschka - All Rights Reserved
+ *   Contact: <helmut@januschka.com>, <contact@bartlby.org>
+ *
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -9,25 +11,13 @@
  *   USA; either version 2 of the License, or (at your option) any later
  *   version; incorporated herein by reference.
  *
+ *   visit: www.bartlby.org for support
  * ----------------------------------------------------------------------- */
 /*
-$Revision: 1.6 $
-$Source: /cvsroot/bartlby/bartlby-core/src/snmp.c,v $
-
-
-$Log: snmp.c,v $
-Revision 1.6  2008/03/28 04:34:23  hjanuschka
-patches: nsca-patch updated for  1.3 series of bartlby
-core:	fixed a few compile warnings, happend on x86_64 debian
-core:	cleaner build output
-core:	install-counter, be a part of the community and show the others you are using bartlby
-
-Revision 1.5  2007/02/15 16:25:32  hjanuschka
-auto commit
-
-Revision 1.4  2006/05/24 13:07:39  hjanuschka
-NRPE support (--enable-nrpe)
-
+$Revision$
+$HeadURL$
+$Date$
+$Author$ 
 */
 
 #include <net-snmp/net-snmp-config.h>

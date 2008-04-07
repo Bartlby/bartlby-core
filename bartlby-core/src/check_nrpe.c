@@ -1,4 +1,24 @@
-/* $Id: check_nrpe.c,v 1.5 2008/03/30 16:09:34 hjanuschka Exp $ */
+/* $Id: shmt.c,v 1.7 2008/03/03 12:01:27 hjanuschka Exp $ */
+/* ----------------------------------------------------------------------- *
+ *
+ *   Copyright 2005-2008 Helmut Januschka - All Rights Reserved
+ *   Contact: <helmut@januschka.com>, <contact@bartlby.org>
+ *
+ *
+ *   This program is free software; you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, Inc., 675 Mass Ave, Cambridge MA 02139,
+ *   USA; either version 2 of the License, or (at your option) any later
+ *   version; incorporated herein by reference.
+ *
+ *   visit: www.bartlby.org for support
+ * ----------------------------------------------------------------------- */
+/*
+$Revision$
+$HeadURL$
+$Date$
+$Author$ 
+*/
 /* ----------------------------------------------------------------------- *
  * BASED upon the original source of CHECK_NRPE package from nagios:
  *****************************************************************************************
@@ -23,70 +43,8 @@
  *   is one level below alpha!! :) you explicit have to enable NRP feature(s) 
  *   in the ./configure of bartlby-core (--enable-nrpe=yes)
  *
- *   Copyright 2005 Helmut Januschka - All Rights Reserved
- *
- *   This program is free software; you can redistribute it and/or modify
- *   it under the terms of the GNU General Public License as published by
- *   the Free Software Foundation, Inc., 675 Mass Ave, Cambridge MA 02139,
- *   USA; either version 2 of the License, or (at your option) any later
- *   version; incorporated herein by reference.
- *
  * ----------------------------------------------------------------------- */
-/*
-$Revision: 1.5 $
-$Source: /cvsroot/bartlby/bartlby-core/src/check_nrpe.c,v $
 
-
-$Log: check_nrpe.c,v $
-Revision 1.5  2008/03/30 16:09:34  hjanuschka
-fixed compile warnings on ubuntu710
-
-Revision 1.4  2008/03/16 21:06:11  hjanuschka
-auto commit
-
-Revision 1.3  2007/02/15 16:25:32  hjanuschka
-auto commit
-
-Revision 1.2  2006/11/27 21:16:28  hjanuschka
-auto commit
-
-Revision 1.1  2006/11/25 01:16:00  hjanuschka
-auto commit
-
-Revision 1.11  2006/11/25 00:54:23  hjanuschka
-auto commit
-
-Revision 1.10  2006/11/13 16:58:55  hjanuschka
-auto commit
-
-Revision 1.9  2006/09/23 22:38:46  hjanuschka
-auto commit
-
-Revision 1.8  2006/07/15 10:28:39  hjanuschka
-nrpe FIXME solved
-
-Revision 1.7  2006/05/30 21:41:18  hjanuschka
-nrpe ssl timeout
-
-Revision 1.6  2006/05/28 20:38:27  hjanuschka
-cbr
-
-Revision 1.5  2006/05/28 16:18:27  hjanuschka
-commit before release
-
-Revision 1.4  2006/05/24 19:18:35  hjanuschka
-version bump
-
-Revision 1.3  2006/05/24 13:22:45  hjanuschka
-*** empty log message ***
-
-Revision 1.2  2006/05/24 13:12:51  hjanuschka
-nrpe: ARG1 fix
-
-Revision 1.1  2006/05/24 13:07:39  hjanuschka
-NRPE support (--enable-nrpe)
-
-*/
 
 
 #include <stdio.h>

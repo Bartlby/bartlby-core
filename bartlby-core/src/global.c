@@ -1,7 +1,9 @@
-/* $Id: global.c,v 1.29 2008/03/16 21:06:11 hjanuschka Exp $ */
+/* $Id: shmt.c,v 1.7 2008/03/03 12:01:27 hjanuschka Exp $ */
 /* ----------------------------------------------------------------------- *
  *
- *   Copyright 2005 Helmut Januschka - All Rights Reserved
+ *   Copyright 2005-2008 Helmut Januschka - All Rights Reserved
+ *   Contact: <helmut@januschka.com>, <contact@bartlby.org>
+ *
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -9,112 +11,13 @@
  *   USA; either version 2 of the License, or (at your option) any later
  *   version; incorporated herein by reference.
  *
+ *   visit: www.bartlby.org for support
  * ----------------------------------------------------------------------- */
 /*
-$Revision: 1.29 $
-$Source: /cvsroot/bartlby/bartlby-core/src/global.c,v $
-
-
-$Log: global.c,v $
-Revision 1.29  2008/03/16 21:06:11  hjanuschka
-auto commit
-
-Revision 1.28  2007/04/01 16:06:32  hjanuschka
-auto commit
-
-Revision 1.27  2007/03/23 10:22:13  hjanuschka
-auto commit
-
-Revision 1.26  2007/02/22 12:51:06  hjanuschka
-*** empty log message ***
-
-Revision 1.25  2007/02/15 16:25:32  hjanuschka
-auto commit
-
-Revision 1.24  2007/01/27 19:52:13  hjanuschka
-auto commit
-
-Revision 1.23  2007/01/27 02:33:32  hjanuschka
-auto commit
-
-Revision 1.21  2006/12/09 01:25:07  hjanuschka
-auto commit
-
-Revision 1.20  2006/11/27 21:16:28  hjanuschka
-auto commit
-
-Revision 1.19  2006/11/07 14:46:58  hjanuschka
-*** empty log message ***
-
-Revision 1.18  2006/08/06 02:01:01  hjanuschka
-*** empty log message ***
-
-Revision 1.17  2006/08/03 20:52:57  hjanuschka
-*** empty log message ***
-
-Revision 1.16  2006/07/25 21:42:03  hjanuschka
-auto commit
-
-Revision 1.15  2006/07/23 20:32:54  hjanuschka
-*** empty log message ***
-
-Revision 1.14  2006/06/14 22:44:50  hjanuschka
-fixing stdout bug on early mysql errors
-fixing miss behavior of the extension interface in various code pieces
-
-Revision 1.13  2006/06/04 23:55:28  hjanuschka
-core: SSL_connect (timeout issue's solved , at least i hope :))
-core: when perfhandlers_enabled == false, you now can enable single services
-core: plugin_arguments supports $MACROS
-core: config variables try now to cache themselfe to minimize I/O activity
-core: .so extensions support added
-
-Revision 1.12  2006/02/10 23:54:46  hjanuschka
-SIRENE mode added
-
-Revision 1.11  2006/02/09 00:14:50  hjanuschka
-datalib: mysql/ catch failed logins
-core: fixed some setuid problems with datalib
-core: zero worker detected and logged
-core: network code re-worked, much faster and cleaner now
-core: encode/decode removed
-php: encode/decode removed
-ui: topology map manager added
-ui: nicer menu (flap)
-ui: server_detail (added)
-startup sh: pre-start check if logfile is writeable
-
-Revision 1.10  2006/01/10 22:37:25  hjanuschka
-some changes
-	trigger msg comes out of cfgfile with some $VAR macros
-
-Revision 1.9  2005/09/28 21:46:30  hjanuschka
-converted files to unix
-jabber.sh -> disabled core dumps -> jabblibs segfaults
-                                    will try to patch it later
-
-Revision 1.8  2005/09/27 18:21:57  hjanuschka
-*** empty log message ***
-
-Revision 1.7  2005/09/11 21:42:24  hjanuschka
-log files are now archived by Y.M.d
-
-Revision 1.6  2005/09/07 21:51:40  hjanuschka
-fixed passive check_fin bug
-added bartlby_portier passive results may now be deliverd from remote
-
-Revision 1.5  2005/09/05 20:00:54  hjanuschka
-stupid configfile issue fixed
-
-Revision 1.4  2005/09/05 19:53:12  hjanuschka
-2 day uptime without a single sigsegv ;-)
-added daemon function ;-)
-	new cfg vars daemon=[true|false], basedir, logfile
-
-Revision 1.3  2005/08/28 16:02:59  hjanuschka
-CVS Header
-
-
+$Revision$
+$HeadURL$
+$Date$
+$Author$ 
 */
 
 #include <stdio.h>

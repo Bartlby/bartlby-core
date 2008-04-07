@@ -1,7 +1,9 @@
-/* $Id: trigger.c,v 1.32 2008/03/16 21:06:11 hjanuschka Exp $ */
+/* $Id: shmt.c,v 1.7 2008/03/03 12:01:27 hjanuschka Exp $ */
 /* ----------------------------------------------------------------------- *
  *
- *   Copyright 2005 Helmut Januschka - All Rights Reserved
+ *   Copyright 2005-2008 Helmut Januschka - All Rights Reserved
+ *   Contact: <helmut@januschka.com>, <contact@bartlby.org>
+ *
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -9,127 +11,13 @@
  *   USA; either version 2 of the License, or (at your option) any later
  *   version; incorporated herein by reference.
  *
+ *   visit: www.bartlby.org for support
  * ----------------------------------------------------------------------- */
 /*
-$Revision: 1.32 $
-$Source: /cvsroot/bartlby/bartlby-core/src/trigger.c,v $
-
-
-$Log: trigger.c,v $
-Revision 1.32  2008/03/16 21:06:11  hjanuschka
-auto commit
-
-Revision 1.31  2008/03/11 20:35:04  hjanuschka
-auto commit
-
-Revision 1.30  2007/07/27 22:54:04  hjanuschka
-int to long changing
-
-Revision 1.29  2007/02/15 16:25:32  hjanuschka
-auto commit
-
-Revision 1.28  2007/01/27 19:52:13  hjanuschka
-auto commit
-
-Revision 1.27  2007/01/14 21:43:38  hjanuschka
-auto commit
-
-Revision 1.26  2007/01/14 13:03:09  hjanuschka
-auto commit
-
-Revision 1.25  2007/01/05 01:49:00  hjanuschka
-auto commit
-
-Revision 1.24  2006/10/23 22:29:35  hjanuschka
-*** empty log message ***
-
-Revision 1.23  2006/10/05 23:19:37  hjanuschka
-auto commit
-
-Revision 1.22  2006/09/23 22:38:46  hjanuschka
-auto commit
-
-Revision 1.21  2006/08/07 18:40:10  hjanuschka
-auto commit
-
-Revision 1.20  2006/08/03 20:29:13  hjanuschka
-auto commit
-
-Revision 1.19  2006/07/18 21:38:23  hjanuschka
-core: a major BUG has been discoverd in the first production envorioments
-	 when a worker has only selected OK and CRITICAL notifications
-	 he always got notified about a change from (unselected) WARNING back to OK
-	 this had produce ALOT of unserious OK notifications
-	 -- 18-07-06 fixed :-)
-
-core: perfhandlers have been re-worked to only collect data
-
-Revision 1.18  2006/06/29 18:14:40  hjanuschka
-fixing trigger check typo
-
-Revision 1.17  2006/02/12 18:37:51  hjanuschka
-trigger fixes trigger logging refined
-datalib: mysql/ returns now the server version
-
-Revision 1.16  2006/02/10 23:54:46  hjanuschka
-SIRENE mode added
-
-Revision 1.15  2006/01/10 22:37:25  hjanuschka
-some changes
-	trigger msg comes out of cfgfile with some $VAR macros
-
-Revision 1.14  2005/11/27 02:04:42  hjanuschka
-setuid/setgid for security and web ui
-
-Revision 1.13  2005/10/13 22:13:14  hjanuschka
-logging improved, check fixup
-
-Revision 1.12  2005/10/03 20:48:19  hjanuschka
-*** empty log message ***
-
-Revision 1.11  2005/09/28 21:46:30  hjanuschka
-converted files to unix
-jabber.sh -> disabled core dumps -> jabblibs segfaults
-                                    will try to patch it later
-
-Revision 1.10  2005/09/27 19:39:00  hjanuschka
-trigger timeout
-agent local timeout
-
-Revision 1.9  2005/09/27 18:21:57  hjanuschka
-*** empty log message ***
-
-Revision 1.8  2005/09/25 16:31:05  hjanuschka
-trigger: can now be enabled/disabled per trigger in web ui
-ui: add/modify worker can now set and display workers selected
-datalib: api modifications for trigger enable/disable feature
-
-Revision 1.7  2005/09/25 15:24:22  hjanuschka
-icq.sh trigger for icq in combination with a running licq
-
-Revision 1.6  2005/09/25 13:30:18  hjanuschka
-cfg: jabber variables
-daemon: setenv BARTLBY_HOME (for triggers)
-sched: wait_open timeout
-mail.sh: sendmail trigger
-trigger: $1 == email
-$2 == icq
-$3 == name
-$4 == msg
-
-Revision 1.5  2005/09/11 09:20:58  hjanuschka
-logging issue ;-)
-ui now can display log in a nice layout ;-)
-
-Revision 1.4  2005/09/03 20:11:22  hjanuschka
-fixups
-
-added addworker, deleteworker, modifyworker, getworkerbyid
-
-Revision 1.3  2005/08/28 16:02:59  hjanuschka
-CVS Header
-
-
+$Revision$
+$HeadURL$
+$Date$
+$Author$ 
 */
 
 #include <stdio.h>

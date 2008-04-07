@@ -1,7 +1,9 @@
-/* $Id: event.c,v 1.5 2008/03/16 21:06:11 hjanuschka Exp $ */
+/* $Id: shmt.c,v 1.7 2008/03/03 12:01:27 hjanuschka Exp $ */
 /* ----------------------------------------------------------------------- *
  *
- *   Copyright 2005 Helmut Januschka - All Rights Reserved
+ *   Copyright 2005-2008 Helmut Januschka - All Rights Reserved
+ *   Contact: <helmut@januschka.com>, <contact@bartlby.org>
+ *
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -9,29 +11,13 @@
  *   USA; either version 2 of the License, or (at your option) any later
  *   version; incorporated herein by reference.
  *
+ *   visit: www.bartlby.org for support
  * ----------------------------------------------------------------------- */
 /*
-$Revision: 1.5 $
-$Source: /cvsroot/bartlby/bartlby-core/src/event.c,v $
-
-
-$Log: event.c,v $
-Revision 1.5  2008/03/16 21:06:11  hjanuschka
-auto commit
-
-Revision 1.4  2006/06/05 00:00:06  hjanuschka
-*** empty log message ***
-
-Revision 1.3  2006/05/06 23:32:02  hjanuschka
-*** empty log message ***
-
-Revision 1.2  2006/04/25 07:18:22  hjanuschka
-events now have a timestamp
-
-Revision 1.1  2006/04/24 22:20:00  hjanuschka
-core: event queue
-
-
+$Revision$
+$HeadURL$
+$Date$
+$Author$ 
 */
 
 #include <dlfcn.h>

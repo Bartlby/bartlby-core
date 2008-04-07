@@ -1,7 +1,9 @@
-/* $Id: downtime.c,v 1.1 2006/01/19 23:30:22 hjanuschka Exp $ */
+/* $Id: shmt.c,v 1.7 2008/03/03 12:01:27 hjanuschka Exp $ */
 /* ----------------------------------------------------------------------- *
  *
- *   Copyright 2005 Helmut Januschka - All Rights Reserved
+ *   Copyright 2005-2008 Helmut Januschka - All Rights Reserved
+ *   Contact: <helmut@januschka.com>, <contact@bartlby.org>
+ *
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -9,23 +11,13 @@
  *   USA; either version 2 of the License, or (at your option) any later
  *   version; incorporated herein by reference.
  *
+ *   visit: www.bartlby.org for support
  * ----------------------------------------------------------------------- */
 /*
-$Revision: 1.1 $
-$Source: /cvsroot/bartlby/bartlby-core/src/downtime.c,v $
-
-
-$Log: downtime.c,v $
-Revision 1.1  2006/01/19 23:30:22  hjanuschka
-introducing downtime's
-
-Revision 1.2  2006/01/16 20:51:41  hjanuschka
-performance stuff moved to perf.c
-timeing information on perf handler
-
-Revision 1.1  2005/12/29 20:05:55  hjanuschka
-core statistic (should be used in debug mode only produces a biiiig file)
-
+$Revision$
+$HeadURL$
+$Date$
+$Author$ 
 */
 #include <stdio.h>
 #include <stdlib.h>

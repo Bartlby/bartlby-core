@@ -1,7 +1,9 @@
-/* $Id: config.c,v 1.13 2008/03/17 19:04:43 hjanuschka Exp $ */
+/* $Id: shmt.c,v 1.7 2008/03/03 12:01:27 hjanuschka Exp $ */
 /* ----------------------------------------------------------------------- *
  *
- *   Copyright 2005 Helmut Januschka - All Rights Reserved
+ *   Copyright 2005-2008 Helmut Januschka - All Rights Reserved
+ *   Contact: <helmut@januschka.com>, <contact@bartlby.org>
+ *
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -9,61 +11,13 @@
  *   USA; either version 2 of the License, or (at your option) any later
  *   version; incorporated herein by reference.
  *
+ *   visit: www.bartlby.org for support
  * ----------------------------------------------------------------------- */
 /*
-$Revision: 1.13 $
-$Source: /cvsroot/bartlby/bartlby-core/src/config.c,v $
-
-
-$Log: config.c,v $
-Revision 1.13  2008/03/17 19:04:43  hjanuschka
-SF Feature issue #1916495 changed static key,value length of config cache to pre defined constant variables (config.c, bartlby.h) reported by Markus Elfring (elfring)
-
-Revision 1.12  2008/03/16 21:06:11  hjanuschka
-auto commit
-
-Revision 1.11  2007/02/15 16:25:32  hjanuschka
-auto commit
-
-Revision 1.10  2007/01/05 01:49:00  hjanuschka
-auto commit
-
-Revision 1.9  2006/06/05 21:06:06  hjanuschka
-*** empty log message ***
-
-Revision 1.8  2006/06/04 23:55:28  hjanuschka
-core: SSL_connect (timeout issue's solved , at least i hope :))
-core: when perfhandlers_enabled == false, you now can enable single services
-core: plugin_arguments supports $MACROS
-core: config variables try now to cache themselfe to minimize I/O activity
-core: .so extensions support added
-
-Revision 1.7  2005/09/28 21:46:30  hjanuschka
-converted files to unix
-jabber.sh -> disabled core dumps -> jabblibs segfaults
-                                    will try to patch it later
-
-Revision 1.6  2005/09/25 13:30:18  hjanuschka
-cfg: jabber variables
-daemon: setenv BARTLBY_HOME (for triggers)
-sched: wait_open timeout
-mail.sh: sendmail trigger
-trigger: $1 == email
-$2 == icq
-$3 == name
-$4 == msg
-
-Revision 1.5  2005/09/05 20:00:54  hjanuschka
-stupid configfile issue fixed
-
-Revision 1.4  2005/08/28 22:57:14  hjanuschka
-config.c: fixed fclose BUG (too many open files ) missing fclose
-service_active is now set by data_lib and acutally used by scheduler
-
-Revision 1.3  2005/08/28 16:02:59  hjanuschka
-CVS Header
-
-
+$Revision$
+$HeadURL$
+$Date$
+$Author$ 
 */
 
 #include <stdio.h>
