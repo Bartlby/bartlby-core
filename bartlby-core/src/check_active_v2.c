@@ -1,7 +1,9 @@
-/* $Id: check_active_v2.c,v 1.10 2008/03/30 16:09:34 hjanuschka Exp $ */
+/* $Id: shmt.c,v 1.7 2008/03/03 12:01:27 hjanuschka Exp $ */
 /* ----------------------------------------------------------------------- *
  *
- *   Copyright 2005 Helmut Januschka - All Rights Reserved
+ *   Copyright 2005-2008 Helmut Januschka - All Rights Reserved
+ *   Contact: <helmut@januschka.com>, <contact@bartlby.org>
+ *
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -9,44 +11,13 @@
  *   USA; either version 2 of the License, or (at your option) any later
  *   version; incorporated herein by reference.
  *
+ *   visit: www.bartlby.org for support
  * ----------------------------------------------------------------------- */
 /*
-based on Ethan gelstad's nrpe: http://nagios.cvs.sourceforge.net/nagios/nrpe/src/check_nrpe.c?view=log
-$Revision: 1.10 $
-$Source: /cvsroot/bartlby/bartlby-core/src/check_active_v2.c,v $
-
-
-$Log: check_active_v2.c,v $
-Revision 1.10  2008/03/30 16:09:34  hjanuschka
-fixed compile warnings on ubuntu710
-
-Revision 1.9  2008/03/16 21:06:11  hjanuschka
-auto commit
-
-Revision 1.8  2007/02/15 16:25:32  hjanuschka
-auto commit
-
-Revision 1.7  2006/12/20 21:28:56  hjanuschka
-performance on large
-
-Revision 1.6  2006/12/05 03:47:12  hjanuschka
-auto commit
-
-Revision 1.5  2006/11/28 21:37:25  hjanuschka
-auto commit
-
-Revision 1.3  2006/11/28 03:30:42  hjanuschka
-auto commit
-
-Revision 1.2  2006/11/27 21:16:28  hjanuschka
-auto commit
-
-Revision 1.1  2006/11/25 22:04:40  hjanuschka
-*** empty log message ***
-
-Revision 1.1  2006/11/25 00:54:23  hjanuschka
-auto commit
-
+$Revision$
+$HeadURL$
+$Date$
+$Author$ 
 */
 
 

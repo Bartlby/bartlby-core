@@ -1,7 +1,9 @@
-/* $Id: perf.c,v 1.11 2007/07/27 22:54:04 hjanuschka Exp $ */
+/* $Id: perf.c,v 1.11 2007/07/27 22:54:04 hjanuschka Exp $ *//* $Id: shmt.c,v 1.7 2008/03/03 12:01:27 hjanuschka Exp $ */
 /* ----------------------------------------------------------------------- *
  *
- *   Copyright 2005 Helmut Januschka - All Rights Reserved
+ *   Copyright 2005-2008 Helmut Januschka - All Rights Reserved
+ *   Contact: <helmut@januschka.com>, <contact@bartlby.org>
+ *
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -9,65 +11,13 @@
  *   USA; either version 2 of the License, or (at your option) any later
  *   version; incorporated herein by reference.
  *
+ *   visit: www.bartlby.org for support
  * ----------------------------------------------------------------------- */
 /*
-$Revision: 1.11 $
-$Source: /cvsroot/bartlby/bartlby-core/src/perf.c,v $
-
-
-$Log: perf.c,v $
-Revision 1.11  2007/07/27 22:54:04  hjanuschka
-int to long changing
-
-Revision 1.10  2006/12/05 03:47:12  hjanuschka
-auto commit
-
-Revision 1.9  2006/12/02 21:34:56  hjanuschka
-auto commit
-
-Revision 1.8  2006/09/09 19:38:34  hjanuschka
-auto commit
-
-Revision 1.7  2006/08/03 20:52:57  hjanuschka
-*** empty log message ***
-
-Revision 1.6  2006/06/04 23:55:28  hjanuschka
-core: SSL_connect (timeout issue's solved , at least i hope :))
-core: when perfhandlers_enabled == false, you now can enable single services
-core: plugin_arguments supports $MACROS
-core: config variables try now to cache themselfe to minimize I/O activity
-core: .so extensions support added
-
-Revision 1.5  2006/05/06 23:32:02  hjanuschka
-*** empty log message ***
-
-Revision 1.4  2006/04/23 18:07:43  hjanuschka
-core/ui/php: checks can now be forced
-ui: remote xml special_addon support
-core: svc perf MS
-core: round perf MS
-php: svcmap, get_service perf MS
-ui: perf MS
-
-Revision 1.3  2006/02/09 00:14:50  hjanuschka
-datalib: mysql/ catch failed logins
-core: fixed some setuid problems with datalib
-core: zero worker detected and logged
-core: network code re-worked, much faster and cleaner now
-core: encode/decode removed
-php: encode/decode removed
-ui: topology map manager added
-ui: nicer menu (flap)
-ui: server_detail (added)
-startup sh: pre-start check if logfile is writeable
-
-Revision 1.2  2006/01/16 20:51:41  hjanuschka
-performance stuff moved to perf.c
-timeing information on perf handler
-
-Revision 1.1  2005/12/29 20:05:55  hjanuschka
-core statistic (should be used in debug mode only produces a biiiig file)
-
+$Revision$
+$HeadURL$
+$Date$
+$Author$ 
 */
 
 #include <stdio.h>

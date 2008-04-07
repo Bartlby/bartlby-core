@@ -1,7 +1,9 @@
-/* $Id: shm.c,v 1.11 2007/07/27 22:54:04 hjanuschka Exp $ */
+/* $Id: shmt.c,v 1.7 2008/03/03 12:01:27 hjanuschka Exp $ */
 /* ----------------------------------------------------------------------- *
  *
- *   Copyright 2005 Helmut Januschka - All Rights Reserved
+ *   Copyright 2005-2008 Helmut Januschka - All Rights Reserved
+ *   Contact: <helmut@januschka.com>, <contact@bartlby.org>
+ *
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -9,43 +11,13 @@
  *   USA; either version 2 of the License, or (at your option) any later
  *   version; incorporated herein by reference.
  *
+ *   visit: www.bartlby.org for support
  * ----------------------------------------------------------------------- */
 /*
-$Revision: 1.11 $
-$Source: /cvsroot/bartlby/bartlby-core/src/shm.c,v $
-
-
-$Log: shm.c,v $
-Revision 1.11  2007/07/27 22:54:04  hjanuschka
-int to long changing
-
-Revision 1.10  2007/02/15 20:46:38  hjanuschka
-auto commit
-
-Revision 1.9  2007/01/29 04:04:04  hjanuschka
-auto commit
-
-Revision 1.8  2007/01/05 01:49:00  hjanuschka
-auto commit
-
-Revision 1.6  2006/10/05 23:19:37  hjanuschka
-auto commit
-
-Revision 1.5  2006/04/24 22:20:00  hjanuschka
-core: event queue
-
-Revision 1.4  2006/01/19 23:30:22  hjanuschka
-introducing downtime's
-
-Revision 1.3  2005/09/28 21:46:30  hjanuschka
-converted files to unix
-jabber.sh -> disabled core dumps -> jabblibs segfaults
-                                    will try to patch it later
-
-Revision 1.2  2005/08/28 16:02:59  hjanuschka
-CVS Header
-
-
+$Revision$
+$HeadURL$
+$Date$
+$Author$ 
 */
 
 #include <string.h>

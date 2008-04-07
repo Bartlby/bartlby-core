@@ -1,7 +1,9 @@
-/* $Id: bartlby.c,v 1.46 2008/03/17 19:04:43 hjanuschka Exp $ */
+/* $Id: shmt.c,v 1.7 2008/03/03 12:01:27 hjanuschka Exp $ */
 /* ----------------------------------------------------------------------- *
  *
- *   Copyright 2005 Helmut Januschka - All Rights Reserved
+ *   Copyright 2005-2008 Helmut Januschka - All Rights Reserved
+ *   Contact: <helmut@januschka.com>, <contact@bartlby.org>
+ *
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -9,168 +11,13 @@
  *   USA; either version 2 of the License, or (at your option) any later
  *   version; incorporated herein by reference.
  *
+ *   visit: www.bartlby.org for support
  * ----------------------------------------------------------------------- */
 /*
-$Revision: 1.46 $
-$Source: /cvsroot/bartlby/bartlby-core/src/bartlby.c,v $
-
-
-$Log: bartlby.c,v $
-Revision 1.46  2008/03/17 19:04:43  hjanuschka
-SF Feature issue #1916495 changed static key,value length of config cache to pre defined constant variables (config.c, bartlby.h) reported by Markus Elfring (elfring)
-
-Revision 1.43  2007/07/27 22:54:04  hjanuschka
-int to long changing
-
-Revision 1.42  2007/02/15 20:46:38  hjanuschka
-auto commit
-
-Revision 1.41  2007/02/15 16:25:32  hjanuschka
-auto commit
-
-Revision 1.40  2007/01/05 01:49:00  hjanuschka
-auto commit
-
-Revision 1.38  2006/11/28 03:30:42  hjanuschka
-auto commit
-
-Revision 1.37  2006/10/05 23:19:37  hjanuschka
-auto commit
-
-Revision 1.36  2006/09/09 19:38:34  hjanuschka
-auto commit
-
-Revision 1.35  2006/09/03 22:19:47  hjanuschka
-auto commit
-
-Revision 1.34  2006/08/03 20:29:13  hjanuschka
-auto commit
-
-Revision 1.33  2006/07/25 21:42:03  hjanuschka
-auto commit
-
-Revision 1.32  2006/06/04 23:55:28  hjanuschka
-core: SSL_connect (timeout issue's solved , at least i hope :))
-core: when perfhandlers_enabled == false, you now can enable single services
-core: plugin_arguments supports $MACROS
-core: config variables try now to cache themselfe to minimize I/O activity
-core: .so extensions support added
-
-Revision 1.31  2006/05/28 16:18:27  hjanuschka
-commit before release
-
-Revision 1.30  2006/05/24 19:18:35  hjanuschka
-version bump
-
-Revision 1.29  2006/05/21 21:18:10  hjanuschka
-commit before workweek
-
-Revision 1.28  2006/05/20 20:52:18  hjanuschka
-set core dump limit in deamon mode
-snmp minimal fixes
-announce if SNMP is compiled in on startup
-
-Revision 1.27  2006/04/24 22:20:00  hjanuschka
-core: event queue
-
-Revision 1.26  2006/04/23 18:07:43  hjanuschka
-core/ui/php: checks can now be forced
-ui: remote xml special_addon support
-core: svc perf MS
-core: round perf MS
-php: svcmap, get_service perf MS
-ui: perf MS
-
-Revision 1.25  2006/02/25 18:53:22  hjanuschka
-setuid too late, pid file was created by root
-makefile: copy mysql.shema to $BASEDIR
-
-Revision 1.24  2006/02/25 02:02:46  hjanuschka
-core: configure/ --with-user=
-core: configure/ install all files and directories with chown $BARTLBY_USER
-core: lib/mysql [worker|service|server]_by_id returns negative value if not found
-
-Revision 1.23  2006/02/10 23:54:46  hjanuschka
-SIRENE mode added
-
-Revision 1.22  2006/02/05 21:49:47  hjanuschka
-*** empty log message ***
-
-Revision 1.21  2006/01/19 23:30:22  hjanuschka
-introducing downtime's
-
-Revision 1.20  2006/01/09 23:53:10  hjanuschka
-minor changes
-
-Revision 1.19  2006/01/08 16:17:24  hjanuschka
-mysql shema^
-
-Revision 1.18  2005/12/13 23:17:53  hjanuschka
-setuid before creating shm segment
-
-Revision 1.17  2005/11/16 23:51:29  hjanuschka
-version bump 0.9.9a (Exusiai)
-replication tests minor fixes
-
-Revision 1.16  2005/10/25 20:36:32  hjanuschka
-startup time is'nt reset on cfg reload now
-
-Revision 1.15  2005/09/30 23:58:02  hjanuschka
-*** empty log message ***
-
-Revision 1.14  2005/09/28 21:46:30  hjanuschka
-converted files to unix
-jabber.sh -> disabled core dumps -> jabblibs segfaults
-                                    will try to patch it later
-
-Revision 1.13  2005/09/18 11:28:12  hjanuschka
-replication now works :-)
-core: can run as slave and load data from a file instead of data_lib
-ui: displays a warning if in slave mode to not add/modify servers/services
-portier: recieves and writes shm dump to disk
-so hot stand by should be possible ;-)
-slave also does service checking
-
-Revision 1.12  2005/09/18 05:05:43  hjanuschka
-compile warnings
-
-Revision 1.11  2005/09/18 04:04:52  hjanuschka
-replication interface (currently just a try out)
-one instance can now replicate itself to another using portier as a transport way
-FIXME: need to sort out a binary write() problem
-
-Revision 1.10  2005/09/13 19:43:31  hjanuschka
-human readable release code name REL_NAME
-fixed printf() in shutdown daemon *fg*
-
-Revision 1.9  2005/09/13 19:29:18  hjanuschka
-daemon: pidfile, remove pidfile at end
-mysql.c: fixed 2 segfaults under _MALLOC_CHECK=2
-
-Revision 1.8  2005/09/06 20:59:12  hjanuschka
-performance tests fixes addition's
-
-Revision 1.7  2005/09/05 19:53:12  hjanuschka
-2 day uptime without a single sigsegv ;-)
-added daemon function ;-)
-	new cfg vars daemon=[true|false], basedir, logfile
-
-Revision 1.6  2005/09/03 23:01:13  hjanuschka
-datalib api refined
-moved to version 0.9.7
-reload via SHM
-
-Revision 1.5  2005/09/03 20:11:22  hjanuschka
-fixups
-
-added addworker, deleteworker, modifyworker, getworkerbyid
-
-Revision 1.4  2005/08/28 18:00:22  hjanuschka
-data_lib api extended, service/add/delete/update
-
-Revision 1.3  2005/08/28 15:59:47  hjanuschka
-CVS header ;-)
-
+$Revision$
+$HeadURL$
+$Date$
+$Author$ 
 */
 
 

@@ -1,7 +1,9 @@
-/* $Id: portier.c,v 1.18 2008/03/28 05:19:53 hjanuschka Exp $ */
+/* $Id: shmt.c,v 1.7 2008/03/03 12:01:27 hjanuschka Exp $ */
 /* ----------------------------------------------------------------------- *
  *
- *   Copyright 2005 Helmut Januschka - All Rights Reserved
+ *   Copyright 2005-2008 Helmut Januschka - All Rights Reserved
+ *   Contact: <helmut@januschka.com>, <contact@bartlby.org>
+ *
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -9,110 +11,15 @@
  *   USA; either version 2 of the License, or (at your option) any later
  *   version; incorporated herein by reference.
  *
+ *   visit: www.bartlby.org for support
  * ----------------------------------------------------------------------- */
 /*
-$Revision: 1.18 $
-$Source: /cvsroot/bartlby/bartlby-core/src/tools/portier.c,v $
-
-
-$Log: portier.c,v $
-Revision 1.18  2008/03/28 05:19:53  hjanuschka
-core: portier installation in postinstall-pak
-
-Revision 1.17  2008/03/28 04:34:23  hjanuschka
-patches: nsca-patch updated for  1.3 series of bartlby
-core:	fixed a few compile warnings, happend on x86_64 debian
-core:	cleaner build output
-core:	install-counter, be a part of the community and show the others you are using bartlby
-
-Revision 1.16  2007/07/27 22:54:04  hjanuschka
-int to long changing
-
-Revision 1.15  2007/03/23 17:26:43  hjanuschka
-*** empty log message ***
-
-Revision 1.14  2007/03/22 01:09:21  hjanuschka
-auto commit
-
-Revision 1.13  2007/02/16 20:40:26  hjanuschka
-auto commit
-
-Revision 1.10  2007/02/15 16:25:32  hjanuschka
-auto commit
-
-Revision 1.9  2007/01/27 19:52:13  hjanuschka
-auto commit
-
-Revision 1.8  2007/01/27 00:37:53  hjanuschka
-auto commit
-
-Revision 1.7  2006/12/09 12:05:45  hjanuschka
-auto commit
-
-Revision 1.2  2006/08/08 00:09:58  hjanuschka
-auto commit
-
-Revision 1.1  2006/07/22 23:03:12  hjanuschka
-remove agent from the core  for portability reasons
-
-Revision 1.10  2006/04/23 18:07:43  hjanuschka
-core/ui/php: checks can now be forced
-ui: remote xml special_addon support
-core: svc perf MS
-core: round perf MS
-php: svcmap, get_service perf MS
-ui: perf MS
-
-Revision 1.9  2005/10/13 22:42:29  hjanuschka
-portier/cmd: get_services -> recieve a list of passive services
-
-Revision 1.8  2005/09/28 21:46:30  hjanuschka
-converted files to unix
-jabber.sh -> disabled core dumps -> jabblibs segfaults
-                                    will try to patch it later
-
-Revision 1.7  2005/09/18 11:28:12  hjanuschka
-replication now works :-)
-core: can run as slave and load data from a file instead of data_lib
-ui: displays a warning if in slave mode to not add/modify servers/services
-portier: recieves and writes shm dump to disk
-so hot stand by should be possible ;-)
-slave also does service checking
-
-Revision 1.6  2005/09/18 05:03:52  hjanuschka
-replication is false by default now
-need to fix the damn write()/read() -> while() sh**
-
-Revision 1.5  2005/09/18 04:04:52  hjanuschka
-replication interface (currently just a try out)
-one instance can now replicate itself to another using portier as a transport way
-FIXME: need to sort out a binary write() problem
-
-Revision 1.4  2005/09/13 22:11:52  hjanuschka
-ip_list moved to .cfg
-	allowed_ips
-load limit moved to cfg
-	agent_load_limit
-
-portier now also uses ip list to verify ip of connector
-
-portier: passive check without plg args fixed
-
-Revision 1.3  2005/09/09 19:23:37  hjanuschka
-portier: added get_passive cmd
-added a little dummy passive portier query tool (wich can set passive states and recieve passiv service info
-
-Revision 1.2  2005/09/07 22:36:56  hjanuschka
-portier: added err code -4 svc not found
-check: group check fixed , runnaway strtok :-)
-
-Revision 1.1  2005/09/07 21:52:25  hjanuschka
-portier import
-
-
-
-
+$Revision$
+$HeadURL$
+$Date$
+$Author$ 
 */
+
 #include <dlfcn.h>
 #include <time.h>
 #include <sys/time.h>

@@ -1,7 +1,9 @@
-/* $Id: check_active.c,v 1.5 2008/03/17 21:42:12 hjanuschka Exp $ */
+/* $Id: shmt.c,v 1.7 2008/03/03 12:01:27 hjanuschka Exp $ */
 /* ----------------------------------------------------------------------- *
  *
- *   Copyright 2005 Helmut Januschka - All Rights Reserved
+ *   Copyright 2005-2008 Helmut Januschka - All Rights Reserved
+ *   Contact: <helmut@januschka.com>, <contact@bartlby.org>
+ *
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -9,29 +11,13 @@
  *   USA; either version 2 of the License, or (at your option) any later
  *   version; incorporated herein by reference.
  *
+ *   visit: www.bartlby.org for support
  * ----------------------------------------------------------------------- */
 /*
-$Revision: 1.5 $
-$Source: /cvsroot/bartlby/bartlby-core/src/check_active.c,v $
-
-
-$Log: check_active.c,v $
-Revision 1.5  2008/03/17 21:42:12  hjanuschka
-missing errno.h in check_activ.c after some splint-down of a few unchecked syscalls
-
-Revision 1.4  2008/03/16 21:06:11  hjanuschka
-auto commit
-
-Revision 1.3  2007/02/15 16:25:32  hjanuschka
-auto commit
-
-Revision 1.2  2007/01/27 19:52:13  hjanuschka
-auto commit
-
-Revision 1.1  2006/11/25 01:16:00  hjanuschka
-auto commit
-
-
+$Revision$
+$HeadURL$
+$Date$
+$Author$ 
 */
 #include <stdio.h>
 #include <dlfcn.h>
