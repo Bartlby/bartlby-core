@@ -1,4 +1,4 @@
-/* $Id: shmt.c,v 1.7 2008/03/03 12:01:27 hjanuschka Exp $ */
+/* $Id$ */
 /* ----------------------------------------------------------------------- *
  *
  *   Copyright 2005-2008 Helmut Januschka - All Rights Reserved
