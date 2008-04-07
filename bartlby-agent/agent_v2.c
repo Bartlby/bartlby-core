@@ -1,7 +1,9 @@
-/* $Id: agent_v2.c,v 1.2 2008/03/28 11:01:14 hjanuschka Exp $ */
+/* $Id$ */
 /* ----------------------------------------------------------------------- *
  *
- *   Copyright 2005 Helmut Januschka - All Rights Reserved
+ *   Copyright 2005-2008 Helmut Januschka - All Rights Reserved
+ *   Contact: <helmut@januschka.com>, <contact@bartlby.org>
+ *
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -9,39 +11,13 @@
  *   USA; either version 2 of the License, or (at your option) any later
  *   version; incorporated herein by reference.
  *
+ *   visit: www.bartlby.org for support
  * ----------------------------------------------------------------------- */
 /*
-$Revision: 1.2 $
-$Source: /cvsroot/bartlby/bartlby-agent/agent_v2.c,v $
-
-
-$Log: agent_v2.c,v $
-Revision 1.2  2008/03/28 11:01:14  hjanuschka
-compile warnings without ssl fixed, and correct exit code in get_passive
-
-Revision 1.1  2006/12/27 19:08:50  hjanuschka
-*** empty log message ***
-
-Revision 1.9  2006/12/25 02:09:16  hjanuschka
-auto commit
-
-Revision 1.8  2006/12/09 02:08:24  hjanuschka
-auto commit
-
-Revision 1.7  2006/12/08 22:36:07  hjanuschka
-auto commit
-
-Revision 1.6  2006/11/27 21:16:54  hjanuschka
-auto commit
-
-Revision 1.5  2006/11/25 12:31:56  hjanuschka
-auto commit
-
-Revision 1.4  2006/11/25 01:16:18  hjanuschka
-auto commit
-
-
-
+$Revision$
+$HeadURL$
+$Date$
+$Author$ 
 */
 #include <malloc.h>
 #include <stdio.h>

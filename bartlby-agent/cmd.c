@@ -1,7 +1,9 @@
-/* $Id: cmd.c,v 1.7 2008/03/28 11:01:15 hjanuschka Exp $ */
+/* $Id$ */
 /* ----------------------------------------------------------------------- *
  *
- *   Copyright 2005 Helmut Januschka - All Rights Reserved
+ *   Copyright 2005-2008 Helmut Januschka - All Rights Reserved
+ *   Contact: <helmut@januschka.com>, <contact@bartlby.org>
+ *
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -9,63 +11,13 @@
  *   USA; either version 2 of the License, or (at your option) any later
  *   version; incorporated herein by reference.
  *
+ *   visit: www.bartlby.org for support
  * ----------------------------------------------------------------------- */
 /*
-$Revision: 1.7 $
-$Source: /cvsroot/bartlby/bartlby-agent/cmd.c,v $
-
-
-$Log: cmd.c,v $
-Revision 1.7  2008/03/28 11:01:15  hjanuschka
-compile warnings without ssl fixed, and correct exit code in get_passive
-
-Revision 1.6  2008/03/28 05:08:45  hjanuschka
-agent:	 compile warnings fixed
-passive: run.sh fixes (http://wiki.bartlby.org/dokuwiki/doku.php?id=start#passiveagentsetup)
-passive: HOWTO.passive and passive_run.sample added
-
-Revision 1.5  2008/03/16 21:06:29  hjanuschka
-auto commit
-
-Revision 1.4  2006/12/09 12:06:04  hjanuschka
-auto commit
-
-Revision 1.2  2006/08/08 00:10:30  hjanuschka
-auto commit
-
-Revision 1.1  2006/08/07 18:52:05  hjanuschka
-auto commit
-
-Revision 1.1  2006/07/22 23:03:11  hjanuschka
-remove agent from the core  for portability reasons
-
-Revision 1.6  2006/02/19 15:04:13  hjanuschka
-*** empty log message ***
-
-Revision 1.5  2005/10/13 22:42:29  hjanuschka
-portier/cmd: get_services -> recieve a list of passive services
-
-Revision 1.4  2005/09/28 21:46:30  hjanuschka
-converted files to unix
-jabber.sh -> disabled core dumps -> jabblibs segfaults
-                                    will try to patch it later
-
-Revision 1.3  2005/09/13 22:11:52  hjanuschka
-ip_list moved to .cfg
-	allowed_ips
-load limit moved to cfg
-	agent_load_limit
-
-portier now also uses ip list to verify ip of connector
-
-portier: passive check without plg args fixed
-
-Revision 1.2  2005/09/09 19:26:10  hjanuschka
-compile warnings fixed (cmd.c)
-
-Revision 1.1  2005/09/09 19:24:18  hjanuschka
-littel cmd tool for working with passive services
-
+$Revision$
+$HeadURL$
+$Date$
+$Author$ 
 */
 
 
