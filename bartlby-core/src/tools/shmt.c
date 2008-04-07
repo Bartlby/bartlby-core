@@ -11,34 +11,10 @@
  *
  * ----------------------------------------------------------------------- */
 /*
-$Revision: 1.7 $
+$Revision$
 $Source: /cvsroot/bartlby/bartlby-core/src/tools/shmt.c,v $
-
-
-$Log: shmt.c,v $
-Revision 1.7  2008/03/03 12:01:27  hjanuschka
-list all services
-
-Revision 1.6  2007/07/27 22:54:04  hjanuschka
-int to long changing
-
-Revision 1.5  2006/02/19 15:04:13  hjanuschka
-*** empty log message ***
-
-Revision 1.4  2005/09/28 21:46:30  hjanuschka
-converted files to unix
-jabber.sh -> disabled core dumps -> jabblibs segfaults
-                                    will try to patch it later
-
-Revision 1.3  2005/09/03 23:01:13  hjanuschka
-datalib api refined
-moved to version 0.9.7
-reload via SHM
-
-Revision 1.2  2005/08/28 16:02:59  hjanuschka
-CVS Header
-
-
+$Date$
+$Autor$
 */
 #include <stdio.h>
 #include <stdlib.h>
