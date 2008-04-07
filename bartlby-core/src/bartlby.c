@@ -301,13 +301,16 @@ void bartlby_shm_fits(char * cfgfile) {
 }
 
 int bartlby_populate_shm(char * cfgfile) {
-		
+		int shm_got_reused=0;
+
 		gshm_id = shmget(ftok(gShmtok, 32), gSHMSize,IPC_CREAT | IPC_EXCL | 0777);
 		
 		if(gshm_id < 0 && gReuseSHM == 1) {
 			_log("trying to reuse SHM");
 			gshm_id = shmget(ftok(gShmtok, 32), gSHMSize,IPC_CREAT | 0777);
+			shm_got_reused=1;
 		}
+		
 		
 		if(gshm_id != -1) {
 			gBartlby_address=shmat(gshm_id,NULL,0);
@@ -350,7 +353,7 @@ int bartlby_populate_shm(char * cfgfile) {
 			gshm_hdr->do_reload=0;
 			gshm_hdr->last_replication=-1;
 			//shm_hdr->startup_time=time(NULL);
-			if(gReuseSHM != 1) {
+			if(shm_got_reused != 1) {
 				gshm_hdr->startup_time=global_startup_time;
 			}
 			
