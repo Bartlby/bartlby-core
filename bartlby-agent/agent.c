@@ -1,7 +1,9 @@
-/* $Id: agent.c,v 1.11 2008/03/28 05:08:45 hjanuschka Exp $ */
+/* $Id$ */
 /* ----------------------------------------------------------------------- *
  *
- *   Copyright 2005 Helmut Januschka - All Rights Reserved
+ *   Copyright 2005-2008 Helmut Januschka - All Rights Reserved
+ *   Contact: <helmut@januschka.com>, <contact@bartlby.org>
+ *
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -9,117 +11,13 @@
  *   USA; either version 2 of the License, or (at your option) any later
  *   version; incorporated herein by reference.
  *
+ *   visit: www.bartlby.org for support
  * ----------------------------------------------------------------------- */
 /*
-$Revision: 1.11 $
-$Source: /cvsroot/bartlby/bartlby-agent/agent.c,v $
-
-
-$Log: agent.c,v $
-Revision 1.11  2008/03/28 05:08:45  hjanuschka
-agent:	 compile warnings fixed
-passive: run.sh fixes (http://wiki.bartlby.org/dokuwiki/doku.php?id=start#passiveagentsetup)
-passive: HOWTO.passive and passive_run.sample added
-
-Revision 1.10  2006/12/27 19:08:50  hjanuschka
-*** empty log message ***
-
-Revision 1.1  2006/11/25 00:54:46  hjanuschka
-auto commit
-
-Revision 1.2  2006/08/19 00:06:47  hjanuschka
-agent: loadLimit protocoll error!!
-
-Revision 1.1.1.1  2006/07/22 23:27:49  hjanuschka
-initial stand alone agent
-
-Revision 1.22  2006/05/12 23:38:02  hjanuschka
-*** empty log message ***
-
-Revision 1.21  2006/02/12 00:15:34  hjanuschka
-Makefile.conf added
-Local checks implemented
-minor active check fixes and clean ups for re-use with local checks
-
-Revision 1.20  2006/02/10 23:54:46  hjanuschka
-SIRENE mode added
-
-Revision 1.19  2006/02/09 00:14:50  hjanuschka
-datalib: mysql/ catch failed logins
-core: fixed some setuid problems with datalib
-core: zero worker detected and logged
-core: network code re-worked, much faster and cleaner now
-core: encode/decode removed
-php: encode/decode removed
-ui: topology map manager added
-ui: nicer menu (flap)
-ui: server_detail (added)
-startup sh: pre-start check if logfile is writeable
-
-Revision 1.18  2006/01/29 15:53:05  hjanuschka
-server icon
-
-Revision 1.17  2006/01/08 23:20:41  hjanuschka
-install target
-
-Revision 1.16  2006/01/08 16:17:24  hjanuschka
-mysql shema^
-
-Revision 1.15  2005/12/31 00:29:44  hjanuschka
-some more perf fixes during high load test
-
-Revision 1.14  2005/12/25 23:01:16  hjanuschka
-stress testing with RRD
-perf fixes
-
-Revision 1.13  2005/12/24 17:53:41  hjanuschka
-performance interface i.e: for adding RRD tools or something like that
-
-Revision 1.12  2005/10/09 14:44:09  hjanuschka
-agent announces OS and version
-
-Revision 1.11  2005/09/28 21:46:30  hjanuschka
-converted files to unix
-jabber.sh -> disabled core dumps -> jabblibs segfaults
-                                    will try to patch it later
-
-Revision 1.10  2005/09/27 19:39:01  hjanuschka
-trigger timeout
-agent local timeout
-
-Revision 1.9  2005/09/22 02:55:03  hjanuschka
-agent: def timeout 15
-check: strreplace ' "
-
-Revision 1.8  2005/09/18 04:04:52  hjanuschka
-replication interface (currently just a try out)
-one instance can now replicate itself to another using portier as a transport way
-FIXME: need to sort out a binary write() problem
-
-Revision 1.7  2005/09/14 22:01:41  hjanuschka
-debug in data_lib added and removed
-agent: off by two :-) *fG* malloc error producing magic char's  (fixed)
-
-Revision 1.6  2005/09/13 22:11:52  hjanuschka
-ip_list moved to .cfg
-	allowed_ips
-load limit moved to cfg
-	agent_load_limit
-
-portier now also uses ip list to verify ip of connector
-
-portier: passive check without plg args fixed
-
-Revision 1.5  2005/09/02 02:16:57  hjanuschka
-some trap downs ;-)
-
-Revision 1.4  2005/08/30 20:13:17  hjanuschka
-fixed pclose() wrong exit code in agent
-
-Revision 1.3  2005/08/28 16:02:59  hjanuschka
-CVS Header
-
-
+$Revision$
+$HeadURL$
+$Date$
+$Author$ 
 */
 #include <malloc.h>
 #include <stdio.h>
