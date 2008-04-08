@@ -1,5 +1,6 @@
 <?
 	include "config.php";
+
 	include "layout.class.php";
 	include "bartlby-ui.class.php";
 	
