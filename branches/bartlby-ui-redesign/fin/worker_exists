@@ -1,0 +1,1 @@
+<font size="2"><span style="font-family: Tahoma; font-weight: bold;">Worker exists<br /></span><span style="font-family: Tahoma;">Name: $_GET[worker_name]<br /><span style="font-weight: bold;"><br /></span></span></font>

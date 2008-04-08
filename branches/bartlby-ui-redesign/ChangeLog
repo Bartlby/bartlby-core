@@ -1,0 +1,1572 @@
+2008-02-28 13:13  hjanuschka
+
+	* extensions/OcL/: OcL.class.php, add.php, csv.php, index.php,
+	  modify.php, ocl_shell.sh, save.php: auto commit
+
+2008-01-24 15:10  hjanuschka
+
+	* bartlby-ui.class.php: auto commit
+
+2008-01-03 18:44  hjanuschka
+
+	* xajax.common.php, xajax_dispatcher.php: auto commit
+
+2007-04-24 21:25  hjanuschka
+
+	* bartlby-ui.class.php, create_report.php, print_report.php,
+	  report.php, template.html: auto commit
+
+2007-04-01 18:06  hjanuschka
+
+	* bartlby-ui.class.php, bartlby_action.php, layout.class.php,
+	  logview.php, modify_service.php, print_report.php, report.php,
+	  template.html, xajax_dispatcher.php,
+	  extensions/Basket/Basket.class.php, images/agent_syncer.gif,
+	  rights/admin.dat, server_icons/vista.gif: auto commit
+
+2007-03-27 17:42  hjanuschka
+
+	* cli.php: auto commit
+
+2007-03-22 02:10  hjanuschka
+
+	* bartlby_action.php, cli.php, modify_worker.php, template.html,
+	  fin/delete_service: auto commit
+
+2007-02-15 21:46  hjanuschka
+
+	* service_detail.php: auto commit
+
+2007-02-06 18:17  hjanuschka
+
+	* extensions/AgentSyncer/status.php: [no log message]
+
+2007-02-02 21:56  hjanuschka
+
+	* report.php: auto commit
+
+2007-01-29 17:07  hjanuschka
+
+	* bartlby-ui.class.php: auto commit
+
+2007-01-29 16:51  hjanuschka
+
+	* bartlby-ui.class.php: auto commit
+
+2007-01-29 05:20  hjanuschka
+
+	* bartlby-ui.class.php: auto commit
+
+2007-01-29 05:04  hjanuschka
+
+	* bartlby-ui.class.php, bartlby_action.php, modify_server.php,
+	  server_detail.php, service_detail.php, xajax.common.php,
+	  xajax_dispatcher.php, extensions/AgentSyncer/sync.php,
+	  extensions/BnR/do_restore.php: auto commit
+
+2007-01-27 20:52  hjanuschka
+
+	* bartlby-ui.class.php, bartlby_action.php, modify_worker.php: auto
+	  commit
+
+2007-01-27 00:20  hjanuschka
+
+	* bartlby-ui.class.php, bartlby_action.php, modify_service.php,
+	  service_detail.php, xajax_dispatcher.php,
+	  extensions/AgentSyncer/sync.php,
+	  extensions/ServerGroups/ServerGroups.class.php, fin/add_service,
+	  fin/service_1, fin/service_2, fin/service_3, fin/service_4,
+	  fin/service_5, fin/service_6, fin/service_7, fin/service_8,
+	  fin/service_9, pkgs/default-pkg: auto commit
+
+2007-01-14 14:03  hjanuschka
+
+	* bartlby-ui.class.php, report.php, extensions/ArS.disabled,
+	  extensions/SMS/SMS.class.php: auto commit
+
+2007-01-05 02:49  hjanuschka
+
+	* bartlby-ui.class.php, bartlby_action.php, cli.php,
+	  modify_worker.php, permission_worker.php, rights/admin.dat,
+	  rights/template.dat: auto commit
+
+2006-12-27 20:05  hjanuschka
+
+	* modify_service.php, service_detail.php, services.php: auto commit
+
+2006-12-25 03:09  hjanuschka
+
+	* report.php, services.php: auto commit
+
+2006-12-10 17:38  hjanuschka
+
+	* store/SMS/1: [no log message]
+
+2006-12-10 16:56  hjanuschka
+
+	* bandwidth.php, template.html, version.php: versioning
+
+2006-12-09 02:25  hjanuschka
+
+	* extensions/AgentSyncer/getplugin.php: auto commit
+
+2006-12-05 04:47  hjanuschka
+
+	* overview.php: auto commit
+
+2006-12-04 18:32  hjanuschka
+
+	* xajax_dispatcher.php: [no log message]
+
+2006-12-02 22:35  hjanuschka
+
+	* bartlby-ui.class.php, bartlby_action.php, template.html,
+	  xajax.common.php, xajax_dispatcher.php,
+	  extensions/Basket.disabled, extensions/Basket/Basket.class.php:
+	  auto commit
+
+2006-12-01 00:59  hjanuschka
+
+	* extensions/AutoDiscoverAddons/AutoDiscoverAddons.class.php: [no
+	  log message]
+
+2006-12-01 00:54  hjanuschka
+
+	* add_downtime.php, bartlby-ui.class.php, create_report.php,
+	  modify_downtime.php, package_create.php, server_list.php,
+	  service_list.php, template.html, user_list.php, xajax.common.php,
+	  xajax_dispatcher.php, extensions/AgentSyncer/bartlby.cfg.default,
+	  extensions/BnR/BnR.class.php, extensions/BnR/backup.php,
+	  extensions/ServerGroups/manage.php: [no log message]
+
+2006-11-30 22:51  hjanuschka
+
+	* ajax_plugin_search.php, ajax_quick_look.php,
+	  ajax_server_search.php, ajax_service_search.php,
+	  ajax_worker_search.php, bartlby-ui.class.php, bartlby_action.php,
+	  formchecker.php, layout.class.php, modify_server.php,
+	  modify_service.php, modify_worker.php, server_list.php,
+	  service_detail.php, service_list.php, template.html,
+	  user_list.php, xajax.common.php, xajax_dispatcher.php, xml.php,
+	  extensions/AutoDiscoverAddons/AutoDiscoverAddons.class.php,
+	  extensions/PluginArgumentQuickLook/PluginArgumentQuickLook.class.php,
+	  images/ajax_search.js: [no log message]
+
+2006-11-30 17:37  hjanuschka
+
+	* fin/service_9: [no log message]
+
+2006-11-28 22:37  hjanuschka
+
+	* service_detail.php: auto commit
+
+2006-11-28 19:51  hjanuschka
+
+	* service_detail.php: auto commit
+
+2006-11-27 22:16  hjanuschka
+
+	* modify_service.php, service_detail.php: auto commit
+
+2006-11-26 23:45  hjanuschka
+
+	* overview.php, template.html, images/ajax_search.js: display avg
+	  check delay on overview.php
+
+2006-11-26 21:52  hjanuschka
+
+	* service_detail.php: auto commit
+
+2006-11-26 05:18  hjanuschka
+
+	* index.php: auto commit
+
+2006-11-26 05:10  hjanuschka
+
+	* formchecker.php, modify_server.php, modify_worker.php: xajax
+
+2006-11-26 04:45  hjanuschka
+
+	* config.php, extensions_wrap.php, formchecker.php,
+	  layout.class.php, modify_service.php, xajax/LICENSE.txt,
+	  xajax/README.txt, xajax/xajax.inc.php, xajax/xajaxCompress.php,
+	  xajax/xajaxResponse.inc.php, xajax/tests/HTTPStatusTest.php,
+	  xajax/tests/catchAllFunctionTest.php,
+	  xajax/tests/changeEventTest.php,
+	  xajax/tests/charEncodingTest.php, xajax/tests/confirmTest.php,
+	  xajax/tests/createFormInputTest.php,
+	  xajax/tests/customResponseClassTest.php,
+	  xajax/tests/disabledFormElementsTest.php,
+	  xajax/tests/errorHandlingTest.php,
+	  xajax/tests/eventHandlerTest.php,
+	  xajax/tests/formSubmissionTest.php,
+	  xajax/tests/includeExternalScriptTest.php, xajax/tests/index.php,
+	  xajax/tests/largeResponseTest.php,
+	  xajax/tests/myExternalFunction.php,
+	  xajax/tests/phpWhitespaceTest.php,
+	  xajax/tests/preFunctionTest.php, xajax/tests/redirectTest.php,
+	  xajax/tests/registerExternalFunctionTest.php,
+	  xajax/tests/scriptCallTest.php,
+	  xajax/tests/searchReplaceTest.php,
+	  xajax/tests/xajaxResponseTest.php, xajax/xajax_js/xajax.js,
+	  xajax/xajax_js/xajax_uncompressed.js: xajax framework added new
+	  ajax stuff will be based on it and hopefully old quicklook
+	  plugin/server search will also move over *fg*
+
+2006-11-25 23:01  hjanuschka
+
+	* layout.class.php: auto commit
+
+2006-11-25 13:31  hjanuschka
+
+	* bartlby-ui.class.php, layout.class.php, service_detail.php: auto
+	  commit
+
+2006-11-25 02:34  hjanuschka
+
+	* modify_service.php, pkgs/default-pkg: auto commit
+
+2006-11-25 02:16  hjanuschka
+
+	* modify_service.php: auto commit
+
+2006-11-25 01:54  hjanuschka
+
+	* modify_service.php, service_detail.php, fin/service_8: auto
+	  commit
+
+2006-11-20 12:58  hjanuschka
+
+	* services.php: legend update
+
+2006-11-17 20:24  hjanuschka
+
+	* ajax_quick_look.php, bartlby-ui.class.php, config.php,
+	  layout.class.php, modify_service.php, service_detail.php,
+	  statistic.php, view_comments.php, extensions/SMS/SMS.class.php:
+	  [no log message]
+
+2006-11-16 22:58  hjanuschka
+
+	* extensions/SMS.disabled: SMS is disabled by default
+
+2006-11-16 21:57  hjanuschka
+
+	* add_downtime.php, modify_downtime.php,
+	  extensions/SMS/SMS.class.php: auto commit
+
+2006-11-15 23:53  hjanuschka
+
+	* event_queue.php, report.php, statistic.php: auto commit
+
+2006-11-15 23:38  hjanuschka
+
+	* bartlbystorage.class.php, setup.php,
+	  extensions/SMS/SMS.class.php: auto commit
+
+2006-11-15 22:58  hjanuschka
+
+	* bartlbystorage.class.php, extensions/SMS/SMS.class.php: [no log
+	  message]
+
+2006-11-14 10:40  hjanuschka
+
+	* extensions/AutoDiscoverAddons/AutoDiscoverAddons.class.php: auto
+	  commit
+
+2006-11-13 17:59  hjanuschka
+
+	* cli.php: auto commit
+
+2006-11-08 00:49  hjanuschka
+
+	* bartlby-ui.class.php, permission_worker.php, service_detail.php,
+	  extensions/AutoDiscoverAddons/AutoDiscoverAddons.class.php,
+	  rights/template.dat: auto commit
+
+2006-11-05 21:33  hjanuschka
+
+	* extensions.php,
+	  extensions/AutoDiscoverAddons/AutoDiscoverAddons.class.php,
+	  extensions/AutoDiscoverAddons/ajax-loader.gif: auto commit
+
+2006-10-23 23:15  hjanuschka
+
+	* bartlby-ui.class.php, images/ajax_search.js: fixed quick look
+	  runaway chars ;)
+
+2006-10-22 21:49  hjanuschka
+
+	* cli.php, ChangeLog: auto commit
+
+2006-10-22 12:27  hjanuschka
+
+	* cli.php: improved reload handling added help screen changed
+	  colors ;)
+
+2006-10-22 02:11  hjanuschka
+
+	* cli.php: major enhancments in cli.php
+
+	  scroll refined service detail force check enable/disable
+	  notify/check
+
+2006-10-21 18:59  hjanuschka
+
+	* cli.php: service detail
+
+2006-10-21 04:21  hjanuschka
+
+	* cli.php: fixed a formating fault in server name scroll should be
+	  fixed on large setups downtimes can be shown/hidden
+
+2006-10-06 03:16  hjanuschka
+
+	* index.php, template.html: auto commit
+
+2006-10-06 03:10  hjanuschka
+
+	* template.html: auto commit
+
+2006-10-06 03:07  hjanuschka
+
+	* bartlby-ui.class.php: auto commit
+
+2006-10-06 03:04  hjanuschka
+
+	* bartlby-ui.class.php, error.php, index.php, logout.php,
+	  fin/BARTLBY_LOGIN, login.php: auto commit
+
+2006-10-06 02:35  hjanuschka
+
+	* services.php: auto commit
+
+2006-10-06 01:19  hjanuschka
+
+	* bartlby-ui.class.php, bartlby_action.php, modify_server.php,
+	  server_detail.php, service_detail.php,
+	  extensions/AgentSyncer/sync.php, extensions/BnR/do_restore.php,
+	  fin/disable_notify_server, fin/disable_server,
+	  fin/enable_notify_server, fin/enable_server: auto commit
+
+2006-10-04 16:07  hjanuschka
+
+	* report.php: fixed a bug with wrong state display in "output:"
+
+2006-09-28 21:56  hjanuschka
+
+	* bartlby-ui.class.php: auto commit
+
+2006-09-28 19:22  hjanuschka
+
+	* bartlby-ui.class.php, logview.php: auto commit
+
+2006-09-25 02:28  hjanuschka
+
+	* bartlby-ui.class.php, bartlby_action.php: auto commit
+
+2006-09-24 21:06  hjanuschka
+
+	* extensions/DokuWiki/: DokuWiki.class.php, config.ini: auto commit
+
+2006-09-24 02:51  hjanuschka
+
+	* extensions/: DokuWiki.disabled, DokuWiki/DokuWiki.class.php,
+	  DokuWiki/config.ini: Dokuwiki
+
+2006-09-24 00:45  hjanuschka
+
+	* bartlby-ui.class.php, pkgs/default-pkg: auto commit
+
+2006-09-24 00:38  hjanuschka
+
+	* bartlby-ui.class.php, bartlby_action.php, config.php,
+	  modify_service.php, modify_worker.php, service_detail.php,
+	  ui-extra.conf, extensions/AgentSyncer/sync.php,
+	  extensions/BnR/do_restore.php: auto commit
+
+2006-09-12 00:21  hjanuschka
+
+	* extensions/ServerGroups/ServerGroups.class.php: auto commit
+
+2006-09-11 23:59  hjanuschka
+
+	* template.html: auto commit
+
+2006-09-10 23:28  hjanuschka
+
+	* ChangeLog, bandwidth.php, layout.class.php, template.html: auto
+	  commit
+
+2006-09-10 03:24  hjanuschka
+
+	* ChangeLog: auto commit
+
+2006-09-09 21:38  hjanuschka
+
+	* ChangeLog: auto commit
+
+2006-09-04 00:19  hjanuschka
+
+	* logview.php, service_detail.php: auto commit
+
+2006-08-28 23:37  hjanuschka
+
+	* extensions/AgentSyncer/: AgentSyncer.class.php,
+	  bartlby.cfg.default, sync.php, store/1: auto commit
+
+2006-08-28 00:12  hjanuschka
+
+	* bartlby-ui.class.php,
+	  extensions/AgentSyncer/AgentSyncer.class.php: auto commit
+
+2006-08-27 20:29  hjanuschka
+
+	* template.html, extensions/AgentSyncer/AgentSyncer.class.php,
+	  extensions/AgentSyncer/bartlby.cfg.default,
+	  extensions/AgentSyncer/edit_cfg.php,
+	  extensions/AgentSyncer/getcfg.php,
+	  extensions/AgentSyncer/getplugin.php,
+	  extensions/AgentSyncer/save_cfg.php,
+	  extensions/AgentSyncer/sync.php,
+	  extensions/AgentSyncer/view_binarys.php,
+	  extensions/BnR/backup.php, extensions/BnR/do_backup.php,
+	  extensions/BnR/do_restore.php, extensions/BnR/restore.php,
+	  extensions/ServerGroups/ServerGroups.class.php,
+	  bartlby-ui.class.php: auto commit
+
+2006-08-27 03:25  hjanuschka
+
+	* ajax_plugin_search.php, logview.php,
+	  extensions/AgentSyncer/AgentSyncer.class.php,
+	  images/agent_syncer.gif: [no log message]
+
+2006-08-26 23:45  hjanuschka
+
+	* extensions/AgentSyncer/sync.php: [no log message]
+
+2006-08-26 02:19  hjanuschka
+
+	* extensions/AgentSyncer/: bartlby.cfg.default, sync.php: auto
+	  commit
+
+2006-08-26 01:02  hjanuschka
+
+	* ui-extra.conf, extensions/AgentSyncer/AgentSyncer.class.php,
+	  extensions/AgentSyncer/getcfg.php,
+	  extensions/AgentSyncer/getplugin.php,
+	  extensions/AgentSyncer/sync.php: auto commit
+
+2006-08-25 22:10  hjanuschka
+
+	* logview.php, template.html, extensions/automated.php,
+	  extensions/ServerGroups/ServerGroups.class.php: auto commit
+
+2006-08-24 22:04  hjanuschka
+
+	* ChangeLog: auto commit
+
+2006-08-20 21:52  hjanuschka
+
+	* ChangeLog, overview.php, server_detail.php, service_detail.php,
+	  statistic.php: auto commit
+
+2006-08-15 21:24  hjanuschka
+
+	* ChangeLog: auto commit
+
+2006-08-15 00:43  hjanuschka
+
+	* ChangeLog, overview.php: auto commit
+
+2006-08-15 00:02  hjanuschka
+
+	* ChangeLog, bartlby-ui.class.php, overview.php, services.php,
+	  extensions/ServerGroups/ServerGroups.class.php,
+	  extensions/ServerGroups/groupview.php: auto commit
+
+2006-08-14 01:05  hjanuschka
+
+	* ChangeLog: auto commit
+
+2006-08-12 20:00  hjanuschka
+
+	* ChangeLog, bartlby_action.php: auto commit
+
+2006-08-12 19:44  hjanuschka
+
+	* ChangeLog, bartlby-ui.class.php, bartlby_action.php,
+	  service_detail.php, ui-extra.conf, fin/service_1, fin/service_2,
+	  fin/service_3, fin/service_4, fin/service_5, fin/service_6,
+	  fin/service_7: auto commit
+
+2006-08-10 22:04  hjanuschka
+
+	* ChangeLog: auto commit
+
+2006-08-09 22:31  hjanuschka
+
+	* ChangeLog, bartlby-ui.class.php,
+	  extensions/ServerGroups/ServerGroups.class.php: auto commit
+
+2006-08-09 21:48  hjanuschka
+
+	* ChangeLog: auto commit
+
+2006-08-08 02:34  hjanuschka
+
+	* ChangeLog: auto commit
+
+2006-08-08 02:10  hjanuschka
+
+	* ChangeLog, service_detail.php: auto commit
+
+2006-08-07 20:51  hjanuschka
+
+	* ChangeLog: auto commit
+
+2006-08-07 20:40  hjanuschka
+
+	* ChangeLog, bartlby_action.php, modify_service.php: auto commit
+
+2006-08-07 00:30  hjanuschka
+
+	* ChangeLog: auto commit
+
+2006-08-07 00:22  hjanuschka
+
+	* ChangeLog: auto commit
+
+2006-08-06 03:17  hjanuschka
+
+	* config.php: auto commit
+
+2006-08-05 23:19  hjanuschka
+
+	* bartlby-ui.class.php: auto commit
+
+2006-08-05 01:16  hjanuschka
+
+	* bartlby-ui.class.php, bartlby_action.php, layout.class.php,
+	  logview.php, modify_server.php, modify_service.php,
+	  modify_worker.php, template.html, ui-extra.conf,
+	  extensions/ServerGroups/ServerGroups.class.php,
+	  extensions/ServerGroups/delete_group.gif,
+	  extensions/ServerGroups/group_member.gif,
+	  extensions/ServerGroups/new_group.gif,
+	  extensions/ServerGroups/view_all.gif, fin/save_permissions,
+	  images/btl.css, images/create_report.gif, images/edit-copy.gif:
+	  auto commit
+
+2006-08-03 22:29  hjanuschka
+
+	* bartlby_action.php, logview.php, permission_worker.php,
+	  fin/worker_exists, rights/template.dat: auto commit
+
+2006-08-03 02:35  hjanuschka
+
+	* bartlby-ui.class.php: auto commit
+
+2006-08-03 02:08  hjanuschka
+
+	* bartlby-ui.class.php, bartlby_action.php, logview.php,
+	  modify_worker.php, permission_worker.php, server_detail.php,
+	  service_detail.php, template.html,
+	  extensions/AutoDiscoverAddons/AutoDiscoverAddons.class.php,
+	  extensions/BnR/BnR.class.php, extensions/BnR/backup.php,
+	  extensions/BnR/do_backup.php, extensions/BnR/do_restore.php,
+	  extensions/BnR/restore.php,
+	  extensions/ServerGroups/ServerGroups.class.php,
+	  extensions/ServerGroups/delete.php,
+	  extensions/ServerGroups/edit.php,
+	  extensions/ServerGroups/save.php, rights/admin.dat,
+	  rights/template.dat: auto commit
+
+2006-08-02 23:44  hjanuschka
+
+	* setup.php, rights/admin.dat: default admin file
+
+2006-08-02 23:42  hjanuschka
+
+	* add_downtime.php, bartlby-ui.class.php, bartlby_action.php,
+	  choose_config.php, config.php, create_report.php,
+	  delete_downtime.php, delete_server.php, delete_service.php,
+	  delete_worker.php, edit_config.php, event_queue.php,
+	  event_stream.php, install_pkg.php, logview.php,
+	  modify_downtime.php, modify_server.php, modify_service.php,
+	  modify_worker.php, overview.php, package_create.php,
+	  package_delete.php, report.php, services.php, setup.php,
+	  statistic.php, template.html, ui-extra.conf, user_list.php,
+	  fin/BARTLBY_RIGHT_MISSING, rights/admin.dat, rights/template.dat:
+	  auto commit
+
+2006-08-01 00:19  hjanuschka
+
+	* modify_worker.php,
+	  extensions/Bartlby_Inventory/Bartlby_Inventory.class.php,
+	  extensions/BnR/do_backup.php, extensions/BnR/do_restore.php,
+	  extensions/ServerGroups/ServerGroups.class.php: auto commit
+
+2006-07-31 00:57  hjanuschka
+
+	* extensions/BnR/store/1: [no log message]
+
+2006-07-31 00:47  hjanuschka
+
+	* ChangeLog, bartlby-ui.class.php, bartlby_action.php,
+	  layout.class.php, ui-extra.conf,
+	  extensions/Bartlby_Inventory.disabled, extensions/BnR.disabled,
+	  extensions/Bartlby_Inventory/Bartlby_Inventory.class.php,
+	  extensions/BnR/BnR.class.php, extensions/BnR/backup.php,
+	  extensions/BnR/do_backup.php, extensions/BnR/do_restore.php,
+	  extensions/BnR/restore.php,
+	  extensions/ServerGroups/ServerGroups.class.php,
+	  extensions/ServerGroups/delete_group.gif,
+	  extensions/ServerGroups/delete_group.png,
+	  extensions/ServerGroups/edit.php,
+	  extensions/ServerGroups/group_member.gif,
+	  extensions/ServerGroups/group_member.png,
+	  extensions/ServerGroups/manage.php,
+	  extensions/ServerGroups/new_group.gif,
+	  extensions/ServerGroups/new_group.png,
+	  extensions/ServerGroups/view_all.gif,
+	  extensions/ServerGroups/view_all.png, images/create_report.gif,
+	  images/create_report.png, images/edit-copy.gif,
+	  images/edit-copy.png: auto commit
+
+2006-07-28 23:17  hjanuschka
+
+	* modify_service.php: auto commit
+
+2006-07-23 22:34  hjanuschka
+
+	* bartlby-ui.class.php, extensions.php, layout.class.php,
+	  overview.php: [no log message]
+
+2006-07-23 04:09  hjanuschka
+
+	* ChangeLog, extensions.php: [no log message]
+
+2006-07-20 22:53  hjanuschka
+
+	* bartlby-ui.class.php: ui version bump
+
+2006-07-20 22:52  hjanuschka
+
+	* bartlby-ui.class.php, fin/perfhandler_graph: perfhandler file
+	  missing graph icon is now only available if perf handler exists
+
+2006-07-19 00:06  hjanuschka
+
+	* bartlby_action.php: some env vars missing in perf handler
+	  graphing
+
+2006-07-18 23:53  hjanuschka
+
+	* bartlby_action.php, modify_service.php: ui: modify_service,
+	  service gets disabled until saving is done, REMEMBER to hit save
+	  or objects may remain disabled unwanted
+
+2006-07-18 23:39  hjanuschka
+
+	* bartlby-ui.class.php, bartlby_action.php, modify_service.php: ui:
+	  as the result of performance issue on big system with CHEAP
+	  hardware :-)	   perfhandlers are now only collecting data in the
+	  core	   if you want to see a graph, you know have button in the
+	  UI, because all the graph processes burned the CPU
+
+2006-07-16 23:31  hjanuschka
+
+	* layout.class.php,
+	  extensions/AutoDiscoverAddons/AutoDiscoverAddons.class.php,
+	  extensions/PluginArgumentQuickLook/PluginArgumentQuickLook.class.php:
+	  Extension's: AutoDiscoverAddons, PluginArgumentQuickLook
+
+2006-07-15 21:14  hjanuschka
+
+	* ajax_quick_look.php, bartlby-ui.class.php, create_report.php,
+	  template.html, extensions/ServerGroups/ServerGroups.class.php,
+	  images/ajax_search.js, images/btl.css, images/create_report.png:
+	  [no log message]
+
+2006-07-15 16:03  hjanuschka
+
+	* ajax_quick_look.php, bartlby-ui.class.php, bartlby_action.php,
+	  logview.php, modify_service.php, services.php, template.html,
+	  extensions/ServerGroups/ServerGroups.class.php,
+	  extensions/ServerGroups/group_member.png,
+	  extensions/ServerGroups/overview.php, images/ajax_search.js,
+	  images/btl.css: add modify service
+
+2006-07-15 04:40  hjanuschka
+
+	* extensions/ServerGroups/ServerGroups.class.php: typo in
+	  ServerGroups.class.php
+
+2006-07-15 04:38  hjanuschka
+
+	* ChangeLog, ajax_quick_look.php, bartlby-ui.class.php,
+	  overview.php, server_detail.php, template.html, ui-extra.conf,
+	  extensions/ServerGroups.disabled,
+	  extensions/ServerGroups/ServerGroups.class.php,
+	  extensions/ServerGroups/ajax_search.php,
+	  extensions/ServerGroups/delete.php,
+	  extensions/ServerGroups/delete_group.png,
+	  extensions/ServerGroups/edit.php,
+	  extensions/ServerGroups/groupview.php,
+	  extensions/ServerGroups/manage.php,
+	  extensions/ServerGroups/new_group.png,
+	  extensions/ServerGroups/overview.php,
+	  extensions/ServerGroups/save.php,
+	  extensions/ServerGroups/view_all.png,
+	  extensions/ServerGroups/data/1, images/ajax_search.js,
+	  images/btl.css, server_icons/01generic.gif,
+	  server_icons/apple.gif, server_icons/firewall1.gif,
+	  server_icons/freebsd.gif, server_icons/linux.gif,
+	  server_icons/openbsd.gif, server_icons/router1.gif,
+	  server_icons/windows.gif: many fixes added Quick Look bar
+	  serverGroup extension added
+
+2006-06-25 23:49  hjanuschka
+
+	* server_icons/: black_box.png, firewall.png, preview.png,
+	  rack_bsd.png, rack_linux.png, rack_windows.png,
+	  server-sm-app.gif, server-sm-dev.gif, server-sm-fis.gif,
+	  server-sm-lin.gif, server-sm-new.gif, server-sm-win.gif,
+	  switch.png, wireless.png: [no log message]
+
+2006-06-25 23:44  hjanuschka
+
+	* ajax_plugin_search.php, modify_service.php: add/modify service ->
+	  ajaxed plugin search
+
+2006-06-25 23:25  hjanuschka
+
+	* choose_config.php, delete_server.php, delete_service.php: [no log
+	  message]
+
+2006-06-24 20:01  hjanuschka
+
+	* bartlby_action.php, choose_config.php, edit_config.php,
+	  overview.php, template.html: ui: edit multiple config files (ui,
+	  core. ....)
+
+2006-06-24 04:35  hjanuschka
+
+	* bartlby-ui.class.php, layout.class.php, template.html: ui
+	  displays version now
+
+2006-06-24 04:29  hjanuschka
+
+	* add_server.php, add_service.php, add_worker.php,
+	  bartlby-ui.class.php, modify_server.php, modify_service.php,
+	  modify_worker.php, ui-extra.conf, images/edit-copy.png: core:
+	  extensions improved ui: copy service (use existing service as
+	  start values for a new service) ui: copy server (use existing
+	  server as start values for a new server) ui: copy worker (use
+	  existing server as start values for a new worker)
+
+2006-06-24 01:41  hjanuschka
+
+	* comments/1,
+	  extensions/Bartlby_Inventory/Bartlby_Inventory.class.php,
+	  fin/add_comment: few bugs in "comments"
+
+2006-06-15 01:24  hjanuschka
+
+	* statistic.php, extensions/Bartlby_Inventory/data/1,
+	  pkgs/default-pkg: fixing problems in statistic.php on fresh
+	  install fixing problem with missing "pkg" dir
+
+2006-06-05 23:06  hjanuschka
+
+	* bartlby-ui.class.php,
+	  extensions/Bartlby_Inventory/Bartlby_Inventory.class.php,
+	  images/barcode.gif, images/extension_disable.gif,
+	  images/extension_enable.gif, images/extensions.gif,
+	  images/keys.gif: [no log message]
+
+2006-06-05 02:00  hjanuschka
+
+	* ChangeLog, bartlby-ui.class.php, bartlby_action.php: ui: package
+	  create/install supports now the $MACROS
+
+2006-05-28 18:18  hjanuschka
+
+	* add_server.php, bartlby-ui.class.php, modify_server.php,
+	  overview.php, server_detail.php, template.html, images/btl.js,
+	  server_icons/01generic.gif, server_icons/apple.gif,
+	  server_icons/freebsd.gif, server_icons/linux.gif,
+	  server_icons/openbsd.gif, server_icons/windows.gif: cbr
+
+2006-05-24 21:18  hjanuschka
+
+	* add_service.php, modify_service.php, server_detail.php,
+	  service_detail.php: version bump
+
+2006-05-21 23:19  hjanuschka
+
+	* service_detail.php, template.html: commit before workweek
+
+2006-05-21 01:37  hjanuschka
+
+	* bartlby-ui.class.php, bartlby_action.php, extensions.php,
+	  xml_api.php, extensions/SSH.disabled,
+	  extensions/Bartlby_Inventory/Bartlby_Inventory.class.php,
+	  fin/add_service, fin/disable_extension, fin/enable_extension,
+	  fin/modify_service: ssh extension disabled by default from now
+	  !!! USE OF YOUR OWN RISK !!!!!!!! extensions can be
+	  enabled/disabled
+
+2006-05-20 22:26  hjanuschka
+
+	* add_service.php, bartlby-ui.class.php, bartlby_action.php,
+	  modify_service.php, service_detail.php: ui: add/modify server
+	  page rebrush (should be user-friendlier) core: snmp INTEGER
+	  greater, lower (warning,critical) (--enable-snmp=yes) core/lib
+	  mysql: SNMP functionality ui: add/modify_service SNMP php: SNMP
+	  functions
+
+2006-05-19 00:17  hjanuschka
+
+	* ChangeLog, add_service.php, layout.class.php, modify_service.php,
+	  template.html: modified the service add/modify pages should be a
+	  bit user friendlier
+
+2006-05-15 00:55  hjanuschka
+
+	* images/modify.gif: missing modify.gif
+
+2006-05-14 22:13  hjanuschka
+
+	* report.php: little reporting tweak
+
+2006-05-14 20:23  hjanuschka
+
+	* extensions.php, template.html,
+	  extensions/Bartlby_Inventory/Bartlby_Inventory.class.php: SSH2
+	  Extension
+
+2006-05-14 16:50  hjanuschka
+
+	* bartlby-ui.class.php, overview.php, server_detail.php,
+	  service_detail.php, services.php, statistic.php,
+	  extensions/Bartlby_Inventory/Bartlby_Inventory.class.php: some
+	  hooks for extensions (overview/services/server-service detail)
+
+2006-05-14 15:19  hjanuschka
+
+	* layout.class.php: oops ;-) include_once set quiet ;)
+
+2006-05-14 15:01  hjanuschka
+
+	* extensions_wrap.php, layout.class.php, template.html,
+	  extensions/Bartlby_Inventory/Bartlby_Inventory.class.php,
+	  extensions/Bartlby_Inventory/index.php,
+	  extensions/Bartlby_Inventory/save.php: UI extensions try out +
+	  sample extensions (Inventory)
+
+2006-05-13 01:41  hjanuschka
+
+	* ajax_server_search.php, ajax_service_search.php,
+	  ajax_worker_search.php, bartlby-ui.class.php, bartlby_action.php,
+	  cli.php, logview.php, server_list.php, service_detail.php,
+	  service_list.php, services.php, statistic.php, ui-extra.conf,
+	  user_list.php, xml_api.php, fin/submit_passive,
+	  images/ajax_search.js, images/btl.css, images/force.gif: [no log
+	  message]
+
+2006-05-07 16:42  hjanuschka
+
+	* services.php, event_stream.php: [no log message]
+
+2006-05-07 01:32  hjanuschka
+
+	* IXR_Library.inc.php, add_service.php, modify_service.php,
+	  server_detail.php, service_detail.php, ui-extra.conf,
+	  xml_api.php: [no log message]
+
+2006-05-02 00:12  hjanuschka
+
+	* event_queue.php, logview.php: logview extended event_queue massiv
+	  changes
+
+2006-04-25 09:19  hjanuschka
+
+	* event_queue.php, template.html: view events via ui
+
+2006-04-25 00:20  hjanuschka
+
+	* bartlby-ui.class.php, ui-extra.conf, fin/BARTLBY_SHM_STALE:
+	  fixing a check_running bug
+
+2006-04-23 20:08  hjanuschka
+
+	* bartlby-ui.class.php, bartlby_action.php, overview.php,
+	  service_detail.php, services.php, statistic.php, ui-extra.conf,
+	  xml_api.php, fin/force_check: core/ui/php: checks can now be
+	  forced ui: remote xml special_addon support core: svc perf MS
+	  core: round perf MS php: svcmap, get_service perf MS ui: perf MS
+
+2006-04-10 00:12  hjanuschka
+
+	* service_detail.php: R E L E A S E (1.1.8a -> Naproxen):
+
+	  perf: distribute RRDs correspodening to the perf handler core:
+	  sched_timeout refined core: service_retain core: lib/mysql
+	  service_retain php: service_retain ui: overview supports remote
+	  bartlby's ui: server/service detail supports remote bartlby's ui:
+	  services list supports remote bartlby ui: service_retain ui: add
+	  perf defaults to package ui: catch un-existing objects,
+	  server|service|worker ui: exit if either built in nor shared
+	  bartlby extension was found (discovered during php upgrade ) ui:
+	  addons got own config file (ui-extra.conf) php: E_WARNING on
+	  unexisting config file
+
+2006-04-06 10:34  hjanuschka
+
+	* bartlby-ui.class.php, overview.php, ui-extra.conf: typo fixes
+
+2006-03-30 03:21  hjanuschka
+
+	* fin/xml_remote: fin screen for xml_remote
+
+2006-03-30 03:12  hjanuschka
+
+	* bartlby-ui.class.php, bartlby_action.php, overview.php,
+	  server_detail.php, service_detail.php, services.php,
+	  ui-extra.conf: remote xml server/service detail, services, quick
+	  view links
+
+2006-03-30 01:45  hjanuschka
+
+	* bartlby-ui.class.php, overview.php, template.html, ui-extra.conf:
+	  overview remote xml
+
+2006-03-18 02:55  hjanuschka
+
+	* add_service.php, bartlby-ui.class.php, bartlby_action.php,
+	  layout.class.php, modify_service.php, overview.php,
+	  service_detail.php, images/Disable-Sirene.gif,
+	  images/Enable-Sirene.gif: perf: distribute RRDs correspodening to
+	  the perf handler core: sched_timeout refined core: service_retain
+	  core: lib/mysql service_retain php: service_retain ui:
+	  service_retain ui: add perf defaults to package ui: catch
+	  un-existing objects, server|service|worker ui: exit if either
+	  built in nor shared bartlby extension was found (discovered
+	  during php upgrade ) ui: addons got own config file
+	  (ui-extra.conf) php: E_WARNING on unexisting config file
+
+2006-03-07 21:57  hjanuschka
+
+	* ChangeLog, bartlby-ui.class.php, service_detail.php,
+	  services.php, ui-extra.conf: perf: distribute RRDs correspodening
+	  to the perf handler ui: add perf defaults to package ui: catch
+	  un-existing objects, server|service|worker ui: exit if either
+	  built in nor shared bartlby extension was found (discovered
+	  during php upgrade ) ui: addons got own config file
+	  (ui-extra.conf) php: E_WARNING on unexisting config file
+
+2006-03-05 01:23  hjanuschka
+
+	* bartlby-ui.class.php, bartlby_action.php, modify_downtime.php,
+	  modify_server.php, modify_service.php, modify_worker.php,
+	  report.php, statistic.php, fin/BARTLBY_OBJECT_MISSING: [no log
+	  message]
+
+2006-02-25 19:57  hjanuschka
+
+	* add_server.php, logview.php: [no log message]
+
+2006-02-25 02:59  hjanuschka
+
+	* IXR_Library.inc.php, bartlby-ui.class.php, bartlby_action.php,
+	  error.php, install_pkg.php, logview.php, package_create.php,
+	  xml_api.php, fin/BARTLBY_MODULE_MISMATCH: packages can now
+	  include plugins and perf handlers check_shm_size checks if
+	  bartlby-php and bartlby-core do match
+
+2006-02-23 22:31  hjanuschka
+
+	* IXR_Library.inc.php, xml_api.php: XML RPC re-worked follows now
+	  XML-RPC specifications (http://www.xmlrpc.com/spec/) using xmlrpc
+	  from (http://scripts.incutio.com/xmlrpc/)
+
+2006-02-22 23:34  hjanuschka
+
+	* add_server.php, create_map.php: create pkg directory if missing
+	  map fix eof bug if map_data is missing (occurs on initial setup)
+
+2006-02-22 22:20  hjanuschka
+
+	* create_map.php, template.html, images/arrow2.gif: extended
+	  service_map
+
+2006-02-19 16:14  hjanuschka
+
+	* ChangeLog, error.php, images/btl.css: ui: start/stop working
+	  again fixed warning bug in overview
+
+2006-02-17 22:18  hjanuschka
+
+	* ack_service.php, add_service.php, bartlby-ui.class.php,
+	  bartlby_action.php, delete_service.php, favicon.ico,
+	  modify_service.php, overview.php, service_detail.php,
+	  services.php, template.html, fin/ack_problem: acknowledgement
+
+2006-02-12 19:40  hjanuschka
+
+	* bartlby-ui.class.php, logview.php: [no log message]
+
+2006-02-12 02:47  hjanuschka
+
+	* bartlby-ui.class.php: event log fix
+
+2006-02-12 02:40  hjanuschka
+
+	* ChangeLog, add_service.php, bartlby-ui.class.php,
+	  bartlby_action.php, modify_service.php, service_detail.php,
+	  template.html: first aid link fixed -> www.bartlby.org new
+	  service type "Local" added _log function added all actions are
+	  logged now
+
+2006-02-11 00:54  hjanuschka
+
+	* ChangeLog, add_worker.php, bartlby-ui.class.php,
+	  bartlby_action.php, index.php, modify_worker.php, overview.php,
+	  fin/sirene_disable, fin/sirene_enable: sirene enable/disable
+	  worker select SIRENE
+
+2006-02-09 01:16  hjanuschka
+
+	* images/: minus.gif, plus.gif: plus/minus icon
+
+2006-02-09 01:15  hjanuschka
+
+	* ChangeLog, add_downtime.php, add_server.php, add_service.php,
+	  add_worker.php, bartlby_action.php, create_report.php,
+	  delete_downtime.php, delete_server.php, delete_service.php,
+	  delete_worker.php, downtime_list.php, edit_config.php, error.php,
+	  index.php, install_pkg.php, layout.class.php, logview.php,
+	  modify_downtime.php, modify_server.php, modify_service.php,
+	  modify_worker.php, overview.php, package_create.php,
+	  package_delete.php, report.php, server_detail.php,
+	  server_list.php, service_detail.php, service_list.php,
+	  services.php, statistic.php, template.html, uninstall_pkg.php,
+	  user_list.php, view_comments.php, server_icons/firewall1.gif,
+	  server_icons/router1.gif: datalib: mysql/ catch failed logins
+	  core: fixed some setuid problems with datalib core: zero worker
+	  detected and logged core: network code re-worked, much faster and
+	  cleaner now core: encode/decode removed php: encode/decode
+	  removed ui: topology map manager added ui: nicer menu (flap) ui:
+	  server_detail (added) startup sh: pre-start check if logfile is
+	  writeable
+
+2006-02-05 22:32  hjanuschka
+
+	* create_map.php: forgott to cvs add create_map
+
+2006-02-05 22:32  hjanuschka
+
+	* server_icons/: server-sm-app.gif, server-sm-dev.gif,
+	  server-sm-fis.gif, server-sm-lin.gif, server-sm-new.gif,
+	  server-sm-win.gif: new server icons
+
+2006-02-05 22:31  hjanuschka
+
+	* ChangeLog, add_server.php, bartlby_action.php, modify_server.php,
+	  template.html, fin/storeMap, images/btl.js: first try out of
+	  network topology
+
+2006-02-02 23:15  hjanuschka
+
+	* nonav.html, images/btl.css, images/btl.js: rollup
+
+2006-01-29 16:52  hjanuschka
+
+	* ChangeLog, add_server.php, bartlby_action.php, img.php,
+	  modify_server.php, overview.php, fin/add_server,
+	  fin/modify_server, images/btl.css, images/s_green.gif,
+	  images/s_red.gif, images/s_silver.gif, images/s_yellow.gif,
+	  server_icons/black_box.png, server_icons/firewall.png,
+	  server_icons/preview.png, server_icons/rack_bsd.png,
+	  server_icons/rack_linux.png, server_icons/rack_windows.png,
+	  server_icons/switch.png, server_icons/wireless.png: server icon
+
+2006-01-22 23:27  hjanuschka
+
+	* bartlby_action.php, index.php, overview.php, view_comments.php,
+	  fin/BARTLBY_SHM_STALE, fin/delete_server1, fin/disable_notify,
+	  fin/disable_service, fin/enable_notify, fin/enable_service,
+	  fin/missing_param, fin/modify_server, images/bartlby1-bg.jpg,
+	  images/bg_header.jpg, images/bi-oc-green.gif,
+	  images/bi-oc-red.gif, images/bi-oc-silver.gif,
+	  images/bi-oc-yellow.gif, images/black.gif, images/blue.gif,
+	  images/btl.css: layout fixes, finScreens, index.php (image
+	  preload)
+
+2006-01-22 02:32  hjanuschka
+
+	* bartlby-ui.class.php, bartlby_action.php, delete_downtime.php,
+	  delete_server.php, delete_service.php, delete_worker.php,
+	  error.php, overview.php, services.php, fin/BARTLBY_LOGIN,
+	  fin/BARTLBY_NOT_RUNNING, fin/BARTLBY_SHMCLEAN,
+	  fin/BARTLBY_SHM_STALE, fin/BARTLBY_START, fin/add_downtime,
+	  fin/add_server, fin/add_service, fin/add_worker,
+	  fin/create_package, fin/delete_downtime, fin/delete_downtime1,
+	  fin/delete_package, fin/delete_package_ask, fin/delete_server,
+	  fin/delete_server1, fin/delete_service, fin/delete_service1,
+	  fin/delete_worker, fin/delete_worker1, fin/edit_cfg,
+	  fin/install_package, fin/modify_downtime, fin/modify_server,
+	  fin/modify_service, fin/modify_worker, fin/reload, fin/stop,
+	  fin/uninstall_package: finScreen
+
+2006-01-21 03:23  hjanuschka
+
+	* ChangeLog, add_downtime.php, bartlby-ui.class.php,
+	  bartlby_action.php, check.php, downtime_list.php, execv.php,
+	  grpstr.php, layout.class.php, locate_server.php, nonav.html,
+	  overview.php, service_detail.php, images/btl.css: [no log
+	  message]
+
+2006-01-20 00:31  hjanuschka
+
+	* ChangeLog, add_downtime.php, bartlby_action.php,
+	  delete_downtime.php, delete_service.php, downtime_list.php,
+	  modify_downtime.php, modify_service.php, overview.php,
+	  service_list.php, services.php, template.html,
+	  images/bi-oc-green.gif, images/bi-oc-red.gif,
+	  images/bi-oc-silver.gif, images/bi-oc-yellow.gif, images/btl.css:
+	  downtime add/modify/delete some nicer icons on services.php
+
+2006-01-16 21:53  hjanuschka
+
+	* logview.php, template.html, images/bartlby1-first-aid.gif,
+	  images/icon_stat.gif: [no log message]
+
+2006-01-10 23:36  hjanuschka
+
+	* ChangeLog, bartlby-ui.class.php, logview.php, overview.php,
+	  service_detail.php, services.php, template.html, xml_api.php,
+	  images/bartlby1-bar-green_01.gif,
+	  images/bartlby1-bar-green_02.gif,
+	  images/bartlby1-bar-green_04.gif, images/bartlby1-bar-red_01.gif,
+	  images/bartlby1-bar-red_02.gif, images/bartlby1-bar-red_04.gif,
+	  images/bartlby1-bar-silver_01.gif,
+	  images/bartlby1-bar-silver_02.gif,
+	  images/bartlby1-bar-silver_04.gif,
+	  images/bartlby1-bar-yellow_01.gif,
+	  images/bartlby1-bar-yellow_02.gif,
+	  images/bartlby1-bar-yellow_04.gif, images/bg_body.gif,
+	  images/bg_header.gif, images/box_bg.gif, images/box_run_down.gif,
+	  images/box_run_up.gif, images/btl-logo.gif, images/btl.css,
+	  images/btn_main.gif, images/btn_sub.gif, images/critical.gif,
+	  images/diabled.gif, images/enabled.gif, images/icon_comments.gif,
+	  images/icon_view.gif, images/icon_work.gif,
+	  images/icon_work1.gif, images/info.gif,
+	  images/left_corner_down.gif, images/left_corner_run.gif,
+	  images/left_corner_up.gif, images/notrigger.gif, images/ok.gif,
+	  images/right_corner_down.gif, images/right_corner_run.gif,
+	  images/right_corner_up.gif, images/trigger.gif,
+	  images/warning.gif: images are now gif for transparent bug work
+	  around in IE
+
+2006-01-03 21:37  hjanuschka
+
+	* rights/admin.dat: right file for default admin user
+
+2006-01-03 21:34  hjanuschka
+
+	* bartlby-ui.class.php, bartlby_action.php, cli.php, logview.php,
+	  overview.php, service_detail.php, services.php, template.html,
+	  user_list.php, view_comments.php, images/btl.css: stage 1 of a
+	  service-server per user right system implemented, via
+	  UI-DIR/rights/USER.dat (ini style file) admin threw ui will
+	  follow
+
+2006-01-01 17:27  hjanuschka
+
+	* ChangeLog, bartlby-ui.class.php, img.php, xml.php, xml_api.php:
+	  added service_map XML all php-extension function's can be called
+	  via a xml-upload
+
+2005-12-31 01:30  hjanuschka
+
+	* layout.class.php, service_detail.php, template.html: [no log
+	  message]
+
+2005-12-30 21:23  hjanuschka
+
+	* bartlby-ui.class.php, overview.php, services.php, template.html:
+	  after recoginezing that the UI is a bottleneck if service count
+	  is getting big fixed many lacks * moved getSVCMap to php
+	  extension * trimmed down the walk threws of the service list *
+	  services per page can be configured via cfg file
+	  (services_per_page)
+
+	  so overview.php (wich is the most intensive script) has 0.21
+	  seconds load time (on 191 Services)
+
+2005-12-29 22:24  hjanuschka
+
+	* ChangeLog, statistic.php, template.html: core_performance and
+	  statistik
+
+2005-12-28 22:40  hjanuschka
+
+	* overview.php, service_detail.php, services.php, images/btl.css:
+	  Minor IE issues fixed (transparent GIF's will follow)
+
+2005-12-28 14:25  hjanuschka
+
+	* ChangeLog, template.html: [no log message]
+
+2005-12-27 23:29  hjanuschka
+
+	* ChangeLog, bartlby-ui.class.php, bartlby_action.php,
+	  service_detail.php: bartlby_action typos in install package
+
+2005-12-27 22:59  hjanuschka
+
+	* services.php: display addon menus in layer over special links
+
+2005-12-27 22:39  hjanuschka
+
+	* service_detail.php, services.php: added service_detail
+
+2005-12-26 00:01  hjanuschka
+
+	* overview.php, report.php, images/btl.js: special_addon report
+	  addon
+
+2005-12-25 13:57  hjanuschka
+
+	* ChangeLog, add_service.php, bartlby_action.php,
+	  modify_service.php, overview.php, services.php, images/btl.css,
+	  images/btl.js: service_check_timeout added to UI scritps
+	  (add/modify service) special addon dropdown added for displaying
+	  i.e.: RRD graphs right in the services.php (via config file)
+
+2005-12-24 18:54  hjanuschka
+
+	* ChangeLog, logview.php: performance interface
+
+2005-12-14 00:18  hjanuschka
+
+	* bartlby-ui.class.php: oops in restart code
+
+2005-12-13 23:25  hjanuschka
+
+	* ChangeLog, bartlby-ui.class.php, error.php, logview.php: minor
+	  logview clean ups bartlby is running, refined now dead/zombie SHM
+	  are detected and can be fixed via UI
+
+2005-11-27 03:05  hjanuschka
+
+	* edit_config.php: missing file
+
+2005-11-27 03:05  hjanuschka
+
+	* bartlby-ui.class.php, bartlby_action.php, check.php, error.php,
+	  layout.class.php, modify_service.php, services.php,
+	  template.html, view_comments.php, images/btl.css: stop bartlby,
+	  start it if it is not running edit config file reload via menu
+
+2005-11-19 01:09  hjanuschka
+
+	* package_delete.php, template.html, uninstall_pkg.php,
+	  images/bartlby1-bar-green_01.png,
+	  images/bartlby1-bar-green_02.png,
+	  images/bartlby1-bar-green_04.png, images/bartlby1-bar-red_01.png,
+	  images/bartlby1-bar-red_02.png, images/bartlby1-bar-red_04.png,
+	  images/bartlby1-bar-yellow_01.png,
+	  images/bartlby1-bar-yellow_02.png,
+	  images/bartlby1-bar-yellow_04.png, images/bg_body.png,
+	  images/bg_header.png, images/box_01.png, images/box_02.png,
+	  images/box_04.png, images/box_06.png, images/box_08.png,
+	  images/box_09.png, images/box_10.png, images/box_11.png,
+	  images/box_15.png, images/box_16.png, images/box_17.png,
+	  images/box_21.png, images/box_22.png, images/box_23.png,
+	  images/box_bg.png, images/box_run_down.png,
+	  images/box_run_up.png, images/btl-logo.png, images/btl.css,
+	  images/btl.js, images/btn_main.png, images/btn_sub.png,
+	  images/header_bar.png, images/index.html,
+	  images/left_corner_down.png, images/left_corner_run.png,
+	  images/left_corner_up.png, images/right_corner_down.png,
+	  images/right_corner_run.png, images/right_corner_up.png,
+	  images/spacer.gif: missing files
+
+2005-11-19 01:08  hjanuschka
+
+	* ChangeLog, add_server.php, bartlby-ui.class.php,
+	  bartlby_action.php, layout.class.php, package_create.php,
+	  services.php: package managment extended
+	  (install,uninstall,create, delete) add server (install a package
+	  directly)
+
+2005-11-17 00:52  hjanuschka
+
+	* ChangeLog, add_server.php, add_service.php, add_worker.php,
+	  bartlby_action.php, create_report.php, delete_server.php,
+	  delete_service.php, delete_worker.php, install_pkg.php,
+	  layout.class.php, logview.php, modify_server.php,
+	  modify_service.php, modify_worker.php, nav.php, overview.php,
+	  report.php, server_list.php, service_list.php, services.php,
+	  start.php, user_list.php: major redesign of UI
+
+2005-10-14 01:09  hjanuschka
+
+	* ChangeLog, overview.php, report.php: rollup
+
+2005-10-09 16:45  hjanuschka
+
+	* ChangeLog, check.php, layout.class.php, nav.php, overview.php,
+	  services.php, images/icon_comments.png, images/icon_work1.png:
+	  check.php client version
+
+2005-10-03 22:50  hjanuschka
+
+	* bartlby-ui.class.php, layout.class.php, rss.php, start.php: rss
+	  feed of status added added rss to frameset img.php extended
+	  status.php uptime
+
+2005-10-01 03:03  hjanuschka
+
+	* add_worker.php, modify_worker.php, trigger.php: simulate trigger
+
+2005-10-01 01:59  hjanuschka
+
+	* add_service.php, check.php, img.php, modify_service.php,
+	  services.php, status.php: core uptime is display in status.php
+	  check.php added add/modify service run plugin on remote host
+
+2005-09-28 23:47  hjanuschka
+
+	* images/icon_view.png: initial
+
+2005-09-28 23:45  hjanuschka
+
+	* 1.php, ChangeLog, add_server.php, add_service.php,
+	  add_worker.php, api.phps, bartlby-ui.class.php,
+	  bartlby_action.php, cli.php, config.php, create_report.php,
+	  delete_server.php, delete_service.php, delete_worker.php,
+	  error.php, execv.php, grpstr.php, img.php, install_pkg.php,
+	  logout.php, logview.php, modify_server.php, modify_service.php,
+	  modify_worker.php, nav.php, overview.php, package_create.php,
+	  report.php, server_list.php, service_list.php, services.php,
+	  start.php, status.php, user_list.php, view_comments.php,
+	  flash/pie.html: converted files to UNIX
+
+2005-09-28 23:38  hjanuschka
+
+	* ChangeLog, cli.php, help.php, img.php, nav.php, services.php,
+	  images/critical.png, images/diabled.png, images/enabled.png,
+	  images/info.png, images/notrigger.png, images/ok.png,
+	  images/trigger.png, images/warning.png: new icons ;) img.php uses
+	  png icons now ;) removed gifs
+
+2005-09-27 22:25  hjanuschka
+
+	* cli.php: [no log message]
+
+2005-09-27 21:47  hjanuschka
+
+	* logview.php: preg_match on logfile
+
+2005-09-27 20:20  hjanuschka
+
+	* ChangeLog, bartlby-ui.class.php, cli.php, status.php: added cli
+	  monitor ;-)
+
+2005-09-25 21:51  hjanuschka
+
+	* ChangeLog, add_worker.php, bartlby-ui.class.php, img.php,
+	  logview.php, modify_worker.php: img added
+
+2005-09-25 18:31  hjanuschka
+
+	* ChangeLog, add_worker.php, bartlby-ui.class.php,
+	  bartlby_action.php, modify_worker.php: add/modify worker ->
+	  trigger enable disable
+
+2005-09-24 00:45  hjanuschka
+
+	* ChangeLog, report.php, flash/pie.fla, flash/pie.swf: fixed the
+	  lable bug
+
+2005-09-24 00:18  hjanuschka
+
+	* ChangeLog, logview.php, report.php, services.php, flash/pie.fla,
+	  flash/pie.html, flash/pie.swf: initial import
+
+2005-09-18 13:29  hjanuschka
+
+	* ChangeLog, bartlby-ui.class.php, status.php: version bump warning
+	  in slave mode dump hosts in master mode
+
+2005-09-18 07:04  hjanuschka
+
+	* ChangeLog, overview.php: replication roll up
+
+2005-09-18 02:53  hjanuschka
+
+	* bartlby-ui.class.php, report.php: human readable time diff
+
+2005-09-18 02:49  hjanuschka
+
+	* ChangeLog, create_report.php, layout.class.php, report.php,
+	  service_list.php: Service Time Report + Notification Report fixed
+	  wrong getState in service_list
+
+2005-09-16 23:09  hjanuschka
+
+	* ChangeLog, bartlby-ui.class.php, config.php, layout.class.php:
+	  php5 support compile as shared dl();
+
+2005-09-16 00:09  hjanuschka
+
+	* ChangeLog, error.php: error page :-)
+
+2005-09-15 00:04  hjanuschka
+
+	* ChangeLog, bartlby_action.php: action: add_worker missing front |
+	  in notify str disables OK warnings per default fixed
+
+2005-09-13 22:54  hjanuschka
+
+	* execv.php: plugin help can now be view'd via web ui
+
+2005-09-13 22:13  hjanuschka
+
+	* ChangeLog, bartlby_action.php, layout.class.php, services.php,
+	  status.php, view_comments.php: layout: added TextArea Method
+	  action: added 'add_comment' view_comments -> view comments via
+	  ui, and store comments on a per service basis
+
+2005-09-12 00:28  hjanuschka
+
+	* install_pkg.php, package_create.php: package managment files ;-)
+
+2005-09-12 00:27  hjanuschka
+
+	* bartlby_action.php, nav.php, services.php: you now can create
+	  packages(sets of services) out of servers wich can be installed
+	  on servers
+
+2005-09-11 23:43  hjanuschka
+
+	* logview.php: speed ups ;-)
+
+2005-09-11 11:21  hjanuschka
+
+	* logview.php, images/critical.png, images/info.png, images/ok.png,
+	  images/warning.png: files for logview
+
+2005-09-11 11:21  hjanuschka
+
+	* ChangeLog, grpstr.php: logview added ;-)
+
+2005-09-07 21:34  hjanuschka
+
+	* ChangeLog, bartlby_action.php, layout.class.php,
+	  modify_worker.php, overview.php: performance output at the end of
+	  each page modify worker check default checkboxes
+
+2005-09-06 23:48  hjanuschka
+
+	* ChangeLog, grpstr.php, layout.class.php, modify_service.php: ui
+	  speed up
+
+2005-09-06 23:01  hjanuschka
+
+	* api.phps: [no log message]
+
+2005-09-06 23:00  hjanuschka
+
+	* ChangeLog, add_service.php, add_worker.php, bartlby-ui.class.php,
+	  bartlby_action.php, grpstr.php, modify_service.php,
+	  modify_worker.php, nav.php, overview.php, server_list.php,
+	  service_list.php, services.php, start.php, user_list.php: add/mod
+	  worker -> services select dropdown, notify level checkboxes
+
+2005-09-04 01:03  hjanuschka
+
+	* add_worker.php, delete_worker.php, modify_worker.php,
+	  user_list.php: worker management (add, delete, modify)
+
+2005-09-04 01:03  hjanuschka
+
+	* ChangeLog, bartlby-ui.class.php, bartlby_action.php,
+	  layout.class.php, nav.php, overview.php, services.php,
+	  status.php: authentication against SHM Users toggle service
+	  notify/active
+
+2005-09-03 00:47  hjanuschka
+
+	* delete_service.php, modify_service.php, service_list.php: files
+	  for service_delete service_add
+
+2005-09-03 00:47  hjanuschka
+
+	* ChangeLog, bartlby-ui.class.php, bartlby_action.php: added
+	  service_delete, service_modify
+
+2005-09-02 04:20  hjanuschka
+
+	* add_service.php, grpstr.php: files for add service ui
+
+2005-09-02 04:19  hjanuschka
+
+	* ChangeLog, bartlby_action.php: add_service added
+
+2005-08-31 22:06  hjanuschka
+
+	* add_server.php, delete_server.php, logout.php, modify_server.php,
+	  server_list.php: and here are the files for server managment
+
+2005-08-31 22:05  hjanuschka
+
+	* ChangeLog, bartlby_action.php, nav.php, start.php: add, modify,
+	  delete server is now available threw ui
+
+2005-08-30 22:16  hjanuschka
+
+	* help.php, images/critical.gif, images/info.gif, images/ok.gif,
+	  images/warning.gif: help frame added
+
+2005-08-30 22:15  hjanuschka
+
+	* ChangeLog, bartlby-ui.class.php, layout.class.php, nav.php,
+	  overview.php, services.php, start.php: fixed ui.class isServerUp
+	  function
+
+2005-08-30 21:32  hjanuschka
+
+	* bartlby_action.php, nav.php, services.php, images/diabled.png,
+	  images/enabled.png, images/notrigger.png, images/trigger.png:
+	  files for services.php and rudimentary version of bartlby_action
+
+2005-08-30 21:31  hjanuschka
+
+	* bartlby-ui.class.php, layout.class.php, start.php: Services.php
+	  added ;)
+
+2005-08-30 20:27  hjanuschka
+
+	* ChangeLog, overview.php: [no log message]
+
+2005-08-29 00:27  hjanuschka
+
+	* 1.php, ChangeLog, bartlby-ui.class.php, config.php, error.php,
+	  layout.class.php, overview.php, start.php, status.php,
+	  images/green.png, images/red.png, images/yellow.png: initial
+	  upload
+
+2005-08-28 15:45  hjanuschka
+
+	* bartlby.php: [no log message]
+
+2005-08-28 13:56  hjanuschka
+
+	* bartlby.php: [no log message]
+

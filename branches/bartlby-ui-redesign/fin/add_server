@@ -1,0 +1,6 @@
+<font size="2"><span style="font-family: Tahoma; font-weight: bold;">Server Added<br /></span><span style="font-family: Tahoma;">Name: $_GET[server_name]<br />Ip: $_GET[server_ip]<br />Port: $_GET[server_port]<br />Icon: <img src="server_icons/$_GET[server_icon]" alt="" /><br /><br /><span style="font-weight: bold;">Installed Services:<br /></span>$global_msg[package]<br />$global_msg[init_service]</span><span style="font-family: Tahoma; font-weight: bold;"></span><span style="font-family: Tahoma;"><br /><span style="font-weight: bold;">Next Steps:<br /></span></span></font>
+<ul>
+    <li><a href="add_service.php"><font size="2"><span style="font-family: Tahoma;">Add service</span></font></a></li>
+    <li><font size="2"><span style="font-family: Tahoma;"><a href="bartlby_action.php?action=reload">Reload</a><br /></span></font></li>
+</ul>
+<font size="2"><span style="font-family: Tahoma;"></span></font>
