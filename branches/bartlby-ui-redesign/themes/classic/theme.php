@@ -83,7 +83,7 @@ $Author: hjanuschka $
 											<tr>
 												<td>
 													
-													<font style='font-family:tahoma; font-size:8pt; color:#ffffff'><a href='http://www.bartlby.org/' target='_blank'>bartlby</A> is a GPLv2 product of <a href='http://www.januschka.com/' target='_blank'>januschka.com</A></font>
+													<font style='font-family:tahoma; font-size:8pt; color:#ffffff'><a href='http://www.bartlby.org/' target='_blank'>bartlby</A> is a GPLv2 product of <a href='http://www.januschka.com/' target='_blank'>januschka.com</A><?=$this->RELNOT?></font>
 												</td>
 											</tr>
 										</table>
