@@ -3,11 +3,12 @@
 	include "config.php";
 	include "bartlby-ui.class.php";
 
+	$btl=new BartlbyUi($Bartlby_CONF);
 	$layout= new Layout();
 	$layout->MetaRefresh(240);
 	$layout->Table("100%");
 	
-	$btl=new BartlbyUi($Bartlby_CONF);
+	
 	$btl->hasRight("main.services");
 	$map = $btl->GetSVCMap($_GET[service_state]);	
 
