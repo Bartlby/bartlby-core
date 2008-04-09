@@ -1,11 +1,33 @@
 <?
+/* $Id: ack.c 16 2008-04-07 19:20:34Z hjanuschka $ */
+/* ----------------------------------------------------------------------- *
+ *
+ *   Copyright 2005-2008 Helmut Januschka - All Rights Reserved
+ *   Contact: <helmut@januschka.com>, <contact@bartlby.org>
+ *
+ *
+ *   This program is free software; you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, Inc., 675 Mass Ave, Cambridge MA 02139,
+ *   USA; either version 2 of the License, or (at your option) any later
+ *   version; incorporated herein by reference.
+ *
+ *   visit: www.bartlby.org for support
+ * ----------------------------------------------------------------------- */
+/*
+$Revision: 16 $
+$HeadURL: http://bartlby.svn.sourceforge.net/svnroot/bartlby/trunk/bartlby-core/src/ack.c $
+$Date: 2008-04-07 21:20:34 +0200 (Mo, 07 Apr 2008) $
+$Author: hjanuschka $ 
+*/
+
 include_once("bartlbystorage.class.php");
 
 session_start();
 
 set_time_limit(0);
 set_magic_quotes_runtime(0);
-define("BARTLBY_UI_VERSION", "1.42");
+define("BARTLBY_UI_VERSION", "2.1-redesign-branch");
 $wdays[0]="Sunday";
 $wdays[1]="Monday";
 $wdays[2]="Tuesday";
@@ -629,6 +651,12 @@ class BartlbyUi {
 		}	
 	
 		
+
+		if(bartlby_config("ui-extra.conf", "theme") != "") {
+			$this->theme=bartlby_config("ui-extra.conf", "theme");
+		} else {
+			$this->theme="classic";
+		}
 		
 		
 		$this->BASE_URL=substr($_SERVER[SCRIPT_URI], 0, strrpos($_SERVER[SCRIPT_URI], "/")+1);				
@@ -1104,9 +1132,9 @@ class BartlbyUi {
 	function is_gone($state) {
 		switch($state) {
 			case 1:
-				return "<img src='images/emblem-generic.png' alt='Object changed you should reload' border=0>";
+				return "<img src='themes/" . $this->theme . "/images/emblem-generic.png' alt='Object changed you should reload' border=0>";
 			case 2:
-				return "<img src='images/emblem-important.png' alt='Object deleted you should reload' border=0>";
+				return "<img src='themes/" . $this->theme . "/images/emblem-important.png' alt='Object deleted you should reload' border=0>";
 			default:
 				return "";
 		}
@@ -1184,6 +1212,11 @@ class BartlbyUi {
          	);
     		return $i;
 	}
+	function setTheme($name="classic") {
+		if($name=="") $name="classic";
+		$this->theme=$name;	
+	}
+	
 	function getExtensionsReturn($method, $layout, $ign=false) {
 		$r=array();
 		$dhl = opendir("extensions");
@@ -1206,9 +1239,9 @@ class BartlbyUi {
 							array_push($r, $ex);
 							
 							if(!file_exists("extensions/" . $file . ".disabled")) {
-								$endis="<tr><td colspan=2 align=right><a href=\"javascript:void(0);\" onClick=\"xajax_toggle_extension('$file')\" title='$file extension is enabled click to change'><img id='extension_$file' border=0 src='images/extension_enable.gif'></A></td></tr>";
+								$endis="<tr><td colspan=2 align=right><a href=\"javascript:void(0);\" onClick=\"xajax_toggle_extension('$file')\" title='$file extension is enabled click to change'><img id='extension_$file' border=0 src='themes/" . $this->theme . "/images/extension_enable.gif'></A></td></tr>";
 							} else {
-								$endis="<tr><td colspan=2 align=right><a href=\"javascript:void(0);\" onClick=\"xajax_toggle_extension('$file')\" title='$file extension is disabled click to change'><img id='extension_$file' border=0 src='images/extension_disable.gif'></A></td></tr>";	
+								$endis="<tr><td colspan=2 align=right><a href=\"javascript:void(0);\" onClick=\"xajax_toggle_extension('$file')\" title='$file extension is disabled click to change'><img id='extension_$file' border=0 src='themes/" . $this->theme . "/images/extension_disable.gif'></A></td></tr>";	
 							}
 							
 							
@@ -1225,7 +1258,7 @@ class BartlbyUi {
 							</table>";
 							
 							
-							@$layout->push_outside($layout->create_box($info_box_title, $core_content));
+							$layout->create_box($info_box_title, $core_content, "extension_" . $ex[ex_name]);
 						}
 								
 						
@@ -1818,19 +1851,19 @@ function create_package($package_name, $in_services = array(), $with_plugins, $w
 			return $re;	
 	}
 	function getserveroptions($defaults, $layout) {
-		$modify = "<a href='modify_server.php?server_id=" . $defaults[server_id] . "'><img src='images/modify.gif' title='Modify this server' border=0></A>";
-		$copy = "<a href='modify_server.php?copy=true&server_id=" . $defaults[server_id] . "'><img src='images/edit-copy.gif' title='Copy (Create a similar) this Server' border=0></A>";
-		$logview= "<a href='logview.php?server_id=" . $defaults[server_id]. "' ><font size=1><img  title='View Events for this Server' src='images/icon_view.gif' border=0></A>";
+		$modify = "<a href='modify_server.php?server_id=" . $defaults[server_id] . "'><img src='themes/" . $this->theme . "/images/modify.gif' title='Modify this server' border=0></A>";
+		$copy = "<a href='modify_server.php?copy=true&server_id=" . $defaults[server_id] . "'><img src='themes/" . $this->theme . "/images/edit-copy.gif' title='Copy (Create a similar) this Server' border=0></A>";
+		$logview= "<a href='logview.php?server_id=" . $defaults[server_id]. "' ><font size=1><img  title='View Events for this Server' src='themes/" . $this->theme . "/images/icon_view.gif' border=0></A>";
 		
 		if($defaults[server_enabled] == 1) {
-			$check = "<a title='Disable Checks for this Server' href='javascript:void(0);' onClick=\"xajax_toggle_server_check('" . $defaults[server_id] . "', '" . $defaults[service_id] . "')\"><img id='server_" . $defaults[server_id] . "' src='images/enabled.gif'  border=0></A>";
+			$check = "<a title='Disable Checks for this Server' href='javascript:void(0);' onClick=\"xajax_toggle_server_check('" . $defaults[server_id] . "', '" . $defaults[service_id] . "')\"><img id='server_" . $defaults[server_id] . "' src='themes/" . $this->theme . "/images/enabled.gif'  border=0></A>";
 		} else {
-			$check = "<a href='javascript:void(0);' onClick=\"xajax_toggle_server_check('" . $defaults[server_id] . "', '" . $defaults[service_id] . "')\"><img src='images/diabled.gif' id='server_" . $defaults[server_id] . "' title='Enable  Checks for this Service' border=0></A>";
+			$check = "<a href='javascript:void(0);' onClick=\"xajax_toggle_server_check('" . $defaults[server_id] . "', '" . $defaults[service_id] . "')\"><img src='themes/" . $this->theme . "/images/diabled.gif' id='server_" . $defaults[server_id] . "' title='Enable  Checks for this Service' border=0></A>";
 		}
 		if($defaults[server_notify] == 1) {
-			$notifys = "<a href='javascript:void(0);' onClick=\"xajax_toggle_server_notify_check('" . $defaults[server_id] . "', '" . $defaults[service_id] . "')\"><img src='images/trigger.gif' id='trigger_" . $defaults[server_id] . "' title='Disable Notifications for this Service' border=0></A>";
+			$notifys = "<a href='javascript:void(0);' onClick=\"xajax_toggle_server_notify_check('" . $defaults[server_id] . "', '" . $defaults[service_id] . "')\"><img src='themes/" . $this->theme . "/images/trigger.gif' id='trigger_" . $defaults[server_id] . "' title='Disable Notifications for this Service' border=0></A>";
 		} else {
-			$notifys = "<a href='javascript:void(0);' onClick=\"xajax_toggle_server_notify_check('" . $defaults[server_id] . "', '" . $defaults[service_id] . "')\"><img id='trigger_" . $defaults[server_id] . "' src='images/notrigger.gif' title='Enable Notifications for this Service' border=0></A>";
+			$notifys = "<a href='javascript:void(0);' onClick=\"xajax_toggle_server_notify_check('" . $defaults[server_id] . "', '" . $defaults[service_id] . "')\"><img id='trigger_" . $defaults[server_id] . "' src='themes/" . $this->theme . "/images/notrigger.gif' title='Enable Notifications for this Service' border=0></A>";
 		}
 		$is_gone=$this->is_gone($defaults[server_gone]);
 		
@@ -1839,33 +1872,33 @@ function create_package($package_name, $in_services = array(), $with_plugins, $w
 
 	function getserviceOptions($defaults, $layout) {
 		if($defaults[service_active] == 1) {
-			$check = "<a title='Disable Checks for this Service' href='javascript:void(0);' onClick=\"xajax_toggle_service_check('" . $defaults[server_id] . "', '" . $defaults[service_id] . "')\"><img id='service_" . $defaults[service_id] . "' src='images/enabled.gif'  border=0></A>";
+			$check = "<a title='Disable Checks for this Service' href='javascript:void(0);' onClick=\"xajax_toggle_service_check('" . $defaults[server_id] . "', '" . $defaults[service_id] . "')\"><img id='service_" . $defaults[service_id] . "' src='themes/" . $this->theme . "/images/enabled.gif'  border=0></A>";
 		} else {
-			$check = "<a href='javascript:void(0);' onClick=\"xajax_toggle_service_check('" . $defaults[server_id] . "', '" . $defaults[service_id] . "')\"><img src='images/diabled.gif' id='service_" . $defaults[service_id] . "' title='Enable  Checks for this Service' border=0></A>";
+			$check = "<a href='javascript:void(0);' onClick=\"xajax_toggle_service_check('" . $defaults[server_id] . "', '" . $defaults[service_id] . "')\"><img src='themes/" . $this->theme . "/images/diabled.gif' id='service_" . $defaults[service_id] . "' title='Enable  Checks for this Service' border=0></A>";
 		}
 		if($defaults[notify_enabled] == 1) {
-			$notifys = "<a href='javascript:void(0);' onClick=\"xajax_toggle_service_notify_check('" . $defaults[server_id] . "', '" . $defaults[service_id] . "')\"><img src='images/trigger.gif' id='trigger_" . $defaults[service_id] . "' title='Disable Notifications for this Service' border=0></A>";
+			$notifys = "<a href='javascript:void(0);' onClick=\"xajax_toggle_service_notify_check('" . $defaults[server_id] . "', '" . $defaults[service_id] . "')\"><img src='themes/" . $this->theme . "/images/trigger.gif' id='trigger_" . $defaults[service_id] . "' title='Disable Notifications for this Service' border=0></A>";
 		} else {
-			$notifys = "<a href='javascript:void(0);' onClick=\"xajax_toggle_service_notify_check('" . $defaults[server_id] . "', '" . $defaults[service_id] . "')\"><img id='trigger_" . $defaults[service_id] . "' src='images/notrigger.gif' title='Enable Notifications for this Service' border=0></A>";
+			$notifys = "<a href='javascript:void(0);' onClick=\"xajax_toggle_service_notify_check('" . $defaults[server_id] . "', '" . $defaults[service_id] . "')\"><img id='trigger_" . $defaults[service_id] . "' src='themes/" . $this->theme . "/images/notrigger.gif' title='Enable Notifications for this Service' border=0></A>";
 		}
 		if($defaults[is_downtime] == 1) {
-			$downtime="<img src='images/icon_work.gif' title='Service is in downtime (" . date("d.m.Y H:i:s", $defaults[downtime_from])  . "-" . date("d.m.Y H:i:s", $servs[$x][downtime_to]) . "): " . $defaults[downtime_notice] . "'>";	
+			$downtime="<img src='themes/" . $this->theme . "/images/icon_work.gif' title='Service is in downtime (" . date("d.m.Y H:i:s", $defaults[downtime_from])  . "-" . date("d.m.Y H:i:s", $servs[$x][downtime_to]) . "): " . $defaults[downtime_notice] . "'>";	
 		} else {
 			$downtime="&nbsp;";
 		}
 				
 		
-		$modify = "<a href='modify_service.php?service_id=" . $defaults[service_id] . "'><img src='images/modify.gif' title='Modify this Service' border=0></A>";
-		$force = "<a href='javascript:void(0);' onClick=\"xajax_forceCheck('" . $defaults[server_id] . "', '" . $defaults[service_id] . "')\"><img title='Force an immediate Check' src='images/force.gif' border=0></A>";
-		$comments="<a href='view_comments.php?service_id=" . $defaults[service_id] . "'><img title='Comments for this Service' src='images/icon_comments.gif' border=0></A>";
-		$logview= "<a href='logview.php?service_id=" . $defaults[service_id]. "' ><font size=1><img  title='View Events for this Service' src='images/icon_view.gif' border=0></A>";				
-		$reports = "<a href='create_report.php?service_id=" . $defaults[service_id]. "' ><font size=1><img  title='Create Report' src='images/create_report.gif' border=0></A>";				
+		$modify = "<a href='modify_service.php?service_id=" . $defaults[service_id] . "'><img src='themes/" . $this->theme . "/images/modify.gif' title='Modify this Service' border=0></A>";
+		$force = "<a href='javascript:void(0);' onClick=\"xajax_forceCheck('" . $defaults[server_id] . "', '" . $defaults[service_id] . "')\"><img title='Force an immediate Check' src='themes/" . $this->theme . "/images/force.gif' border=0></A>";
+		$comments="<a href='view_comments.php?service_id=" . $defaults[service_id] . "'><img title='Comments for this Service' src='themes/" . $this->theme . "/images/icon_comments.gif' border=0></A>";
+		$logview= "<a href='logview.php?service_id=" . $defaults[service_id]. "' ><font size=1><img  title='View Events for this Service' src='themes/" . $this->theme . "/images/icon_view.gif' border=0></A>";				
+		$reports = "<a href='create_report.php?service_id=" . $defaults[service_id]. "' ><font size=1><img  title='Create Report' src='themes/" . $this->theme . "/images/create_report.gif' border=0></A>";				
 		if(file_exists($this->PERFDIR . "/" . $defaults[plugin])) {
-			$stat = "<a href='bartlby_action.php?service_id=" . $defaults[service_id] . "&server_id=" . $defaults[server_id] . "&action=perfhandler_graph'><img title='Graph collected perf handler data' src='images/icon_stat.gif' border=0></A>";				
+			$stat = "<a href='bartlby_action.php?service_id=" . $defaults[service_id] . "&server_id=" . $defaults[server_id] . "&action=perfhandler_graph'><img title='Graph collected perf handler data' src='themes/" . $this->theme . "/images/icon_stat.gif' border=0></A>";				
 		} else {
 			$stat = "";
 		}
-		$copy = "<a href='modify_service.php?copy=true&service_id=" . $defaults[service_id] . "'><img src='images/edit-copy.gif' title='Copy (Create a similar) this Service' border=0></A>";				
+		$copy = "<a href='modify_service.php?copy=true&service_id=" . $defaults[service_id] . "'><img src='themes/" . $this->theme . "/images/edit-copy.gif' title='Copy (Create a similar) this Service' border=0></A>";				
 
 		$is_gone=$this->is_gone($defaults[is_gone]);
 				

@@ -7,7 +7,7 @@ include "config.php";
 
 $btl=new BartlbyUi($Bartlby_CONF);
 $layout = new Layout();
-
+$layout->setTheme(bartlby_config("ui-extra.conf", "theme"));
 
 
 $xajax->processRequests();
@@ -15,16 +15,17 @@ $xajax->processRequests();
 
 
 function toggle_extension($ext) {
+	global $layout;
 	$res=new xajaxResponse();
 	$fn = "extensions/" . $ext . ".disabled";
 	if(!file_exists($fn)) {
 		@touch($fn);
 		//enable	
-		$res->AddAssign("extension_" . $ext, "src", "images/extension_disable.gif");
+		$res->AddAssign("extension_" . $ext, "src", "themes/" . $layout->theme . "/images/extension_disable.gif");
 		$res->AddAssign("extension_" . $ext, "title", "enable extension");
 	} else {
 		@unlink($fn);
-		$res->AddAssign("extension_" . $ext, "src", "images/extension_enable.gif");
+		$res->AddAssign("extension_" . $ext, "src", "themes/" . $layout->theme . "images/extension_enable.gif");
 		$res->AddAssign("extension_" . $ext, "title", "disable extension");
 		//disable extension_disable.gif
 	}
@@ -512,7 +513,7 @@ function QuickLook($what) {
 	}
 	
 	$rq .= "</table>";
-	$output .= $layout->create_box("Server", $rq);
+	$output .= $layout->create_box("Server", $rq, "search_servers");
 	$rq = "<table width=100%>";
 	
 	$rq .= "<tr>";
@@ -542,7 +543,7 @@ function QuickLook($what) {
 	
 	
 	$rq .= "</table>";
-	$output .= $layout->create_box("Services", $rq);
+	$output .= $layout->create_box("Services", $rq, "search_services");
 	$rq = "";
 	
 	@reset($servers);
@@ -557,8 +558,11 @@ function QuickLook($what) {
 	
 	//Search Workers
 	//Call n get return of Extensions
-	$output .=  $layout->create_box("Extensions", $rq);
-	$output = "<a href='javascript:void(0);' onClick=\"xajax_removeDIV('quick_suggest');\">close</A><br>" . $output;
+	$output .=  $layout->create_box("Extensions", $rq, "search_extensions");
+	$cl_button = "<a href='javascript:void(0);' onClick=\"xajax_removeDIV('quick_suggest');\">close</A><br>";
+	
+	$output = $cl_button . $layout->boxes[search_services] . $layout->boxes[search_servers] . $layout->boxes[search_extensions];
+	
 	$res->addAssign("quick_suggest", "innerHTML", $output);
 	return $res;	
 }
