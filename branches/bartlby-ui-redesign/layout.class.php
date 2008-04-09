@@ -297,6 +297,7 @@ class Layout {
 		$this->SERVERTIME=date("d.m.Y H:i:s");
 		$this->XAJAX=$xajax->getJavascript("xajax");			
 		$this->UIVERSION=BARTLBY_UI_VERSION;
+		$this->RELNOT=BARTLBY_RELNOT;
 		
 		$this->create_box($this->BoxTitle, $this->OUT, "MAIN");
 
