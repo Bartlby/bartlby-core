@@ -7,7 +7,7 @@ class SMS {
         function SMS() {
               $this->layout = new Layout();
 		$this->storage=new bartlbyStorage("SMS");
-		$this->sms_queue="/var/sms/outgoing/";
+		$this->sms_queue="/var/spool/sms/outgoing/";
         }
 
 
