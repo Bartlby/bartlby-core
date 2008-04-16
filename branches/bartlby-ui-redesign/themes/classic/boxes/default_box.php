@@ -1,7 +1,7 @@
 <table class="nopad" id="<?=$oid?>">
 				<tr>
 					<td class="box_left_corner_top">&nbsp;</td>
-					<td class="box_top_run"><?=$title?> ID: <?=$oid?></td>
+					<td class="box_top_run"><?=$title?></td>
 					<td class="box_right_corner_top">&nbsp;</td>
 				</tr>
 				<tr>
