@@ -2,7 +2,7 @@ include Makefile.conf
 
 
 SUBDIRS = src/ src/libs/ src/tools/
-TRIGGERS = icq.sh jabber.sh mail.sh
+TRIGGERS = icq.sh jabber.sh mail.sh sms.sh
 PERFHANDLERS = bartlby_http bartlby_if bartlby_load bartlby_snmp.sh bartlby_swap.sh bartlby_files_in_dir
 
 
