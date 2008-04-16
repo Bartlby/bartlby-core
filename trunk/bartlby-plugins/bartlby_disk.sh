@@ -4,25 +4,6 @@
 # $Id: bartlby_disk.sh,v 1.4 2006/09/09 19:38:42 hjanuschka Exp $ */
 #
 #
-# $Revision: 1.4 $
-# $Source: /cvsroot/bartlby/bartlby-plugins/bartlby_disk.sh,v $
-#
-#
-#
-# $Log: bartlby_disk.sh,v $
-# Revision 1.4  2006/09/09 19:38:42  hjanuschka
-# auto commit
-#
-# Revision 1.3  2006/08/28 21:37:39  hjanuschka
-# auto commit
-#
-# Revision 1.2  2005/09/20 18:53:56  hjanuschka
-# initial import
-#
-# Revision 1.1  2005/09/19 21:49:50  hjanuschka
-# simple plugin framework (argument parsing, executable finding)
-# sample plugin (check disk) using framework
-#
 #########################################
 
 VERSION="0.1";
@@ -55,12 +36,20 @@ function check_part {
 		echo "$1 warning level missing; ";
 		exit $STATE_CRITICAL;
 	fi;
-	prozt=`(df -h $1|grep -v "Mounted"|while read a b c d  pr a; do echo "$d $pr"; done;)|sed 's/[\n|%]//g'`;
+	prozt=`(df  $1|grep -v "Mounted"|while read a b c d  pr a; do echo "$d $pr"; done;)|sed 's/[\n|%]//g'`;
 	
 	
 	proz=$(echo $prozt|awk '{ print $2}');
 	freemb=$(echo $prozt|awk '{ print $1}');
+	freemb=$[freemb/1024];
 	echo -n " [disk: $1 reached $proz% $freemb free ";
+
+	if [ "$USE_MEGA" != "false" ];
+	then
+		proz=$freemb;
+	fi;
+
+
 	#check for CRIT
 	if [ "$proz" -ge "$3" ];
 	then
@@ -95,6 +84,8 @@ plg_get_arg "H" "SNMP_HOST";
 plg_get_arg "v" "SNMP_VER";
 plg_get_arg "x" "SNMP_WINDOWS";
 
+plg_get_arg "m" "USE_MEGA"
+
 if [ "$SNMP_HOST" = "false" ];
 then
 	SNMP_HOST="localhost";
@@ -125,8 +116,9 @@ then
 	echo "-h Display Help";
 	echo "-p Comma Seperated list of partitions to check (Default all partitions are used)";
 	echo "-x comma separated list of partitions wich should get excluded from check (Default: none is excluded)";
-	echo "-w Warning level is usage is higher than -w produce a warning";
-	echo "-c Critical level is usage is higher than -c produce a critical";
+	echo "-w Warning level if usage is higher than -w produce a warning";
+	echo "-c Critical level if usage is higher than -c produce a critical";
+	echo "-m treat -c/-w as Megabytes free instead of percent values (for large disks)";
 	echo "-S use SNMP mode"; 
 	echo "  -C Community (default: public)";
 	echo "  -H Host (default: localhost)";
@@ -160,9 +152,14 @@ function snmp_do_it {
 	
 	
 		proz=$p_end;
-		freemb=0;
+		freemb=$[p_e/1024/1024];
 		
 		echo -n " [disk: $descr reached $proz% $freemb free ";
+
+		if [ "$USE_MEGA" != "false" ];
+		then
+			proz=$freemb;
+		fi;
 		#check for CRIT
 		if [ "$proz" -ge "$C_LEVEL" ];
 		then
