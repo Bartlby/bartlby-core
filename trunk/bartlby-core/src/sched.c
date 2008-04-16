@@ -58,7 +58,11 @@ int g_micros_before_after_check=700;
 long shortest_intervall;
 
 
-
+/*
+function: catch_signal
+input: int signum Signal number
+catches signals, need for reload and shutdown
+*/
 
 void catch_signal(int signum) {
 	pid_t sig_pid;
@@ -77,7 +81,7 @@ void catch_signal(int signum) {
 		}
 		
 		
-		//signal(SIGINT, catch_signal);
+		
 		
 	}
 	if(signum == SIGUSR2) {
@@ -94,6 +98,13 @@ void catch_signal(int signum) {
          }
 	
 }
+
+
+/*
+function: sched_write_back_all
+input: Configfile, shm_address, SOHandle
+writes all shm changes back to database 
+*/
 
 void sched_write_back_all(char * cfgfile, void * shm_addr, void * SOHandle) {
 	int x;
@@ -132,6 +143,12 @@ void sched_write_back_all(char * cfgfile, void * shm_addr, void * SOHandle) {
 	
 }
 
+
+/*
+function: sched_reaper
+input: int sig
+catches fork childs
+*/
 void sched_reaper(int sig) {
 	int childstatus;
 	int childpid;
@@ -148,7 +165,11 @@ void sched_reaper(int sig) {
 	return;
 }
 
-
+/*
+function: sched_needs_ack
+input: service
+returns 1 if ACK is outstanding
+*/
 int sched_needs_ack(struct service * svc) {
 	if(svc->service_ack == ACK_OUTSTANDING) {
 		return 1; //Skip it something unAcked found
@@ -157,11 +178,18 @@ int sched_needs_ack(struct service * svc) {
 	}	
 }
 
+/*
+function: sched_kill_runaaway
+returns 1 if ACK is outstanding
+function is called when a service check has not returned in the time frame
+process is killed and notifications are sent, status is set to critical
+*/
+
 void sched_kill_runaaway(void * shm_addr, struct service *  svc, char * cfg, void * SOHandle) {
 	int rtc;
 	int rnd_intv;
-	//kill the subprocess ;)
-	//also kills the perf handlers etc :-)
+	
+	//if process isnt here anymore return
 	if(svc->process.pid < 2)  {
 		return;
 	}
@@ -187,20 +215,25 @@ void sched_kill_runaaway(void * shm_addr, struct service *  svc, char * cfg, voi
 		}
 	} else {
 		
-		//_log("@KILL@Killing runaaway process: %s:%d/%s %d (done)",svc->process.pid); 	
+		
 		_log("@KILL@%ld|%d|%s:%d/%s|Killing process with pid: %d", svc->service_id, svc->current_state, svc->srv->server_name, svc->srv->client_port, svc->service_name, svc->process.pid);
 	}
 		
+	//service timed out
 	sprintf(svc->new_server_text, "%s", "in-core time out");
 	svc->current_state=STATE_CRITICAL;
 	
+	//on failure re-calc a new interval
 	rnd_intv=1+(rand() % 10);
 	svc->check_interval_original += rnd_intv;
 	_log("bumped intervall: %d", rnd_intv);
 	
+	//finish service, pulls triggers etc
 	bartlby_fin_service(svc,SOHandle,shm_addr,cfg);		
 	svc->process.pid=0;
 	svc->process.start_time=0;
+	
+	
 	if(gshm_hdr->current_running > 0) {
 		gshm_hdr->current_running--;
 	} else {
@@ -209,16 +242,27 @@ void sched_kill_runaaway(void * shm_addr, struct service *  svc, char * cfg, voi
 	
 	
 }
+
+/*
+function: sched_is_server_dead
+checks if a server is dead based on the life-indicator assigned
+*/
 int sched_is_server_dead(struct service * svc) {
 	int rt;
 	rt = 1;
 	struct service * dm, * d1;
 	int rr;
 	
+	/*
+	Loops threw all servers trying to indicate if a server is dead	
+	*/
+	
 	if(svc->srv->server_dead != 0) {
+		// if a  "alive-inidicator" is set
 		dm = svc->srv->dead_marker;
 		rr = 0;
 		while(dm != NULL) {
+			// Until we have deadmarker loop here 
 			
 			//if the alive indicator is the service it self break out!! in recursion 1 this means it will be checked
 			if(dm->service_id == svc->service_id) {
@@ -229,7 +273,6 @@ int sched_is_server_dead(struct service * svc) {
 			
 			//if the current alive-indicator is critical mark as dead and break out
 			if(dm->current_state == STATE_CRITICAL && dm->service_retain_current >= dm->service_retain) {
-				//_log("            IS BROKEN");
 				rt = -1;	
 				break;
 			}
@@ -251,6 +294,11 @@ int sched_is_server_dead(struct service * svc) {
 	return rt;	
 }
 
+/*
+function: sched_check_waiting
+checks if a service is required to check or not
+*/
+
 int sched_check_waiting(void * shm_addr, struct service * svc, char * cfg, void * SOHandle, int sched_pause) {
 	int cur_time;
 	long my_diff;
@@ -258,7 +306,8 @@ int sched_check_waiting(void * shm_addr, struct service * svc, char * cfg, void 
 	
 	struct timeval cur_tv;
 	
-	//just to be sure
+	
+	//FIXME: should be removed
 	
 	usleep(g_micros_before_after_check);
 	
@@ -270,7 +319,7 @@ int sched_check_waiting(void * shm_addr, struct service * svc, char * cfg, void 
 	
 	
 	 
-	//_log("intervall: %d, my_diff: %d",svc->check_interval_original, my_diff);
+
 	if((svc->check_interval_original-my_diff) < shortest_intervall && svc->service_active == 1 && svc->srv->server_enabled != 0) {
 		shortest_intervall=(svc->check_interval_original-my_diff);
 		 
@@ -280,7 +329,6 @@ int sched_check_waiting(void * shm_addr, struct service * svc, char * cfg, void 
 	if(sched_pause >= 0) {
 		if(svc->do_force == 1) {
 			svc->do_force=0; //dont force again
-			//_log("Force: %s:%d/%s", svc->srv->server_name, svc->srv->client_port, svc->service_name);
 			_log("@FORCE@%ld|%d|%d|||%s:%d/%s|Force check", svc->service_id, svc->last_state ,svc->current_state, svc->srv->server_name, svc->srv->client_port, svc->service_name);
 			return 1;	
 		}
@@ -353,7 +401,6 @@ void sched_wait_open(int timeout, int fasten) {
 	x=0;
 	olim=3000;
 	
-	//int rt, childstatus;
 	
 	
 	
@@ -373,21 +420,17 @@ void sched_wait_open(int timeout, int fasten) {
 				definitiv_running++;	
 			}
 		}
-		//gshm_hdr->current_running=definitiv_running;
 		
 		
 		if(gshm_hdr->current_running <= fasten) {
-			//_log("return!!! %d/%d", fasten, gshm_hdr->current_running);	
 			break;
 		}
 			
 		
 		if(gshm_hdr->current_running == 0) {
-			//_log("ISNULL");
 			break;	
 		}
 		if(x > olim) {
-			//_log("sched_wait_open timed out %d/%d", x, olim);	
 			gshm_hdr->current_running=0;
 			break;
 		}
@@ -460,7 +503,6 @@ void sched_run_check(struct service * svc, char * cfgfile, void * shm_addr, void
 		
 		sched_do_now(svc, cfgfile, shm_addr, SOHandle);
 		
-		//shmdt(shm_addr);
 		exit(0);
 	}
 		
@@ -471,16 +513,6 @@ static int cmpservice(const void *m1, const void *m2) {
 	struct service_sort * s1 = (struct service_sort *) m1;
 	struct service_sort * s2 = (struct service_sort *) m2;
 	int d1, d2;
-	
-	/*
-	if(s1->svc->delay_time.counter <= 0)
-		return 1;
-	if(s2->svc->delay_time.counter <= 0)
-		return 0;
-	
-	d1 = s1->svc->delay_time.sum / s1->svc->delay_time.counter;
-	d2 = s2->svc->delay_time.sum / s2->svc->delay_time.counter;
-	*/
 	
 	d1 = s1->svc->last_check + s1->svc->check_interval_original/1000;
 	d2 = s2->svc->last_check + s2->svc->check_interval_original/1000;
@@ -564,7 +596,7 @@ int schedule_loop(char * cfgfile, void * shm_addr, void * SOHandle) {
 	signal(SIGINT, catch_signal);
 	signal(SIGUSR1, catch_signal);
 	signal(SIGUSR2, catch_signal);
-	//signal(SIGCHLD, sched_reaper);
+	
 	
 	services=bartlby_SHM_ServiceMap(shm_addr);
 	gservices=services;
@@ -645,7 +677,6 @@ int schedule_loop(char * cfgfile, void * shm_addr, void * SOHandle) {
 			}
 			getloadavg(current_load, 3);
 			
-			//_log("Current_load: %d, %e, %e (max: %e)", (int)current_load[0], current_load[1], current_load[2], cfg_max_load);
 			
 			if(gshm_hdr->current_running < cfg_max_parallel || (int)current_load[0] < cfg_max_load) { 
 				if(sched_check_waiting(shm_addr, ssort[x].svc, cfgfile, SOHandle, sched_pause) == 1) {
@@ -661,9 +692,7 @@ int schedule_loop(char * cfgfile, void * shm_addr, void * SOHandle) {
 					
 					if(ct > expt && ssort[x].svc->service_type != SVC_TYPE_PASSIVE) {
 						// service check has delayed
-						//_log("ct: %d, e: %d", ct, expt);
 						ssort[x].svc->delay_time.sum += ct - expt;
-						//sched_optimize_intervall(ssort[x].svc, cfgfile);
 					}
 
 					ssort[x].svc->delay_time.counter++;
@@ -682,7 +711,6 @@ int schedule_loop(char * cfgfile, void * shm_addr, void * SOHandle) {
 			 		usleep(g_micros_before_after_check);
 			 		
 			 		gettimeofday(&run_c_end,NULL);
-			 		//_log("took: %d ms", bartlby_milli_timediff(run_c_end,run_c_start));
 			 		
 			 		
 				}				
@@ -714,7 +742,6 @@ int schedule_loop(char * cfgfile, void * shm_addr, void * SOHandle) {
 	
 		
 		
-		//_log("@@@@@@@@@@@@@ ROUND (%d/%d/%d) @@@@@@@@@@@@@@", round_visitors, gshm_hdr->current_running, cfg_max_parallel);
 		round_start=time(NULL);
 		round_visitors=0;
 		
