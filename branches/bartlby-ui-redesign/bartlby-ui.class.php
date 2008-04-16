@@ -28,6 +28,7 @@ session_start();
 set_time_limit(0);
 set_magic_quotes_runtime(0);
 define("BARTLBY_UI_VERSION", "2.1-redesign-branch");
+define("BARTLBY_RELNOT", "<font color=red><br>EARLY ALPHA!!!!</font>");
 $wdays[0]="Sunday";
 $wdays[1]="Monday";
 $wdays[2]="Tuesday";

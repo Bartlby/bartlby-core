@@ -7,9 +7,10 @@ $act=$_GET[action];
 if($_POST[action]) {
 	$act=$_POST[action];	
 }
+$btl=new BartlbyUi($Bartlby_CONF);
 $layout= new Layout();
 $layout->setTitle("Bartlby Action ($act)");
-$btl=new BartlbyUi($Bartlby_CONF);
+
 
 $layout->Table("100%");
 
@@ -677,11 +678,11 @@ $layout->Tr(
 );
 
 $content = "<table>" . $ov . "</table>";
-$layout->push_outside($layout->create_box($layout->BoxTitle, $content));
+$layout->create_box($layout->BoxTitle, $content, "Message");
 
 $btl->getExtensionsReturn("_POST_" . $act, $layout);
 $layout->BoxTitle="";
 
 
 $layout->TableEnd();
-$layout->display();
+$layout->display("bartlby_action");

@@ -259,15 +259,7 @@ class Layout {
 		$this->ext_menu .= $this->endMenu();
 
 
-		$this->ext_menu .= $this->beginMenu();
-		$this->ext_menu .= $this->addRoot("Core");
-                $this->ext_menu .= $this->addSub("Core", "Reload","bartlby_action.php?action=reload");
-                $this->ext_menu .= $this->addSub("Core", "Config","choose_config.php");
-                $this->ext_menu .= $this->addSub("Core", "Statistic","statistic.php");
-		$this->ext_menu .= $this->addSub("Core", "Event Queue","event_queue.php");
-		$this->ext_menu .= $this->addSub("Core", "Extensions","extensions.php");
-		$this->ext_menu .= $this->addSub("Core", "About","version.php");
-		$this->ext_menu .= $this->endMenu();
+		
 
 
 
@@ -288,6 +280,16 @@ class Layout {
 		closedir();
 		
 
+		$this->ext_menu .= $this->beginMenu();
+		$this->ext_menu .= $this->addRoot("Core");
+                $this->ext_menu .= $this->addSub("Core", "Reload","bartlby_action.php?action=reload");
+                $this->ext_menu .= $this->addSub("Core", "Config","choose_config.php");
+                $this->ext_menu .= $this->addSub("Core", "Statistic","statistic.php");
+		$this->ext_menu .= $this->addSub("Core", "Event Queue","event_queue.php");
+		$this->ext_menu .= $this->addSub("Core", "Extensions","extensions.php");
+		$this->ext_menu .= $this->addSub("Core", "About","version.php");
+		$this->ext_menu .= $this->endMenu();
+
 		
 		$this->BTUICONTENT=$this->OUT;
 		$this->BTUIOUTSIDE=$this->OUTSIDE;
@@ -307,9 +309,12 @@ class Layout {
 			$lineup_file="default";
 		}
 
-		
+		$lineup_path="themes/" . $this->theme . "/lineups/" . $lineup_file . ".php";
+		if(!file_exists($lineup_path)) {
+			$lineup_path="themes/classic/lineups/default.php";
+		}
 		ob_start();
-			include("themes/" . $this->theme . "/lineups/" . $lineup_file . ".php");
+			include($lineup_path);
 		
 		$this->BTUIOUTSIDE = ob_get_contents();		
 		ob_end_clean();
@@ -353,9 +358,13 @@ class Layout {
 		} else {
 			$box_file .= ".php";
 		}
-
+		$boxes_path="themes/" . $this->theme . "/boxes/" . $box_file;
+		if(!file_exists($boxes_path)) {
+			
+			$boxes_path="themes/classic/boxes/" . $box_file;
+		}
 		ob_start();
-			include("themes/" . $this->theme . "/boxes/" . $box_file);
+			include($boxes_path);
 		
 		$o = ob_get_contents();	
 			
@@ -369,7 +378,7 @@ class Layout {
 		return $oid;
 	}
 	function push_outside($content) {
-		echo "HELLP!!!";
+		//echo "HELLP!!!";
 	}
 
 }

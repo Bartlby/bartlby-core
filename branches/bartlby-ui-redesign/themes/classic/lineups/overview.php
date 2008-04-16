@@ -3,7 +3,7 @@
 <?=$this->disp_box("tactical_overview")?>
 <?=$this->disp_box("system_health")?>
 <?=$this->disp_box("extension_ServerGroups")?>
-<?=$this->disp_box("MAIN")?>
+
 <?=$this->disp_box("UNPLACED")?>
 
 
