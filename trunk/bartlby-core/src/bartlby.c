@@ -426,7 +426,7 @@ int bartlby_go(char * cfgfile) {
 		
 		
 		if(exi_code != 1) {
-			//re populate SHM called reload *fg*
+			//re populate SHM
 			bartlby_shm_fits(gCfgfile);
 			if(bartlby_populate_shm(gCfgfile) < 0) {
 				//in case of zero workers

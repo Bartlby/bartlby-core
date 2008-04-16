@@ -1639,7 +1639,7 @@ int doUpdateServer(struct server * svc, char * config) {
                 CHK_ERR(mysql);
 
 
-	sqlupd=malloc(sizeof(char) *(strlen(SERVICE_UPDATE_TEXT)+sizeof(struct service)+255));
+	sqlupd=malloc(sizeof(char) *(strlen(SERVER_UPDATE_TEXT)+sizeof(struct service)+255));
 
 
         sprintf(sqlupd, SERVER_UPDATE_TEXT, svc->server_enabled, svc->server_notify, svc->server_id);
