@@ -49,6 +49,16 @@ clean:
 	@list='$(SUBDIRS)'; for subdir in $$list; do \
 	  test "$$subdir" = . || (cd $$subdir && make clean); \
 	done
+
+
+distclean:
+	@list='$(SUBDIRS)'; for subdir in $$list; do \
+	  test "$$subdir" = . || (cd $$subdir && make clean); \
+	done
+	$(RMVFR) bartlby.cfg
+	$(RMVFR) Makefile.conf
+	$(RMVFR) include/bartlby_v2_dh.h
+
 changelog:
 	../make_changelog
 	
