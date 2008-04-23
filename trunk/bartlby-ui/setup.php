@@ -33,7 +33,6 @@ for($x=0; $x<count($dirs); $x++) {
 <h2>Checking default disabled UI extensions</h2>
 <pre>
 <?
-$bad_error_found=false;
 foreach(glob("extensions/*.disabled") as $fname) {
 	echo $fname . ".....";
 	
