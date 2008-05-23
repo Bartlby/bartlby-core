@@ -336,6 +336,7 @@ visibility: hidden;
 			}
 		}
 	@fclose($fp);
+
 	@eval($estr);
 	echo "<script>\n";
 	echo "var layerTop = new Array();\n";
