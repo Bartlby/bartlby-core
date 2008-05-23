@@ -44,6 +44,7 @@ $reopen_service=false;
 $reopen_server=false;
 $running_only=0;
 $ticker="|";
+$hide_warns=0;
 
 $ncurses_session = ncurses_init();
 $main = ncurses_newwin(0, 0, 0, 0); // main window
@@ -99,7 +100,13 @@ while(1){
 	if($k == 115 || $reopen_server == true) {
 		btl_disp_server();
 	}
-	
+	if($k == 119) {
+		if($hide_warns == 0)  {
+			$hide_warns = 1;
+		} else {
+			$hide_warns = 0;
+		}
+	}
 	if($k == 258) {
 		if($selected_pos > $lines/2) {
 			$start_from=$start_from+1;	
@@ -195,7 +202,11 @@ for($tt=0; $tt<$lines; $tt++) {
 						ncurses_color_set(4);
 					break;
 				}
-
+				if($hide_warns == 1) {
+					if($servs[$x][current_state] == 1) {
+                                                continue;
+                                        }
+				}
 				if($alerts_only == 1) {
 					if($servs[$x][current_state] == 0) {
 						continue;	
