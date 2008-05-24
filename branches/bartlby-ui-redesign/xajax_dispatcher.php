@@ -772,7 +772,12 @@ function AddModifyService($aFormValues) {
 	} else {
 		$res->addAssign("error_renotify_interval", "innerHTML", "");
 	}
-	
+	if(!$av["service_server[]"] && !$av["service_server"]) {
+		$res->addAssign("error_service_server[]", "innerHTML", "required field");
+		$al="1";
+	} else {
+		$res->addAssign("error_service_server[]", "innerHTML", "");
+	}
 	
 	switch($av[service_type]) {
 		case 1:

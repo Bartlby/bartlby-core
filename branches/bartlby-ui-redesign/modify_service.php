@@ -42,10 +42,16 @@ if($_GET[service_id]) {
 $defaults=@bartlby_get_service_by_id($btl->CFG, $_GET[service_id]);
 
 $fm_action="modify_service";
+$server_list_type="";
+$server_field_name="service_server";
+
 if($_GET["copy"] == "true") {
 	$fm_action="add_service";
 	$btl->hasRight("action.copy_service");
+	$server_list_type="multiple";
+	$server_field_name="service_server[]";
 }
+
 if($_GET["new"] == "true") {
 	$fm_action="add_service";
 	$btl->hasRight("action.add_service");
@@ -65,7 +71,8 @@ if($_GET["new"] == "true") {
 	
 	$defaults[escalate_divisor]=(int)bartlby_config("ui-extra.conf", "new.service.escalate_divisor");
 	$defaults[renotify_interval]=(int)bartlby_config("ui-extra.conf", "new.service.renotify_interval");
-	
+	$server_list_type="multiple";
+	$server_field_name="service_server[]";	
 	
 }
 if($fm_action == "modify_service") {
@@ -311,7 +318,7 @@ $active_box_out .= $layout->Tr(
 	$layout->Td(
 		array(
 			0=>"Service Server",
-			1=>$layout->DropDown("service_server", $servers)
+			1=>$layout->DropDown($server_field_name, $servers, $server_list_type)
 			
 		)
 	)
