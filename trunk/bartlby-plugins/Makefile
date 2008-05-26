@@ -44,6 +44,7 @@ install: all
 	$(CPPVA) -m 777 bartlby_snmp.sh $(BARTLBY_HOME)/;
 	$(CPPVA) -m 777 bartlby_swap.sh $(BARTLBY_HOME)/;
 	$(CPPVA) -m 777 bartlby_files_in_dir $(BARTLBY_HOME)/;
+	$(CPPVA) -m 777 bartlby_check_apt $(BARTLBY_HOME)/;
 	
 
 clean:
