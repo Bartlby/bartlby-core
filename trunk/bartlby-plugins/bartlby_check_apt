@@ -9,7 +9,7 @@ EXITCODE=$?
 if [ "$EXITCODE" -ne "0" ]
 then
 	echo "problem with apt-get update"
-	exit 1;
+	exit 2;
 fi
 
 #
@@ -20,7 +20,7 @@ APTOUTPUT=`apt-get -s -u upgrade 2>&1|grep "upgraded,"|awk '{print $1}'`
 if [ "$APTOUTPUT" -ne "0" ]
 then
 	echo "$APTOUTPUT requiring upgrade";
-	exit 1
+	exit 4; #INFO only
 fi
 
 
