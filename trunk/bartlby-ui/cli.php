@@ -45,6 +45,7 @@ $reopen_server=false;
 $running_only=0;
 $ticker="|";
 $hide_warns=0;
+$hide_infos=0;
 
 $ncurses_session = ncurses_init();
 $main = ncurses_newwin(0, 0, 0, 0); // main window
@@ -107,6 +108,21 @@ while(1){
 			$hide_warns = 0;
 		}
 	}
+	if($k == 82) {
+		//reset view :-)
+		$hide_warns=0;
+		$hide_infos=0;
+		$alerts_only=1;
+
+	}
+	if($k == 105) {
+                if($hide_infos == 0)  {
+                        $hide_infos = 1;
+                } else {
+                        $hide_infos = 0;
+                }
+        }
+
 	if($k == 258) {
 		if($selected_pos > $lines/2) {
 			$start_from=$start_from+1;	
@@ -207,6 +223,12 @@ for($tt=0; $tt<$lines; $tt++) {
                                                 continue;
                                         }
 				}
+				if($hide_infos == 1) {
+                                        if($servs[$x][current_state] == 4) {
+                                                continue;
+                                        }
+                                }
+
 				if($alerts_only == 1) {
 					if($servs[$x][current_state] == 0) {
 						continue;	
@@ -807,6 +829,9 @@ function disp_help() {
 		array(1, "a" , "Only disable service wich arent OK"),
 		array(1, "d", "also show downtimed services"),
 		array(1, "r", "only show checks wich are currently running"),
+		array(1, "w", "hide services wich are in state:warning"),
+		array(1, "i", "hide services wich are in state:info"),
+		array(1, "R", "Reset filter's"),
 		array(0, "Service Detail:"),
 		array(1, "f", "Force Check"),
 		array(1, "c", "Check enable/disable"),
