@@ -224,7 +224,7 @@ void bartlby_action_handle_reply(struct service * svc, char * rmessage, char * c
    		
    		curr_line[cur_char_idx]=rmessage[char_idx];
    		
-   		if(rmessage[char_idx] == '\n' || char_idx == strlen(rmessage)) {
+   		if(rmessage[char_idx] == '\n' || char_idx == strlen(rmessage) || char_idx == 1023) { //END of rmessage buffer :)
    			curr_line[cur_char_idx]='\0';
    			
    			if(strlen(curr_line) > 0) {
