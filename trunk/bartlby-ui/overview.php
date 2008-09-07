@@ -275,7 +275,7 @@ $Author: hjanuschka $
 	} 
 	
 	
-	$layout->boxes_placed[MAIN]=true;
+	$layout->boxes_placed[MAIN]=false;
 	$layout->TableEnd();
 	$layout->display("overview");
 	

@@ -21,18 +21,19 @@ function toggle_extension($ext) {
 	if(!file_exists($fn)) {
 		@touch($fn);
 		//enable	
-		$res->AddAssign("extension_" . $ext, "src", "themes/" . $layout->theme . "/images/extension_disable.gif");
-		$res->AddAssign("extension_" . $ext, "title", "enable extension");
+		$res->AddAssign("extension_img_" . $ext, "src", "themes/" . $layout->theme . "/images/extension_disable.gif");
+		$res->AddAssign("extension_img_" . $ext, "title", "enable extension");
 	} else {
 		@unlink($fn);
-		$res->AddAssign("extension_" . $ext, "src", "themes/" . $layout->theme . "images/extension_enable.gif");
-		$res->AddAssign("extension_" . $ext, "title", "disable extension");
+		$res->AddAssign("extension_img_" . $ext, "src", "themes/" . $layout->theme . "/images/extension_enable.gif");
+		$res->AddAssign("extension_img_" . $ext, "title", "disable extension");
 		//disable extension_disable.gif
 	}
 	return $res;
 }
 function toggle_server_check($server_id, $service_id) {
 	global $btl;
+	global $layout;
 	$res = new xajaxresponse();
 	if(!preg_match("/^XML.*$/i", $server_id)) {
 		if($btl->hasServerorServiceRight($server_id, false)) {
@@ -42,11 +43,11 @@ function toggle_server_check($server_id, $service_id) {
 			
 			if($cur == 1) { //Active
 				//$res->addAlert("Check enabled on:" . $gsm[server_name] . ":" . $gsm[client_port] . "/" . $gsm[service_name]);
-				$res->AddAssign("server_" . $server_id, "src", "images/enabled.gif");
+				$res->AddAssign("server_" . $server_id, "src", "themes/" . $layout->theme . "/images/enabled.gif");
 				$res->AddAssign("server_" . $server_id, "title", "Disable Checks");
 			} else {
 				//$res->addAlert("Check disabled on:" . $gsm[server_name] . ":" . $gsm[client_port] . "/" . $gsm[service_name]);	
-				$res->AddAssign("server_" . $server_id, "src", "images/diabled.gif");
+				$res->AddAssign("server_" . $server_id, "src", "themes/" . $layout->theme . "/images/diabled.gif");
 				$res->AddAssign("server_" . $server_id, "title", "Enable Checks");
 			}
 			
@@ -68,6 +69,8 @@ function toggle_server_check($server_id, $service_id) {
 
 function toggle_server_notify_check($server_id, $service_id) {
 	global $btl;
+	global $layout;
+
 	$res = new xajaxresponse();
 	if(!preg_match("/^XML.*$/i", $server_id)) {
 		if($btl->hasServerorServiceRight($server_id, false)) {
@@ -77,11 +80,11 @@ function toggle_server_notify_check($server_id, $service_id) {
 			
 			if($cur == 1) { //Active
 				//$res->addAlert("Check enabled on:" . $gsm[server_name] . ":" . $gsm[client_port] . "/" . $gsm[service_name]);
-				$res->AddAssign("trigger_" . $server_id, "src", "images/trigger.gif");
+				$res->AddAssign("trigger_" . $server_id, "src", "themes/" . $layout->theme . "/images/trigger.gif");
 				$res->AddAssign("trigger_" . $server_id, "title", "disable notifications");
 			} else {
 				//$res->addAlert("Check disabled on:" . $gsm[server_name] . ":" . $gsm[client_port] . "/" . $gsm[service_name]);	
-				$res->AddAssign("trigger_" . $server_id, "src", "images/notrigger.gif");
+				$res->AddAssign("trigger_" . $server_id, "src", "themes/" . $layout->theme . "/images/notrigger.gif");
 				$res->AddAssign("trigger_" . $server_id, "title", "enable trigger");
 			}
 			
@@ -98,7 +101,7 @@ function toggle_server_notify_check($server_id, $service_id) {
 	return $res;
 }
 function toggle_service_notify_check($server_id, $service_id) {
-	global $btl;
+	global $btl, $layout;
 	$res = new xajaxresponse();
 	if(!preg_match("/^XML.*$/i", $service_id)) {
 		if($btl->hasServerorServiceRight($service_id, false)) {
@@ -108,11 +111,11 @@ function toggle_service_notify_check($server_id, $service_id) {
 			
 			if($cur == 1) { //Active
 				//$res->addAlert("Check enabled on:" . $gsm[server_name] . ":" . $gsm[client_port] . "/" . $gsm[service_name]);
-				$res->AddAssign("trigger_" . $service_id, "src", "images/trigger.gif");
+				$res->AddAssign("trigger_" . $service_id, "src", "themes/" . $layout->theme . "/images/trigger.gif");
 				$res->AddAssign("trigger_" . $service_id, "title", "disable notifications");
 			} else {
 				//$res->addAlert("Check disabled on:" . $gsm[server_name] . ":" . $gsm[client_port] . "/" . $gsm[service_name]);	
-				$res->AddAssign("trigger_" . $service_id, "src", "images/notrigger.gif");
+				$res->AddAssign("trigger_" . $service_id, "src", "themes/" . $layout->theme . "/images/notrigger.gif");
 				$res->AddAssign("trigger_" . $service_id, "title", "enable trigger");
 			}
 			
@@ -130,7 +133,7 @@ function toggle_service_notify_check($server_id, $service_id) {
 }
 
 function toggle_service_check($server_id, $service_id) {
-	global $btl;
+	global $btl, $layout;
 	$res = new xajaxresponse();
 	if(!preg_match("/^XML.*$/i", $service_id)) {
 		if($btl->hasServerorServiceRight($service_id, false)) {
@@ -140,11 +143,11 @@ function toggle_service_check($server_id, $service_id) {
 			
 			if($cur == 1) { //Active
 				//$res->addAlert("Check enabled on:" . $gsm[server_name] . ":" . $gsm[client_port] . "/" . $gsm[service_name]);
-				$res->AddAssign("service_" . $service_id, "src", "images/enabled.gif");
+				$res->AddAssign("service_" . $service_id, "src", "themes/" . $layout->theme . "/images/enabled.gif");
 				$res->AddAssign("service_" . $service_id, "title", "Disable Checks");
 			} else {
 				//$res->addAlert("Check disabled on:" . $gsm[server_name] . ":" . $gsm[client_port] . "/" . $gsm[service_name]);	
-				$res->AddAssign("service_" . $service_id, "src", "images/diabled.gif");
+				$res->AddAssign("service_" . $service_id, "src", "themes/" . $layout->theme . "/images/diabled.gif");
 				$res->AddAssign("service_" . $service_id, "title", "Enable Checks");
 			}
 			
