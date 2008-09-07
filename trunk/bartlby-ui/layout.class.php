@@ -240,6 +240,7 @@ class Layout {
                 $this->ext_menu .= $this->addSub("Service/s", "Add","add_service.php");
                 $this->ext_menu .= $this->addSub("Service/s", "Modify","service_list.php?script=modify_service.php");
                 $this->ext_menu .= $this->addSub("Service/s", "Delete","service_list.php?script=delete_service.php");
+                $this->ext_menu .= $this->addSub("Service/s", "Bulk","bulk_actions.php");
 		$this->ext_menu .= $this->endMenu();
 
 		$this->ext_menu .= $this->beginMenu();
