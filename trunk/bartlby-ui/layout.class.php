@@ -1,25 +1,26 @@
 <?
-#////////////////////////////////////////////
-#//
-#// MXS(erver) Project by h.januschka
-#// initatated august 2003
-#// -------------------------------------
-#// MultiPlayerMedia Server with the main 
-#// goal to have an easy interface for 
-#// Macromedia FLASH© games and Guis
-#//
-#//
-#//
-#//
-#//--------------------------------------------
-#// @package WAI
-#// @file LAYOUT.class.php
-#// @author klewan <klewan@chello.at>
-#// @desc centralized layout control :)
-#//
-#//
-#//
-#////////////////////////////////////////////
+/* $Id: ack.c 16 2008-04-07 19:20:34Z hjanuschka $ */
+/* ----------------------------------------------------------------------- *
+ *
+ *   Copyright 2005-2008 Helmut Januschka - All Rights Reserved
+ *   Contact: <helmut@januschka.com>, <contact@bartlby.org>
+ *
+ *
+ *   This program is free software; you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, Inc., 675 Mass Ave, Cambridge MA 02139,
+ *   USA; either version 2 of the License, or (at your option) any later
+ *   version; incorporated herein by reference.
+ *
+ *   visit: www.bartlby.org for support
+ * ----------------------------------------------------------------------- */
+/*
+$Revision: 16 $
+$HeadURL: http://bartlby.svn.sourceforge.net/svnroot/bartlby/trunk/bartlby-core/src/ack.c $
+$Date: 2008-04-07 21:20:34 +0200 (Mo, 07 Apr 2008) $
+$Author: hjanuschka $ 
+*/
+
 
 require_once ("xajax/xajax.inc.php");
 include("xajax.common.php");
@@ -28,6 +29,11 @@ class Layout {
 	var $OUT;
 	var $template_file;
 	
+
+	function setTheme($name="classic") {
+		if($name=="") $name="classic";
+		$this->theme=$name;	
+	}
 	
 	function set_menu($men) {
 		$this->OUT .= "<script>doToggle('" . $men . "');</script>";	
@@ -42,6 +48,12 @@ class Layout {
 		$this->template_file=$file;
 	}
 	function Layout($scr='') {
+		if(bartlby_config("ui-extra.conf", "theme") != "") {
+			$this->theme=bartlby_config("ui-extra.conf", "theme");
+		} else {
+			$this->theme="classic";
+		}
+
 		$this->template_file="template.html";
 		$this->start_time=$this->microtime_float();
 		$this->menu_set=false;
@@ -157,7 +169,8 @@ class Layout {
 		return "";	
 	}
 	function addRoot($name) {
-		$r = "<table class=\"nopad\">	<tr><td class=\"nav_main\" onClick=\"doToggle('$name')\"><img id='" . $name . "_plus' src='images/plus.gif' border=0> $name</td></tr><tr><td class=\"nav_place\">&nbsp;</td></tr></table><table class=\"nopad\" id='" . $name . "_sub' style='display:none;'>";
+
+		$r = "<table class=\"nopad\">	<tr><td class=\"nav_main\" onClick=\"doToggle('$name')\"><img id='" . $name . "_plus' src='themes/" . $this->theme . "/images/plus.gif' border=0> $name</td></tr><tr><td class=\"nav_place\">&nbsp;</td></tr></table><table class=\"nopad\" id='" . $name . "_sub' style='display:none;'>";
 		
 		
 		return $r;	
@@ -170,8 +183,8 @@ class Layout {
 		return "</table>";	
 	}
 	
-	function display($cr="") {
-		//global $BARTLBY_UI_VERSION;
+	function display($lineup_file="") {
+		if($lineup_file=="no") $lineup_file="";
 		global $xajax;
 		
 		if($this->menu_set == false) {
@@ -185,20 +198,76 @@ class Layout {
 			$this->set_menu("downtimes");
 			
 		}
+		$this->template_file="themes/" . $this->theme . "/theme.php";
 			
 		$this->end_time=$this->microtime_float();
 		$diff=$this->end_time-$this->start_time;
-		$source_file=$_SERVER[SCRIPT_URI];
-		$source_file=str_replace(".php", ".phps",$source_file);
-		$bname=basename($source_file);
 		
+
+		//Create Menu.
+		$this->ext_menu .= $this->beginMenu();
+		$this->ext_menu .= $this->addRoot("Monitoring");
+                $this->ext_menu .= $this->addSub("Monitoring", "Overview","overview.php");
+                $this->ext_menu .= $this->addSub("Monitoring", "Services","services.php");
+                $this->ext_menu .= $this->addSub("Monitoring", "Servers","extensions_wrap.php?script=ServerGroups/groupview.php");
+		$this->ext_menu .= $this->endMenu();
+
+
+		$this->ext_menu .= $this->beginMenu();
+		$this->ext_menu .= $this->addRoot("Reporting");
+                $this->ext_menu .= $this->addSub("Reporting", "Report/s","create_report.php");
+                $this->ext_menu .= $this->addSub("Reporting", "Logfile","logview.php");
+                $this->ext_menu .= $this->addSub("Reporting", "Notifications","logview.php?bartlby_filter=@NOT@");
+		$this->ext_menu .= $this->endMenu();
+
+		$this->ext_menu .= $this->beginMenu();
+		$this->ext_menu .= $this->addRoot("Server/s");
+                $this->ext_menu .= $this->addSub("Server/s", "Add","add_server.php");
+                $this->ext_menu .= $this->addSub("Server/s", "Modify","server_list.php?script=modify_server.php");
+                $this->ext_menu .= $this->addSub("Server/s", "Delete","server_list.php?script=delete_server.php");
+		$this->ext_menu .= $this->EndMenu();
+
+		$this->ext_menu .= $this->beginMenu();
+		$this->ext_menu .= $this->addRoot("Packages");
+                $this->ext_menu .= $this->addSub("Packages", "Install","server_list.php?script=install_pkg.php");
+                $this->ext_menu .= $this->addSub("Packages", "Uninstall","server_list.php?script=uninstall_pkg.php");
+                $this->ext_menu .= $this->addSub("Packages", "Create","package_create.php");
+                $this->ext_menu .= $this->addSub("Packages", "Delete","package_delete.php");
+		$this->ext_menu .= $this->endMenu();
+
+		$this->ext_menu .= $this->beginMenu();
+		$this->ext_menu .= $this->addRoot("Service/s");
+                $this->ext_menu .= $this->addSub("Service/s", "Add","add_service.php");
+                $this->ext_menu .= $this->addSub("Service/s", "Modify","service_list.php?script=modify_service.php");
+                $this->ext_menu .= $this->addSub("Service/s", "Delete","service_list.php?script=delete_service.php");
+		$this->ext_menu .= $this->endMenu();
+
+		$this->ext_menu .= $this->beginMenu();
+		$this->ext_menu .= $this->addRoot("Downtime/s");
+                $this->ext_menu .= $this->addSub("Downtime/s", "Add","service_list.php?script=add_downtime.php");
+                $this->ext_menu .= $this->addSub("Downtime/s", "Modify","downtime_list.php?script=modify_downtime.php");
+                $this->ext_menu .= $this->addSub("Downtime/s", "Delete","downtime_list.php?script=delete_downtime.php");
+		$this->ext_menu .= $this->endMenu();
+
+
+		$this->ext_menu .= $this->beginMenu();
+		$this->ext_menu .= $this->addRoot("Worker/s");
+                $this->ext_menu .= $this->addSub("Worker/s", "Add","add_worker.php");
+                $this->ext_menu .= $this->addSub("Worker/s", "Modify","user_list.php?script=modify_worker.php");
+                $this->ext_menu .= $this->addSub("Worker/s", "Delete","user_list.php?script=delete_worker.php");
+		$this->ext_menu .= $this->addSub("Worker/s", "Permissions","user_list.php?script=permission_worker.php");
+		$this->ext_menu .= $this->endMenu();
+
+
+		
+
+
+
 		$dhl = opendir("extensions");
 		while($file = readdir($dhl)) {
 			if($file != "." && $file != "..") {
 				if(!file_exists("extensions/" .  $file . ".disabled")) {
 					@include_once("extensions/" . $file . "/" . $file . ".class.php");
-					
-					
 					if (class_exists($file)) {
 						eval("\$clh = new " . $file . "();");
 						if(method_exists($clh, "_menu")) {
@@ -210,58 +279,106 @@ class Layout {
 		}
 		closedir();
 		
+
+		$this->ext_menu .= $this->beginMenu();
+		$this->ext_menu .= $this->addRoot("Core");
+                $this->ext_menu .= $this->addSub("Core", "Reload","bartlby_action.php?action=reload");
+                $this->ext_menu .= $this->addSub("Core", "Config","choose_config.php");
+                $this->ext_menu .= $this->addSub("Core", "Statistic","statistic.php");
+		$this->ext_menu .= $this->addSub("Core", "Event Queue","event_queue.php");
+		$this->ext_menu .= $this->addSub("Core", "Extensions","extensions.php");
+		$this->ext_menu .= $this->addSub("Core", "About","version.php");
+		$this->ext_menu .= $this->endMenu();
+
 		
+		$this->BTUICONTENT=$this->OUT;
+		$this->BTUIOUTSIDE=$this->OUTSIDE;
+		$this->BTUIBOXTITLE=$this->BoxTitle;
+		$this->BTUITIME=round($diff,2);
+		$this->BTLEXTMENU=$this->ext_menu;
+		$this->SERVERTIME=date("d.m.Y H:i:s");
+		$this->XAJAX=$xajax->getJavascript("xajax");			
+		$this->UIVERSION=BARTLBY_UI_VERSION;
+		$this->RELNOT=BARTLBY_RELNOT;
 		
-		$fp=fopen($this->template_file, "r");
-		while(!feof($fp)) {
-			$str=fgets($fp, 1024);
-			$o = str_replace("<!--BTUICONTENT-->",$this->OUT,$str);
-			$o = str_replace("<!--BTUIOUTSIDE-->",$this->OUTSIDE,$o);
-			$o = str_replace("<!--BTUIBOXTITLE-->",$this->BoxTitle,$o);
-			$o = str_replace("<!--BTUITIME-->",round($diff,2),$o);
-			$o = str_replace("<!--BTLEXTMENU-->",$this->ext_menu,$o);
-			$o = str_replace("<!--SERVERTIME-->",date("d.m.Y H:i:s") ,$o);
-			$o = str_replace("<!--XAJAX-->", $xajax->getJavascript("xajax"), $o);
-			$o = str_replace("<!--UIVERSION-->",BARTLBY_UI_VERSION ,$o);
-			echo $o; 	
+		$this->create_box($this->BoxTitle, $this->OUT, "MAIN");
+
+
+		//Default LineUp
+		if($lineup_file == "") {
+			$lineup_file="default";
 		}
-		fclose($fp);
+
+		$lineup_path="themes/" . $this->theme . "/lineups/" . $lineup_file . ".php";
+		if(!file_exists($lineup_path)) {
+			$lineup_path="themes/classic/lineups/default.php";
+		}
+		ob_start();
+			include($lineup_path);
 		
+		$this->BTUIOUTSIDE = ob_get_contents();		
+		ob_end_clean();
+		
+
+		ob_start();
+			include($this->template_file);
+		
+		$o = ob_get_contents();
+		ob_end_clean();
+
+		echo $o;
+
+
 			
 		
 		
 	}
-	function create_box($title, $content, $id="") {
-		if($id != "") {
-			$oid = " id=\"$id\" ";
+
+	function disp_box($name) {
+		if($name != "UNPLACED") {
+			$this->boxes_placed[$name]=true;
+			return $this->boxes[$name];
 		} else {
-			$oid = "";	
+			while(list($k, $v) = @each($this->boxes)) {
+				if($this->boxes_placed[$k] != true) {
+					$r .= $v;
+				}			
+			}
+			return $r;
 		}
+	}
+	function create_box($title, $content, $id="", $plcs="", $box_file="") {
+		if($id != "") {
+			$oid = $id;
+		} else {
+			$oid = rand(100,2);	
+		}
+		if(!is_array($plcs)) {
+			$box_file="default_box.php";
+		} else {
+			$box_file .= ".php";
+		}
+		$boxes_path="themes/" . $this->theme . "/boxes/" . $box_file;
+		if(!file_exists($boxes_path)) {
+			
+			$boxes_path="themes/classic/boxes/" . $box_file;
+		}
+		ob_start();
+			include($boxes_path);
 		
-		
-		$rr .= '
-			<table class="nopad" ' . $oid . '>
-				<tr>
-					<td class="box_left_corner_top">&nbsp;</td>
-					<td class="box_top_run">' . $title . '</td>
-					<td class="box_right_corner_top">&nbsp;</td>
-				</tr>
-				<tr>
-					<td class="box_left_run">&nbsp;</td>
-					<td class="box_content">' . $content . '</td>
-					<td class="box_right_run">&nbsp;</td>
-				</tr>
-				<tr>
-					<td class="box_left_corner_bottom">&nbsp;</td>
-					<td class="box_bottom_run">&nbsp;</td>
-					<td class="box_right_corner_bottom">&nbsp;</td>
-				</tr>
-			</table>
-		';
-		return $rr;
+		$o = ob_get_contents();	
+			
+		ob_end_clean();		
+		$this->boxes[$oid]=$o;
+		if($box_file != "default_box.php") { //pack into a standard box
+			$this->create_box($title, $o, $oid);
+		}
+
+
+		return $oid;
 	}
 	function push_outside($content) {
-		$this->OUTSIDE .= $content;
+		//echo "HELLP!!!";
 	}
 
 }

@@ -7,7 +7,7 @@ include "config.php";
 
 $btl=new BartlbyUi($Bartlby_CONF);
 $layout = new Layout();
-
+$layout->setTheme(bartlby_config("ui-extra.conf", "theme"));
 
 
 $xajax->processRequests();
@@ -15,16 +15,17 @@ $xajax->processRequests();
 
 
 function toggle_extension($ext) {
+	global $layout;
 	$res=new xajaxResponse();
 	$fn = "extensions/" . $ext . ".disabled";
 	if(!file_exists($fn)) {
 		@touch($fn);
 		//enable	
-		$res->AddAssign("extension_" . $ext, "src", "images/extension_disable.gif");
+		$res->AddAssign("extension_" . $ext, "src", "themes/" . $layout->theme . "/images/extension_disable.gif");
 		$res->AddAssign("extension_" . $ext, "title", "enable extension");
 	} else {
 		@unlink($fn);
-		$res->AddAssign("extension_" . $ext, "src", "images/extension_enable.gif");
+		$res->AddAssign("extension_" . $ext, "src", "themes/" . $layout->theme . "images/extension_enable.gif");
 		$res->AddAssign("extension_" . $ext, "title", "disable extension");
 		//disable extension_disable.gif
 	}
@@ -198,7 +199,7 @@ function forceCheck($server, $service) {
 				$gsm=bartlby_get_service_by_id($btl->CFG, $service);
 				$idx=$btl->findSHMPlace($service);
 				$cur=bartlby_check_force($btl->CFG, $idx);
-				$res->addAlert("immediate check scheduled for:" . $gsm[server_name] . ":" . $gsm[client_port] . "/" . $gsm[service_name]);
+				//$res->addAlert("immediate check scheduled for:" . $gsm[server_name] . ":" . $gsm[client_port] . "/" . $gsm[service_name]);
 			} else {
 				$res->addAlert("permission denied to force:" . $gsm[server_name] . ":" . $gsm[client_port] . "/" . $gsm[service_name]);
 			}
@@ -477,6 +478,38 @@ function ServerSearch($what, $script='modify_server.php') {
 	$res->addAssign("server_search_suggest", "innerHTML", $output);
 	return $res;	
 }
+
+function BulkServiceSearch($what) {
+	global $btl, $layout, $rq;
+	//compat for extensions
+	$_GET[search] = $what;
+	$servers=$btl->GetSVCMap();	
+	$_GET["servers"]=$servers;
+	$res = new xajaxResponse();
+	$found = 0;
+	while(list($k, $v) = @each($servers)) {
+		
+		
+		
+		for($x=0; $x<count($v); $x++) {
+			if(@preg_match("/" . $what . "/i", $v[$x][server_name] . "/" . $v[$x][service_name])) {
+						
+				$rq .= "<input type=checkbox  name=bulk_services value='" . $v[$x][service_id] . ";" .  $v[$x][server_name] . "/" . $v[$x][service_name] . "'><a href=\"javascript:bulk_service_add(" . $v[$x][service_id] . ", '" . $v[$x][server_name] . "/" . $v[$x][service_name] . "')\"><font size=1>" . $v[$x][server_name] . "/" . $v[$x][service_name] . "</A></font><br>";	
+				$svcfound=true;
+				$found++;
+			}
+		}
+		if($found > 10) break;
+		
+	}	
+	if($svcfound != true) $rq = "No Services found";
+
+	$res->addAssign("service_result", "innerHTML", $rq);
+
+	return $res;
+	
+}
+
 function QuickLook($what) {
 	global $btl, $layout, $rq;
 	//compat for extensions
@@ -512,7 +545,7 @@ function QuickLook($what) {
 	}
 	
 	$rq .= "</table>";
-	$output .= $layout->create_box("Server", $rq);
+	$output .= $layout->create_box("Server", $rq, "search_servers");
 	$rq = "<table width=100%>";
 	
 	$rq .= "<tr>";
@@ -542,7 +575,7 @@ function QuickLook($what) {
 	
 	
 	$rq .= "</table>";
-	$output .= $layout->create_box("Services", $rq);
+	$output .= $layout->create_box("Services", $rq, "search_services");
 	$rq = "";
 	
 	@reset($servers);
@@ -557,8 +590,11 @@ function QuickLook($what) {
 	
 	//Search Workers
 	//Call n get return of Extensions
-	$output .=  $layout->create_box("Extensions", $rq);
-	$output = "<a href='javascript:void(0);' onClick=\"xajax_removeDIV('quick_suggest');\">close</A><br>" . $output;
+	$output .=  $layout->create_box("Extensions", $rq, "search_extensions");
+	$cl_button = "<a href='javascript:void(0);' onClick=\"xajax_removeDIV('quick_suggest');\">close</A><br>";
+	
+	$output = $cl_button . $layout->boxes[search_services] . $layout->boxes[search_servers] . $layout->boxes[search_extensions];
+	
 	$res->addAssign("quick_suggest", "innerHTML", $output);
 	return $res;	
 }
@@ -774,7 +810,6 @@ function AddModifyService($aFormValues) {
 	} else {
 		$res->addAssign("error_service_server[]", "innerHTML", "");
 	}
-	
 	
 	switch($av[service_type]) {
 		case 1:
