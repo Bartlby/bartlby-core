@@ -37,7 +37,7 @@ class Basket {
        	
        	$r = "<table class='nopad'>
 			<tr>                                                                      
-				<td class='nav_main' onClick=\"doToggle('BasketFavorites')\"><img id='BasketFavorites_plus' src='images/minus.gif' border=0> Fav. Services</td>                      
+				<td class='nav_main' onClick=\"doToggle('BasketFavorites')\"><img id='BasketFavorites_plus' src='themes/" . $btl->theme . "/images/minus.gif' border=0> Fav. Services</td>                      
 			</tr>
 			<tr>
 				<td class=\"nav_place\">&nbsp;</td>

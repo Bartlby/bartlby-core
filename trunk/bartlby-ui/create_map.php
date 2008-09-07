@@ -1,3 +1,13 @@
+<?
+	include "config.php";
+	include "layout.class.php";
+	include "bartlby-ui.class.php";
+	$btl=new BartlbyUi($Bartlby_CONF);
+	$info=$btl->getInfo();
+	$layout= new Layout();
+	$layout->setTemplate("nonav.html");
+?>
+<script type="text/javascript" src="js/dom-drag.js"></script>
 <script type="text/javascript">
 
 /***********************************************
@@ -13,7 +23,7 @@ var offsetdivfrompointerX=10 //Customize x offset of tooltip DIV relative to poi
 var offsetdivfrompointerY=14 //Customize y offset of tooltip DIV relative to pointer image. Tip: Set it to (height_of_pointer_image-1).
 
 document.write('<div id="dhtmltooltip"></div>') //write out tooltip DIV
-document.write('<img id="dhtmlpointer" src="images/arrow2.gif">') //write out pointer image
+document.write('<img id="dhtmlpointer" src="themes/<?=$layout->theme?>/images/arrow2.gif">') //write out pointer image
 
 var ie=document.all
 var ns6=document.getElementById && !document.all
@@ -28,7 +38,9 @@ return (document.compatMode && document.compatMode!="BackCompat")? document.docu
 }
 
 function ddrivetip(thetext, thewidth, thecolor){
+
 if (ns6||ie){
+
 if (typeof thewidth!="undefined") tipobj.style.width=thewidth+"px"
 if (typeof thecolor!="undefined" && thecolor!="") tipobj.style.backgroundColor=thecolor
 tipobj.innerHTML=thetext
@@ -245,13 +257,8 @@ visibility: hidden;
 <input type="button" onClick='layer_pos();' value="Store">
 <input type="button" onClick='showAdd();' value="Add">
 <?
-	include "config.php";
-	include "layout.class.php";
-	include "bartlby-ui.class.php";
-	$btl=new BartlbyUi($Bartlby_CONF);
-	$info=$btl->getInfo();
-	$layout= new Layout();
-	$layout->setTemplate("nonav.html");
+
+	
 	$layout->Table("100%");
 	
 	$server_ico="<select name='icon'>";
@@ -319,7 +326,7 @@ visibility: hidden;
 	}
 	
 	$layout->TableEnd();
-	$layout->display("no");
+	
 	
 	//Load Defaults ;-)
 	$fp=@fopen("create_map.dat","r");
@@ -329,6 +336,7 @@ visibility: hidden;
 			}
 		}
 	@fclose($fp);
+
 	@eval($estr);
 	echo "<script>\n";
 	echo "var layerTop = new Array();\n";
@@ -354,7 +362,9 @@ visibility: hidden;
 	$srvmsg .= "</tr></table>";
 	$mover="ddrivetip('" . $srvmsg . "', 300);";
 	$mout="hideddrivetip();";
-	echo '<div onMouseOut="' . $mout . '" onMouseOver="' . $mover . '" id="bartlby" style="position: relative; left:0; top:0;width:100px;height:100px"><img src="images/btl-logo.gif"></div>';
+	echo '<div onMouseOut="' . $mout . '" onMouseOver="' . $mover . '" id="bartlby" style="position: relative; left:0; top:0;width:100px;height:100px"><img src="themes/' . $layout->theme . '/images/btl-logo.gif"></div>';
+
+	echo $layout->OUT;
 ?>
 
 

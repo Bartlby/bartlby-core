@@ -1,3 +1,72 @@
+
+	global_reload=1;
+	function toggleReload() {
+		if(global_reload == 1) {
+				global_reload=0;
+		} else {
+				global_reload=1;
+		}
+	}
+	function GenericToggleFix(elID, st) {
+	//alert(elID);
+	//alert(st);
+		obj=document.getElementById(elID);
+		//alert(obj);
+		obj.style.display=st;  
+	}
+	function GenericToggle(elID) {
+		obj=document.getElementById(elID);
+		obj.style.display=!(obj.style.display=="block")? "block" : "none";  
+	}
+	function jsLogout() {
+		r=confirm("You really want to logout?");	
+		if(r == true) {
+			document.location.href='logout.php';	
+		}
+	}
+	function doToggle(elID) {
+		imgPlus='themes/'+js_theme_name+'/images/plus.gif';
+		imgMinus='themes/'+js_theme_name+'/images/minus.gif';
+		obj=document.getElementById(elID + "_sub");
+		obj.style.display=!(obj.style.display=="block")? "block" : "none";  
+		
+		
+		obji=document.getElementById(elID + "_plus");
+		cImg="images" + obji.src.substring(obji.src.lastIndexOf("/"), obji.src.length);
+		
+		
+		obji.src=!(cImg==imgMinus)? imgMinus : imgPlus;  
+		
+	}
+
+	var buffer_suggest = 
+	{
+	        bufferText: false,
+	        bufferTime: 500,
+	        
+	        modified : function(strId, fcn, scr)
+	        {
+	                setTimeout('buffer_suggest.compareBuffer("'+strId+'","'+document.getElementById(strId).value+'","'+ fcn +'", "'+scr+'");', this.bufferTime);
+	        },
+	        
+	        compareBuffer : function(strId, strText, fcn, scr)
+	        {
+	            if (strText == document.getElementById(strId).value && strText != this.bufferText)
+	            {
+	                this.bufferText = strText;
+	                buffer_suggest.makeRequest(strId, fcn, scr);
+	            }
+	        },
+	        
+	        makeRequest : function(strId, fcn, scr)
+	        {
+	            	            
+	            eval(fcn + "(document.getElementById(strId).value, scr)");
+	        }
+	}
+
+
+
 function serviceManageIconChange(f) {
 	selval=f.server_icon.options[f.server_icon.selectedIndex].value;
 	ph = document.getElementById("picholder");

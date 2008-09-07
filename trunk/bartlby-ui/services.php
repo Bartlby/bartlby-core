@@ -3,11 +3,12 @@
 	include "config.php";
 	include "bartlby-ui.class.php";
 
+	$btl=new BartlbyUi($Bartlby_CONF);
 	$layout= new Layout();
 	$layout->MetaRefresh(240);
 	$layout->Table("100%");
 	
-	$btl=new BartlbyUi($Bartlby_CONF);
+	
 	$btl->hasRight("main.services");
 	$map = $btl->GetSVCMap($_GET[service_state]);	
 
@@ -66,7 +67,7 @@
 			$forward_link=$btl->create_pagelinks("services.php?expect_state=" . $_GET[expect_state] . "&server_id=" . $_GET[server_id], count($servs)-1, $perp, $curp,$k ."site");
 			
 			
-			$cur_box_title="<a href='server_detail.php?server_id=" . $servs[0][server_id] . "'>" . $servs[0][server_name] . "</A> ( " . $servs[0][client_ip] . ":" . $servs[0][client_port] . " ) $forward_link"; //. "<a href='package_create.php?action=create_package&server_id="  . $servs[0][server_id] . "'><font size=1><img src='images/icon_work1.gif' border=0></a>";
+			$cur_box_title="<a href='server_detail.php?server_id=" . $servs[0][server_id] . "'>" . $servs[0][server_name] . "</A> ( " . $servs[0][client_ip] . ":" . $servs[0][client_port] . " ) $forward_link"; //. "<a href='package_create.php?action=create_package&server_id="  . $servs[0][server_id] . "'><font size=1><img src='themes/" . $layout->theme . "/images/icon_work1.gif' border=0></a>";
 			$cur_box_content = "<table class='service_table' cellpadding=2>";
 			
 			$d=0;
@@ -163,14 +164,14 @@
 	$legend_content="<table class='nopad' width='100%'>
 		<tr>
 			
-			<td width=15><img src='images/diabled.gif'></td>
+			<td width=15><img src='themes/" . $layout->theme . "/images/diabled.gif'></td>
 			<td align=left class='font2'>Service Check is disabled</td>
 			
 			
-			<td width=15><img src='images/notrigger.gif'></td>
+			<td width=15><img src='themes/" . $layout->theme . "/images/notrigger.gif'></td>
 			<td align=left class='font2'>Notifications are disabled</td>
 			
-			<td width=15><img src='images/icon_view.gif'></td>
+			<td width=15><img src='themes/" . $layout->theme . "/images/icon_view.gif'></td>
 			<td align=left class='font2'>View Logfile</td>
 			
 			
@@ -178,13 +179,13 @@
 			
 		</tr>
 		<tr>
-			<td width=15><img src='images/enabled.gif'></td>
+			<td width=15><img src='themes/" . $layout->theme . "/images/enabled.gif'></td>
 			<td align=left class='font2'>Service Check is enabled</td>
 			
-			<td width=15><img src='images/trigger.gif'></td>
+			<td width=15><img src='themes/" . $layout->theme . "/images/trigger.gif'></td>
 			<td align=left class='font2'>Notifications are enabled</td>
 			
-			<td width=15><img src='images/icon_comments.gif'></td>
+			<td width=15><img src='themes/" . $layout->theme . "/images/icon_comments.gif'></td>
 			<td align=left class='font2'>Comments</td>
 			
 			
@@ -193,23 +194,23 @@
 
 	
 		<tr>
-                        <td width=15><img src='images/force.gif'></td>
+                        <td width=15><img src='themes/" . $layout->theme . "/images/force.gif'></td>
                         <td align=left class='font2'>Force Check</td>
 
-                        <td width=15><img src='images/edit-copy.gif'></td>
+                        <td width=15><img src='themes/" . $layout->theme . "/images/edit-copy.gif'></td>
                         <td align=left class='font2'>Copy service</td>
 
-                        <td width=15><img src='images/create_report.gif'></td>
+                        <td width=15><img src='themes/" . $layout->theme . "/images/create_report.gif'></td>
                         <td align=left class='font2'>Create Report</td>
 
 
 
                 </tr>	
 		<tr>
-			<td width=15><img src='images/icon_stat.gif'></td>
+			<td width=15><img src='themes/" . $layout->theme . "/images/icon_stat.gif'></td>
 			<td align=left class='font2'>Update graph</td>
 			
-			<td width=15><img src='images/modify.gif'></td>
+			<td width=15><img src='themes/" . $layout->theme . "/images/modify.gif'></td>
                         <td  colspan=3 align=left class='font2'>Modify Service</td>
 
 		</tr>

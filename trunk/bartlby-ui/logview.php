@@ -231,7 +231,7 @@
 					1=>Array(
 						'class'=>'header1',
 						'width'=>25,						
-						'show'=>"<img src='images/$img'>"
+						'show'=>"<img src='themes/" . $layout->theme . "/images/$img'>"
 						),
 					2=>Array(
 						'width'=>720,
