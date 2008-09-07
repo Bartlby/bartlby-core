@@ -71,6 +71,17 @@
 		echo " " . $xy . "\n";
 		flush();
 	}
+
+	$fn = $plugin_root . "/bartlby.funcs";
+        echo "PLUGIN extensions_wrap.php?script=AgentSyncer/getplugin.php&plugin=$k $k";
+        if(file_exists($fn)) {
+	       $xy=@md5_file($fn);
+        } else {
+                 $xy="-";
+        }
+        echo " " . $xy . "\n";
+        flush();
+
 	
 	$fn="extensions/AgentSyncer/bartlby_agent." . $_GET[arch];
 	echo "AB extensions_wrap.php?script=AgentSyncer/getab.php?bin=$fn $fn";
