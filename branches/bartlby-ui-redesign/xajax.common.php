@@ -38,6 +38,6 @@ $xajax->registerFunction("ExtensionAjax");
 $xajax->registerFunction("group_search");
 $xajax->registerFunction("forceCheck");
 
-
+$xajax->registerFunction("BulkServiceSearch");
 
 ?>

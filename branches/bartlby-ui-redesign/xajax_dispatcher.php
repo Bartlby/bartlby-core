@@ -199,7 +199,7 @@ function forceCheck($server, $service) {
 				$gsm=bartlby_get_service_by_id($btl->CFG, $service);
 				$idx=$btl->findSHMPlace($service);
 				$cur=bartlby_check_force($btl->CFG, $idx);
-				$res->addAlert("immediate check scheduled for:" . $gsm[server_name] . ":" . $gsm[client_port] . "/" . $gsm[service_name]);
+				//$res->addAlert("immediate check scheduled for:" . $gsm[server_name] . ":" . $gsm[client_port] . "/" . $gsm[service_name]);
 			} else {
 				$res->addAlert("permission denied to force:" . $gsm[server_name] . ":" . $gsm[client_port] . "/" . $gsm[service_name]);
 			}
@@ -478,6 +478,38 @@ function ServerSearch($what, $script='modify_server.php') {
 	$res->addAssign("server_search_suggest", "innerHTML", $output);
 	return $res;	
 }
+
+function BulkServiceSearch($what) {
+	global $btl, $layout, $rq;
+	//compat for extensions
+	$_GET[search] = $what;
+	$servers=$btl->GetSVCMap();	
+	$_GET["servers"]=$servers;
+	$res = new xajaxResponse();
+	$found = 0;
+	while(list($k, $v) = @each($servers)) {
+		
+		
+		
+		for($x=0; $x<count($v); $x++) {
+			if(@preg_match("/" . $what . "/i", $v[$x][server_name] . "/" . $v[$x][service_name])) {
+						
+				$rq .= "<input type=checkbox  name=bulk_services value='" . $v[$x][service_id] . ";" .  $v[$x][server_name] . "/" . $v[$x][service_name] . "'><a href=\"javascript:bulk_service_add(" . $v[$x][service_id] . ", '" . $v[$x][server_name] . "/" . $v[$x][service_name] . "')\"><font size=1>" . $v[$x][server_name] . "/" . $v[$x][service_name] . "</A></font><br>";	
+				$svcfound=true;
+				$found++;
+			}
+		}
+		if($found > 10) break;
+		
+	}	
+	if($svcfound != true) $rq = "No Services found";
+
+	$res->addAssign("service_result", "innerHTML", $rq);
+
+	return $res;
+	
+}
+
 function QuickLook($what) {
 	global $btl, $layout, $rq;
 	//compat for extensions
