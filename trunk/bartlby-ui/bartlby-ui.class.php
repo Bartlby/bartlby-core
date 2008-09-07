@@ -27,8 +27,8 @@ session_start();
 
 set_time_limit(0);
 set_magic_quotes_runtime(0);
-define("BARTLBY_UI_VERSION", "2.1-redesign-branch");
-define("BARTLBY_RELNOT", "<font color=red><br>EARLY ALPHA!!!!</font>");
+define("BARTLBY_UI_VERSION", "2.1");
+define("BARTLBY_RELNOT", "");
 $wdays[0]="Sunday";
 $wdays[1]="Monday";
 $wdays[2]="Tuesday";
@@ -1240,9 +1240,9 @@ class BartlbyUi {
 							array_push($r, $ex);
 							
 							if(!file_exists("extensions/" . $file . ".disabled")) {
-								$endis="<tr><td colspan=2 align=right><a href=\"javascript:void(0);\" onClick=\"xajax_toggle_extension('$file')\" title='$file extension is enabled click to change'><img id='extension_$file' border=0 src='themes/" . $this->theme . "/images/extension_enable.gif'></A></td></tr>";
+								$endis="<tr><td colspan=2 align=right><a href=\"javascript:void(0);\" onClick=\"xajax_toggle_extension('$file')\" title='$file extension is enabled click to change'><img id='extension_img_$file' border=0 src='themes/" . $this->theme . "/images/extension_enable.gif'></A></td></tr>";
 							} else {
-								$endis="<tr><td colspan=2 align=right><a href=\"javascript:void(0);\" onClick=\"xajax_toggle_extension('$file')\" title='$file extension is disabled click to change'><img id='extension_$file' border=0 src='themes/" . $this->theme . "/images/extension_disable.gif'></A></td></tr>";	
+								$endis="<tr><td colspan=2 align=right><a href=\"javascript:void(0);\" onClick=\"xajax_toggle_extension('$file')\" title='$file extension is disabled click to change'><img id='extension_img_$file' border=0 src='themes/" . $this->theme . "/images/extension_disable.gif'></A></td></tr>";	
 							}
 							
 							

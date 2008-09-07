@@ -25,6 +25,30 @@
 		}
 	}
 	function doToggle(elID) {
+		switch(elID) {
+			case 'main':
+				elID="Monitoring";
+			break;
+			case 'report':
+				elID="Reporting";
+			break;
+			case 'client':
+				elID="Server/s";
+			break;
+			case 'services':
+				elID="Service/s";
+			break;
+			case 'downtimes':
+				elID="Downtime/s";
+			break;
+			case 'worker':
+				elID="Worker/s";
+			break;
+			case 'core':
+				elID="Core";
+			break;
+			
+		}
 		imgPlus='themes/'+js_theme_name+'/images/plus.gif';
 		imgMinus='themes/'+js_theme_name+'/images/minus.gif';
 		obj=document.getElementById(elID + "_sub");
