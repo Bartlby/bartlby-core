@@ -1,5 +1,0 @@
-<font size="2"><span style="font-family: Tahoma; font-weight: bold;">Config<br /></span><span style="font-family: Tahoma;">The config file has been saved a backup is placed in '$global_msg[backup_cfg]'<br />just in case you just should do a system reload<br /><br /><span style="font-weight: bold;">Next Steps:<br /></span></span></font>
-        <ul>
-            <li><font size="2"><span style="font-family: Tahoma;"><a href="bartlby_action.php?action=reload">Reload</a><span style="font-weight: bold;"></span></span></font></li>
-        </ul>
-        <font size="2"><span style="font-family: Tahoma;"><a href="bartlby_action.php?action=reload" /><span style="font-weight: bold;"></span></span></font>
