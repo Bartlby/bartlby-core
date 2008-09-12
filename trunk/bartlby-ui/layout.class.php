@@ -28,6 +28,7 @@ include("xajax.common.php");
 class Layout {
 	var $OUT;
 	var $template_file;
+	var $box_count;
 	
 
 	function setTheme($name="classic") {
@@ -48,6 +49,7 @@ class Layout {
 		$this->template_file=$file;
 	}
 	function Layout($scr='') {
+		$this->box_count=1;
 		if(bartlby_config("ui-extra.conf", "theme") != "") {
 			$this->theme=bartlby_config("ui-extra.conf", "theme");
 		} else {
@@ -340,6 +342,7 @@ class Layout {
 			$this->boxes_placed[$name]=true;
 			return $this->boxes[$name];
 		} else {
+			@ksort($this->boxes);
 			while(list($k, $v) = @each($this->boxes)) {
 				if($this->boxes_placed[$k] != true) {
 					$r .= $v;
@@ -352,7 +355,9 @@ class Layout {
 		if($id != "") {
 			$oid = $id;
 		} else {
-			$oid = rand(100,2);	
+			//$oid = rand(100,2);	
+			$oid=$this->box_count;
+			$this->box_count++;
 		}
 		if(!is_array($plcs)) {
 			$box_file="default_box.php";
