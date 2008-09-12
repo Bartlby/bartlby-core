@@ -342,7 +342,7 @@ class Layout {
 			$this->boxes_placed[$name]=true;
 			return $this->boxes[$name];
 		} else {
-			@ksort($this->boxes);
+			@krsort($this->boxes);
 			while(list($k, $v) = @each($this->boxes)) {
 				if($this->boxes_placed[$k] != true) {
 					$r .= $v;
