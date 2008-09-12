@@ -1,12 +1,22 @@
-<body bgcolor="C2CBCF">
-<center><img src='images/btl-logo.gif'></center>
 <?
-	$dhl=opendir("images/");
+	include "config.php";
+
+        include "layout.class.php";
+        include "bartlby-ui.class.php";
+
+        $btl=new BartlbyUi($Bartlby_CONF, false, false);
+        $layout= new Layout();
+
+?>
+<body bgcolor="C2CBCF">
+<center><img src='themes/<?=$layout->theme?>/images/btl-logo.gif'></center>
+<?
+	$dhl=opendir("themes/" . $layout->theme . "/images/");
 	while($f = readdir($dhl)) {
-		if($f == "." || $f == ".." || is_dir("images/" . $f) || !preg_match("/.*\.[png|gif|jpg]/", $f)) {
+		if($f == "." || $f == ".." || is_dir("themes/" . $layout->theme . "/images/" . $f) || !preg_match("/.*\.[png|gif|jpg]/", $f)) {
 			continue;	
 		}	
-		$str .= "'images/" . $f . "',";
+		$str .= "'themes/" .  $layout->theme . "/images/" . $f . "',";
 	}
 	
 	closedir($dhl);
@@ -20,8 +30,8 @@
 ?>
 
 <link rel="shortcut icon" href="favicon.ico" > 
-<link rel="stylesheet" id="CSS" type="text/css" href="images/btl.css"></link>
-<script type="text/javascript" src="images/btl.js"></script>
+<link rel="stylesheet" id="CSS" type="text/css" href="themes/<?=$layout->theme?>/btl.css"></link>
+<script type="text/javascript" src="js/btl.js"></script>
 
 <script language="JavaScript">
 <!-- begin hiding
@@ -43,9 +53,9 @@ For full source code to this script and 100's more, visit http://dynamicdrive.co
 if (document.images) {
 	var dots = new Array() 
 	dots[0] = new Image(1,1)
-	dots[0].src = "images/black.gif" // default preloadbar color (note: You can substitute it with your image, but it has to be 1x1 size)
+	dots[0].src = "themes/<?=$layout->theme?>/images/black.gif" // default preloadbar color (note: You can substitute it with your image, but it has to be 1x1 size)
 	dots[1] = new Image(1,1)
-	dots[1].src = "images/blue.gif" // color of bar as preloading progresses (same note as above)
+	dots[1].src = "themes/<?=$layout->theme?>/images/blue.gif" // color of bar as preloading progresses (same note as above)
 	var preImages = new Array(),coverage = Math.floor(lengthOfPreloadBar/yourImages.length),currCount = 0
 	var loaded = new Array(),i,covered,timerID
 	var leftOverWidth = lengthOfPreloadBar%coverage
