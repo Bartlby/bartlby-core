@@ -56,6 +56,8 @@ plg_get_arg "C" "SNMP_COMM";
 plg_get_arg "H" "SNMP_HOST";
 plg_get_arg "v" "SNMP_VER";
 
+plg_get_arg "I" "PROC_INV";
+
 
 if [ "$W_LEVEL" = "false" ];
 then
@@ -81,6 +83,7 @@ then
 	echo "-p Process to find (looks at whole command line)";
 	echo "-w Warn if count of found processes is lower than -w (Default: 1)";
 	echo "-w Critical if count of found processes is lower than -w (Default: 1)";
+	echo "-I Invert result, alert if there are more than X procs found";
 	echo "-S use SNMP mode"; 
 	echo "  -C Community (default: public)";
 	echo "  -H Host (default: localhost)";
@@ -114,12 +117,19 @@ function check_proc {
 	
 	cnt=`qpst  -r $P_TO_FIND -i -p $$ -P $$  -c`; #exit code isnt safe as of 255 limitation ;-)
 	echo -n " [ found $cnt processes for $P_TO_FIND $1/$2 ]\\dbr";
+	DR="-lt";
+
+	if [ "$3" = "true" ];
+	then
+		DR="-gt";
+	fi;
 	
-	if [ $cnt -lt $2 ]; 
+	
+	if [ $cnt $DR $2 ]; 
 	then
 		exit $STATE_CRITICAL;
 	fi;
-	if [ $cnt -lt $1 ];
+	if [ $cnt $DR $1 ];
 	then
 		exit $STATE_WARNING;
 	fi;
@@ -139,7 +149,8 @@ function check_proc {
 if [ "$SNMP" = "false" ];
 then
 
-	MY_OUT_STR=`check_proc $W_LEVEL $C_LEVEL`;
+	
+	MY_OUT_STR=`check_proc $W_LEVEL $C_LEVEL $PROC_INV`;
 	ECO=$?;
 else
 	has_executable "snmpget"
