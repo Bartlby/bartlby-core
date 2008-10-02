@@ -32,6 +32,9 @@ $Author$
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <sys/socket.h>
+#include <netdb.h>
+
 
 char * getConfigValue(char * key, char * fname);
 
@@ -63,8 +66,11 @@ int main(int argc, char ** argv) {
    	unsigned int namelen = sizeof(name);
 	char * agent_load_limit;
 	char * allowed_ip_list;
-	
-	
+	char * host_name_in_allowed_cfg;
+	char * cfg_ip_entry;
+	struct hostent * remote_host;
+	char * ip_to_check;
+		
 	FILE * fplg;
 	
 	struct sigaction act1, oact1;
@@ -78,6 +84,7 @@ int main(int argc, char ** argv) {
         fflush(stdout);
         agent_load_limit=getConfigValue("agent_load_limit", argv[argc-1]);
         allowed_ip_list=getConfigValue("allowed_ips", argv[argc-1]);
+        host_name_in_allowed_cfg=getConfigValue("host_name_allowed", argv[argc-1]);
         
         if(agent_load_limit == NULL) {
         	agent_load_limit=strdup("10");	
@@ -92,30 +99,6 @@ int main(int argc, char ** argv) {
         
         token=strtok(allowed_ip_list,",");
         
-        if (getpeername(0,(struct sockaddr *)&name, &namelen) < 0) {
-   		//syslog(LOG_ERR, "getpeername: %m");
-   		exit(1);
-   	} else {
-   		//syslog(LOG_INFO, "Connection from %s",	inet_ntoa(name.sin_addr));
-   	}
-        
-        while(token != NULL) {
-        	//printf("CHECKING: %s against %s\n", token, inet_ntoa(name.sin_addr));
-        	if(strcmp(token, inet_ntoa(name.sin_addr)) == 0) {
-        		ip_ok=0;	
-        	}
-        	token=strtok(NULL, ",");	
-        }
-        free(allowed_ip_list);
-        if(ip_ok < 0) {
-        	//sleep(1);
-        	sprintf(svc_back, "2|IP Blocked '%s'\n", inet_ntoa(name.sin_addr));
-        	
-		printf("%s\n", svc_back);
-		fflush(stdout);	
-		sleep(2);
-		exit(1);
-        }
         
         act1.sa_handler = agent_conn_timeout;
 	sigemptyset(&act1.sa_mask);
@@ -134,6 +117,62 @@ int main(int argc, char ** argv) {
 	
 		
 	}
+	connection_timed_out=0;
+	alarm(CONN_TIMEOUT);
+        
+        if (getpeername(0,(struct sockaddr *)&name, &namelen) < 0) {
+   		//syslog(LOG_ERR, "getpeername: %m");
+   		exit(1);
+   	} else {
+   		//syslog(LOG_INFO, "Connection from %s",	inet_ntoa(name.sin_addr));
+   	}
+        
+        while(token != NULL) {
+        	//printf("CHECKING: %s against %s\n", token, inet_ntoa(name.sin_addr));
+        	cfg_ip_entry=strdup(token);
+        	ip_to_check=strdup(inet_ntoa(name.sin_addr));
+        	
+        	if(host_name_in_allowed_cfg != NULL) {
+        		//we have to resolve the entrys
+        		
+        		if((remote_host = gethostbyname(cfg_ip_entry)) == 0) {
+				printf("dns failed\n");
+				sleep(2);
+				exit(1);
+			}
+			//remote_side.sin_addr.s_addr =  ;
+        		//free prev. vars
+        		
+        		free(cfg_ip_entry);
+        		cfg_ip_entry=strdup(inet_ntoa(*(struct in_addr*)remote_host->h_addr_list[0]));
+        		
+        		
+        			
+        	}
+        	//printf("Comparing: %s against %s\n", cfg_ip_entry, ip_to_check);
+        	if(strcmp(cfg_ip_entry, ip_to_check) == 0) {
+        		ip_ok=0;	
+        	}
+        	free(cfg_ip_entry);
+        	free(ip_to_check);
+        	
+        	token=strtok(NULL, ",");	
+        }
+        
+        
+        free(host_name_in_allowed_cfg);
+        free(allowed_ip_list);
+        if(ip_ok < 0) {
+        	//sleep(1);
+        	sprintf(svc_back, "2|IP Blocked '%s'\n", inet_ntoa(name.sin_addr));
+        	
+		printf("%s\n", svc_back);
+		fflush(stdout);	
+		sleep(2);
+		exit(1);
+        }
+        
+ 
 	
     	sprintf(svc_back, "1|ouuutsch");
         
