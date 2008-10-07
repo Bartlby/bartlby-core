@@ -1,18 +1,15 @@
 #!/bin/sh
 #########################################
 # Bartlby Check Disk
-# $Id: bartlby_swap.sh,v 1.6 2006/12/25 02:08:30 hjanuschka Exp $ */
+# $Id: bartlby_swap.sh,v 1.5 2006/09/09 19:38:42 hjanuschka Exp $ */
 #
 #
-# $Revision: 1.6 $
+# $Revision: 1.5 $
 # $Source: /cvsroot/bartlby/bartlby-plugins/bartlby_swap.sh,v $
 #
 #
 #
 # $Log: bartlby_swap.sh,v $
-# Revision 1.6  2006/12/25 02:08:30  hjanuschka
-# auto commit
-#
 # Revision 1.5  2006/09/09 19:38:42  hjanuschka
 # auto commit
 #
@@ -32,8 +29,6 @@
 #
 #
 #########################################
-
-#sleep 120
 
 VERSION="0.1";
 MY_PATH=`echo $0 | sed -e 's,[\\/][^\\/][^\\/]*$,,'`
@@ -171,11 +166,20 @@ function check_snmp_swap {
 	
 }
 function check_swap {
+
+	
  	if [ ! -f /proc/swaps ];
  	then
  		echo -n " Swap maybe not enabled on your system";
  		exit $STATE_WARNING; 	
  	fi;
+	#seems to be swap file is existing even if no swap is attached
+	swapcount=$(cat /proc/swaps|wc -l);
+	if [ $swapcount = 1 ];
+	then
+		echo -n " Swap maybe not enabled on your system";
+		exit $STATE_WARNING;
+	fi;
  		
  	hundred=`cat /proc/swaps |grep -v "Filename"|awk '{ ges += \$3; us += \$4; } END {print ges}' 2>&1`
  	used=`cat /proc/swaps |grep -v "Filename"|awk '{ ges += \$3; us += \$4; } END {print us}' 2>&1`
