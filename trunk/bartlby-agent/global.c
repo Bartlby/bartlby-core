@@ -19,7 +19,9 @@ $HeadURL$
 $Date$
 $Author$ 
 */
+#ifndef __APPLE__
 #include <malloc.h>
+#endif
 #include <stdio.h>
 #include <syslog.h>
 #include <stdlib.h>
