@@ -28,6 +28,7 @@
 export STATE_OK=0
 export STATE_WARNING=1
 export STATE_CRITICAL=2
+export OS=$(uname)
 
 
 function has_executable {
