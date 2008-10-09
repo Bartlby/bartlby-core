@@ -339,9 +339,26 @@ class Layout {
 
 	function disp_box($name) {
 		if($name != "UNPLACED") {
-			$this->boxes_placed[$name]=true;
-			return $this->boxes[$name];
+			$regexp=0;
+			if(preg_match("/\*/", $name)) $regexp=1;
+			
+			if($regexp == 0) {
+				$this->boxes_placed[$name]=true;
+				return $this->boxes[$name];
+			} else {
+				//Find Matching boxes;
+				$r = "";
+				while(list($k, $v) = @each($this->boxes)) {
+					if(preg_match("/" . $name . "/i", $k)) {
+					
+						$this->boxes_place[$k]=true;
+						$r .= $this->boxes[$k];
+					}
+				}
+				return $r;
+			}
 		} else {
+				
 			@krsort($this->boxes);
 			while(list($k, $v) = @each($this->boxes)) {
 				if($this->boxes_placed[$k] != true) {
@@ -352,6 +369,10 @@ class Layout {
 		}
 	}
 	function create_box($title, $content, $id="", $plcs="", $box_file="") {
+		global $btl;
+		
+		$layout=$this;
+		$put_a_standard_box_around_me=true;
 		if($id != "") {
 			$oid = $id;
 		} else {
@@ -376,7 +397,7 @@ class Layout {
 			
 		ob_end_clean();		
 		$this->boxes[$oid]=$o;
-		if($box_file != "default_box.php") { //pack into a standard box
+		if($box_file != "default_box.php" && $put_a_standard_box_around_me == true) { //pack into a standard box
 			$this->create_box($title, $o, $oid);
 		}
 
