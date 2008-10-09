@@ -185,10 +185,18 @@ int main(int argc, char ** argv) {
         }
         
         
-        
+       	#ifndef __APPLE__ 
         load=fopen("/proc/loadavg", "r");
         fscanf(load, "%f %f %f", &loadavg[0], &loadavg[1], &loadavg[2]);
         fclose(load);
+	#else
+	//Stupid
+	load=NULL;
+	loadavg[0]=0.0;
+	loadavg[1]=0.0;
+	loadavg[2]=0.0;
+
+	#endif
         
         if(loadavg[0] < atof(agent_load_limit)) {
 		free(agent_load_limit);
