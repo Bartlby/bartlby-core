@@ -90,9 +90,24 @@ fi;
 
 if [ "$SNMP" = "false" ];
 then
-	load1l=$(cat /proc/loadavg|awk '{print $1}');
-	load2l=$(cat /proc/loadavg|awk '{print $2}');
-	load3l=$(cat /proc/loadavg|awk '{print $3}');
+	case $OS in
+		Linux)	
+			load1l=$(cat /proc/loadavg|awk '{print $1}');
+			load2l=$(cat /proc/loadavg|awk '{print $2}');
+			load3l=$(cat /proc/loadavg|awk '{print $3}');
+		;;
+		Darwin)
+
+			load1l=$(uptime|awk '{ print $8}'|sed 's/,/./');	
+			load2l=$(uptime|awk '{ print $9}'|sed 's/,/./');	
+			load3l=$(uptime|awk '{ print $10}'|sed 's/,/./');	
+		;;
+		*)
+			end_critical "OS unsupported $OS";
+		;;
+	esac
+
+
 else
 	has_executable "snmpget"
 	#UCD-SNMP-MIB::laLoad.1
