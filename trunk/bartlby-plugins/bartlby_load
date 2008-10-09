@@ -98,9 +98,9 @@ then
 		;;
 		Darwin)
 
-			load1l=$(uptime|awk '{ print $8}'|sed 's/,/./');	
-			load2l=$(uptime|awk '{ print $9}'|sed 's/,/./');	
-			load3l=$(uptime|awk '{ print $10}'|sed 's/,/./');	
+			load1l=$(uptime 2>&1|grep averages|awk '{ print $8}'|sed 's/,/./');	
+			load2l=$(uptime 2>&1|grep averages|awk '{ print $9}'|sed 's/,/./');	
+			load3l=$(uptime 2>&1|grep averages|awk '{ print $10}'|sed 's/,/./');	
 		;;
 		*)
 			end_critical "OS unsupported $OS";
