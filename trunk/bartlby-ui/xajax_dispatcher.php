@@ -13,7 +13,21 @@ $layout->setTheme(bartlby_config("ui-extra.conf", "theme"));
 $xajax->processRequests();
 
 
-
+function IphoneOverView() {
+	global $btl;
+	$res=new xajaxResponse();
+	$map = $btl->GetSVCMap();
+	
+	
+	$oks=10;
+	
+	$res->AddScript("loadIcon=document.getElementById('activityIndicator'); loadIcon.style.display='none';");
+	
+	$res->AddScript("OKs=10;");
+	$res->AddAssign("text1", "innerHTML", "Welcome: " . $btl->user);
+	
+	return $res;
+}
 function toggle_extension($ext) {
 	global $layout;
 	$res=new xajaxResponse();
