@@ -39,5 +39,6 @@ $xajax->registerFunction("group_search");
 $xajax->registerFunction("forceCheck");
 
 $xajax->registerFunction("BulkServiceSearch");
+$xajax->registerFunction("IphoneOverView");
 
 ?>
