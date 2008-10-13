@@ -351,7 +351,7 @@ class Layout {
 				while(list($k, $v) = @each($this->boxes)) {
 					if(preg_match("/" . $name . "/i", $k)) {
 					
-						$this->boxes_place[$k]=true;
+						$this->boxes_placed[$k]=true;
 						$r .= $this->boxes[$k];
 					}
 				}

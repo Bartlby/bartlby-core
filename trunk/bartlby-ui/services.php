@@ -111,8 +111,11 @@
 				,"service_list_element");
 				
 				
+				
+				
 			}
 	}
+	
 	$legend_content="";
 	
 	$layout->create_box("Legend", $legend_content, "legend", array("a"=>"b"), "legend");
