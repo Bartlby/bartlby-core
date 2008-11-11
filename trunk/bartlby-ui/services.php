@@ -94,12 +94,16 @@
 				$servs[$x]["class"]=$class;
 				array_push($services_found, $servs[$x]);			
 				$f=true;
+				$abc=$servs[$x][server_id];
+
 			}
+
 			
 			if($f == true) {
+
 				
 				$displayed_servers++;
-				$layout->create_box($cur_box_title, $cur_box_content, "server_box_" . $x,
+				$layout->create_box($cur_box_title, $cur_box_content, "server_box_" . $abc,
 											array(
 												"services" => $services_found,
 												"state" => $svc_state,
