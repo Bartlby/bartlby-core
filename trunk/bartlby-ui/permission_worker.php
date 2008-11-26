@@ -167,6 +167,8 @@ $layout->TableEnd();
 	
 	
 	$title="UI privileges";  
+	$ov .= $layout->Field("worker_id", "hidden", $_GET[worker_id]) . "<input type=submit value='Save'>";
+	$ov .= "</form>";
 	$content = "<table>" . $ov . "</table>";
 	$layout->push_outside($layout->create_box($title, $content));
 	
@@ -174,10 +176,10 @@ $layout->TableEnd();
 
 	
 	$title="";  
-	$content = $layout->Field("worker_id", "hidden", $_GET[worker_id]) . "<input type=submit value='Save'>";
-	$layout->push_outside($layout->create_box($title, $content));
+
+	//$layout->push_outside($layout->create_box($title, $content));
 
 
 
-$ov .= "</form>";
+
 $layout->display();
