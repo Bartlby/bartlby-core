@@ -351,6 +351,13 @@ switch($act) {
 			}
 			
 			$svcstr = "";
+			for($x=0;$x<count($_GET[worker_services]); $x++) {
+                                $svcstr .="" . $_GET[worker_services][$x] . "|";
+                        }
+                        if($svcstr != "") {
+                                $svcstr = "|"  . $svcstr;
+                        }
+
 			
 			$selected_servers="";
 			$selected_services="";
@@ -359,8 +366,10 @@ switch($act) {
 				if($_GET[worker_services][$x]{0} == 's') {
 					$cl = str_replace("s", "", $_GET[worker_services][$x]);
 					$selected_servers .= "," . $cl;
+
 				} else {
 					$selected_services .= "," . $_GET[worker_services][$x];
+
 				}	
 			}
 			$selected_servers .= ",";
