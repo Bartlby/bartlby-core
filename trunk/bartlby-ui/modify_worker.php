@@ -75,6 +75,19 @@ while(list($k, $servs) = @each($map)) {
 				$servers[$optind][s]=1;
 			}
 			$optind++;
+
+
+			$state=$btl->getState($servs[$x][current_state]);
+                        $servers[$optind][c]="";
+                        $servers[$optind][v]=$servs[$x][service_id];
+                        $servers[$optind][k]="&nbsp;[ $state ]&nbsp;" .  $servs[$x][service_name];
+
+
+                        //if(@in_array($servs[$x][service_id], $worker_rights[selected_services])) {
+                        if(strstr($defaults[services], "|" . $servs[$x][service_id]  . "|")) {
+                                $servers[$optind][s]=1;
+                        }
+                        $optind++;
 		} else {
 			
 		
@@ -84,7 +97,8 @@ while(list($k, $servs) = @each($map)) {
 			$servers[$optind][k]="&nbsp;[ $state ]&nbsp;" .  $servs[$x][service_name];
 		
 		
-			if(@in_array($servs[$x][service_id], $worker_rights[selected_services])) {
+			//if(@in_array($servs[$x][service_id], $worker_rights[selected_services])) {
+			if(strstr($defaults[services], "|" . $servs[$x][service_id]  . "|")) {
 				$servers[$optind][s]=1;
 			}
 			$optind++;
