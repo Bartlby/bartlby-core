@@ -412,8 +412,8 @@ switch($act) {
 			
 			
 			$add=bartlby_modify_worker($btl->CFG,$_GET[worker_id],  $_GET[worker_mail], $_GET[worker_icq], $svcstr, $notifystr, $_GET[worker_active], $_GET[worker_name],$end_pw, $triggerstr, $_GET[escalation_limit], $_GET[escalation_minutes], $exec_plan);
-			$btl->setUIRight("selected_servers", $selected_servers, $_GET[worker_name]);
-			$btl->setUIRight("selected_services", $selected_services, $_GET[worker_name]);
+			$btl->setUIRight("selected_servers", $selected_servers, $_GET[worker_id]);
+			$btl->setUIRight("selected_services", $selected_services, $_GET[worker_id]);
 			$layout->OUT .= "<script>doReloadButton();</script>";
 
 		} else {                                     
