@@ -60,7 +60,7 @@ $Author$
 #define SERVER_MAP_SELECTOR "select server_id, server_ip, server_name, server_ico, server_enabled, server_port, server_dead, server_flap_seconds, server_notify from servers"
 
 #define SELECTOR "select svc.service_id, svc.service_name, svc.service_state, srv.server_name, srv.server_id, srv.server_port, srv.server_ip, svc.service_plugin, svc.service_args, UNIX_TIMESTAMP(svc.service_last_check), svc.service_interval, svc.service_text, 'a', 'a', 'a','a', svc.service_notify, svc.service_type, svc.service_var, svc.service_passive_timeout,service_active, svc.service_check_timeout, srv.server_ico, svc.service_ack, svc.service_retain, svc.service_snmp_community, svc.service_snmp_objid, svc.service_snmp_version, svc.service_snmp_warning, svc.service_snmp_critical, svc.service_snmp_type, svc.flap_seconds, svc.service_exec_plan, svc.renotify_interval, svc.escalate_divisor   from services svc, servers srv where svc.server_id=srv.server_id ORDER BY RAND()"
-#define WORKER_SELECTOR "select worker_mail, worker_icq, 'removed' ,notify_levels, worker_active, worker_name, worker_id, password, enabled_triggers, escalation_limit, escalation_minutes, notify_plan from workers"
+#define WORKER_SELECTOR "select worker_mail, worker_icq, enabled_services ,notify_levels, worker_active, worker_name, worker_id, password, enabled_triggers, escalation_limit, escalation_minutes, notify_plan from workers"
 #define SERVICE_UPDATE_TEXT "update services set service_last_check=FROM_UNIXTIME(%d), service_text='%s', service_state=%d where service_id=%ld"
 
 
@@ -1746,6 +1746,12 @@ int GetWorkerMap(struct worker * svcs, char * config) {
       			} else {
       				sprintf(svcs[i].mail, "(null)");     				
       			}
+
+			if(row[2] != NULL) {
+                                sprintf(svcs[i].services, "%s", row[2]);
+                        } else {
+                                sprintf(svcs[i].services, "(null)");
+                        }	
       			
       			if(row[1] != NULL) {
       				//svcs[i].icq=malloc(strlen(row[1])*sizeof(char)+2);
