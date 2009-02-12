@@ -19,7 +19,7 @@ fi;
 
 
 function get_parts {
-	df|grep -v "Mounted"|while read a b c d e pp; do
+	df -P|grep -v "Mounted"|while read a b c d e pp; do
 		echo "${pp},";
 	done;
 }
@@ -36,7 +36,7 @@ function check_part {
 		echo "$1 warning level missing; ";
 		exit $STATE_CRITICAL;
 	fi;
-	prozt=`(df  $1|grep -v "Mounted"|while read a b c d  pr a; do echo "$d $pr"; done;)|sed 's/[\n|%]//g'`;
+	prozt=`(df -P  $1|grep -v "Mounted"|while read a b c d  pr a; do echo "$d $pr"; done;)|sed 's/[\n|%]//g'`;
 	
 	
 	proz=$(echo $prozt|awk '{ print $2}');
