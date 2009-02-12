@@ -244,7 +244,7 @@ int bartlby_worker_has_service(struct worker * w, struct service * svc, char * c
 	
 	if(the_state > 0) {
 		//server,service is visible now check if its selected ;)
-		if(strlen(selected_servers) == 0 && strlen(selected_services) == 0) {
+		if(strlen(selected_servers) < 2 && strlen(selected_services) < 2) {
 			the_state=3;	
 		} else {
 			if(strstr(selected_servers, find_server) != NULL || strstr(selected_services, find_service) != NULL) {
@@ -283,7 +283,7 @@ int bartlby_worker_has_service(struct worker * w, struct service * svc, char * c
 	if(find_service != NULL)
 		free(find_service);
 		
-	
+	//_log("@TRIG@ return %d for worker '%s' with selected_services '%s'", the_state, w->name, selected_services);	
 	return the_state;
 }
 
