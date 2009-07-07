@@ -192,15 +192,19 @@ for($tt=0; $tt<$lines; $tt++) {
 
 	$a=0;
 	@reset($map);
-	
+	$per_server=false;
+	$already_displayed=false;
 	unset($f);
 	while(list($k, $servs) = @each($map)) {
 		$displayed_servers++;
 		
-		
+			
+			
 			for($x=0; $x<count($servs); $x++) {
 				
-					
+				
+				$per_server[$servs[$x][server_name]][$servs[$x][current_state]]++;
+				
 				switch($servs[$x][current_state]) {
 					case 0:
 						$oks++;
@@ -224,10 +228,10 @@ for($tt=0; $tt<$lines; $tt++) {
                                         }
 				}
 				if($hide_infos == 1) {
-                                        if($servs[$x][current_state] == 4) {
-                                                continue;
-                                        }
-                                }
+					if($servs[$x][current_state] == 4) {
+					        continue;
+					}
+        }
 
 				if($alerts_only == 1) {
 					if($servs[$x][current_state] == 0) {
@@ -255,9 +259,36 @@ for($tt=0; $tt<$lines; $tt++) {
 			}	
 		}
 			$gservice_count=count($f);
+			
+
+			
+			
 			for($z=0; $z<count($f); $z++) {
 				
 				if($z >= $start_from && $y <= $lines - 4) {
+					
+					$out_text="";
+					$disp_service="";
+					
+					if($per_server[$f[$z][server_name]][$f[$z][current_state]] > 5) {
+							if($already_displayed[$f[$z][server_name]] == 1) {
+									
+									continue;
+							} else {
+									$already_displayed[$f[$z][server_name]]=1;
+									
+							}
+					}
+					
+					////////////////////////////
+					
+					$out_text=$f[$z][new_server_text];
+					$disp_service=$f[$z][service_name];
+					
+					if($per_server[$f[$z][server_name]][$f[$z][current_state]] > 5) {
+						$out_text=$per_server[$f[$z][server_name]][$f[$z][current_state]] . " in this state";
+						$disp_service = " GROUP ";
+					}
 					
 					$this_row_selected = $f[$z][selected];
 					ncurses_move($y+1, 6);
@@ -274,10 +305,12 @@ for($tt=0; $tt<$lines; $tt++) {
 
 					mark_line($this_row_selected);
 					
-					$ostr=sprintf("%-30s  ", $f[$z][server_name] . ":" . $f[$z][service_name]);
+					
+					
+					$ostr=sprintf("%-30s  ", $f[$z][server_name] .  ":" . $disp_service);
 					ncurses_addstr(substr($ostr,0,27));
 					
-					ncurses_addstr(substr(str_replace("dbr", "", str_replace("\n", "", $f[$z][new_server_text])), 0, $columns-50));
+					ncurses_addstr(substr(str_replace("dbr", "", str_replace("\n", "", $out_text)), 0, $columns-50));
 					ncurses_color_set(4);
 
 					mark_line($this_row_selected);
