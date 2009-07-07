@@ -46,6 +46,7 @@ $running_only=0;
 $ticker="|";
 $hide_warns=0;
 $hide_infos=0;
+$group_similar=1;
 
 $ncurses_session = ncurses_init();
 $main = ncurses_newwin(0, 0, 0, 0); // main window
@@ -83,7 +84,7 @@ while(1){
 			
 		}
 	}
-
+	
 	
 	
 	if($k == ESCAPE_KEY || $k == 113) {
@@ -113,7 +114,14 @@ while(1){
 		$hide_warns=0;
 		$hide_infos=0;
 		$alerts_only=1;
-
+		$group_similar=1;
+	}
+	if($k == 103) { //press g
+		if($group_similar == 0) {
+				$group_similar=1;
+		} else {
+				$group_similar=0;
+		}
 	}
 	if($k == 105) {
                 if($hide_infos == 0)  {
@@ -161,10 +169,13 @@ while(1){
 		}
 	}
 	if($k == 114) {
-		if($running_only == 0)
+		if($running_only == 0) {
 			$running_only=1;
-		else
+			$group_similar=0;
+		} else {
 			$running_only=0;
+			$group_similar=1;
+		}
 			
 	}
 
@@ -270,7 +281,7 @@ for($tt=0; $tt<$lines; $tt++) {
 					$out_text="";
 					$disp_service="";
 					
-					if($per_server[$f[$z][server_name]][$f[$z][current_state]] > 5) {
+					if($per_server[$f[$z][server_name]][$f[$z][current_state]] >= 5 && $group_similar == 1) {
 							if($already_displayed[$f[$z][server_name]] == 1) {
 									
 									continue;
@@ -285,7 +296,7 @@ for($tt=0; $tt<$lines; $tt++) {
 					$out_text=$f[$z][new_server_text];
 					$disp_service=$f[$z][service_name];
 					
-					if($per_server[$f[$z][server_name]][$f[$z][current_state]] > 5) {
+					if($per_server[$f[$z][server_name]][$f[$z][current_state]] >= 5 && $group_similar == 1) {
 						$out_text=$per_server[$f[$z][server_name]][$f[$z][current_state]] . " in this state";
 						$disp_service = " GROUP ";
 					}
@@ -864,6 +875,7 @@ function disp_help() {
 		array(1, "r", "only show checks wich are currently running"),
 		array(1, "w", "hide services wich are in state:warning"),
 		array(1, "i", "hide services wich are in state:info"),
+		array(1, "g", "toggle grouping of similar error messages per server"),
 		array(1, "R", "Reset filter's"),
 		array(0, "Service Detail:"),
 		array(1, "f", "Force Check"),
