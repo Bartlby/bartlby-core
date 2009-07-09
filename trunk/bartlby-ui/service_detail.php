@@ -206,7 +206,6 @@ if($defaults[service_type] == 2){
 		
 		$ibox[$defaults[current_state]][s]=1;
 		$state_dropdown=$layout->DropDown("passive_state", $ibox);
-		
 		$info_box_title='Passive Service';  
 		$layout->create_box($info_box_title, $core_content, "service_detail_passive", array("service" => $defaults, "state_dropdown" => $state_dropdown), "service_detail_passive");
 }
@@ -215,6 +214,20 @@ if($defaults[service_type] == 3){
 	$layout->create_box($info_box_title, $core_content, "service_detail_group_check", array("service" => $defaults), "service_detail_group_check");
 }
 
+$ibox[0][c]="green";
+$ibox[0][v]=0;
+$ibox[0][k]="OK";
+$ibox[1][c]="orange";
+$ibox[1][v]=1;
+$ibox[1][k]="Warning";
+$ibox[2][c]="red";
+$ibox[2][v]=2;
+$ibox[2][k]="Critical";
+
+$ibox[$defaults[current_state]][s]=1;
+$state_dropdown=$layout->DropDown("passive_state", $ibox);
+$info_box_title='Manual state change';  
+$layout->create_box($info_box_title, $core_content, "service_detail_manual", array("service" => $defaults, "state_dropdown" => $state_dropdown), "service_detail_manual");
 
 $r=$btl->getExtensionsReturn("_serviceDetail", $layout);
 

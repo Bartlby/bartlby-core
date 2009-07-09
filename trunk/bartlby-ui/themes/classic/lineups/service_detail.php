@@ -5,6 +5,7 @@
 <?=$this->disp_box("service_detail_plugin_info")?>
 <?=$this->disp_box("service_detail_snmp")?>
 <?=$this->disp_box("service_detail_passive")?>
+<?=$this->disp_box("service_detail_manual")?>
 <?=$this->disp_box("service_detail_group_check")?>
 <?=$this->disp_box("UNPLACED")?>
 
