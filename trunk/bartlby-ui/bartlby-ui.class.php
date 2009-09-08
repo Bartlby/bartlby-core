@@ -1851,6 +1851,35 @@ function create_package($package_name, $in_services = array(), $with_plugins, $w
 		
 			return $re;	
 	}
+	function getWorkerOptions($defaults, $layout) {
+		//return worker options
+		$act[0][c]="";
+		$act[0][v]="0";
+		$act[0][k]="Inactive";
+		if($defaults[active] == 0) {
+			$act[0][s]=1;
+		}
+		
+		$act[1][c]="";
+		$act[1][v]="1";
+		$act[1][k]="Active";
+		if($defaults[active] == 1) {
+			$act[1][s]=1;
+		}
+		$act[2][c]="";
+		$act[2][v]="2";
+		$act[2][k]="Standby";
+		if($defaults[active] == 2) {
+			$act[2][s]=1;
+		}
+		
+		
+		
+		$dropdown = $layout->DropDown("worker_active", $act, " onChange='updateWorkerState(" . $defaults[worker_id] . ", this);'");
+		
+		return $dropdown;
+		
+	}
 	function getserveroptions($defaults, $layout) {
 		$modify = "<a href='modify_server.php?server_id=" . $defaults[server_id] . "'><img src='themes/" . $this->theme . "/images/modify.gif' title='Modify this server' border=0></A>";
 		$copy = "<a href='modify_server.php?copy=true&server_id=" . $defaults[server_id] . "'><img src='themes/" . $this->theme . "/images/edit-copy.gif' title='Copy (Create a similar) this Server' border=0></A>";
