@@ -41,4 +41,5 @@ $xajax->registerFunction("forceCheck");
 $xajax->registerFunction("BulkServiceSearch");
 $xajax->registerFunction("IphoneOverView");
 
+$xajax->registerFunction("setWorkerState");
 ?>

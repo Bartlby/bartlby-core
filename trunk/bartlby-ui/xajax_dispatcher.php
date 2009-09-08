@@ -28,6 +28,49 @@ function IphoneOverView() {
 	
 	return $res;
 }
+
+function setWorkerState($worker_id, $worker_state) {
+	//Set worker ID to state -> STATE
+		global $layout, $btl;
+		$res=new xajaxResponse();
+		
+		//get shm id
+		$servs=$btl->GetWorker();
+		$optind=0;
+
+
+
+
+		while(list($k, $v) = @each($servs)) {
+				if($v[worker_id] == $worker_id) {
+						$shm_place=$v[shm_place];
+				}
+		}
+		
+		bartlby_set_worker_state($btl->CFG, $shm_place, $worker_state);
+		
+		
+		
+		switch( $worker_state) {
+			case 0:
+			$hrstate = "Inactive";
+			break;
+			case 1:
+			$hrstate = "Active";	
+			break;
+			case 2:
+			$hrstate = "Standby";
+			break;
+			default:
+			$hrstate="unkown";
+		}
+		
+		
+		$res->AddAssign("wstate" . $worker_id, "innerHTML", "State set to: $hrstate ");
+		
+		return $res;
+}
+
 function toggle_extension($ext) {
 	global $layout;
 	$res=new xajaxResponse();
@@ -488,7 +531,7 @@ function ServerSearch($what, $script='modify_server.php') {
 			$y++;
 		}
 		if($y>20) {
-			break 2;	
+			break;	
 		}
 	}
 	$output = "<a href='javascript:void(0);' onClick=\"xajax_removeDIV('server_search_suggest');\">close</A><br><br>" . $output;

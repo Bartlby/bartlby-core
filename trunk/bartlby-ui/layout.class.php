@@ -258,7 +258,8 @@ class Layout {
                 $this->ext_menu .= $this->addSub("Worker/s", "Add","add_worker.php");
                 $this->ext_menu .= $this->addSub("Worker/s", "Modify","user_list.php?script=modify_worker.php");
                 $this->ext_menu .= $this->addSub("Worker/s", "Delete","user_list.php?script=delete_worker.php");
-		$this->ext_menu .= $this->addSub("Worker/s", "Permissions","user_list.php?script=permission_worker.php");
+								$this->ext_menu .= $this->addSub("Worker/s", "Permissions","user_list.php?script=permission_worker.php");
+								$this->ext_menu .= $this->addSub("Worker/s", "Activity","activity_worker.php");
 		$this->ext_menu .= $this->endMenu();
 
 
