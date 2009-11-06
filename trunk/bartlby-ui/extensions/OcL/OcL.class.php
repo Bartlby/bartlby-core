@@ -1,6 +1,5 @@
 <?php
 include "config.php";
-@dl("ssh2.so");
 
 class OcL {
 	function OcL() {

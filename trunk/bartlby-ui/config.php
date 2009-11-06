@@ -21,7 +21,7 @@ $Date: 2008-04-07 21:20:34 +0200 (Mo, 07 Apr 2008) $
 $Author: hjanuschka $ 
 */
 
-	$Bartlby_CONF="/opt/bartlby-dev/etc/bartlby.cfg";
+	$Bartlby_CONF="/opt/bartlby/etc/bartlby.cfg";
 	if(file_exists("setup.php")) {
 		include("setup.php");
 		exit(1);	
