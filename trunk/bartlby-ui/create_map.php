@@ -23,7 +23,7 @@ var offsetdivfrompointerX=10 //Customize x offset of tooltip DIV relative to poi
 var offsetdivfrompointerY=14 //Customize y offset of tooltip DIV relative to pointer image. Tip: Set it to (height_of_pointer_image-1).
 
 document.write('<div id="dhtmltooltip"></div>') //write out tooltip DIV
-document.write('<img id="dhtmlpointer" src="themes/<?=$layout->theme?>/images/arrow2.gif">') //write out pointer image
+document.write('<img id="dhtmlpointer" src="themes/<?php echo $layout->theme?>/images/arrow2.gif">') //write out pointer image
 
 var ie=document.all
 var ns6=document.getElementById && !document.all
@@ -389,7 +389,7 @@ repositionIT();
 	</tr>
 	<tr>
 		<td>Icon:</td>
-		<td><?=$server_ico?></td>
+		<td><?php echo $server_ico?></td>
 	</tr>
 	<tr>
 		<td colspan=2><input type="button" value="add" onClick="addLayerForm();">

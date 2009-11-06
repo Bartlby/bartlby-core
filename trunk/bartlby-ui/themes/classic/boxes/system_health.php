@@ -21,11 +21,11 @@ $silverbar = "<table class='nopad'>
 	
 <div style='position:relative; z-index:2; '> <table class='nopad'>
 		<tr>
-			<td  class='bar_left_<?=$plcs[color]?>'>&nbsp;</td>
-			<td class='bar_middle_<?=$plcs[color]?>' style='width:<?=($plcs[prozent_float]*7.3)?>'></td>
-			<td class='bar_right_<?=$plcs[color]?>'>&nbsp;</td>
+			<td  class='bar_left_<?php echo $plcs[color]?>'>&nbsp;</td>
+			<td class='bar_middle_<?php echo $plcs[color]?>' style='width:<?php echo ($plcs[prozent_float]*7.3)?>'></td>
+			<td class='bar_right_<?php echo $plcs[color]?>'>&nbsp;</td>
 			<td class='font2'>&nbsp;</td>
 			
 		</tr>
 		
-	</table></div><div style='position:relative; z-index:1; top:-40px;'><?=$silverbar?></div>
+	</table></div><div style='position:relative; z-index:1; top:-40px;'><?php echo $silverbar?></div>

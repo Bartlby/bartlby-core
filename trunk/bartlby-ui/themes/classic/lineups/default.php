@@ -22,6 +22,6 @@ $Author: hjanuschka $
 */
 ?>
 
-<?=$this->disp_box("UNPLACED")?>
+<?php echo $this->disp_box("UNPLACED")?>
 
 
