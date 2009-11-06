@@ -26,7 +26,7 @@ include_once("bartlbystorage.class.php");
 session_start();
 
 set_time_limit(0);
-set_magic_quotes_runtime(0);
+if(function_exists("set_magic_quotes")) set_magic_quotes_runtime(0);
 define("BARTLBY_UI_VERSION", "2.1");
 define("BARTLBY_RELNOT", "");
 $wdays[0]="Sunday";
