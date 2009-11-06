@@ -1,4 +1,4 @@
-<?
+<?php
 	include "config.php";
 
         include "layout.class.php";
@@ -10,7 +10,7 @@
 ?>
 <body bgcolor="C2CBCF">
 <center><img src='themes/<?=$layout->theme?>/images/btl-logo.gif'></center>
-<?
+<?php
 	$dhl=opendir("themes/" . $layout->theme . "/images/");
 	while($f = readdir($dhl)) {
 		if($f == "." || $f == ".." || is_dir("themes/" . $layout->theme . "/images/" . $f) || !preg_match("/.*\.[png|gif|jpg]/", $f)) {

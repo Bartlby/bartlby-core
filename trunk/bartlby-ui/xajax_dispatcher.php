@@ -1,4 +1,4 @@
-<?
+<?php
 $do_not_merge_post_get=true;
 include "layout.class.php";
 include "bartlby-ui.class.php";

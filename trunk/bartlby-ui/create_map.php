@@ -1,4 +1,4 @@
-<?
+<?php
 	include "config.php";
 	include "layout.class.php";
 	include "bartlby-ui.class.php";
@@ -256,7 +256,7 @@ visibility: hidden;
 </script>
 <input type="button" onClick='layer_pos();' value="Store">
 <input type="button" onClick='showAdd();' value="Add">
-<?
+<?php
 
 	
 	$layout->Table("100%");

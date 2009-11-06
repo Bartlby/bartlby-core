@@ -1,4 +1,4 @@
-<?
+<?php
 	$dirs = array("pkgs", "extensions", "rights", "comments", "store", "store/SMS");
 	$cfgs = array($Bartlby_CONF, "ui-extra.conf");
 	$rights = array("rights/admin.dat", "rights/template.dat");
@@ -13,7 +13,7 @@
 	
 <h2>Checking permissions</h2>
 <pre>
-<?
+<?php
 $bad_error_found=false;
 for($x=0; $x<count($dirs); $x++) {
 	echo $dirs[$x] . ".....";
@@ -32,7 +32,7 @@ for($x=0; $x<count($dirs); $x++) {
 
 <h2>Checking default disabled UI extensions</h2>
 <pre>
-<?
+<?php
 foreach(glob("extensions/*.disabled") as $fname) {
 	echo $fname . ".....";
 	
@@ -50,7 +50,7 @@ flush();
 
 <h2>Config Files</h2>
 <pre>
-<?
+<?php
 for($x=0; $x<count($cfgs); $x++) {
 	echo $cfgs[$x] . ".....";
 	if(is_writeable($cfgs[$x])) {
@@ -71,7 +71,7 @@ for($x=0; $x<count($cfgs); $x++) {
 
 <h2>User permission</h2>
 <pre>
-<?
+<?php
 for($x=0; $x<count($rights); $x++) {
 	echo $rights[$x] . ".....";
 	if(is_writeable($rights[$x])) {
@@ -89,7 +89,7 @@ for($x=0; $x<count($rights); $x++) {
 </pre>
 <h2>PHP module</h2>
 <pre>
-<?
+<?php
 if(!function_exists("bartlby_get_info")) {
 	echo "bartlby functions not existing .... trying to load module....";
 	if(!@dl("bartlby.so")) {
@@ -106,7 +106,7 @@ if(!function_exists("bartlby_get_info")) {
 ?>
 <h2>checkin Core</h2>
 <pre>
-<?
+<?php
 echo "trying to retrieve Version number of core ... ";
 if($bad_error_found==false) {
 	$info=@bartlby_get_info($Bartlby_CONF);
@@ -136,7 +136,7 @@ echo "\n";
 ?>
 
 <h2>check if setup.php is removeable</h2>
-<?
+<?php
 echo "check...";
 if($bad_error_found == true) {
 	echo "<font color=red>CRITICAL</font> some previous checks failed FIX THEM\n";	
@@ -151,7 +151,7 @@ if($bad_error_found == true) {
 }
 echo "\n";
 ?>
-<?
+<?php
 	if($bad_error_found == false) {
 		echo "<h1><font color=green>ALL OK</font>(Hit Reload in your browser)</h1>";	
 		
@@ -169,7 +169,7 @@ echo "\n";
 </body>
 </html>
 
-<?
+<?php
 function my_unlink($f) {
 	global $_GET;
 	if(!$_GET[dev]) {

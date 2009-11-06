@@ -1,4 +1,4 @@
-<?
+<?php
 include "config.php";
 include "bartlby-ui.class.php";
 include "layout.class.php";

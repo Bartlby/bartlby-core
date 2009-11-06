@@ -1,4 +1,4 @@
-<?
+<?php
 
 /*
 	$layout->create_box($tac_title, $tac_content, "tactical_overview",array(

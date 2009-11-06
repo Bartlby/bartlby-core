@@ -1,4 +1,4 @@
-<?
+<?php
 /*
 	$layout->create_box($info_box_title, $core_content, "core_info", array(
 		'user' => $btl->user,

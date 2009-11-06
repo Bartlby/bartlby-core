@@ -1,4 +1,4 @@
-<?
+<?php
 	class bartlbyStorage {
 		function bartlbyStorage($plugin_name) {
 			$this->plugin_name=$plugin_name;

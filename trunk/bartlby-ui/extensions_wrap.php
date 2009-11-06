@@ -1,4 +1,4 @@
-<?
+<?php
 	include "config.php";
 	
 	$e=explode("?", $_GET[script]);

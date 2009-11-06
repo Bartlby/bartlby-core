@@ -1,4 +1,4 @@
-<?
+<?php
 function dnl($i) {
 	return sprintf("%02d", $i);
 }
