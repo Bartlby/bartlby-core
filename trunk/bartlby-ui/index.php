@@ -9,7 +9,7 @@
 
 ?>
 <body bgcolor="C2CBCF">
-<center><img src='themes/<?=$layout->theme?>/images/btl-logo.gif'></center>
+<center><img src='themes/<?php echo $layout->theme?>/images/btl-logo.gif'></center>
 <?php
 	$dhl=opendir("themes/" . $layout->theme . "/images/");
 	while($f = readdir($dhl)) {
@@ -30,7 +30,7 @@
 ?>
 
 <link rel="shortcut icon" href="favicon.ico" > 
-<link rel="stylesheet" id="CSS" type="text/css" href="themes/<?=$layout->theme?>/btl.css"></link>
+<link rel="stylesheet" id="CSS" type="text/css" href="themes/<?php echo $layout->theme?>/btl.css"></link>
 <script type="text/javascript" src="js/btl.js"></script>
 
 <script language="JavaScript">
@@ -47,15 +47,15 @@ For full source code to this script and 100's more, visit http://dynamicdrive.co
 	var lengthOfPreloadBar = 200 // Length of preload bar (in pixels)
 	var heightOfPreloadBar = 20 // Height of preload bar (in pixels)
 	// Put the URLs of images that you want to preload below (as many as you want)
-	var yourImages = new Array(<?=$str?>)
+	var yourImages = new Array(<?php echo $str?>)
 
 // Do not modify anything beyond this point!
 if (document.images) {
 	var dots = new Array() 
 	dots[0] = new Image(1,1)
-	dots[0].src = "themes/<?=$layout->theme?>/images/black.gif" // default preloadbar color (note: You can substitute it with your image, but it has to be 1x1 size)
+	dots[0].src = "themes/<?php echo $layout->theme?>/images/black.gif" // default preloadbar color (note: You can substitute it with your image, but it has to be 1x1 size)
 	dots[1] = new Image(1,1)
-	dots[1].src = "themes/<?=$layout->theme?>/images/blue.gif" // color of bar as preloading progresses (same note as above)
+	dots[1].src = "themes/<?php echo $layout->theme?>/images/blue.gif" // color of bar as preloading progresses (same note as above)
 	var preImages = new Array(),coverage = Math.floor(lengthOfPreloadBar/yourImages.length),currCount = 0
 	var loaded = new Array(),i,covered,timerID
 	var leftOverWidth = lengthOfPreloadBar%coverage
@@ -138,7 +138,7 @@ document.write('<font face="tahoma" size=1><p><small>&nbsp;</p>')
 								<td><input type=password name=login_password></td>
 							</tr>
 							<tr>
-								<td colspan=2 align=center><input type=submit value="login"><br><?=$https_check?></td>
+								<td colspan=2 align=center><input type=submit value="login"><br><?php echo $https_check?></td>
 							</tr>
 							<tr>
 								<td colspan=2 align=center><font size=1>to use browser based auth. leave the fields blank and click login</font></td>
