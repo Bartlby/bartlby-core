@@ -1,4 +1,4 @@
-<?
+<?php
 /*
 $layout->create_box($health_title, $health_content,"system_health", array(
 			'prozent_float' => $prozent_float,
@@ -6,7 +6,7 @@ $layout->create_box($health_title, $health_content,"system_health", array(
 		), "system_health");
 */
 ?>
-<?
+<?php
 $silverbar = "<table class='nopad'>
 		<tr>
 			<td class='bar_left_silver'>&nbsp;</td>

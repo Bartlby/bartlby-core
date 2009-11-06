@@ -1,4 +1,4 @@
-<?
+<?php
 /*
 	"service" => $defaults,
 											"service_type" => $svc_type,
@@ -126,17 +126,17 @@
 	
 		<tr>
 		<td width=150 class='font2'>Is Running?:</td>
-		<td align=left ><?= $plcs[currently_running]?></font></td>
+		<td align=left ><? $plcs[currently_running]?></font></td>
 		<td>&nbsp;</td>           
 	</tr>	
 	<tr>
 		<td width=150 class='font2'>Average Check Time:</td>
-		<td align=left ><?= $plcs[service_ms]?> ms</font></td>
+		<td align=left ><? $plcs[service_ms]?> ms</font></td>
 		<td>&nbsp;</td>           
 	</tr>
 	<tr>
 		<td width=150 class='font2'>Average delay Time:</td>
-		<td align=left ><?= $plcs[service_delay]?> Seconds</font></td>
+		<td align=left ><? $plcs[service_delay]?> Seconds</font></td>
 		<td>&nbsp;</td>           
 	</tr>
 	

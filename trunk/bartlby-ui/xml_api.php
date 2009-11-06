@@ -1,4 +1,4 @@
-<?
+<?php
 include('IXR_Library.inc.php');
 include("bartlby-ui.class.php");
 include "config.php";

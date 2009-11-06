@@ -1,4 +1,4 @@
-<?
+<?php
 $xajax = new xajax("xajax_dispatcher.php");
 $xajax->registerFunction("AddModifyWorker");
 $xajax->registerFunction("AddModifyClient");

@@ -1,4 +1,4 @@
-<?
+<?php
 
 $cfgfile="/storage/SF.NET/BARTLBY/bartlby/bartlby.cfg";
 //$btl=bartlby_open();

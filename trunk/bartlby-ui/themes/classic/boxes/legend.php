@@ -1,4 +1,4 @@
-<?
+<?php
 //$put_a_standard_box_around_me=false;
 ?>
 <table class='nopad' width='100%'>

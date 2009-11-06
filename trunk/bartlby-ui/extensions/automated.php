@@ -1,4 +1,4 @@
-<?
+<?php
 //Run UI-Extensions from shell 
 //Sample Call:
 // php automated.php \

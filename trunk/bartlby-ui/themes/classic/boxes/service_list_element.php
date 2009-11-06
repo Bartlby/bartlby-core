@@ -1,4 +1,4 @@
-<?
+<?php
 
 //$put_a_standard_box_around_me=false;
 for($s_element=0; $s_element<count($plcs[services]); $s_element++) {
@@ -29,6 +29,6 @@ for($s_element=0; $s_element<count($plcs[services]); $s_element++) {
 	</tr>
 </table>
 
-<?
+<?php
 }
 ?>

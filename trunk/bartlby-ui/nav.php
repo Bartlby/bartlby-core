@@ -1,4 +1,4 @@
-<?
+<?php
 
 include "layout.class.php";
 
