@@ -44,7 +44,7 @@ static int connection_timed_out=0;
 
 #define CONN_TIMEOUT 60
 #define MYOS "Linux"
-#define MYVERSION "0.9"
+#define MYVERSION "0.9f3"
 
 static void agent_conn_timeout(int signo) {
  	connection_timed_out = 1;
@@ -224,73 +224,82 @@ int main(int argc, char ** argv) {
 		if(token == NULL) {
 			sprintf(svc_back,"1|Protocol Error (No plugin specified");	
 		} else {
-			sprintf(plg, "%s", token);
-			//syslog(LOG_ERR, "bartlby_agent: %s",plg);
-			plugin_path=malloc(sizeof(char) * (strlen(plugin_dir)+strlen(plg)+255));
-			sprintf(plugin_path, "%s/%s", plugin_dir, plg);
-			if(stat(plugin_path,&plg_stat) < 0) {
-				sprintf(svc_back, "1|Plugin does not exist (%s)", plugin_path);	
-			} else {
-				token=strtok(NULL, "|");
-				if(token == NULL) {
-					sprintf(plg_args, " ");	
+			snprintf(plg,255, "%s", token);
+			
+			if(strchr(plg, '/') == NULL && strchr(plg, '%') == NULL  && strchr(plg, '&') == NULL  && strstr(plg, "..") == NULL) {
+			
+			
+				//syslog(LOG_ERR, "bartlby_agent: %s",plg);
+				plugin_path=malloc(sizeof(char) * (strlen(plugin_dir)+strlen(plg)+255));
+				snprintf(plugin_path,1024, "%s/%s", plugin_dir, plg);
+				if(stat(plugin_path,&plg_stat) < 0) {
+					sprintf(svc_back, "1|Plugin does not exist (%s)", plugin_path);	
 				} else {
-					sprintf(plg_args, "%s", token);
-				}
-				exec_str=malloc(sizeof(char) * (strlen(plugin_path)+strlen(plg_args)+255));
-				sprintf(exec_str, "%s %s", plugin_path, plg_args);
-				//printf("E_STR: P: '%s' A: '%s' F: '%s'\n", plugin_path, plg_args, exec_str);
-				
-				fplg=popen(exec_str, "r");
-				if(fplg != NULL) {
-					connection_timed_out=0;
-					alarm(CONN_TIMEOUT);
-					if(fgets(plugin_output, 1024, fplg) != NULL) {
-						if(strncmp(plugin_output, "PERF: ", 6) == 0) {
-							
-							printf("%s\n",plugin_output);
-							fflush(stdout);
-							//sleep(1);
+					token=strtok(NULL, "|");
+					if(token == NULL) {
+						sprintf(plg_args, " ");	
+					} else {
+						snprintf(plg_args,255, "%s", token);
+					}
+					if( strchr(plg_args, '%') == NULL  && strchr(plg_args, '&') == NULL  && strstr(plg_args, "..") == NULL) {
+						exec_str=malloc(sizeof(char) * (strlen(plugin_path)+strlen(plg_args)+255));
+						snprintf(exec_str,1024, "%s %s", plugin_path, plg_args);
+						//printf("E_STR: P: '%s' A: '%s' F: '%s'\n", plugin_path, plg_args, exec_str);
+						
+						fplg=popen(exec_str, "r");
+						if(fplg != NULL) {
+							connection_timed_out=0;
+							alarm(CONN_TIMEOUT);
 							if(fgets(plugin_output, 1024, fplg) != NULL) {
-								plugin_rtc=pclose(fplg);
-								plugin_output[strlen(plugin_output)-1]='\0';
-								sprintf(svc_back, "%d|%s\n", WEXITSTATUS(plugin_rtc), plugin_output);		
+								if(strncmp(plugin_output, "PERF: ", 6) == 0) {
+									
+									printf("%s\n",plugin_output);
+									fflush(stdout);
+									//sleep(1);
+									if(fgets(plugin_output, 1024, fplg) != NULL) {
+										plugin_rtc=pclose(fplg);
+										plugin_output[strlen(plugin_output)-1]='\0';
+										sprintf(svc_back, "%d|%s\n", WEXITSTATUS(plugin_rtc), plugin_output);		
+									} else {
+										plugin_rtc=pclose(fplg);
+										sprintf(svc_back, "%d|No Output(Perf) - %s", WEXITSTATUS(plugin_rtc), exec_str);	
+									
+									}
+									
+								} else {
+									plugin_rtc=pclose(fplg);
+									plugin_output[strlen(plugin_output)-1]='\0';
+									sprintf(svc_back, "%d|%s\n", WEXITSTATUS(plugin_rtc), plugin_output);		
+								}
+								
+								
 							} else {
 								plugin_rtc=pclose(fplg);
-								sprintf(svc_back, "%d|No Output(Perf) - %s", WEXITSTATUS(plugin_rtc), exec_str);	
-							
+								sprintf(svc_back, "%d|No Output - %s", WEXITSTATUS(plugin_rtc), exec_str);	
+								
+								
 							}
+							if(connection_timed_out == 1) {
+								sprintf(svc_back, "1|Plugin timedout - %s", exec_str);
+							}
+							connection_timed_out=0;
+							alarm(0);
+							
 							
 						} else {
-							plugin_rtc=pclose(fplg);
-							plugin_output[strlen(plugin_output)-1]='\0';
-							sprintf(svc_back, "%d|%s\n", WEXITSTATUS(plugin_rtc), plugin_output);		
+							sprintf(svc_back, "1|Plugin open failed");	
 						}
-						
-						
-					} else {
-						plugin_rtc=pclose(fplg);
-						sprintf(svc_back, "%d|No Output - %s", WEXITSTATUS(plugin_rtc), exec_str);	
-						
-						
+		
+						free(exec_str);
 					}
-					if(connection_timed_out == 1) {
-						sprintf(svc_back, "1|Plugin timedout - %s", exec_str);
-					}
-					connection_timed_out=0;
-					alarm(0);
 					
-					
-				} else {
-					sprintf(svc_back, "1|Plugin open failed");	
 				}
-
-				free(exec_str);
 				
+				
+				free(plugin_path);
+			} else {
+				sprintf(svc_back, "1|Plugin name contains illegal characters");						
 			}
-			
-			
-			free(plugin_path);
 			
 			
 		}
