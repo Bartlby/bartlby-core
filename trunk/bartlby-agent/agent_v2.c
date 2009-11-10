@@ -342,8 +342,14 @@ void agent_v2_do_check(int sock, char * cfgfile)  {
 		//Empty optional fields ;)
 		sprintf(send_packet.perf_handler, " ");
 		
-		
+		if(strchr(receive_packet.plugin, '/') == NULL && strchr(receive_packet.plugin, '%') == NULL  && strchr(receive_packet.plugin, '&') == NULL  && strstr(receive_packet.plugin, "..") == NULL) {
+			sprintf(send_packet.output, "plugin contains illegal characters");
+			send_packet.exit_code=(int16_t)2;
+			goto sendit;	
+		}
+				
 		plugin_path=malloc(sizeof(char) * (strlen(plugin_dir)+strlen(receive_packet.plugin)+255));
+					
 		sprintf(plugin_path, "%s/%s", plugin_dir, receive_packet.plugin);
 		
 		if(stat(plugin_path,&plg_stat) < 0) {
@@ -354,6 +360,16 @@ void agent_v2_do_check(int sock, char * cfgfile)  {
 		}
 		
 		exec_str=malloc(sizeof(char) * (strlen(plugin_path)+strlen(receive_packet.cmdline)+255));
+		
+		if( strchr(receive_packet.cmdline, '%') == NULL  && strchr(receive_packet.cmdline, '&') == NULL  && strstr(receive_packet.cmdline, "..") == NULL) {
+			if(stat(plugin_path,&plg_stat) < 0) {
+				sprintf(send_packet.output, "argument contains illegal characters");
+				send_packet.exit_code=(int16_t)2;
+				goto sendit;
+			
+			}
+		}
+		
 		sprintf(exec_str, "%s %s", plugin_path, receive_packet.cmdline);
 		
 		
