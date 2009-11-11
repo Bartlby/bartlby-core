@@ -1,7 +1,7 @@
 /* $Id$ *//* $Id$ */
 /* ----------------------------------------------------------------------- *
  *
- *   Copyright 2005-2008 Helmut Januschka - All Rights Reserved
+ *   Copyright 2005-2009 Helmut Januschka - All Rights Reserved
  *   Contact: <helmut@januschka.com>, <contact@bartlby.org>
  *
  *
