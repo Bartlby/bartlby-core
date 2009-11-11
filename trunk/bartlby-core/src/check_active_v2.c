@@ -284,6 +284,7 @@ void bartlby_check_v2(struct service * svc, char * cfgfile, int use_ssl) {
 		case STATE_OK:
 		case STATE_WARNING:
 		case STATE_CRITICAL:
+		case STATE_INFO:
 			svc->current_state=(int16_t)receive_packet.exit_code;
 		break;
 		
