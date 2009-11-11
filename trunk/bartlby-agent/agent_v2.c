@@ -48,6 +48,8 @@ $Author$
 
 
 static int use_ssl=1;
+static int log_execs=0;
+char * cfg_log_execs;
 char * cfg_use_ssl;
 
 static int connection_timed_out=0;
@@ -110,6 +112,15 @@ int main(int argc, char **argv){
 		use_ssl=atoi(cfg_use_ssl);
 		free(cfg_use_ssl);
 	}
+	
+	cfg_log_execs=getConfigValue("agent_log_execs", argv[argc-1]);
+	if(cfg_log_execs == NULL) {
+		log_execs = 0;	
+	} else {
+		log_execs=atoi(cfg_log_execs);
+		free(cfg_log_execs);
+	}
+	
 	//syslog(LOG_ERR, "use_ssl: %d cfg_file: %s", use_ssl, argv[argc-1]);
 	
 #ifdef HAVE_SSL
@@ -331,7 +342,9 @@ void agent_v2_do_check(int sock, char * cfgfile)  {
 			return;	
 		}
 		
-		//syslog(LOG_ERR,"Host is asking for command '%s - %s' to be run...",receive_packet.plugin, receive_packet.cmdline);
+		if(log_execs) {
+			syslog(LOG_ERR,"Host is asking for command '%s - %s' to be run...",receive_packet.plugin, receive_packet.cmdline);
+		}
 		
 		/* clear the response packet buffer */
 		bzero(&send_packet,sizeof(send_packet));
@@ -342,7 +355,7 @@ void agent_v2_do_check(int sock, char * cfgfile)  {
 		//Empty optional fields ;)
 		sprintf(send_packet.perf_handler, " ");
 		
-		if(strchr(receive_packet.plugin, '`') == NULL && strchr(receive_packet.plugin, '\n') == NULL && strchr(receive_packet.plugin, ';') == NULL && strchr(receive_packet.plugin, '<') == NULL && strchr(receive_packet.plugin, '>') == NULL && strchr(receive_packet.plugin, '/') == NULL && strchr(receive_packet.plugin, '%') == NULL  && strchr(receive_packet.plugin, '&') == NULL  && strstr(receive_packet.plugin, "..") == NULL) {
+		if(strchr(receive_packet.plugin, '`') != NULL && strchr(receive_packet.plugin, '\n') != NULL && strchr(receive_packet.plugin, ';') != NULL && strchr(receive_packet.plugin, '<') != NULL && strchr(receive_packet.plugin, '>') != NULL && strchr(receive_packet.plugin, '/') != NULL && strchr(receive_packet.plugin, '%') != NULL  && strchr(receive_packet.plugin, '&') != NULL  && strstr(receive_packet.plugin, "..") != NULL) {
 			sprintf(send_packet.output, "plugin contains illegal characters");
 			send_packet.exit_code=(int16_t)2;
 			goto sendit;	
@@ -361,7 +374,7 @@ void agent_v2_do_check(int sock, char * cfgfile)  {
 		
 		exec_str=malloc(sizeof(char) * (strlen(plugin_path)+strlen(receive_packet.cmdline)+255));
 		
-		if( strchr(receive_packet.cmdline, '`') == NULL && strchr(receive_packet.cmdline, '\n') == NULL && strchr(receive_packet.cmdline, ';') == NULL && strchr(receive_packet.cmdline, '<') == NULL && strchr(receive_packet.cmdline, '>') == NULL && strchr(receive_packet.cmdline, '%') == NULL  && strchr(receive_packet.cmdline, '&') == NULL  && strstr(receive_packet.cmdline, "..") == NULL) {
+		if( strchr(receive_packet.cmdline, '`') != NULL && strchr(receive_packet.cmdline, '\n') != NULL && strchr(receive_packet.cmdline, ';') != NULL && strchr(receive_packet.cmdline, '<') != NULL && strchr(receive_packet.cmdline, '>') != NULL && strchr(receive_packet.cmdline, '%') != NULL  && strchr(receive_packet.cmdline, '&') != NULL  && strstr(receive_packet.cmdline, "..") != NULL) {
 			if(stat(plugin_path,&plg_stat) < 0) {
 				sprintf(send_packet.output, "argument contains illegal characters");
 				send_packet.exit_code=(int16_t)2;
@@ -402,6 +415,7 @@ void agent_v2_do_check(int sock, char * cfgfile)  {
 					plugin_rtc=pclose(fplg);
 					send_packet.exit_code=(int16_t)WEXITSTATUS(plugin_rtc);
 					sprintf(send_packet.output, "%s", plugin_output);	
+					//syslog(LOG_ERR,"Plugin: %s Exit-Code: %d - converted to: %d",receive_packet.plugin, WEXITSTATUS(plugin_rtc), send_packet.exit_code);
 				}	
 			} else {
 				plugin_rtc=pclose(fplg);
