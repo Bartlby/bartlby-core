@@ -37,14 +37,14 @@ $Author$
 #include <sys/socket.h>
 #include <netdb.h>
 
-
+int has_bad_chars( char * str);
 char * getConfigValue(char * key, char * fname);
 
 static int connection_timed_out=0;
 
 #define CONN_TIMEOUT 60
 #define MYOS "Linux"
-#define MYVERSION "0.9f5"
+#define MYVERSION "0.9f6"
 
 static void agent_conn_timeout(int signo) {
  	connection_timed_out = 1;
@@ -226,8 +226,8 @@ int main(int argc, char ** argv) {
 		} else {
 			snprintf(plg,255, "%s", token);
 			
-			if( strchr(plg, '`') == NULL && strchr(plg, '\n') == NULL && strchr(plg, ';') == NULL && strchr(plg, '<') == NULL && strchr(plg, '>') == NULL &&  strchr(plg, '/') == NULL && strchr(plg, '%') == NULL  && strchr(plg, '&') == NULL  && strstr(plg, "..") == NULL) {
-			
+			//if( strchr(plg, '`') == NULL && strchr(plg, '\n') == NULL && strchr(plg, ';') == NULL && strchr(plg, '<') == NULL && strchr(plg, '>') == NULL &&  strchr(plg, '/') == NULL && strchr(plg, '%') == NULL  && strchr(plg, '&') == NULL  && strstr(plg, "..") == NULL) {
+			if(has_bad_chars(plg) > 0) {
 			
 				//syslog(LOG_ERR, "bartlby_agent: %s",plg);
 				plugin_path=malloc(sizeof(char) * (strlen(plugin_dir)+strlen(plg)+255));
@@ -241,7 +241,8 @@ int main(int argc, char ** argv) {
 					} else {
 						snprintf(plg_args,255, "%s", token);
 					}
-					if( strchr(plg_args, '`') == NULL && strchr(plg_args, '\n') == NULL && strchr(plg_args, ';') == NULL && strchr(plg_args, '<') == NULL && strchr(plg_args, '>') == NULL && strchr(plg_args, '%') == NULL  && strchr(plg_args, '&') == NULL  && strstr(plg_args, "..") == NULL) {
+					//if( strchr(plg_args, '`') == NULL && strchr(plg_args, '\n') == NULL && strchr(plg_args, ';') == NULL && strchr(plg_args, '<') == NULL && strchr(plg_args, '>') == NULL && strchr(plg_args, '%') == NULL  && strchr(plg_args, '&') == NULL  && strstr(plg_args, "..") == NULL) {
+					if(has_bad_chars(plg_args) > 0) {
 						exec_str=malloc(sizeof(char) * (strlen(plugin_path)+strlen(plg_args)+255));
 						snprintf(exec_str,1024, "%s %s", plugin_path, plg_args);
 						//printf("E_STR: P: '%s' A: '%s' F: '%s'\n", plugin_path, plg_args, exec_str);

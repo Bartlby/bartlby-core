@@ -39,6 +39,27 @@ struct cfg_cache {
 static struct cfg_cache ccache[MAX_CCACHE];
 static int cur_el=0;
 
+
+#define GOODCHARS "abcdefghijklmnopqrstuvwxyz123456789;'/_-."
+int has_bad_chars( char * str) {
+	int x;
+	char  c;
+	for (x = 0; x<strlen(str); x++) {
+		c = str[x];
+		if(strchr(GOODCHARS, c) == NULL) {
+	    		//Character not found
+	    		return -1;
+		}
+	}
+	//check for ..
+	if(strstr(str, "..") != NULL) {
+		return -1;	
+	}
+	
+	return 1;
+
+}
+
 void cfg_init_cache(void) {
 	int x;
 	for(x=0; x<MAX_CCACHE; x++) {
