@@ -40,7 +40,7 @@ static struct cfg_cache ccache[MAX_CCACHE];
 static int cur_el=0;
 
 
-#define GOODCHARS "abcdefghijklmnopqrstuvwxyz123456789;'/_-."
+#define GOODCHARS " ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890\"*:;'/_-."
 int has_bad_chars( char * str) {
 	int x;
 	char  c;

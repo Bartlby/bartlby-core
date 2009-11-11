@@ -176,7 +176,7 @@ int main(int argc, char ** argv) {
         
  
 	
-    	sprintf(svc_back, "1|ouuutsch");
+    	sprintf(svc_back, "1|Internal Agent Error - Illegal character?");
         
         plugin_dir=getConfigValue("agent_plugin_dir", argv[argc-1]);
         if(plugin_dir == NULL) {
