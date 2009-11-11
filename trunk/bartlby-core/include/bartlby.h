@@ -44,6 +44,7 @@
 #define STATE_WARNING 1
 #define STATE_CRITICAL 2
 #define STATE_UNKOWN 3
+#define STATE_INFO 4
 #define STATE_SIRENE 7
 
 
