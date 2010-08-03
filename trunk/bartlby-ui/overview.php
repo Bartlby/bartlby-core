@@ -1,4 +1,4 @@
-<?php
+<?
 /* $Id: ack.c 16 2008-04-07 19:20:34Z hjanuschka $ */
 /* ----------------------------------------------------------------------- *
  *
@@ -137,7 +137,15 @@ $Author: hjanuschka $
 						$services_downtime++;	
 					}
 				break;
-				
+				case 4:
+					$services_info++;
+					if($v[$y][is_downtime] == 1) {
+                                                $services_info--;
+                                                $services_downtime++;
+                                        }
+
+				break;
+
 				default:
 					$services_unkown++;
 					if($v[$y][is_downtime] == 1) {
@@ -152,7 +160,7 @@ $Author: hjanuschka $
 		
 	}
 	
-	$service_sum=$all_services-$services_downtime;
+	$service_sum=$all_services-$services_downtime-$services_info;
 	
 	
 	
