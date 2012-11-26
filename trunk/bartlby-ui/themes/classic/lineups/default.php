@@ -1,4 +1,4 @@
-<?php
+<?
 /* $Id: ack.c 16 2008-04-07 19:20:34Z hjanuschka $ */
 /* ----------------------------------------------------------------------- *
  *
@@ -22,6 +22,6 @@ $Author: hjanuschka $
 */
 ?>
 
-<?php echo $this->disp_box("UNPLACED")?>
+<?=$this->disp_box("UNPLACED")?>
 
 

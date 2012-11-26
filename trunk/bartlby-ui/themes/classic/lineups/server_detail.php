@@ -1,4 +1,4 @@
-<?php echo $this->disp_box("MAIN")?>
-<?php echo $this->disp_box("server_detail_server_info")?>
-<?php echo $this->disp_box("server_detail_services")?>
-<?php echo $this->disp_box("UNPLACED")?>
+<?=$this->disp_box("MAIN")?>
+<?=$this->disp_box("server_detail_server_info")?>
+<?=$this->disp_box("server_detail_services")?>
+<?=$this->disp_box("UNPLACED")?>

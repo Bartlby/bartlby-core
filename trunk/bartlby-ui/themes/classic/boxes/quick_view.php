@@ -1,4 +1,4 @@
-<?php
+<?
 /*
 input: quick_view
 

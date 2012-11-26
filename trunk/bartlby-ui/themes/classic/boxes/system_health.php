@@ -1,4 +1,4 @@
-<?php
+<?
 /*
 $layout->create_box($health_title, $health_content,"system_health", array(
 			'prozent_float' => $prozent_float,
@@ -6,26 +6,27 @@ $layout->create_box($health_title, $health_content,"system_health", array(
 		), "system_health");
 */
 ?>
-<?php
-$silverbar = "<table class='nopad'>
-		<tr>
-			<td class='bar_left_silver'>&nbsp;</td>
-			<td class='bar_middle_silver' style='width:" . 100*7.3 . "'></td>
-			<td class='bar_right_silver'>&nbsp;</td>
-			<td class='font2'>" . $plcs[prozent_float] . "% OK</td>
-			
-		</tr>
-		
-	</table>";
+<?
+if($plcs[color] == "green") {
+	
+	$progress_css = "progress-success";
+}
+if($plcs[color] == "red") {
+	
+	$progress_css = "progress-warning";
+}
+
+if($plcs[color] == "yello") {
+	
+	$progress_css = "progress-danger";
+}
+
+
+
 ?>
 	
-<div style='position:relative; z-index:2; '> <table class='nopad'>
-		<tr>
-			<td  class='bar_left_<?php echo $plcs[color]?>'>&nbsp;</td>
-			<td class='bar_middle_<?php echo $plcs[color]?>' style='width:<?php echo ($plcs[prozent_float]*7.3)?>'></td>
-			<td class='bar_right_<?php echo $plcs[color]?>'>&nbsp;</td>
-			<td class='font2'>&nbsp;</td>
-			
-		</tr>
+
 		
-	</table></div><div style='position:relative; z-index:1; top:-40px;'><?php echo $silverbar?></div>
+		<div class="progress <?=$progress_css?>" >
+							<div class="bar" style="width: <?=$plcs[prozent_float]?>%;"><?=$plcs[prozent_float]?>%</div>
+						</div>
