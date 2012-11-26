@@ -7,7 +7,7 @@
 
 <table>
 	<tr>
-			<?php
+			<?
 				$a=$plcs[workers];
 				for($x=0; $x<count($a); $x++) {
 						echo "<tr height=20>";
