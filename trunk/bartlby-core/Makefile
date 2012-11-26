@@ -70,6 +70,8 @@ cvs-clean:
 	done
 	$(RMVFR) *.so
 	$(RMVFR) bartlby
+	$(RMVFR) src/bartlby
+	$(RMVFR) bartlby
 	$(RMVFR) shmt
 	$(RMVFR) bartlby_shmt
 	$(RMVFR) bartlby_cmd
@@ -81,6 +83,7 @@ cvs-clean:
 	$(RMVFR) bartlby.cperf
 	$(RMVFR) bartlby.cfg
 	$(RMVFR) Makefile.conf
+
 	
 	
 	
