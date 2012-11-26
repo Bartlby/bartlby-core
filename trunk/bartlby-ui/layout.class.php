@@ -1,4 +1,4 @@
-<?php
+<?
 /* $Id: ack.c 16 2008-04-07 19:20:34Z hjanuschka $ */
 /* ----------------------------------------------------------------------- *
  *
@@ -137,14 +137,14 @@ class Layout {
 	}
 	
 	function TextArea($name, $def, $height=7, $width=100) {
-		return "<textarea name='$name' cols=$width rows=$height>$def</textarea>\n";
+		return "<textarea name='$name' cols=$width rows=$height style='width:100%'>$def</textarea>\n";
 	}
 	
 	function Field($name, $type='text', $value='',$L='', $chkBox='', $help = array()) {
 		$n="name='$name' id='$name'";
 		$value=htmlspecialchars($value);
 		if($help) {
-			$hIcon="<a href='help.php?msg[0]=$help&msg[1]=NULL' target='unten'><img src='info.gif' border=0></A>";
+			$hIcon="<a href='help.php?msg[0]=$help&msg[1]=NULL' target='unten'><img src='layout/themes/classic/info.gif' border=0></A>";
 		}
 		$r="<input type='$type' value='$value' $n $chkBox>$hIcon<div style='color:#ff0000' id='error_" . $name . "'></div>\n";
 		if ($L) {
@@ -155,11 +155,15 @@ class Layout {
 		
 	}
 	function DropDown($name,$options=array(), $type='', $style='') {
-		$r = "<select name='$name' $type $style>\n";
+		$r = "<select name='$name' $type $style data-rel='chosen'>\n";
 		for ($x=0;$x<count($options); $x++) {
 			$sel="";
 			if ($options[$x][s] == 1) $sel="selected";
-			$r .= "<option style='background-color: " .  $options[$x][c] . "' value='" . $options[$x][v] . "' $sel>" . $options[$x][k] . "\n";	
+			if($options[$x][is_group] == 1) {
+					$r .= '</optgroup><optgroup label="' .  $options[$x][k] . '">';
+			} else{
+							$r .= "<option style='background-color: " .  $options[$x][c] . "' value='" . $options[$x][v] . "' $sel>" . $options[$x][k] . "\n";	
+			}
 		}		
 		$r .= "</select><div style='color:#ff0000' id='error_" . $name . "'></div>\n";
 		return $r;
@@ -167,22 +171,38 @@ class Layout {
 	function setTitle($str) {
 		$this->BoxTitle=$str;
 	}
+	
+					
+					
+					
+				
+	
 	function beginMenu() {
-		return "";	
+		return '<div class="btn-group " xstyle="width:300px;">';
+		
+		return '<ul class="nav nav-tabs nav-stacked main-menu" xstyle="width:300px;">';	
 	}
 	function addRoot($name) {
+		
+		return '<a style="width:190px;" class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+						<i class="" ></i><span style="width: 100%" xclass="hidden-phone" >' . $name . '</span>
+						<span class="caret" ></span>
+					</a><ul class="dropdown-menu" id="' . $root . '" style="width: 300px">';
 
 		$r = "<table class=\"nopad\">	<tr><td class=\"nav_main\" onClick=\"doToggle('$name')\"><img id='" . $name . "_plus' src='themes/" . $this->theme . "/images/plus.gif' border=0> $name</td></tr><tr><td class=\"nav_place\">&nbsp;</td></tr></table><table class=\"nopad\" id='" . $name . "_sub' style='display:none;'>";
-		
+		$r = '<li class="nav-header hidden-tablet">' . $name . '</li>';
 		
 		return $r;	
 	}
 	function addSub($root, $name, $link) {
+		return '<li> <a href="' . $link . '"> ' . $name . '</a>';
 		$r="<tr><td class=\"nav_sub\"><a href='" . $link . "' class=\"sub\">$name</A></td></tr><tr><td class=\"nav_place\">&nbsp;</td></tr>";
+		$r = '<li><a class="ajax-link" href="' . $link . '"><i class="icon-home"></i><span class="hidden-tablet"> ' . $name . '</span></a></li>';
 		return $r;	
 	}
 	function endMenu() {
-		return "</table>";	
+		return '</ul></div>';
+		return "</ul>";	
 	}
 	
 	function display($lineup_file="") {

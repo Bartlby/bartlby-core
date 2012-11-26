@@ -1,4 +1,4 @@
-<?php
+<?
 include "layout.class.php";
 include "config.php";
 include "bartlby-ui.class.php";
@@ -68,7 +68,8 @@ while(list($k, $servs) = @each($map)) {
 			//if($isup == 1 ) { $isup="UP"; } else { $isup="DOWN"; }
 			$servers[$optind][c]="";
 			$servers[$optind][v]="s" . $servs[$x][server_id];	
-			$servers[$optind][k]="[ $isup ]&raquo;" . $servs[$x][server_name] . "&laquo;";
+			$servers[$optind][k]="" . $servs[$x][server_name] . "";
+			$servers[$optind][is_group]=1;
 			
 			if(@in_array( $servs[$x][server_id], $worker_rights[selected_servers])) {
 				
@@ -80,7 +81,7 @@ while(list($k, $servs) = @each($map)) {
 			$state=$btl->getState($servs[$x][current_state]);
                         $servers[$optind][c]="";
                         $servers[$optind][v]=$servs[$x][service_id];
-                        $servers[$optind][k]="&nbsp;[ $state ]&nbsp;" .  $servs[$x][service_name];
+                        $servers[$optind][k]="" .  $servs[$x][service_name];
 
 
                         //if(@in_array($servs[$x][service_id], $worker_rights[selected_services])) {
@@ -94,7 +95,7 @@ while(list($k, $servs) = @each($map)) {
 			$state=$btl->getState($servs[$x][current_state]);
 			$servers[$optind][c]="";
 			$servers[$optind][v]=$servs[$x][service_id];	
-			$servers[$optind][k]="&nbsp;[ $state ]&nbsp;" .  $servs[$x][service_name];
+			$servers[$optind][k]="" .  $servs[$x][service_name];
 		
 		
 			//if(@in_array($servs[$x][service_id], $worker_rights[selected_services])) {

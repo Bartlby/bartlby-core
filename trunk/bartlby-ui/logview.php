@@ -1,4 +1,4 @@
-<?php
+<?
 	include "config.php";
 	include "layout.class.php";
 	include "bartlby-ui.class.php";
@@ -8,7 +8,17 @@
 	$layout= new Layout();
 	$layout->set_menu("report");
 	$layout->Form("fm1", "logview.php");
-	$layout->Table("100%");
+	
+	
+	$layout->OUT .= '<table class="table table-striped table-bordered ">';
+	$layout->OUT .= '<thead>
+							  <tr>
+								  <th>Date</th>
+								  <th>State</th>
+								  <th>Text</th>
+								  
+							  </tr>
+						  </thead>   ';
 	$map=$btl->GetSVCMap();
 	
 	$ch_time=time();
@@ -33,14 +43,14 @@
 	}
 	
 	
-	
+	$layout->OUT .= "<tr><td colspan=3><table width=100%>";
 	$layout->Tr(
 		$layout->Td(
 				Array(
 					0=>Array(
 						'colspan'=> 3,
 						'class'=>'header',
-						'show'=>"<a href='logview.php?bartlby_filter=" . $_GET["bartlby_filter"] . "&server_id=$srvid&service_id=$svcid&l=" . date("Y.m.d", $ch_time-86400)  . "'>&laquo;" . date("Y.m.d", $ch_time-86400) . "</A> Logfile ($logf) <a href='logview.php?bartlby_filter=" . $_GET["bartlby_filter"] . "&server_id=$srvid&service_id=$svcid&l=" . date("Y.m.d", $ch_time+86400)  . "'>&raquo;" . date("Y.m.d", $ch_time+86400) . "</A>  "  
+						'show'=>"<a href='logview.php?bartlby_filter=" . $_GET["bartlby_filter"] . "&server_id=$srvid&service_id=$svcid&l=" . date("Y.m.d", $ch_time-86400)  . "'>&laquo;" . date("Y.m.d", $ch_time-86400) . "</A> <font color=black>Logfile ($logf)</font> <a href='logview.php?bartlby_filter=" . $_GET["bartlby_filter"] . "&server_id=$srvid&service_id=$svcid&l=" . date("Y.m.d", $ch_time+86400)  . "'>&raquo;" . date("Y.m.d", $ch_time+86400) . "</A>  "  
 						)
 				)
 			)
@@ -56,6 +66,11 @@
 			)
 
 		);
+	$layout->OUT .= "</table></td></tr>";
+	
+	
+	
+	
 	$fla=@file($logf);
 	$fl=@array_reverse($fla);
 	$lcounter=0;
@@ -225,12 +240,13 @@
 				Array(
 					0=>Array(
 						'class'=>'header1',
+						'width' => '50',
 						
 						'show'=>"<font size=1>$date</font>"
 						),
 					1=>Array(
 						'class'=>'header1',
-						'width'=>25,						
+						'width'=>10,						
 						'show'=>"<img src='themes/" . $layout->theme . "/images/$img'>"
 						),
 					2=>Array(
@@ -244,7 +260,10 @@
 		);
 	}
 	$layout->TableEnd();
+	
+	
 	$layout->FormEnd();
+	
 	$r=$btl->getExtensionsReturn("_logView", $layout);
 	$layout->display("no");
 	

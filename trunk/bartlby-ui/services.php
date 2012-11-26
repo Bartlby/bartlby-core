@@ -1,4 +1,4 @@
-<?php
+<?
 	include "layout.class.php";
 	include "config.php";
 	include "bartlby-ui.class.php";
@@ -13,7 +13,7 @@
 	$map = $btl->GetSVCMap($_GET[service_state]);	
 
 
-	
+	$search_result=array();
 	
 	$layout->set_menu("main");
 	$layout->setTitle("Services");
@@ -31,6 +31,7 @@
 			
 			$curp = $_GET[$k ."site"] > 0 ? $_GET[$k ."site"] : 1;
 			$perp=bartlby_config("ui-extra.conf", "services_per_page");
+			$perp=1000000000000000000;
 			$forward_link=$btl->create_pagelinks("services.php?expect_state=" . $_GET[expect_state] . "&server_id=" . $_GET[server_id], count($servs)-1, $perp, $curp,$k ."site");
 			
 			
@@ -42,11 +43,18 @@
 			$f=false;
 			$services_found=array();
 			for($x=$skip_em; $x<count($servs); $x++) {
-				
+				//echo $servs[$x][service_id] . "->" . $_GET[service_id] . "<br>";
+				if($_GET[service_id] != "" && $servs[$x][service_id] != $_GET[service_id]) {
+					
+					continue;
+				}
 				
 				if($d >= $perp) {
 					break;	
 				}
+				
+				
+				
 				if($_GET[downtime] == "" && $_GET[invert] == "" && $_GET[expect_state] != "" && $servs[$x][current_state] != $_GET[expect_state]) {
 					
 					continue;	
@@ -62,8 +70,8 @@
 				if($_GET[expect_state] != "" && $servs[$x][is_downtime] == 1) {
 					continue;
 				}
-				
-				
+			
+			
 				
 				if($_GET[acks] == "yes" && $servs[$x][service_ack] != 2) {
 					continue;	
@@ -92,7 +100,8 @@
 				$servs[$x][color]=$svc_color;
 				$servs[$x][state_readable]=$svc_state;
 				$servs[$x]["class"]=$class;
-				array_push($services_found, $servs[$x]);			
+				array_push($services_found, $servs[$x]);	
+				array_push($search_result, $servs[$x]);
 				$f=true;
 				$abc=$servs[$x][server_id];
 
@@ -139,6 +148,14 @@
 	);	
 
 	$r=$btl->getExtensionsReturn("_services", $layout);
+	
+	if($_GET[json_output] == 1) {
+	
+		echo json_encode($search_result);
+		exit;
+		
+	}
+	
 	
 	$layout->boxes_placed[MAIN]=true;
 	$layout->TableEnd();

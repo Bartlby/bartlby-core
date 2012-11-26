@@ -1,4 +1,4 @@
-<?php
+<?
 include "layout.class.php";
 include "config.php";
 include "bartlby-ui.class.php";
@@ -12,33 +12,6 @@ $layout->Table("100%");
 $layout->set_menu("client");
 
 
-$ajaxed = bartlby_config("ui-extra.conf", "ajaxed");
-if($ajaxed == "true") {
-	$info_box_title="Extended Search";  
-	$core_content = "
-	<table  width='100%'>
-		
-		<tr>
-			<td width=150 valign=top class='font2'>Search:</td>
-			<td>
-			
-				<input type='text' onkeyup=\"buffer_suggest.modified('server_search', 'xajax_ServerSearch','" .$_GET[script] . "');\" id=server_search autocomplete='off' /> (PREG syntax)
-				
-				<div style='background-color:#ffffff; position:absolute' id='server_search_suggest'>
-				</div>
-			
-			
-			</td>
-		</tr>
-		
-		
-	</table>";
-	
-	$layout->push_outside($layout->create_box($info_box_title, $core_content));
-}
-
-
-$dropdownded = bartlby_config("ui-extra.conf", "disable_dropdown_search");
 
 if($dropdownded != "true")  {
 	$servs=$btl->GetServers();
@@ -52,7 +25,7 @@ if($dropdownded != "true")  {
 		//if($isup == 1 ) { $isup="UP"; } else { $isup="DOWN"; }
 		$servers[$optind][c]="";
 		$servers[$optind][v]=$k;	
-		$servers[$optind][k]="[&nbsp;&nbsp;] &raquo;" . $v;
+		$servers[$optind][k]="" . $v;
 		$optind++;
 	}
 	

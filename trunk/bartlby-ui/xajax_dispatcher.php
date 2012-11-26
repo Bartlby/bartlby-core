@@ -1,4 +1,4 @@
-<?php
+<?
 $do_not_merge_post_get=true;
 include "layout.class.php";
 include "bartlby-ui.class.php";
@@ -79,11 +79,11 @@ function toggle_extension($ext) {
 		@touch($fn);
 		//enable	
 		$res->AddAssign("extension_img_" . $ext, "src", "themes/" . $layout->theme . "/images/extension_disable.gif");
-		$res->AddAssign("extension_img_" . $ext, "title", "enable extension");
+		//$res->AddAssign("extension_img_" . $ext, "title", "enable extension");
 	} else {
 		@unlink($fn);
 		$res->AddAssign("extension_img_" . $ext, "src", "themes/" . $layout->theme . "/images/extension_enable.gif");
-		$res->AddAssign("extension_img_" . $ext, "title", "disable extension");
+		//$res->AddAssign("extension_img_" . $ext, "title", "disable extension");
 		//disable extension_disable.gif
 	}
 	return $res;
@@ -101,11 +101,11 @@ function toggle_server_check($server_id, $service_id) {
 			if($cur == 1) { //Active
 				//$res->addAlert("Check enabled on:" . $gsm[server_name] . ":" . $gsm[client_port] . "/" . $gsm[service_name]);
 				$res->AddAssign("server_" . $server_id, "src", "themes/" . $layout->theme . "/images/enabled.gif");
-				$res->AddAssign("server_" . $server_id, "title", "Disable Checks");
+				//$res->AddAssign("server_" . $server_id, "title", "Disable Checks");
 			} else {
 				//$res->addAlert("Check disabled on:" . $gsm[server_name] . ":" . $gsm[client_port] . "/" . $gsm[service_name]);	
 				$res->AddAssign("server_" . $server_id, "src", "themes/" . $layout->theme . "/images/diabled.gif");
-				$res->AddAssign("server_" . $server_id, "title", "Enable Checks");
+				//$res->AddAssign("server_" . $server_id, "title", "Enable Checks");
 			}
 			
 			
@@ -138,11 +138,11 @@ function toggle_server_notify_check($server_id, $service_id) {
 			if($cur == 1) { //Active
 				//$res->addAlert("Check enabled on:" . $gsm[server_name] . ":" . $gsm[client_port] . "/" . $gsm[service_name]);
 				$res->AddAssign("trigger_" . $server_id, "src", "themes/" . $layout->theme . "/images/trigger.gif");
-				$res->AddAssign("trigger_" . $server_id, "title", "disable notifications");
+				//$res->AddAssign("trigger_" . $server_id, "title", "disable notifications");
 			} else {
 				//$res->addAlert("Check disabled on:" . $gsm[server_name] . ":" . $gsm[client_port] . "/" . $gsm[service_name]);	
 				$res->AddAssign("trigger_" . $server_id, "src", "themes/" . $layout->theme . "/images/notrigger.gif");
-				$res->AddAssign("trigger_" . $server_id, "title", "enable trigger");
+				//$res->AddAssign("trigger_" . $server_id, "title", "enable trigger");
 			}
 			
 			
@@ -169,11 +169,11 @@ function toggle_service_notify_check($server_id, $service_id) {
 			if($cur == 1) { //Active
 				//$res->addAlert("Check enabled on:" . $gsm[server_name] . ":" . $gsm[client_port] . "/" . $gsm[service_name]);
 				$res->AddAssign("trigger_" . $service_id, "src", "themes/" . $layout->theme . "/images/trigger.gif");
-				$res->AddAssign("trigger_" . $service_id, "title", "disable notifications");
+				//$res->AddAssign("trigger_" . $service_id, "title", "disable notifications");
 			} else {
 				//$res->addAlert("Check disabled on:" . $gsm[server_name] . ":" . $gsm[client_port] . "/" . $gsm[service_name]);	
 				$res->AddAssign("trigger_" . $service_id, "src", "themes/" . $layout->theme . "/images/notrigger.gif");
-				$res->AddAssign("trigger_" . $service_id, "title", "enable trigger");
+				//$res->AddAssign("trigger_" . $service_id, "title", "enable trigger");
 			}
 			
 			
@@ -201,11 +201,11 @@ function toggle_service_check($server_id, $service_id) {
 			if($cur == 1) { //Active
 				//$res->addAlert("Check enabled on:" . $gsm[server_name] . ":" . $gsm[client_port] . "/" . $gsm[service_name]);
 				$res->AddAssign("service_" . $service_id, "src", "themes/" . $layout->theme . "/images/enabled.gif");
-				$res->AddAssign("service_" . $service_id, "title", "Disable Checks");
+				//$res->AddAssign("service_" . $service_id, "title", "Disable Checks");
 			} else {
 				//$res->addAlert("Check disabled on:" . $gsm[server_name] . ":" . $gsm[client_port] . "/" . $gsm[service_name]);	
 				$res->AddAssign("service_" . $service_id, "src", "themes/" . $layout->theme . "/images/diabled.gif");
-				$res->AddAssign("service_" . $service_id, "title", "Enable Checks");
+				//$res->AddAssign("service_" . $service_id, "title", "Enable Checks");
 			}
 			
 			
@@ -260,6 +260,7 @@ function forceCheck($server, $service) {
 				$idx=$btl->findSHMPlace($service);
 				$cur=bartlby_check_force($btl->CFG, $idx);
 				//$res->addAlert("immediate check scheduled for:" . $gsm[server_name] . ":" . $gsm[client_port] . "/" . $gsm[service_name]);
+				$res->AddScript('noty({"text":"Check has been forced","timeout": 600, "layout":"center","type":"success","animateOpen": {"opacity": "show"}})');
 			} else {
 				$res->addAlert("permission denied to force:" . $gsm[server_name] . ":" . $gsm[client_port] . "/" . $gsm[service_name]);
 			}

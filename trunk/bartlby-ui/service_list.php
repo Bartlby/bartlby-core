@@ -1,4 +1,4 @@
-<?php
+<?
 include "layout.class.php";
 include "config.php";
 include "bartlby-ui.class.php";
@@ -16,31 +16,6 @@ $optind=0;
 //$res=mysql_query("select srv.server_id, srv.server_name from servers srv, rights r where r.right_value=srv.server_id and r.right_key='server' and r.right_user_id=" . $poseidon->user_id);
 
 
-$ajaxed = bartlby_config("ui-extra.conf", "ajaxed");
-if($ajaxed == "true") {
-	$info_box_title="Extended Search";  
-	$core_content = "
-	<table  width='100%'>
-		
-		<tr>
-			<td width=150 valign=top class='font2'>Search:</td>
-			<td>
-			<input type='text' onkeyup=\"buffer_suggest.modified('service_search', 'xajax_ServiceSearch', '" . $_GET[script] . "');\" id=service_search autocomplete='off' /> (PREG syntax)
-				
-				<div style='background-color:#ffffff; position:absolute' id='service_search_suggest'>
-				</div>
-			
-			</td>
-		</tr>
-		
-		
-	</table>";
-	
-	$layout->push_outside($layout->create_box($info_box_title, $core_content));
-}
-
-
-$dropdownded = bartlby_config("ui-extra.conf", "disable_dropdown_search");
 
 if($dropdownded != "true")  {
 	while(list($k, $servs) = @each($map)) {
@@ -54,15 +29,19 @@ if($dropdownded != "true")  {
 				//if($isup == 1 ) { $isup="UP"; } else { $isup="DOWN"; }
 				$servers[$optind][c]="";
 				$servers[$optind][v]="s" . $servs[$x][server_id];	
-				$servers[$optind][k]="[&nbsp;&nbsp;]&raquo;" . $servs[$x][server_name] . "&laquo;";
+				$servers[$optind][k]="" . $servs[$x][server_name] . "";
+				$servers[$optind][is_group]=1;
 				$optind++;
 			} else {
 				
 			}
+			if($servs[$x][is_gone] != 0) {
+			 continue;
+			}
 			$state=$btl->getState($servs[$x][current_state]);
 			$servers[$optind][c]="";
 			$servers[$optind][v]=$servs[$x][service_id];	
-			$servers[$optind][k]="&nbsp;[ $state ]&nbsp;" .  $servs[$x][service_name];
+			$servers[$optind][k]="" .  $servs[$x][service_name];
 			
 			$optind++;
 		}
