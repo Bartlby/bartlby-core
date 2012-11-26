@@ -1,4 +1,4 @@
-<?php
+<?
 
 include_once "config.php";
 
@@ -236,18 +236,19 @@ class ServerGroups {
 	
 			if($prozent_float <= 60) {
 				$color="red";	
+				$lbl = "label-important";
 			} else if($prozent_float <= 90) {
-				$color="orange";	
+				$lbl = "label-warning";
 			} else if($prozent_float <= 80) {
-				$color="red";	
+				$lbl = "label-important";
 			} else {
-				$color="green";
+				$lbl = "label-success";
 			}
 			
 			if ( $service_sum > 0 ) {
 
 			$r .= "<td align=left valign=top width=300>";					
-			$r .= "<table width='100%'><tr><td><b><a href='extensions_wrap.php?script=ServerGroups/groupview.php&grpname=$file'>$defaults[name]</b></td><tr><tr><td class=" . $color . "_box>$prozent_float % OK</td></tr></table>";
+			$r .= "<table width='100%'><tr><td><b><a href='extensions_wrap.php?script=ServerGroups/groupview.php&grpname=$file'>$defaults[name]</b></td><tr><tr><td ><span class='label $lbl'>$prozent_float % OK</span></td></tr></table>";
 
 			$c++;
 			

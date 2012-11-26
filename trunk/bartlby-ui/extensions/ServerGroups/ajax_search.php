@@ -1,4 +1,4 @@
-<?php
+<?
 chdir("../../");
 include "layout.class.php";
 include "config.php";

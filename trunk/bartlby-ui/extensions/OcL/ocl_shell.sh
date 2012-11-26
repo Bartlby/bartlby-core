@@ -1,6 +1,6 @@
 #!/bin/sh
-BARTLBY_HTDOCS="/var/www/htdocs/dev.bartlby.org/bartlby-ui/";
-BARTLBY_HOST="http://dev.bartlby.org/bartlby-ui/";
+BARTLBY_HTDOCS="/var/www/htdocs/bartlby.krone.at/";
+BARTLBY_HOST="http://bartlby.krone.at/";
 
 cd $BARTLBY_HTDOCS/extensions/
 
