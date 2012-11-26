@@ -1,4 +1,4 @@
-<?php
+<?
 function dnl($i) {
 	return sprintf("%02d", $i);
 }
@@ -223,6 +223,10 @@ $ibox[1][k]="Warning";
 $ibox[2][c]="red";
 $ibox[2][v]=2;
 $ibox[2][k]="Critical";
+
+$ibox[3][c]="grey";
+$ibox[3][v]=4;
+$ibox[3][k]="Info";
 
 $ibox[$defaults[current_state]][s]=1;
 $state_dropdown=$layout->DropDown("passive_state", $ibox);

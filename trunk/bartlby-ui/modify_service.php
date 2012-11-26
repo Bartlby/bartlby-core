@@ -1,4 +1,4 @@
-<?php
+<?
 include "layout.class.php";
 include "config.php";
 include "bartlby-ui.class.php";
@@ -289,13 +289,13 @@ $layout->OUT .= "<script>
 		CheckTables();
 		</script>
 ";
-echo "<form id='fm1' name='fm1' action='bartlby_action.php' method=POST>\n";
+
 $layout->Table("100%");
 
 
 
 
-$active_box_out = "<table>";
+$active_box_out .= "<table>";
 
 $active_box_out .=$layout->Tr(
 	$layout->Td(
@@ -459,6 +459,7 @@ $active_box_out .=$layout->Tr(
 ,true);
 
 $active_box_out .= "</table>";
+
 $layout->push_outside($layout->create_box("Basic Settings", $active_box_out, "basic"));
 
 
@@ -626,7 +627,7 @@ $active_box_out .= $layout->Tr(
 	)
 ,true);
 $active_box_out .= "</table>";
-$layout->push_outside($layout->create_box("SNMP Settings", $active_box_out, "snmp"));
+$layout->push_outside($layout->create_box("SNMP Settings<form id='fm1' name='fm1' action='bartlby_action.php' method=POST>", $active_box_out, "snmp"));
 
 
 if(!$_GET["copy"] && !$_GET["new"]) {

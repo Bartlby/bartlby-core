@@ -1,4 +1,4 @@
-<?php
+<?
 include "layout.class.php";
 include "config.php";
 include "bartlby-ui.class.php";
@@ -23,7 +23,7 @@ while($file = readdir($dhl)) {
 	if(!is_dir("pkgs/" . $file)) {
 		$packages[$optind][c]="";
 		$packages[$optind][v]=$file;	
-		$packages[$optind][k]="&raquo;" . $file;
+		$packages[$optind][k]="" . $file;
 		$optind++;
 	}
 }

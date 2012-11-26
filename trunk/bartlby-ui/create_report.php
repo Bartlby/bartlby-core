@@ -1,4 +1,4 @@
-<?php
+<?
 include "layout.class.php";
 include "config.php";
 include "bartlby-ui.class.php";
@@ -31,7 +31,8 @@ while(list($k, $servs) = @each($map)) {
 			//if($isup == 1 ) { $isup="UP"; } else { $isup="DOWN"; }
 			$servers[$optind][c]="";
 			$servers[$optind][v]="";	
-			$servers[$optind][k]="[&nbsp;&nbsp;]&raquo;" . $servs[$x][server_name] . "&laquo;";
+			$servers[$optind][k]=$servs[$x][server_name];
+			$servers[$optind][is_group]=1;
 			$optind++;
 		} else {
 			
@@ -39,7 +40,7 @@ while(list($k, $servs) = @each($map)) {
 		$state=$btl->getState($servs[$x][current_state]);
 		$servers[$optind][c]="";
 		$servers[$optind][v]=$servs[$x][service_id];	
-		$servers[$optind][k]="&nbsp;[ $state ]&nbsp;" .  $servs[$x][service_name];
+		$servers[$optind][k]=$servs[$x][service_name];
 		if($servs[$x][service_id] == $_GET[service_id]) {
 			$servers[$optind][s]=1;
 		}
