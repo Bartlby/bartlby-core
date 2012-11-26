@@ -1,4 +1,4 @@
-<?php
+<?
 
 include "config.php";
 include_once "bartlbystorage.class.php";
@@ -37,11 +37,9 @@ class Basket {
        	
        	$r = "<table class='nopad'>
 			<tr>                                                                      
-				<td class='nav_main' onClick=\"doToggle('BasketFavorites')\"><img id='BasketFavorites_plus' src='themes/" . $btl->theme . "/images/minus.gif' border=0> Fav. Services</td>                      
+				<td>Favorites:</td>                      
 			</tr>
-			<tr>
-				<td class=\"nav_place\">&nbsp;</td>
-			</tr>
+			
 		</table>
 		<table class=\"nopad\" id='BasketFavorites_sub' style='display:block;'>";
 		
