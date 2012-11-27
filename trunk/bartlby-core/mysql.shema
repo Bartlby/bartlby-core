@@ -23,7 +23,7 @@ CREATE TABLE `downtime` (
   `downtime_notice` varchar(255) NOT NULL default '',
   `service_id` int(12) NOT NULL default '0',
   PRIMARY KEY  (`downtime_id`)
-) TYPE=MyISAM AUTO_INCREMENT=34 ;
+)  ;
 
 -- --------------------------------------------------------
 
@@ -43,7 +43,7 @@ CREATE TABLE `servers` (
   `server_notify` int(11) NOT NULL default '1',
   PRIMARY KEY  (`server_id`),
   UNIQUE KEY `server_id` (`server_id`)
-) TYPE=MyISAM AUTO_INCREMENT=85 ;
+)  ;
 
 -- --------------------------------------------------------
 
@@ -84,7 +84,7 @@ CREATE TABLE `services` (
   PRIMARY KEY  (`service_id`),
   KEY `service_id` (`service_id`),
   KEY `service_id_2` (`service_id`,`server_id`)
-) TYPE=MyISAM AUTO_INCREMENT=5670 ;
+)  ;
 
 -- --------------------------------------------------------
 
@@ -108,7 +108,7 @@ CREATE TABLE `workers` (
   `notify_plan` text default '',
 
   PRIMARY KEY  (`worker_id`)
-) TYPE=MyISAM AUTO_INCREMENT=15 ;
+)  ;
 
 insert into workers(worker_name, worker_mail,password) VALUES('admin', 'bartlby-default@januschka.com', '5f4dcc3b5aa765d61d8327deb882cf99');
 
