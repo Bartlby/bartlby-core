@@ -83,7 +83,7 @@ class Bartlby_Inventory {
 	function _serverDetail() {
 		global $defaults;
 		$d=$this->getDefaults($_GET[server_id]);
-		$r="<a href='extensions_wrap.php?script=Bartlby_Inventory/index.php&server_id=" . $_GET[server_id] . "'><img src='images/barcode.gif' border=0> Inventory Details</A><br>";
+		$r="<a href='extensions_wrap.php?script=Bartlby_Inventory/index.php&server_id=" . $_GET[server_id] . "'><img src='themes/classic/images/barcode.gif' border=0> Inventory Details</A><br>";
 		if($d[serial] != "") {
 			$r .= "<br><b>Serial: </b> " . $d[serial] . "<br>";
 		}
