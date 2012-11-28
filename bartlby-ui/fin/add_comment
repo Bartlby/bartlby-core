@@ -1,0 +1,5 @@
+<span style="font-weight: bold;">Comment<br /></span>Comment on service '<span style="font-weight: bold;">$global_msg[server_name]:$global_msg[client_port]/$global_msg[service_name]</span>' have been stored!!<br /><br />Subject: $_GET[subject]<br />Message: $_GET[comment]<br /><br /><span style="font-weight: bold;">Next Steps:<br /></span>
+<ul>
+    <li><a href="view_comments.php?service_id=$global_msg[service_id]">View Comments</a></li>
+</ul>
+<span style="font-weight: bold;"></span>

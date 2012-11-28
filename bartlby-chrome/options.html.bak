@@ -1,0 +1,14 @@
+<html>
+<head><title>My Test Extension Options</title></head>
+<script src="options.js"></script>
+
+<body>
+
+Bartlby URL:
+<input type=text name="bartlby_url">
+
+<br>
+<div id="status"></div>
+<button id="save">Save</button>
+</body>
+</html>

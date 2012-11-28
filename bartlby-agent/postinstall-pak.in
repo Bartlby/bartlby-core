@@ -1,0 +1,85 @@
+#!/bin/sh
+BARTLBY_HOME=@prefix@
+chown -R bartlby $BARTLBY_HOME
+
+echo "------------------------------------------------------";
+
+
+echo "registering service (bartlbya 9030)";
+grep -sqe "^bartlbya" /etc/services
+EX=$?;
+
+if [ $EX = 1 ];
+then
+	echo "bartlbya                9030/tcp                        #Bartlby Agent" >> /etc/services
+	echo "DONE";
+else
+	echo "Already existing!";
+fi;
+
+echo "------------------------------------------------------";
+echo "";
+echo "";
+
+
+echo "------------------------------------------------------";
+
+if [ -f /etc/inetd.conf ];
+then
+	echo "Checking service in inetd.conf";
+	grep -sqe "^bartlbya" /etc/inetd.conf
+	EX=$?;
+	if [ $EX = 1 ];
+	then
+		echo "bartlbya                stream  tcp     nowait.500      bartlby  ${BARTLBY_HOME}/bartlby_agent ${BARTLBY_HOME}/bartlby.cfg" >> /etc/inetd.conf
+		echo "DONE ... restarting inetd";
+		if [ -f /etc/init.d/openbsd-inetd ];
+		then
+			echo "detected openbsd-inetd (debian 4.0?)";
+			echo "....restarting openbsd-inetd"
+			/etc/init.d/openbsd-inetd restart
+		else
+			/etc/init.d/inetd restart
+		fi;
+	else
+		echo "Already existing";
+	fi;
+
+else
+	echo "Checking service in /etc/xinetd.d/";
+	if [ ! -f /etc/xinetd.d/bartlbya ];
+	then
+
+		echo "service bartlbya" > /etc/xinetd.d/bartlbya
+		echo "{" >> /etc/xinetd.d/bartlbya
+		echo "        disable                 = no" >> /etc/xinetd.d/bartlbya
+		echo "        port                    = 9030" >> /etc/xinetd.d/bartlbya
+		echo "        socket_type             = stream" >> /etc/xinetd.d/bartlbya
+		echo "        protocol                = tcp" >> /etc/xinetd.d/bartlbya
+		echo "        wait                    = no" >> /etc/xinetd.d/bartlbya
+		echo "        user                    = root" >> /etc/xinetd.d/bartlbya
+		echo "        server                  = ${BARTLBY_HOME}/bartlby_agent" >> /etc/xinetd.d/bartlbya
+		echo "        server_args             = ${BARTLBY_HOME}/bartlby.cfg" >> /etc/xinetd.d/bartlbya
+		echo "}" >> /etc/xinetd.d/bartlbya
+	echo "DONE ... restarting xinetd";
+	/etc/init.d/xinetd restart
+		
+	else
+		echo "already existing";
+	fi;
+fi;
+
+
+
+echo "------------------------------------------------------";
+echo "";
+echo "";
+echo "####################################################";
+echo "####################################################";
+echo "###                                              ###";
+echo "###              DONE                            ###";
+echo "###                                              ###";
+echo "####################################################";
+echo "####################################################";
+
+exit 0

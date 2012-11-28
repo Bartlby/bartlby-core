@@ -1,0 +1,4 @@
+    <font size="2"><span style="font-family: Tahoma; font-weight: bold;">Delete Worker<br /></span><span style="font-family: Tahoma;">You successfully deleted worker '<span style="font-weight: bold;">$global_msg[name]</span>'<br /><span style="font-weight: bold;"><br />next steps:<br /></span></span></font>
+        <ul>
+            <li><font size="2"><span style="font-family: Tahoma;"><a href="bartlby_action.php?action=reload">Reload</a><span style="font-weight: bold;"></span></span></font></li>
+        </ul>

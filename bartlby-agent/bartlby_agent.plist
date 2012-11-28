@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+        <key>Label</key>
+        <string>org.bartlby.agent</string>
+        <key>ServiceDescription</key>
+        <string>Bartlby System Monitoring Agent</string>
+        <key>ProgramArguments</key>
+        <array>
+                <string>/opt/bartlby-agent/bartlby_agent</string>
+                <string>/opt/bartlby-agent/bartlby.cfg</string>
+        </array>
+        <key>UserName</key>
+        <string>bartlby</string>
+        <key>inetdCompatibility</key>
+        <dict>
+                <key>Wait</key>
+                <false/>
+        </dict>
+        <key>Sockets</key>
+        <dict>
+                <key>Listeners</key>
+                <dict>
+                        <key>SockServiceName</key>
+                        <string>bartlbya</string>
+                </dict>
+        </dict>
+</dict>
+</plist> 

@@ -1,0 +1,7 @@
+# $Id: Makefile.in,v 1.1 2006/01/05 23:27:05 hjanuschka Exp $ 
+LTLIBRARY_NAME        = libbartlby.la
+LTLIBRARY_SOURCES     = bartlby.c 
+LTLIBRARY_SHARED_NAME = bartlby.la
+LTLIBRARY_SHARED_LIBADD = $(BARTLBY_LIBADD)
+
+$(top_srcdir)/build/dynlib.mk

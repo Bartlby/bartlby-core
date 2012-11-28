@@ -1,0 +1,450 @@
+2007-07-28 00:54  hjanuschka
+
+	* php_bartlby.h: int to long
+
+2007-02-15 21:46  hjanuschka
+
+	* php_bartlby.h: auto commit
+
+2007-02-15 17:25  hjanuschka
+
+	* bartlby.c, php_bartlby.h: auto commit
+
+2007-01-29 16:51  hjanuschka
+
+	* bartlby.c, php_bartlby.h: auto commit
+
+2007-01-29 05:04  hjanuschka
+
+	* bartlby.c, php_bartlby.h: auto commit
+
+2007-01-27 20:52  hjanuschka
+
+	* bartlby.c, php_bartlby.h: auto commit
+
+2007-01-27 00:20  hjanuschka
+
+	* bartlby.c, php_bartlby.h: auto commit
+
+2006-12-27 20:05  hjanuschka
+
+	* php_bartlby.h: auto commit
+
+2006-12-25 03:09  hjanuschka
+
+	* php_bartlby.h: auto commit
+
+2006-12-10 16:57  hjanuschka
+
+	* bartlby.c, php_bartlby.h: auto commit
+
+2006-11-28 19:52  hjanuschka
+
+	* bartlby.c, php_bartlby.h: auto commit
+
+2006-11-26 21:52  hjanuschka
+
+	* bartlby.c, php_bartlby.h: auto commit
+
+2006-10-22 21:51  hjanuschka
+
+	* ChangeLog: auto commit
+
+2006-10-07 01:53  hjanuschka
+
+	* bartlby.c: auto commit
+
+2006-10-06 01:19  hjanuschka
+
+	* bartlby.c, php_bartlby.h: auto commit
+
+2006-09-24 00:49  hjanuschka
+
+	* bartlby.c, php_bartlby.h: [no log message]
+
+2006-09-10 23:28  hjanuschka
+
+	* ChangeLog: auto commit
+
+2006-09-10 03:24  hjanuschka
+
+	* ChangeLog: auto commit
+
+2006-09-09 21:38  hjanuschka
+
+	* ChangeLog: auto commit
+
+2006-09-04 00:20  hjanuschka
+
+	* bartlby.c, php_bartlby.h: auto commit
+
+2006-08-25 22:10  hjanuschka
+
+	* bartlby.c, php_bartlby.h: auto commit
+
+2006-08-24 22:05  hjanuschka
+
+	* ChangeLog, description-pak: auto commit
+
+2006-08-20 21:53  hjanuschka
+
+	* ChangeLog: auto commit
+
+2006-08-15 21:24  hjanuschka
+
+	* ChangeLog: auto commit
+
+2006-08-15 00:43  hjanuschka
+
+	* ChangeLog: auto commit
+
+2006-08-15 00:02  hjanuschka
+
+	* ChangeLog: auto commit
+
+2006-08-14 01:05  hjanuschka
+
+	* ChangeLog: auto commit
+
+2006-08-12 20:01  hjanuschka
+
+	* ChangeLog: auto commit
+
+2006-08-12 19:44  hjanuschka
+
+	* ChangeLog: auto commit
+
+2006-08-10 22:04  hjanuschka
+
+	* ChangeLog: auto commit
+
+2006-08-09 22:31  hjanuschka
+
+	* ChangeLog: auto commit
+
+2006-08-09 21:48  hjanuschka
+
+	* ChangeLog: auto commit
+
+2006-08-08 02:34  hjanuschka
+
+	* ChangeLog: auto commit
+
+2006-08-08 02:10  hjanuschka
+
+	* ChangeLog: auto commit
+
+2006-08-07 20:51  hjanuschka
+
+	* ChangeLog: auto commit
+
+2006-08-07 20:40  hjanuschka
+
+	* ChangeLog, bartlby.c: auto commit
+
+2006-08-07 00:30  hjanuschka
+
+	* ChangeLog: auto commit
+
+2006-08-07 00:22  hjanuschka
+
+	* ChangeLog: auto commit
+
+2006-08-03 22:29  hjanuschka
+
+	* bartlby.c: auto commit
+
+2006-08-02 23:40  hjanuschka
+
+	* bartlby.c: auto commit
+
+2006-08-01 00:19  hjanuschka
+
+	* bartlby.c, bartlby.php, php_bartlby.h: auto commit
+
+2006-07-31 00:47  hjanuschka
+
+	* ChangeLog, bartlby.c: auto commit
+
+2006-07-23 04:09  hjanuschka
+
+	* ChangeLog: [no log message]
+
+2006-07-18 23:38  hjanuschka
+
+	* php_bartlby.h: updated header file
+
+2006-07-15 16:01  hjanuschka
+
+	* bartlby.c: add/modify service -> check_enabled 0|1
+
+2006-07-15 15:17  hjanuschka
+
+	* ChangeLog, bartlby.c: php: disabled services get stored back via
+	  datalib
+
+2006-06-03 23:13  hjanuschka
+
+	* ChangeLog, INSTALL: [no log message]
+
+2006-05-20 22:26  hjanuschka
+
+	* ChangeLog, bartlby.c, php_bartlby.h: ui: add/modify server page
+	  rebrush (should be user-friendlier) core: snmp INTEGER greater,
+	  lower (warning,critical) (--enable-snmp=yes) core/lib mysql: SNMP
+	  functionality ui: add/modify_service SNMP php: SNMP functions
+
+2006-05-13 01:40  hjanuschka
+
+	* bartlby.c, php_bartlby.h: [no log message]
+
+2006-04-25 09:18  hjanuschka
+
+	* bartlby.c, php_bartlby.h: events now have a timestamp too
+
+2006-04-25 00:20  hjanuschka
+
+	* bartlby.c, php_bartlby.h: php: new functions for event queue
+	  (bartlby_event_tick, bartlby_event_fetch)
+
+2006-04-23 20:08  hjanuschka
+
+	* bartlby.c, php_bartlby.h: core/ui/php: checks can now be forced
+	  ui: remote xml special_addon support core: svc perf MS core:
+	  round perf MS php: svcmap, get_service perf MS ui: perf MS
+
+2006-04-10 00:13  hjanuschka
+
+	* bartlby.c, php_bartlby.h: R E L E A S E (1.1.8a -> Naproxen):
+
+	  perf: distribute RRDs correspodening to the perf handler core:
+	  sched_timeout refined core: service_retain core: lib/mysql
+	  service_retain php: service_retain ui: overview supports remote
+	  bartlby's ui: server/service detail supports remote bartlby's ui:
+	  services list supports remote bartlby ui: service_retain ui: add
+	  perf defaults to package ui: catch un-existing objects,
+	  server|service|worker ui: exit if either built in nor shared
+	  bartlby extension was found (discovered during php upgrade ) ui:
+	  addons got own config file (ui-extra.conf) php: E_WARNING on
+	  unexisting config file
+
+2006-03-18 02:55  hjanuschka
+
+	* bartlby.c, php_bartlby.h: perf: distribute RRDs correspodening to
+	  the perf handler core: sched_timeout refined core: service_retain
+	  core: lib/mysql service_retain php: service_retain ui:
+	  service_retain ui: add perf defaults to package ui: catch
+	  un-existing objects, server|service|worker ui: exit if either
+	  built in nor shared bartlby extension was found (discovered
+	  during php upgrade ) ui: addons got own config file
+	  (ui-extra.conf) php: E_WARNING on unexisting config file
+
+2006-03-07 21:58  hjanuschka
+
+	* ChangeLog, bartlby.c: perf: distribute RRDs correspodening to the
+	  perf handler ui: add perf defaults to package ui: catch
+	  un-existing objects, server|service|worker ui: exit if either
+	  built in nor shared bartlby extension was found (discovered
+	  during php upgrade ) ui: addons got own config file
+	  (ui-extra.conf) php: E_WARNING on unexisting config file
+
+2006-02-25 03:00  hjanuschka
+
+	* ChangeLog, bartlby.c, php_bartlby.h: bartlby_check_shm_size added
+	  php: [worker|service|server]_by_id returns false if not found
+
+2006-02-17 21:10  hjanuschka
+
+	* bartlby.c, php_bartlby.h: new function bartlby_ack_problem
+	  service ack add/get/byid/modify service updated
+
+2006-02-12 02:39  hjanuschka
+
+	* ChangeLog: make: easier to modify make parameters and conditions
+	  via simple Makefile.conf datalib: mysql/ catch failed logins
+	  core: fixed some setuid problems with datalib core: zero worker
+	  detected and logged core: network code re-worked, much faster and
+	  cleaner now core: sirene mode added core: easier to exten check
+	  code core: check type: local added so its not a requirement to
+	  have network ui: sirene mode notifications can be toggled on/off
+	  via add/modify worker ui: enable/disable sirene mode ui: topology
+	  map manager added ui: nicer menu (flap) ui: server_detail (added)
+	  ui: index preloader should work on IE5+ now ui: all events
+	  (modifications) are now logged with ip and parameters startup sh:
+	  pre-start check if logfile is writeable generic: mysql4 support
+	  verfied test: verfied on CentOS 4.2 (normal and server), with
+	  disabled SELinux test: verfied on Redhat FC 4
+
+2006-02-11 00:55  hjanuschka
+
+	* ChangeLog, bartlby.c, php_bartlby.h: sirene toggle added
+
+2006-02-09 01:15  hjanuschka
+
+	* ChangeLog, bartlby.c: datalib: mysql/ catch failed logins core:
+	  fixed some setuid problems with datalib core: zero worker
+	  detected and logged core: network code re-worked, much faster and
+	  cleaner now core: encode/decode removed php: encode/decode
+	  removed ui: topology map manager added ui: nicer menu (flap) ui:
+	  server_detail (added) startup sh: pre-start check if logfile is
+	  writeable
+
+2006-01-29 16:52  hjanuschka
+
+	* ChangeLog, bartlby.c, php_bartlby.h: server icon
+
+2006-01-20 00:31  hjanuschka
+
+	* ChangeLog, bartlby.c, php_bartlby.h: add/delete/modify/map
+	  downtimes
+
+2006-01-06 00:27  hjanuschka
+
+	* Makefile.in, config.m4: [no log message]
+
+2006-01-03 21:34  hjanuschka
+
+	* ChangeLog, bartlby.c: right system implemented in
+	  barltby_svc_map()
+
+2005-12-30 21:20  hjanuschka
+
+	* ChangeLog, bartlby.c, php_bartlby.h: massive speed improvment via
+	  bartlby_svc_map built into extension
+
+2005-12-25 13:57  hjanuschka
+
+	* ChangeLog, bartlby.c, bartlby.php, php_bartlby.h:
+	  service_check_timeout added (modify/get/get_by_id/add Service)
+
+2005-12-13 23:23  hjanuschka
+
+	* ChangeLog, bartlby.c, bartlby.php, php_bartlby.h:
+	  bartlby_shm_destroy() -> to destroy zombie/dead SHM segments via
+	  UI
+
+2005-10-01 01:58  hjanuschka
+
+	* ChangeLog, bartlby.c, php_bartlby.h: get_info -> startup_time
+	  bartlby_encode/bartlby_decode functions added, for hand made
+	  client communication
+
+2005-09-25 18:32  hjanuschka
+
+	* ChangeLog, bartlby.c, php_bartlby.h: add/modify worker -> enable
+	  disable trigger
+
+2005-09-25 15:31  hjanuschka
+
+	* ChangeLog, bartlby.c: \r getConfig bug fixed
+
+2005-09-18 13:28  hjanuschka
+
+	* ChangeLog, php_bartlby.h: version bump
+
+2005-09-18 07:04  hjanuschka
+
+	* ChangeLog, bartlby.c, config.m4, php_bartlby.h: replication
+	  roll-up
+
+2005-09-13 21:26  hjanuschka
+
+	* ChangeLog, bartlby.php: compile test ;-) _MALLOC_CHECK=2 verified
+	  ;-)
+
+2005-09-04 01:02  hjanuschka
+
+	* ChangeLog, bartlby.c, bartlby.php, php_bartlby.h:
+	  bartlby_toggle_service_active bartlby_toggle_service_notify
+	  enable/disable notify/Service via UI
+
+2005-09-03 22:10  hjanuschka
+
+	* ChangeLog, bartlby.c, bartlby.php, php_bartlby.h: added:
+	  bartlby_add_worker, bartlby_delete_worker, bartlby_modify_worker,
+	  bartlby_get_worker_by_id struct worker updated (includes NAME)
+
+2005-09-03 00:46  hjanuschka
+
+	* ChangeLog, bartlby.c, bartlby.php: server_modify fixes
+
+2005-09-02 04:18  hjanuschka
+
+	* ChangeLog, bartlby.c: add_service -> convert_to_long(server_id)
+
+2005-08-31 22:07  hjanuschka
+
+	* bartlby.c: tested compatibility to php5 (it works ;))
+	  bartlby_modify_server -> server_id wasnt set into struct service
+	  * svc
+
+2005-08-31 21:00  hjanuschka
+
+	* ChangeLog, bartlby.c, bartlby.php: get_server_by_id works again
+	  *fg* damn
+
+2005-08-30 22:13  hjanuschka
+
+	* ChangeLog: [no log message]
+
+2005-08-30 21:30  hjanuschka
+
+	* bartlby.c: [no log message]
+
+2005-08-30 20:48  hjanuschka
+
+	* ChangeLog, bartlby.c: service_id is now returned to php in
+	  get_service funcs
+
+2005-08-29 00:56  hjanuschka
+
+	* ChangeLog, bartlby.c, php_bartlby.h: updateded struct service
+	  added service_active to get_service(),get_service_by_id()
+
+2005-08-29 00:26  hjanuschka
+
+	* ChangeLog, bartlby.c, bartlby.php, php_bartlby.h: [no log
+	  message]
+
+2005-08-28 19:45  hjanuschka
+
+	* ChangeLog, bartlby.c, bartlby.php, php_bartlby.h: added:
+	  bartlby_add_service	  bartlby_modify_service
+	  bartlby_get_service_by_id	  bartlby_delete_service
+
+2005-08-28 17:49  hjanuschka
+
+	* ChangeLog, Makefile: [no log message]
+
+2005-08-28 17:47  hjanuschka
+
+	* bartlby.c, bartlby.php, config.m4, php_bartlby.h:
+	  new functions added	      bartlby_version -> Version of PHP
+	  module	 bartlby_get_info -> SVC, WRK count, current
+	  running processes (in core)	      bartlby_get_service -> get
+	  SVC from SHM	       bartlby_get_worker -> get WRK from SHM
+	  bartlby_config -> get bartlby config variable
+	  bartlby_lib_info -> Version,Autor,Name of the data_library
+	  bartlby_add_server -> add a server , with usage of data_library
+		 bartlby_modify_server -> modifie a server
+	  bartlby_get_server_by_id -> get server by id using data_library
+		bartlby_delete_server -> delete server using data_library
+
+2005-08-28 03:17  hjanuschka
+
+	* bartlby.c, php_bartlby.h: notify_levels rollup
+
+2005-08-28 01:42  hjanuschka
+
+	* bartlby.c: [no log message]
+
+2005-08-28 01:39  hjanuschka
+
+	* .cvsignore, config.m4, CREDITS, EXPERIMENTAL, INSTALL, bartlby.c,
+	  bartlby.php, php_bartlby.h: Initial revision
+
+2005-08-28 01:39  hjanuschka
+
+	* .cvsignore, config.m4, CREDITS, EXPERIMENTAL, INSTALL, bartlby.c,
+	  bartlby.php, php_bartlby.h: initial
+

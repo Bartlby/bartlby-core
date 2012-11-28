@@ -1,0 +1,3 @@
+ <font size="2"><span style="font-family: Tahoma; font-weight: bold;">Add Downtime<br /></span><span style="font-family: Tahoma;">Time: $_GET[downtime_from] - $_GET[downtime_to]<br />Notice: $_GET[lappend]<br /><span style="font-weight: bold;"><br />Next Steps</span><span style="color: rgb(255, 0, 0); font-weight: bold;"></span></span></font><br />
+        <ul>
+            <li><font size="2"><a href="bartlby_action.php?action=reload"><span style="font-family: Tahoma;">Reload</span></a><span style="font-family: Tahoma;"><a href="bartlby_action.php?action=reload" /><span style="font-weight: bold;"></span></span></font></li>
