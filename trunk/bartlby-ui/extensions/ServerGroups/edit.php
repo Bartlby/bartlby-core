@@ -21,54 +21,7 @@
 	$layout->set_menu("Server Groups");
 	$layout->Table("100%");
 	
-	$layout->OUT .= "<script>
-		function moveRight(f) {
-			
-			cnt=f[\"all_servers[]\"].options.length;
-			for(x=0; x<cnt; x++) {
-				opt = f[\"all_servers[]\"].options[x];
-				if(opt == null) {
-					continue;	
-				}
-				if(opt.selected == true) {
-					val = opt.value;
-					text = opt.text;
-					newOpt = new Option(text, val);
-					cr = f[\"choosen_servers[]\"].options.length;
-					f[\"choosen_servers[]\"].options[cr] = newOpt;
-					f[\"all_servers[]\"].options[x] = null;
-				}
-			}
-		}
-		function moveLeft(f) {
-			cnt=f[\"choosen_servers[]\"].options.length;
-			for(x=0; x<cnt; x++) {
-				opt = f[\"choosen_servers[]\"].options[x];
-				if(opt == null) {
-					continue;	
-				}
-				if(opt.selected == true) {
-					val = opt.value;
-					text = opt.text;
-					newOpt = new Option(text, val);
-					cr = f[\"all_servers[]\"].options.length;
-					f[\"all_servers[]\"].options[cr] = newOpt;
-					f[\"choosen_servers[]\"].options[x] = null;
-				}
-			}	
-		}
-		function markALL(f) {
-			cnt=f[\"choosen_servers[]\"].options.length;
-			for(x=0; x<cnt; x++) {
-				opt = f[\"choosen_servers[]\"].options[x];
-				if(opt == null) {
-					continue;	
-				}
-				opt.selected=true;
-			}
-		}
 	
-	</script>";
 	
 	$servers=$btl->GetServers();
 	$leftservers=array();
@@ -91,9 +44,9 @@
 	while(list($k,$v) = @each($servers)) {
 		
 		if(!@in_array($k, $members[servers])) {
-			@array_push($leftservers, array("v"=>$k, "k"=>$v));	
+			@array_push($leftservers, array("v"=>$k, "k"=>$v,"s"=>0));	
 		} else {
-			@array_push($rightservers, array("v"=>$k, "k"=>$v));	
+			@array_push($leftservers, array("v"=>$k, "k"=>$v, "s"=>1));	
 		}
 	}
 	
@@ -105,12 +58,11 @@
 			
 		</tr>
 		<tr>
-			<td align=left valign=top>" . $layout->DropDown("all_servers[]", $leftservers, 'multiple', "onDblClick='moveRight(this.form)' style=\"height:250;width:250px\"") . "</td>
-			<td align=center valign=middle><input type=button value=\"&gt;&gt\" onClick='moveRight(this.form)'><br><input onClick='moveLeft(this.form)' type=button value=\"&lt;&lt\"></td>
-			<td align=right valign=top>". $layout->DropDown("choosen_servers[]", $rightservers, 'multiple',  "onDblClick='moveLeft(this.form)' style=\"height:250;width:250px\"") . "</td>
+			<td  colspan= 2 align=left valign=top>" . $layout->DropDown("all_servers[]", $leftservers, 'multiple') . "</td>
+			
 		</tr>
 		<tr>
-			<td colspan=4><input type=submit onClick='markALL(this.form)' value='store group'></td>
+			<td colspan=2><input type=submit onClick='markALL(this.form)' value='store group'></td>
 		</tr>
 		
 		
