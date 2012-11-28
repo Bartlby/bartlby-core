@@ -1,3 +1,0 @@
-#!/bin/sh
-useradd bartlby 2>&1>>/dev/null
-exit 0;

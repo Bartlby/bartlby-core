@@ -1,7 +1,0 @@
-<font size="2"><span style="font-family: Tahoma; font-weight: bold;">Server deleted<br /></span><span style="font-family: Tahoma;">The Server &quot;<span style="font-weight: bold;">$global_msg[server_name]</span>&quot;&nbsp; has been deleted<br /><br /><span style="font-weight: bold;">Next steps:<br /></span></span></font>
-        <ul>
-            <li><a href="add_server.php"><font size="2"><span style="font-family: Tahoma;">Add Server</span></font></a></li>
-            <li><a href="server_list.php?script=delete_server.php"><font size="2"><span style="font-family: Tahoma;">Delete another server</span></font></a></li>
-            <li><a href="server_list.php?script=modify_server.php"><font size="2"><span style="font-family: Tahoma;">Modify a server</span></font></a></li>
-        </ul>
-        <font size="2"><span style="font-family: Tahoma;"><span style="font-weight: bold;"></span><span style="color: rgb(255, 0, 0); font-style: italic;" /></span><span style="font-family: Tahoma; font-weight: bold;"></span><span style="font-family: Tahoma;" /></font><br />
