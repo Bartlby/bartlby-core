@@ -20,7 +20,7 @@ for($s_element=0; $s_element<count($plcs[services]); $s_element++) {
 
 	<tr>
 		<td   align=left  valign=top width='1'  class='<?=$plcs[services][$s_element]["class"]?>'>
-			<a href='services.php?server_id=<?=$plcs[services][$s_element][server_id]?>'><b><?=$plcs[services][$s_element][server_name]?></A>
+			<a href='services.php?server_id=<?=$plcs[services][$s_element][server_id]?>'><b><?=$plcs[services][$s_element][server_name]?></A> <?=$btl->getServerOPtions($plcs[services][$s_element], $layout)?>
 			
 			
 		</td>
