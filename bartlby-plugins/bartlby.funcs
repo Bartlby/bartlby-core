@@ -1,0 +1,126 @@
+#!/bin/sh
+#########################################
+# Bartlby global plugin functions
+# $Id: bartlby.funcs,v 1.4 2005/11/16 23:52:43 hjanuschka Exp $ */
+#
+#
+# $Revision: 1.4 $
+# $Source: /cvsroot/bartlby/bartlby-plugins/bartlby.funcs,v $
+#
+#
+#
+# $Log: bartlby.funcs,v $
+# Revision 1.4  2005/11/16 23:52:43  hjanuschka
+# PATH fixes
+#
+# Revision 1.3  2005/09/20 21:14:14  hjanuschka
+# initial import of check_http
+#
+# Revision 1.2  2005/09/20 18:53:56  hjanuschka
+# initial import
+#
+# Revision 1.1  2005/09/19 21:49:50  hjanuschka
+# simple plugin framework (argument parsing, executable finding)
+# sample plugin (check disk) using framework
+#
+#########################################
+
+export STATE_OK=0
+export STATE_WARNING=1
+export STATE_CRITICAL=2
+export OS=$(uname)
+
+
+function has_executable {
+	saout=`type -p $1`
+	if [ $? = 0 ];
+	then
+		return 0;
+	fi;
+	echo "executable $1 not found on your system wich is required by $MY_NAME ($PATH)"
+	if [ "x$2" != "x" ];
+	then
+		#we have a notice where to get the binary :-)
+		echo "Additional notices: $2";
+	fi;
+	exit 1;
+	
+}
+
+function plg_init_args  {
+	export PLG_ARGS="$*";
+	
+}
+
+function plg_get_arg {
+	this_was_found=0;
+	RVAL="false";
+	for x in $PLG_ARGS; do
+		if [ $this_was_found = 1 ]; then
+			if [ "x$x" != "x"  ]; then
+				if [ "${x:0:1}" != "-" ]; then
+					RVAL=$x;
+				fi;
+			fi;
+			
+			break;
+		fi;
+		
+		if [ "$x"  = "-$1" ];
+		then
+			
+			this_was_found=1;
+			
+		fi;
+		
+		
+	done;
+	if [ "$RVAL" = "false" ]; then
+		if [ $this_was_found = 1 ]; then
+			RVAL="true";
+		fi;
+	fi;
+	
+	export $2="${RVAL}";
+	
+	
+	
+}
+function end_ok {
+	end_plugin "$1" $STATE_OK;
+}
+
+function end_warning {
+	end_plugin "$1" $STATE_WARNING;
+}
+function end_critical {
+	end_plugin "$1" $STATE_CRITICAL;
+}
+
+function end_plugin {
+	if [ "x$MY_NAME" = "x" ]; then
+		export MY_NAME="undefined name";
+	fi;
+	human="UNKOWN";
+	if [ $2 = 0 ]; then
+		human="OK";
+	fi;
+	if [ $2 = 1 ]; then
+		human="WARNING";
+	fi;
+	if [ $2 = 2 ];
+	then 
+		human="CRITICAL";
+	fi;
+	
+	echo "[$MY_NAME::$human]\\dbr $1";
+	exit $2;
+}
+
+
+
+
+function set_my_name {
+	export MY_NAME=$1;
+	
+}

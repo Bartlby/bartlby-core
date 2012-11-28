@@ -1,0 +1,22 @@
+#!/bin/sh
+cd /usr/local/bartlby-agent
+ 
+export LC_ALL=en_US
+SERVER_ID=119
+BARTLBY_HOST=dev.januschka.com
+BARTLBY_HOST_PORT=9031
+PLUGIN_DIR=/usr/local/bartlby-agent/plugins/
+ 
+SERVICES=`./bartlby_cmd -i $BARTLBY_HOST -p $BARTLBY_HOST_PORT -s $SERVER_ID -a get_services`
+for x in $SERVICES;
+do
+        EXE=`./bartlby_cmd -i $BARTLBY_HOST -p $BARTLBY_HOST_PORT -s $x -a get_passive`;
+	EX=$?;
+	if [ $EX = 0 ];
+	then
+        	OUT=`eval $PLUGIN_DIR/$EXE 2>&1`;
+        	EXIT_CODE=$?;
+        	./bartlby_cmd -i $BARTLBY_HOST -p $BARTLBY_HOST_PORT -s $x -a set_passive -m "$OUT" -e $EXIT_CODE 2>&1 > /dev/null;
+	fi;
+ 
+done;

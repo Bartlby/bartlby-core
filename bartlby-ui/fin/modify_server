@@ -1,0 +1,6 @@
+<font size="2"><span style="" tahoma="&quot;&quot;" font-weight="&quot;&quot;" bold="&quot;&quot;"><span bold="" style="font-weight: bold;">Modified Server</span><br /></span><span style="" tahoma="&quot;&quot;">Name: $_GET[server_name]<br />Ip: $_GET[server_ip]<br />Port: $_GET[server_port]<br />Icon: <img src="server_icons/$_GET[server_icon]" alt="" /><br /></span><span style="" tahoma="&quot;&quot;" font-weight="&quot;&quot;" bold="&quot;&quot;"></span><span bold="" style="" tahoma="&quot;&quot;"><br /><span style="font-weight: bold;" bold="&quot;&quot;">Next Steps:</span></span></font><br />
+<ul>
+    <li>&nbsp;<font size="2"><span style="" tahoma="&quot;&quot;"><a href="">Reload</a></span></font></li>
+</ul>
+<ul>         </ul>
+    <font size="2"><span style="" tahoma="&quot;&quot;"></span></font>

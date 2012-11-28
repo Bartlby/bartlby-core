@@ -1,0 +1,6 @@
+<font size="2"><span style="" tahoma="&quot;&quot;" font-weight="&quot;&quot;" bold="&quot;&quot;"><span bold="" style="font-weight: bold;">Sirene</span><br /></span><span style="" tahoma="&quot;&quot;"><span style="color: rgb(255, 0, 0);">!!!!! Your system is now in sirene mode!!!!</span><img src="server_icons/$_GET[server_icon]" alt="" /><br /></span><span style="" tahoma="&quot;&quot;" font-weight="&quot;&quot;" bold="&quot;&quot;"></span><span bold="" style="" tahoma="&quot;&quot;">every: <span style="font-weight: bold;">$global_msg[intervall]</span> seconds all active workers who have level &quot;SIRENE&quot; selected will be notified with selected triggers<br /><br /><br />NOTE: in sirene mode NO checks are made, this is kinda pause mode<br /><br /><span style="font-weight: bold;" bold="&quot;&quot;">Next Steps:</span></span></font><br />
+<ul>
+    <li>&nbsp;<font size="2"><span style="" tahoma="&quot;&quot;"><a href="bartlby_action.php?action=sirene_disable">disable sirene</a><a href=""><br /></a></span></font></li>
+</ul>
+<ul>         </ul>
+    <font size="2"><span style="" tahoma="&quot;&quot;"></span></font>

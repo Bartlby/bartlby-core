@@ -1,0 +1,4 @@
+<font size="2"><span style="font-family: Tahoma; font-weight: bold;">Modify Worker<br /></span><span style="font-family: Tahoma;">Name: $_GET[worker_name]<br />Password: $_GET[worker_password]<br />Email: $_GET[worker_mail]<br />ICQ: $_GET[worker_icq]<br />Active: $_GET[worker_active]<br /><span style="font-weight: bold;"><br />next steps:<br /></span></span></font>
+        <ul>
+            <li><font size="2"><span style="font-family: Tahoma;"><a href="bartlby_action.php?action=reload">Reload</a><span style="font-weight: bold;"></span></span></font></li>
+        </ul>
