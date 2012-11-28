@@ -1,1 +1,0 @@
-<span style="font-weight: bold;">Disable Service Checks<br /></span>Checks have been disabled for service: '<span style="font-weight: bold;">$global_msg[server_name]:$global_msg[client_port]/$global_msg[service_name]</span>'<span style="font-weight: bold;"><br /></span>

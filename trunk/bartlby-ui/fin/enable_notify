@@ -1,1 +1,0 @@
-<span style="font-weight: bold;">Enable notifications<br /></span>Notifications have been enabled for service: '<span style="font-weight: bold;">$global_msg[server_name]:$global_msg[client_port]/$global_msg[service_name]</span>'<span style="font-weight: bold;"><br /></span>
