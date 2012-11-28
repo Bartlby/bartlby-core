@@ -18,7 +18,7 @@ class ServerGroups {
 				$d = $this->load($_GET[ext_group][$x]);
 				if($d[name]) {
 					@array_push($d[servers], $add_server);
-					$this->save(array("grpname" => $d[name], "choosen_servers" => $d[servers]));
+					$this->save(array("grpname" => $d[name], "all_servers" => $d[servers]));
 					$r .= "Added to group: " . $d[name] . "<br>";
 				}	
 			}
@@ -79,7 +79,7 @@ class ServerGroups {
 					}
 					
 					
-					$this->save(array("grpname" => $defaults[name], "choosen_servers" => $defaults[servers]));
+					$this->save(array("grpname" => $defaults[name], "all_servers" => $defaults[servers]));
 					$r .= "removed from group: " . $defaults[name] . "<br>";
 					
 				}
@@ -89,7 +89,7 @@ class ServerGroups {
 				if(@in_array($file,$_GET[ext_group])) {
 						
 					@array_push($defaults[servers], $_GET[server_id]);
-					$this->save(array("grpname" => $defaults[name], "choosen_servers" => $defaults[servers]));
+					$this->save(array("grpname" => $defaults[name], "all_servers" => $defaults[servers]));
 					$r .= "Added to group: " . $defaults[name] . "<br>";
 				}
 				$groups[$optind][s]=1;
