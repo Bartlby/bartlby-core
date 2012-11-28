@@ -1,5 +1,0 @@
-#!/bin/sh
-BARTLBY_HOME=@prefix@
-
-chown -R bartlby ${BARTLBY_HOME}
-exit 0
