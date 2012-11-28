@@ -1881,6 +1881,7 @@ function create_package($package_name, $in_services = array(), $with_plugins, $w
 		
 	}
 	function getserveroptions($defaults, $layout) {
+		$defaults[service_id]="";
 		$modify = "<a href='modify_server.php?server_id=" . $defaults[server_id] . "'><img src='themes/" . $this->theme . "/images/modify.gif' title='Modify this server' border=0></A>";
 		$copy = "<a href='modify_server.php?copy=true&server_id=" . $defaults[server_id] . "'><img src='themes/" . $this->theme . "/images/edit-copy.gif' title='Copy (Create a similar) this Server' border=0></A>";
 		$logview= "<a href='logview.php?server_id=" . $defaults[server_id]. "' ><font size=1><img  title='View Events for this Server' src='themes/" . $this->theme . "/images/icon_view.gif' border=0></A>";
