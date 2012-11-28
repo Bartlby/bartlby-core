@@ -94,7 +94,7 @@ class ServerGroups {
 				}
 				$groups[$optind][s]=1;
 			}
-			reset($_GET[ext_group]);
+			@reset($_GET[ext_group]);
 			reset($defaults);
 			
 			
