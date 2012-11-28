@@ -379,7 +379,7 @@ class ServerGroups {
 	function save($ar=array(), $path="") {
 		$fname=base64_encode($ar[grpname]);
 		$ser[name]=$ar[grpname];
-		$ser[servers] = $ar[choosen_servers];
+		$ser[servers] = $ar[all_servers];
 		if($path == "") {
 			$fp = fopen("extensions/ServerGroups/data/" . $fname . ".ser", "w");
 		} else {
