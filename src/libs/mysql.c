@@ -2215,3 +2215,551 @@ int GetServerMap(struct server * srv, char * config) {
 	free(mysql_db);
 	return 0;	
 }
+
+
+
+int ServerGroupChangeId(int from, int to, char * config) {
+	MYSQL *mysql;
+	
+	
+	char * sqlupd;
+	
+
+
+	char * mysql_host = getConfigValue("mysql_host", config);
+	char * mysql_user = getConfigValue("mysql_user", config);
+	char * mysql_pw = getConfigValue("mysql_pw", config);
+	char * mysql_db = getConfigValue("mysql_db", config);
+
+	mysql=mysql_init(NULL);
+		CHK_ERR(mysql);
+	mysql=mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
+		CHK_ERR(mysql);
+	mysql_select_db(mysql, mysql_db);
+      		CHK_ERR(mysql);
+	
+	
+	sqlupd=malloc(sizeof(char)*(strlen(SERVERGROUP_CHANGE_ID)+40));
+	sprintf(sqlupd, SERVERGROUP_CHANGE_ID, to, from);
+	
+	
+	
+	mysql_query(mysql, sqlupd);
+		CHK_ERR(mysql);
+			
+	free(sqlupd);
+		
+	
+	mysql_close(mysql);
+	free(mysql_host);
+	free(mysql_user);
+	free(mysql_pw);
+	free(mysql_db);
+	return to;	
+}
+
+int GetServerGroupMap(struct servergroup * svcs, char * config) {
+	
+	MYSQL *mysql;
+	MYSQL_ROW  row;
+	MYSQL_RES  *res;
+	
+	
+	char * mysql_host = getConfigValue("mysql_host", config);
+	char * mysql_user = getConfigValue("mysql_user", config);
+	char * mysql_pw = getConfigValue("mysql_pw", config);
+	char * mysql_db = getConfigValue("mysql_db", config);
+	int i=0;
+	
+	
+
+
+	mysql=mysql_init(NULL);
+		CHK_ERR(mysql);
+	mysql=mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
+		CHK_ERR(mysql);
+      	mysql_select_db(mysql, mysql_db);
+      		CHK_ERR(mysql);
+	
+	
+	mysql_query(mysql, SERVERGROUP_SEL);
+	
+		CHK_ERR(mysql);
+      	res = mysql_store_result(mysql);
+      		CHK_ERR(mysql);
+      	
+      	
+      	if(mysql_num_rows(res) > 0) {
+      		
+      		while ( (row=mysql_fetch_row(res)) != NULL) {
+
+  			if(row[0] != NULL) {
+      				
+      				svcs[i].servergroup_id = atoi(row[0]);
+      			} else {
+      				svcs[i].servergroup_id = -1;    				
+      			}
+      			
+      			if(row[1] != NULL) {
+      				
+      				sprintf(svcs[i].servergroup_name, "%s", row[1]);
+      			} else {
+      				sprintf(svcs[i].servergroup_name, "(null)");     				
+      			}
+      			if(row[2] != NULL) {
+      				
+      				svcs[i].servergroup_notify = atoi(row[2]);
+      			} else {
+      				svcs[i].servergroup_notify = 1;    				
+      			}
+      			if(row[3] != NULL) {
+      				
+      				svcs[i].servergroup_active = atoi(row[3]);
+      			} else {
+      				svcs[i].servergroup_active = 1;    				
+      			}
+      			if(row[4] != NULL) {
+      				
+      				sprintf(svcs[i].servergroup_members, "%s", row[4]);
+      			} else {
+      				sprintf(svcs[i].servergroup_members, "(null)");     				
+      			}
+      			
+      			
+      			
+		
+      			i++;
+      		}
+      		
+      		mysql_free_result(res);
+      		mysql_close(mysql);
+      		free(mysql_host);
+		free(mysql_user);
+		free(mysql_pw);
+		free(mysql_db);
+      		return i;
+      	} else { 
+      		_log( "no Servergroups found!");	
+      	}
+	
+	
+	
+	
+	free(mysql_host);
+	free(mysql_user);
+	free(mysql_pw);
+	free(mysql_db);
+	
+	return -1;
+	
+	
+}
+
+int AddServerGroup(struct servergroup * svc, char *config) {
+	
+	MYSQL *mysql;
+	int rtc;
+	
+	char * sqlupd;
+	
+
+
+	char * mysql_host = getConfigValue("mysql_host", config);
+	char * mysql_user = getConfigValue("mysql_user", config);
+	char * mysql_pw = getConfigValue("mysql_pw", config);
+	char * mysql_db = getConfigValue("mysql_db", config);
+
+	mysql=mysql_init(NULL);
+		CHK_ERR(mysql);
+	mysql=mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
+		CHK_ERR(mysql);
+	mysql_select_db(mysql, mysql_db);
+      		CHK_ERR(mysql);
+	
+	
+	sqlupd=malloc(sizeof(char)*(strlen(ADD_SERVERGROUP)+sizeof(struct servergroup)+40));
+	sprintf(sqlupd, ADD_SERVERGROUP, svc->servergroup_name, svc->servergroup_notify, svc->servergroup_active, svc->servergroup_members);
+	
+	
+	
+	mysql_query(mysql, sqlupd);
+		CHK_ERR(mysql);
+	
+	
+	free(sqlupd);
+	rtc=mysql_insert_id(mysql);
+	mysql_close(mysql);
+		
+	free(mysql_host);
+	free(mysql_user);
+	free(mysql_pw);
+	free(mysql_db);
+	
+	return rtc;	
+}	
+
+
+int DeleteServerGroup(int servergroup_id, char * config) {
+	
+	MYSQL *mysql;
+
+	
+	char * sqlupd;
+	
+
+
+	char * mysql_host = getConfigValue("mysql_host", config);
+	char * mysql_user = getConfigValue("mysql_user", config);
+	char * mysql_pw = getConfigValue("mysql_pw", config);
+	char * mysql_db = getConfigValue("mysql_db", config);
+
+	mysql=mysql_init(NULL);
+		CHK_ERR(mysql);
+	mysql=mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
+		CHK_ERR(mysql);
+	mysql_select_db(mysql, mysql_db);
+      		CHK_ERR(mysql);
+	
+	
+	sqlupd=malloc(sizeof(char)*(strlen(DEL_DOWNTIME)+20));
+	sprintf(sqlupd, DEL_SERVERGROUP, servergroup_id);
+	
+	//Log("dbg", sqlupd);
+	
+	mysql_query(mysql, sqlupd);
+		CHK_ERR(mysql);
+	
+	
+	free(sqlupd);
+	
+	mysql_close(mysql);
+		
+	free(mysql_host);
+	free(mysql_user);
+	free(mysql_pw);
+	free(mysql_db);
+	
+	return 1;		
+	
+	
+}
+
+int UpdateServerGroup(struct servergroup * svc, char *config) {
+	/*
+		modify worker
+	*/
+	MYSQL *mysql;
+	int rtc;
+	
+	char * sqlupd;
+	
+
+
+	char * mysql_host = getConfigValue("mysql_host", config);
+	char * mysql_user = getConfigValue("mysql_user", config);
+	char * mysql_pw = getConfigValue("mysql_pw", config);
+	char * mysql_db = getConfigValue("mysql_db", config);
+
+	mysql=mysql_init(NULL);
+		CHK_ERR(mysql);
+	mysql=mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
+		CHK_ERR(mysql);
+	mysql_select_db(mysql, mysql_db);
+      		CHK_ERR(mysql);
+	
+	
+	
+	sqlupd=malloc(sizeof(char)*(strlen(UPDATE_SERVERGROUP)+sizeof(struct servergroup)+200));
+	sprintf(sqlupd, UPDATE_SERVERGROUP, svc->servergroup_name, svc->servergroup_notify, svc->servergroup_active, svc->servergroup_members, svc->servergroup_id);
+	
+	
+	
+	mysql_query(mysql, sqlupd);
+		CHK_ERR(mysql);
+	
+	
+	free(sqlupd);
+	rtc=1;
+	mysql_close(mysql);
+		
+	free(mysql_host);
+	free(mysql_user);
+	free(mysql_pw);
+	free(mysql_db);
+	
+	return rtc;	
+}
+
+
+
+int ServiceGroupChangeId(int from, int to, char * config) {
+	MYSQL *mysql;
+	
+	
+	char * sqlupd;
+	
+
+
+	char * mysql_host = getConfigValue("mysql_host", config);
+	char * mysql_user = getConfigValue("mysql_user", config);
+	char * mysql_pw = getConfigValue("mysql_pw", config);
+	char * mysql_db = getConfigValue("mysql_db", config);
+
+	mysql=mysql_init(NULL);
+		CHK_ERR(mysql);
+	mysql=mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
+		CHK_ERR(mysql);
+	mysql_select_db(mysql, mysql_db);
+      		CHK_ERR(mysql);
+	
+	
+	sqlupd=malloc(sizeof(char)*(strlen(SERVICEGROUP_CHANGE_ID)+40));
+	sprintf(sqlupd, SERVICEGROUP_CHANGE_ID, to, from);
+	
+	
+	
+	mysql_query(mysql, sqlupd);
+		CHK_ERR(mysql);
+			
+	free(sqlupd);
+		
+	
+	mysql_close(mysql);
+	free(mysql_host);
+	free(mysql_user);
+	free(mysql_pw);
+	free(mysql_db);
+	return to;	
+}
+
+int GetServiceGroupMap(struct servicegroup * svcs, char * config) {
+	
+	MYSQL *mysql;
+	MYSQL_ROW  row;
+	MYSQL_RES  *res;
+	
+	
+	char * mysql_host = getConfigValue("mysql_host", config);
+	char * mysql_user = getConfigValue("mysql_user", config);
+	char * mysql_pw = getConfigValue("mysql_pw", config);
+	char * mysql_db = getConfigValue("mysql_db", config);
+	int i=0;
+	
+	
+
+
+	mysql=mysql_init(NULL);
+		CHK_ERR(mysql);
+	mysql=mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
+		CHK_ERR(mysql);
+      	mysql_select_db(mysql, mysql_db);
+      		CHK_ERR(mysql);
+	
+	
+	mysql_query(mysql, SERVICEGROUP_SEL);
+	
+		CHK_ERR(mysql);
+      	res = mysql_store_result(mysql);
+      		CHK_ERR(mysql);
+      	
+      	
+      	if(mysql_num_rows(res) > 0) {
+      		
+      		while ( (row=mysql_fetch_row(res)) != NULL) {
+
+  			if(row[0] != NULL) {
+      				
+      				svcs[i].servicegroup_id = atoi(row[0]);
+      			} else {
+      				svcs[i].servicegroup_id = -1;    				
+      			}
+      			
+      			if(row[1] != NULL) {
+      				
+      				sprintf(svcs[i].servicegroup_name, "%s", row[1]);
+      			} else {
+      				sprintf(svcs[i].servicegroup_name, "(null)");     				
+      			}
+      			if(row[2] != NULL) {
+      				
+      				svcs[i].servicegroup_notify = atoi(row[2]);
+      			} else {
+      				svcs[i].servicegroup_notify = 1;    				
+      			}
+      			if(row[3] != NULL) {
+      				
+      				svcs[i].servicegroup_active = atoi(row[3]);
+      			} else {
+      				svcs[i].servicegroup_active = 1;    				
+      			}
+      			if(row[4] != NULL) {
+      				
+      				sprintf(svcs[i].servicegroup_members, "%s", row[4]);
+      			} else {
+      				sprintf(svcs[i].servicegroup_members, "(null)");     				
+      			}
+      			
+      			
+      			
+		
+      			i++;
+      		}
+      		
+      		mysql_free_result(res);
+      		mysql_close(mysql);
+      		free(mysql_host);
+		free(mysql_user);
+		free(mysql_pw);
+		free(mysql_db);
+      		return i;
+      	} else { 
+      		_log( "no Servergroups found!");	
+      	}
+	
+	
+	
+	
+	free(mysql_host);
+	free(mysql_user);
+	free(mysql_pw);
+	free(mysql_db);
+	
+	return -1;
+	
+	
+}
+
+int AddServiceGroup(struct servicegroup * svc, char *config) {
+	
+	MYSQL *mysql;
+	int rtc;
+	
+	char * sqlupd;
+	
+
+
+	char * mysql_host = getConfigValue("mysql_host", config);
+	char * mysql_user = getConfigValue("mysql_user", config);
+	char * mysql_pw = getConfigValue("mysql_pw", config);
+	char * mysql_db = getConfigValue("mysql_db", config);
+
+	mysql=mysql_init(NULL);
+		CHK_ERR(mysql);
+	mysql=mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
+		CHK_ERR(mysql);
+	mysql_select_db(mysql, mysql_db);
+      		CHK_ERR(mysql);
+	
+	
+	sqlupd=malloc(sizeof(char)*(strlen(ADD_SERVICEGROUP)+sizeof(struct servicegroup)+40));
+	sprintf(sqlupd, ADD_SERVICEGROUP, svc->servicegroup_name, svc->servicegroup_notify, svc->servicegroup_active, svc->servicegroup_members);
+	
+	
+	
+	mysql_query(mysql, sqlupd);
+		CHK_ERR(mysql);
+	
+	
+	free(sqlupd);
+	rtc=mysql_insert_id(mysql);
+	mysql_close(mysql);
+		
+	free(mysql_host);
+	free(mysql_user);
+	free(mysql_pw);
+	free(mysql_db);
+	
+	return rtc;	
+}	
+
+
+int DeleteServiceGroup(int servicegroup_id, char * config) {
+	
+	MYSQL *mysql;
+
+	
+	char * sqlupd;
+	
+
+
+	char * mysql_host = getConfigValue("mysql_host", config);
+	char * mysql_user = getConfigValue("mysql_user", config);
+	char * mysql_pw = getConfigValue("mysql_pw", config);
+	char * mysql_db = getConfigValue("mysql_db", config);
+
+	mysql=mysql_init(NULL);
+		CHK_ERR(mysql);
+	mysql=mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
+		CHK_ERR(mysql);
+	mysql_select_db(mysql, mysql_db);
+      		CHK_ERR(mysql);
+	
+	
+	sqlupd=malloc(sizeof(char)*(strlen(DEL_DOWNTIME)+20));
+	sprintf(sqlupd, DEL_SERVICEGROUP, servicegroup_id);
+	
+	//Log("dbg", sqlupd);
+	
+	mysql_query(mysql, sqlupd);
+		CHK_ERR(mysql);
+	
+	
+	free(sqlupd);
+	
+	mysql_close(mysql);
+		
+	free(mysql_host);
+	free(mysql_user);
+	free(mysql_pw);
+	free(mysql_db);
+	
+	return 1;		
+	
+	
+}
+
+int UpdateServiceGroup(struct servicegroup * svc, char *config) {
+	/*
+		modify worker
+	*/
+	MYSQL *mysql;
+	int rtc;
+	
+	char * sqlupd;
+	
+
+
+	char * mysql_host = getConfigValue("mysql_host", config);
+	char * mysql_user = getConfigValue("mysql_user", config);
+	char * mysql_pw = getConfigValue("mysql_pw", config);
+	char * mysql_db = getConfigValue("mysql_db", config);
+
+	mysql=mysql_init(NULL);
+		CHK_ERR(mysql);
+	mysql=mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
+		CHK_ERR(mysql);
+	mysql_select_db(mysql, mysql_db);
+      		CHK_ERR(mysql);
+	
+	
+	
+	sqlupd=malloc(sizeof(char)*(strlen(UPDATE_SERVICEGROUP)+sizeof(struct servicegroup)+200));
+	sprintf(sqlupd, UPDATE_SERVICEGROUP, svc->servicegroup_name, svc->servicegroup_notify, svc->servicegroup_active, svc->servicegroup_members, svc->servicegroup_id);
+	
+	
+	
+	mysql_query(mysql, sqlupd);
+		CHK_ERR(mysql);
+	
+	
+	free(sqlupd);
+	rtc=1;
+	mysql_close(mysql);
+		
+	free(mysql_host);
+	free(mysql_user);
+	free(mysql_pw);
+	free(mysql_db);
+	
+	return rtc;	
+}

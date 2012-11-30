@@ -261,6 +261,7 @@ struct servicegroup {
 	char servicegroup_name[1024];
 	int servicegroup_notify;
 	int servicegroup_active;
+	char servicegroup_members[1024];
 	
 };
 
@@ -269,6 +270,7 @@ struct servergroup {
 	char servergroup_name[1024];
 	int servergroup_notify;
 	int servergroup_active;
+	char servergroup_members[1024];
 	
 };
 
