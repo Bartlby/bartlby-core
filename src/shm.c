@@ -124,7 +124,7 @@ void bartlby_SHM_link_services_servers(void * shm_addr, char * cfgfile) {
 				svcmap[x].servicegroup_place[svcmap[x].servicegroup_counter]=y;
 				svcmap[x].servicegroup_counter++;
 				//_log("\t\thas service: %s", svcmap[x].service_name);
-				_log("LINKED SERVICE ON PLACE: %d to group on place %d", x, y);
+				//_log("LINKED SERVICE ON PLACE: %d to group on place %d", x, y);
 			}
 						
 			free(group_has_service);
