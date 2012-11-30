@@ -108,6 +108,8 @@ struct shm_counter {
 	long services;
 	long downtimes;
 	long servers;	
+	long servergroups;
+	long servicegroups;
 };
 
 struct perf_statistic {
@@ -145,6 +147,8 @@ struct shm_header {
 	long svccount;
 	long wrkcount;
 	long srvcount;
+	long srvgroupcount;
+	long svcgroupcount;
 	long current_running;
 	char  version[50];
 	int do_reload;
@@ -172,7 +176,9 @@ struct server {
 	int last_notify_send;
 	struct service * dead_marker;
 	int is_gone;
-		
+	
+	struct servergroup * servergroups[200];
+	long servergroup_counter;
 } xxyz;
 
 
@@ -244,7 +250,28 @@ struct service {
 	long escalate_divisor; //
 
 	int is_gone;
+	
+	
+	struct servicegroup * servicegroups[200];
+	long servicegroup_counter;
 };
+
+struct servicegroup {
+	long servicegroup_id;
+	char servicegroup_name[1024];
+	int servicegroup_notify;
+	int servicegroup_active;
+	
+};
+
+struct servergroup {
+	long servergroup_id;
+	char servergroup_name[1024];
+	int servergroup_notify;
+	int servergroup_active;
+	
+};
+
 
 struct service_sort {
 	struct service * svc;	

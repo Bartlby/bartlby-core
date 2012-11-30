@@ -110,6 +110,24 @@ CREATE TABLE `workers` (
   PRIMARY KEY  (`worker_id`)
 )  ;
 
+
+CREATE TABLE `servicegroups` (
+  `servicegroup_id` int(12) NOT NULL auto_increment,
+  `servicegroup_name` varchar(255) NOT NULL default '',
+  `servicegroup_notify` int(2) NOT NULL default '0',
+  `servicegroup_active` int(2) NOT NULL default '1',
+  `servicegroup_members` text NOT NULL default '',
+  PRIMARY KEY  (`servicegroup_id`)
+)  ;
+CREATE TABLE `servergroups` (
+  `servergroup_id` int(12) NOT NULL auto_increment,
+  `servergroup_name` varchar(255) NOT NULL default '',
+  `servergroup_notify` int(2) NOT NULL default '0',
+  `servergroup_active` int(2) NOT NULL default '1',
+  `servergroup_members` text NOT NULL default '',
+  PRIMARY KEY  (`servergroup_id`)
+)  ;
+
 insert into workers(worker_name, worker_mail,password) VALUES('admin', 'bartlby-default@januschka.com', '5f4dcc3b5aa765d61d8327deb882cf99');
 
 
