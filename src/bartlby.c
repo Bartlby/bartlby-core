@@ -64,12 +64,21 @@ int (*gGetServiceMap)(struct service *, char *);
 int (*gGetServerMap)(struct server *, char *);
 int (*gGetWorkerMap)(struct worker *,char *);
 int (*gGetDowntimeMap)(struct downtime *, char *);
+
+int (*gGetServerGroupMap)(struct servergroup *, char *);
+int (*gGetServiceGroupMap)(struct servicegroup *, char *);
+
+
 struct  shm_counter  * (*gGetCounter)(char *);
 char * gShmtok;
 struct service * gsvcmap;
 struct worker * gwrkmap;
 struct downtime * gdtmap;
 struct server * gsrvmap;
+
+struct servergroup * gsrvgrpmap;
+struct servicegroup * gsvcgrpmap;
+
 int global_startup_time;
 
 int gshm_id;
@@ -78,6 +87,9 @@ int gshm_svc_cnt;
 int gshm_wrk_cnt;
 int gshm_dt_cnt;
 int gshm_srv_cnt;
+int gshm_srvgrp_cnt;
+int gshm_svcgrp_cnt;
+
 long gSHMSize;
 
 struct shmid_ds gshm_desc;
@@ -181,6 +193,12 @@ void bartlby_load_shm_stuff(char * cfgfile) {
     	LOAD_SYMBOL(gGetServerMap,gSOHandle, "GetServerMap");
     	LOAD_SYMBOL(gGetWorkerMap,gSOHandle, "GetWorkerMap");
     	LOAD_SYMBOL(gGetDowntimeMap,gSOHandle, "GetDowntimeMap");
+    	
+    	LOAD_SYMBOL(gGetServerGroupMap,gSOHandle, "GetServerGroupMap");
+    	LOAD_SYMBOL(gGetServiceGroupMap,gSOHandle, "GetServiceGroupMap");
+    	
+    	
+    	
     	LOAD_SYMBOL(gGetName,gSOHandle, "GetName");
     	LOAD_SYMBOL(gExpectVersion,gSOHandle, "ExpectVersion");
     	LOAD_SYMBOL(gGetCounter,gSOHandle, "GetCounter");
@@ -287,7 +305,7 @@ void bartlby_shm_fits(char * cfgfile) {
 		}
 		gSHMSize=cfg_shm_size_bytes*1024*1024;	
 		
-		suggested_minimum = (sizeof(struct shm_header) + (sizeof(struct server) * shmc->servers) + (sizeof(struct worker) * shmc->worker) + (sizeof(struct service) * shmc->services) + (sizeof(struct downtime) * shmc->downtimes) + 2000 + (sizeof(struct btl_event)*EVENT_QUEUE_MAX))  + (sizeof(struct servergroup) * shmc->servergroups) + (sizeof(struct servicegroups) * shmc->servicegroups) * 2;
+		suggested_minimum = (sizeof(struct shm_header) + (sizeof(struct server) * shmc->servers) + (sizeof(struct worker) * shmc->worker) + (sizeof(struct service) * shmc->services) + (sizeof(struct downtime) * shmc->downtimes) + 2000 + (sizeof(struct btl_event)*EVENT_QUEUE_MAX))  + (sizeof(struct servergroup) * shmc->servergroups) + (sizeof(struct servicegroup) * shmc->servicegroups) * 2;
 		if(gSHMSize <= suggested_minimum) {
 			_log("SHM is to small minimum: %d KB ", suggested_minimum/1024);
 			exit(1);	
@@ -345,8 +363,15 @@ int bartlby_populate_shm(char * cfgfile) {
 				
 			
 			//AddServerGroups
+			gsrvgrpmap = bartlby_SHM_ServerGroupMap(gBartlby_address);
+			gshm_srvgrp_cnt = gGetServerGroupMap(gsrvgrpmap, cfgfile);
+			gshm_hdr->srvgroupcount=gshm_srvgrp_cnt;
 			
+						
 			//AddServicegroups
+			gsvcgrpmap = bartlby_SHM_ServiceGroupMap(gBartlby_address);
+			gshm_svcgrp_cnt = gGetServiceGroupMap(gsvcgrpmap, cfgfile);
+			gshm_hdr->svcgroupcount=gshm_svcgrp_cnt;
 			
 			
 			_log("Workers: %ld", gshm_hdr->wrkcount);
