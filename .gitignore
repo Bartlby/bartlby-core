@@ -1,0 +1,15 @@
+*.o
+*.so
+src/bartlby
+src/libs/mysql.so
+src/tools/bartlby_portier
+src/tools/bartlby_shmt
+config.log
+bartlby.cfg
+Makefile.conf
+bartlby.startup
+config.status
+bartlby_v2_dh.h
+postinstall-pak
+preinstall-pak
+
