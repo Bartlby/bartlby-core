@@ -1,8 +1,8 @@
 
 #define PROGNAME "bartlby"
-#define REL_NAME "autobot"
-#define VERSION  "1.3.2"
-#define EXPECTCORE 1103391 //Module V Check's
+#define REL_NAME "fusion"
+#define VERSION  "1.4.0"
+#define EXPECTCORE 1200000 //Module V Check's
 
 #define MAX_CCACHE 1024
 #define MAX_CCACHE_KEY 1024
