@@ -55,7 +55,7 @@ $Author$
 //renotify_interval, escalate_divisor
 #define AUTOR "Helmut Januschka \"helmut@januschka.com\" http://bartlby.org"
 #define NAME "MYSQL Connector"
-#define DLVERSION  "1.3.1"
+#define DLVERSION  "1.3.2"
 
 #define SERVER_MAP_SELECTOR "select server_id, server_ip, server_name, server_ico, server_enabled, server_port, server_dead, server_flap_seconds, server_notify from servers"
 
@@ -100,11 +100,31 @@ $Author$
 #define DOWNTIME_CHANGE_ID "update downtime set downtime_id=%d where downtime_id=%d"
 
 
+
+#define UPDATE_SERVERGROUP "update servergroups set servergroup_name='%s', servergroup_notify=%d,servergroup_active=%d, servergroup_members='%s' where servergroup_id=%ld"
+#define DEL_SERVERGROUP "delete from servergroups where servergroup_id=%d"
+#define ADD_SERVERGROUP "INSERT INTO servergroups(servergroup_name, servergroup_notify,servergroup_active,servergroup_members) VALUES('%s', %d,%d,'%s')"
+#define SERVERGROUP_SEL "select servergroup_id, servergroup_name, servergroup_notify, servergroup_active, servergroup_members from servergroups"
+#define SERVERGROUP_CHANGE_ID "update servergroups set servergroup_id=%d where servergroup_id=%d"
+
+
+#define UPDATE_SERVICEGROUP "update servicegroups set servicegroup_name='%s', servicegroup_notify=%d,servicegroup_active=%d, servicegroup_members='%s' where servicegroup_id=%ld"
+#define DEL_SERVICEGROUP "delete from servicegroups where servicegroup_id=%d"
+#define ADD_SERVICEGROUP "INSERT INTO servicegroups(servicegroup_name, servicegroup_notify,servicegroup_active,servicegroup_members) VALUES('%s', %d,%d,'%s')"
+#define SERVICEGROUP_SEL "select servicegroup_id, servicegroup_name, servicegroup_notify, servicegroup_active, servicegroup_members from servicegroups"
+#define SERVICEGROUP_CHANGE_ID "update servicegroups set servicegroup_id=%d where servicegroup_id=%d"
+
+
+
+
+
 //Counters
 #define COUNT_SERVICES "select count(1) from services"
 #define COUNT_WORKERS "select count(1) from workers"
 #define COUNT_DOWNTIMES "select count(1) from downtime"
 #define COUNT_SERVERS "select count(1) from servers"
+#define COUNT_SERVERGROUPS "select count(1) from servergroups"
+#define COUNT_SERVICEGROUPS "select count(1) from servicegroups"
 
 /*
 
@@ -222,6 +242,53 @@ struct shm_counter * GetCounter(char * config) {
      }
       		
      mysql_free_result(res);
+     
+     
+     
+     //COUNT_SERVICEGROUPS
+     mysql_query(mysql, COUNT_SERVICEGROUPS);
+	CHK_ERR_NULL(mysql);
+     res = mysql_store_result(mysql);
+     CHK_ERR_NULL(mysql);
+     
+     
+     if(mysql_num_rows(res) > 0) {
+     	row=mysql_fetch_row(res);
+
+  		if(row[0] != NULL) {
+     	 	shmc->servicegroups = atoi(row[0]);
+     	}
+     	
+     	
+     } else {
+     	shmc->servicegroups = 0;	
+     }
+      		
+     mysql_free_result(res);
+     
+     
+     
+     //COUNT_SERVERGROUPS
+     mysql_query(mysql, COUNT_SERVERGROUPS);
+	CHK_ERR_NULL(mysql);
+     res = mysql_store_result(mysql);
+     CHK_ERR_NULL(mysql);
+     
+     
+     if(mysql_num_rows(res) > 0) {
+     	row=mysql_fetch_row(res);
+
+  		if(row[0] != NULL) {
+     	 	shmc->servergroups = atoi(row[0]);
+     	}
+     	
+     	
+     } else {
+     	shmc->servergroups = 0;	
+     }
+      		
+     mysql_free_result(res);
+     
      
 	mysql_close(mysql);
 	free(mysql_host);
