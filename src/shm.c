@@ -84,6 +84,30 @@ void bartlby_SHM_link_services_servers(void * shm_addr, char * cfgfile) {
 	
 }
 
+struct servicegroup * bartlby_SHM_ServiceGroupMap(void * shm_addr) {
+	//Is beyond the servergroups
+	struct shm_header * hdr;
+	struct servergroup * srvgrpmap;
+	
+	hdr=bartlby_SHM_GetHDR(shm_addr);
+	srvgrpmap=bartlby_SHM_ServerGroupMap(shm_addr);
+	
+	
+	return (struct servicegroup *)(void *)&srvgrpmap[hdr->srvgroupcount]+20;
+}
+
+struct servergroup * bartlby_SHM_ServerGroupMap(void * shm_addr) {
+	//Is beyond the events
+	struct shm_header * hdr;
+	struct btl_event * evmap;
+	
+	hdr=bartlby_SHM_GetHDR(shm_addr);
+	evmap=bartlby_SHM_EventMap(shm_addr);
+	
+	
+	return (struct servergroup *)(void *)&evmap[EVENT_QUEUE_MAX]+20;
+}
+
 struct btl_event * bartlby_SHM_EventMap(void * shm_addr) {
 	//Is beyond the 3 integers :-)
 	struct shm_header * hdr;
