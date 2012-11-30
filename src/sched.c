@@ -18,7 +18,7 @@ $Revision$
 $HeadURL$
 $Date$
 $Author$ 
-*/
+*/ 
 #define _GNU_SOURCE
 
 #include <errno.h>
