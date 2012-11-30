@@ -120,6 +120,17 @@ int bartlby_trigger_escalation(struct worker *w, struct service * svc, int stand
 
 int bartlby_trigger_chk(struct service *svc) {
 	
+	if(sched_servergroup_notify(svc->srv) == 0) {
+		_log("@NOT-EXT@%ld|%d|%d|||%s:%d/%s|'(Notifications disabled on this servergroup)'", svc->service_id, svc->last_state ,svc->current_state, svc->srv->server_name, svc->srv->client_port, svc->service_name);
+		return FL;
+	}
+	if(sched_servicegroup_notify(svc) == 0) {
+		_log("@NOT-EXT@%ld|%d|%d|||%s:%d/%s|'(Notifications disabled on this servicegroup)'", svc->service_id, svc->last_state ,svc->current_state, svc->srv->server_name, svc->srv->client_port, svc->service_name);
+		return FL;
+	}
+	
+	
+	
 	if(svc->srv->server_notify == 0) {
 		_log("@NOT-EXT@%ld|%d|%d|||%s:%d/%s|'(Notifications disabled on this server)'", svc->service_id, svc->last_state ,svc->current_state, svc->srv->server_name, svc->srv->client_port, svc->service_name);
 		return FL;

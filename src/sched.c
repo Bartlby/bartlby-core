@@ -294,10 +294,90 @@ int sched_is_server_dead(struct service * svc) {
 	return rt;	
 }
 
+
+
+int sched_servergroup_notify(struct server * srv) {
+		int x;
+		//Check if server group has notifications
+		if(srv->servergroup_counter == 0) {
+				///Server is not member of a group
+				return 1;
+		}
+		//Loop Threw Server Groups
+		for(x=0; x<srv->servergroup_counter; x++) {
+			if(srv->servergroups[x]->servergroup_notify == 0) {
+				return 0;
+			}
+		}
+		
+		return 1;
+}
+int sched_servicegroup_notify(struct service * svc) {
+		//Check if servicegroup has notifications on
+
+	
+	int x;
+		//Check if service group is enabled to run checks
+		if(svc->servicegroup_counter == 0) {
+				///service is not member of a group
+				return 1;
+		}
+		//Loop Threw service Groups
+		for(x=0; x<svc->servicegroup_counter; x++) {
+			if(svc->servicegroups[x]->servicegroup_notify == 0) {
+				return 0;
+			}
+		}
+		
+		return 1;	
+}
+
+
+
+int sched_servergroup_active(struct server * srv) {
+		int x;
+		//Check if server group is enabled to run checks
+		if(srv->servergroup_counter == 0) {
+				///Server is not member of a group
+				return 1;
+		}
+		//Loop Threw Server Groups
+		for(x=0; x<srv->servergroup_counter; x++) {
+			if(srv->servergroups[x]->servergroup_active == 0) {
+				
+				return 0;
+			}
+		}
+		
+		return 1;
+		
+}
+int sched_servicegroup_active(struct service * svc) {
+	//Check if service group is enabled to run checks
+	
+	int x;
+		//Check if service group is enabled to run checks
+		if(svc->servicegroup_counter == 0) {
+				///service is not member of a group
+				return 1;
+		}
+		//Loop Threw service Groups
+		for(x=0; x<svc->servicegroup_counter; x++) {
+			if(svc->servicegroups[x]->servicegroup_active == 0) {
+				return 0;
+			}
+		}
+		
+		return 1;	
+	
+}
+
+
 /*
 function: sched_check_waiting
 checks if a service is required to check or not
 */
+
 
 int sched_check_waiting(void * shm_addr, struct service * svc, char * cfg, void * SOHandle, int sched_pause) {
 	int cur_time;
@@ -320,7 +400,7 @@ int sched_check_waiting(void * shm_addr, struct service * svc, char * cfg, void 
 	
 	 
 
-	if((svc->check_interval_original-my_diff) < shortest_intervall && svc->service_active == 1 && svc->srv->server_enabled != 0) {
+	if((svc->check_interval_original-my_diff) < shortest_intervall && svc->service_active == 1 && svc->srv->server_enabled != 0) { //FIXME review server/service group
 		shortest_intervall=(svc->check_interval_original-my_diff);
 		 
 	}
@@ -344,11 +424,23 @@ int sched_check_waiting(void * shm_addr, struct service * svc, char * cfg, void 
 		return -1;	
 	}
 	
+	
+	if(sched_servergroup_active(svc->srv) == 0) {
+		//Server Group is disabled
+		
+		return -1;
+	}
+	
+	
 	if(svc->srv->server_enabled == 0) {
 		return -1;	
 	}
 	
 	if(svc->service_active == 1) {
+		if(sched_servicegroup_active(svc) == 0) {
+			//Service is active but not group
+			return -1;
+		}
 		if(service_is_in_time(svc->service_exec_plan) > 0) {
 			//Time Range matched ;)	
 			if(my_diff >= svc->check_interval_original) {
