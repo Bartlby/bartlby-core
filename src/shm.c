@@ -100,7 +100,9 @@ void bartlby_SHM_link_services_servers(void * shm_addr, char * cfgfile) {
 			if(strstr(srvgrpmap[y].servergroup_members, group_has_server) != NULL) {
 				
 				srvmap[x].servergroups[srvmap[x].servergroup_counter] = &srvgrpmap[y];
+				srvmap[x].servergroup_place[srvmap[x].servergroup_counter]=y;
 				srvmap[x].servergroup_counter++;
+				
 				//_log("\t\thas server: %s", srvmap[x].server_name);
 
 			}
@@ -119,9 +121,10 @@ void bartlby_SHM_link_services_servers(void * shm_addr, char * cfgfile) {
 			if(strstr(svcgrpmap[y].servicegroup_members, group_has_service) != NULL) {
 				
 				svcmap[x].servicegroups[svcmap[x].servicegroup_counter] = &svcgrpmap[y];
+				svcmap[x].servicegroup_place[svcmap[x].servicegroup_counter]=y;
 				svcmap[x].servicegroup_counter++;
 				//_log("\t\thas service: %s", svcmap[x].service_name);
-
+				_log("LINKED SERVICE ON PLACE: %d to group on place %d", x, y);
 			}
 						
 			free(group_has_service);
