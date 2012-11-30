@@ -79,6 +79,7 @@ void bartlby_SHM_link_services_servers(void * shm_addr, char * cfgfile) {
 			}
 		}
 	}
+	//Link Groups :)
 	
 	_log("linked services with servers!");
 	
