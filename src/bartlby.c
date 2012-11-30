@@ -287,13 +287,13 @@ void bartlby_shm_fits(char * cfgfile) {
 		}
 		gSHMSize=cfg_shm_size_bytes*1024*1024;	
 		
-		suggested_minimum = (sizeof(struct shm_header) + (sizeof(struct server) * shmc->servers) + (sizeof(struct worker) * shmc->worker) + (sizeof(struct service) * shmc->services) + (sizeof(struct downtime) * shmc->downtimes) + 2000 + (sizeof(struct btl_event)*EVENT_QUEUE_MAX)) * 2;
+		suggested_minimum = (sizeof(struct shm_header) + (sizeof(struct server) * shmc->servers) + (sizeof(struct worker) * shmc->worker) + (sizeof(struct service) * shmc->services) + (sizeof(struct downtime) * shmc->downtimes) + 2000 + (sizeof(struct btl_event)*EVENT_QUEUE_MAX))  + (sizeof(struct servergroup) * shmc->servergroups) + (sizeof(struct servicegroups) * shmc->servicegroups) * 2;
 		if(gSHMSize <= suggested_minimum) {
 			_log("SHM is to small minimum: %d KB ", suggested_minimum/1024);
 			exit(1);	
 		}
 		_log("SHM requires: %d KB ", suggested_minimum/1024);
-		_log("Size: S=%ld, W=%ld, D=%ld, H=%ld, E=%ld", sizeof(struct service), sizeof(struct worker), sizeof(struct downtime), sizeof(struct shm_header), sizeof(struct btl_event));
+		_log("Size: S=%ld, W=%ld, D=%ld, H=%ld, E=%ld, SRG=%ld,SVG=%ld", sizeof(struct service), sizeof(struct worker), sizeof(struct downtime), sizeof(struct shm_header), sizeof(struct btl_event), sizeof(struct servergroup), sizeof(struct servicegroup));
 		free(shmc);
 		
 
@@ -344,9 +344,16 @@ int bartlby_populate_shm(char * cfgfile) {
 			bartlby_ext_init(gBartlby_address, gSOHandle, cfgfile);
 				
 			
+			//AddServerGroups
+			
+			//AddServicegroups
+			
+			
 			_log("Workers: %ld", gshm_hdr->wrkcount);
 			_log("Downtimes: %ld", gshm_hdr->dtcount);
 			_log("Servers: %ld", gshm_hdr->srvcount);
+			_log("ServerGroups: %ld", gshm_hdr->srvgroupcount);
+			_log("ServiceGroups: %ld", gshm_hdr->svcgroupcount);
 			gshm_hdr->current_running=0;
 			sprintf(gshm_hdr->version, "%s-%s (%s)", PROGNAME, VERSION, REL_NAME);
 						
