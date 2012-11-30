@@ -1942,6 +1942,7 @@ int GetServiceMap(struct service * svcs, char * config) {
       			svcs[i].server_id=atoi(row[4]);
       			svcs[i].last_state=atoi(row[2]);
       			svcs[i].current_state=atoi(row[2]);
+      			svcs[i].servicegroup_counter=0;
       			
       			if(row[1] != NULL) {
       				//svcs[i].service_name=malloc(strlen(row[1])*sizeof(char)+2);
@@ -2166,7 +2167,7 @@ int GetServerMap(struct server * srv, char * config) {
       			srv[i].server_notify=atoi(row[8]);
       			srv[i].last_notify_send=time(NULL);
       			srv[i].flap_count=0;
-      			
+      			srv[i].servergroup_count=0;
       			
       			if(row[1] != NULL) {
       				//svcs[i].service_name=malloc(strlen(row[1])*sizeof(char)+2);
