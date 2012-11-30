@@ -92,7 +92,7 @@ void bartlby_SHM_link_services_servers(void * shm_addr, char * cfgfile) {
 	//Link Groups :)
 		//Server
 	for(y=0; y<hdr->srvgroupcount; y++) {
-		_log("SRV-GROUP NAME: %s", srvgrpmap[y].servergroup_name);
+		//_log("SRV-GROUP NAME: %s", srvgrpmap[y].servergroup_name);
 		for(x=0; x<hdr->srvcount; x++) {
 			group_has_server = malloc(sizeof(char)*8);
 			sprintf(group_has_server, "|%ld|", srvmap[x].server_id);
@@ -101,7 +101,7 @@ void bartlby_SHM_link_services_servers(void * shm_addr, char * cfgfile) {
 				
 				srvmap[x].servergroups[srvmap[x].servergroup_counter] = &srvgrpmap[y];
 				srvmap[x].servergroup_counter++;
-				_log("\t\thas server: %s", srvmap[x].server_name);
+				//_log("\t\thas server: %s", srvmap[x].server_name);
 
 			}
 						
@@ -111,7 +111,7 @@ void bartlby_SHM_link_services_servers(void * shm_addr, char * cfgfile) {
 	
 	
 	for(y=0; y<hdr->svcgroupcount; y++) {
-		_log("SVC-GROUP NAME: %s", svcgrpmap[y].servicegroup_name);
+		//_log("SVC-GROUP NAME: %s", svcgrpmap[y].servicegroup_name);
 		for(x=0; x<hdr->svccount; x++) {
 			group_has_service = malloc(sizeof(char)*8);
 			sprintf(group_has_server, "|%ld|", svcmap[x].service_id);
@@ -120,7 +120,7 @@ void bartlby_SHM_link_services_servers(void * shm_addr, char * cfgfile) {
 				
 				svcmap[x].servicegroups[svcmap[x].servicegroup_counter] = &svcgrpmap[y];
 				svcmap[x].servicegroup_counter++;
-				_log("\t\thas service: %s", svcmap[x].service_name);
+				//_log("\t\thas service: %s", svcmap[x].service_name);
 
 			}
 						

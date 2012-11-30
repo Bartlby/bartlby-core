@@ -457,3 +457,9 @@ void bartlby_log_usage(void);
 
 void nrpe_display_license(void);
 void bartlby_check_v2(struct service * svc, char * cfgfile, int use_ssl);
+
+
+int sched_servergroup_notify(struct server * srv);
+int sched_servergroup_active(struct server * srv);
+int sched_servicegroup_notify(struct service * svc);
+int sched_servicegroup_active(struct service * svc);
