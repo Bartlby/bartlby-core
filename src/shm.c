@@ -37,14 +37,24 @@ void bartlby_SHM_link_services_servers(void * shm_addr, char * cfgfile) {
 	struct shm_header * hdr;
 	struct server * srvmap;
 	struct service * svcmap;
+	struct servicegroup * svcgrpmap;
+	struct servergroup * srvgrpmap;
 	int x;
 	int y;
 	int marker_found;
 	
 	
+	char * group_has_server;
+	char * group_has_service;
+	
 	hdr=bartlby_SHM_GetHDR(shm_addr);
 	srvmap=bartlby_SHM_ServerMap(shm_addr);
 	svcmap=bartlby_SHM_ServiceMap(shm_addr);
+	
+	srvgrpmap=bartlby_SHM_ServerGroupMap(shm_addr);
+	svcgrpmap=bartlby_SHM_ServiceGroupMap(shm_addr);
+	
+	
 	
 	for(x=0; x<hdr->svccount; x++) {
 		for(y=0; y<hdr->srvcount; y++) {
@@ -80,6 +90,44 @@ void bartlby_SHM_link_services_servers(void * shm_addr, char * cfgfile) {
 		}
 	}
 	//Link Groups :)
+		//Server
+	for(y=0; y<hdr->srvgroupcount; y++) {
+		_log("SRV-GROUP NAME: %s", srvgrpmap[y].servergroup_name);
+		for(x=0; x<hdr->srvcount; x++) {
+			group_has_server = malloc(sizeof(char)*8);
+			sprintf(group_has_server, "|%ld|", srvmap[x].server_id);
+			
+			if(strstr(srvgrpmap[y].servergroup_members, group_has_server) != NULL) {
+				
+				srvmap[x].servergroups[srvmap[x].servergroup_counter] = &srvgrpmap[y];
+				srvmap[x].servergroup_counter++;
+				_log("\t\thas server: %s", srvmap[x].server_name);
+
+			}
+						
+			free(group_has_server);
+		}
+	}
+	
+	
+	for(y=0; y<hdr->svcgroupcount; y++) {
+		_log("SVC-GROUP NAME: %s", svcgrpmap[y].servicegroup_name);
+		for(x=0; x<hdr->svccount; x++) {
+			group_has_service = malloc(sizeof(char)*8);
+			sprintf(group_has_server, "|%ld|", svcmap[x].service_id);
+			
+			if(strstr(svcgrpmap[y].servicegroup_members, group_has_service) != NULL) {
+				
+				svcmap[x].servicegroups[svcmap[x].servicegroup_counter] = &svcgrpmap[y];
+				svcmap[x].servicegroup_counter++;
+				_log("\t\thas service: %s", svcmap[x].service_name);
+
+			}
+						
+			free(group_has_service);
+		}
+	}
+	
 	
 	_log("linked services with servers!");
 	
