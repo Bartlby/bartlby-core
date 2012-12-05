@@ -373,6 +373,11 @@ int sched_servicegroup_active(struct service * svc) {
 }
 
 
+void sched_reschedule(struct service * svc) {
+	//Resets the DIFF parameter
+	gettimeofday(&svc->lcheck, NULL);
+}
+
 /*
 function: sched_check_waiting
 checks if a service is required to check or not
@@ -414,49 +419,80 @@ int sched_check_waiting(void * shm_addr, struct service * svc, char * cfg, void 
 		}
 	}
 	
-	if(sched_needs_ack(svc) == 1) {
-		//_log("Service: %s is in status outstanding", svc->service_name);
-		return -1; //Dont sched this	
-	}
-	
-	svc->is_server_dead=sched_is_server_dead(svc);
-	if(svc->is_server_dead < 0) {
-		return -1;	
-	}
-	
-	
-	if(sched_servergroup_active(svc->srv) == 0) {
-		//Server Group is disabled
+/*
+scheduler flow:
+	service intervall has to be reached
+		no downtime matches
+		service check has to be active
+		service needs to be in time range
+		service has no acks needed
+		server is not dead 
+		server is enabled
+		servergroup is enabled
+		servicegroup is enabled
+
+
+if any of these chain members does not match - service lcheck (for next round difF) gets updated and check will not be done		
 		
-		return -1;
-	}
+*/
 	
 	
-	if(svc->srv->server_enabled == 0) {
-		return -1;	
-	}
-	
-	if(svc->service_active == 1) {
-		if(sched_servicegroup_active(svc) == 0) {
-			//Service is active but not group
-			return -1;
-		}
-		if(service_is_in_time(svc->service_exec_plan) > 0) {
+		
+		
 			//Time Range matched ;)	
 			if(my_diff >= svc->check_interval_original) {
 				//diff is higher
-				if(bartlby_is_in_downtime(shm_addr, svc) > 0) {
-					//not downtime'd
-					
-					if(svc->process.pid == 0) {
-						//No check running so DO-IT
-						return 1;
-					} 
+				if(bartlby_is_in_downtime(shm_addr, svc) < 0) {
+					//downtimed
+					sched_reschedule(svc);
+					return -1;
+				}	
+				if(svc->service_active != 1) {
+						sched_reschedule(svc);						
+						return -1; //Dont sched this	
 				}
+				if(service_is_in_time(svc->service_exec_plan) < 0) {
+						sched_reschedule(svc);						
+						return -1; //Dont sched this	
+				}
+				if(sched_needs_ack(svc) == 1) {
+						sched_reschedule(svc);						
+						return -1; //Dont sched this	
+				}
+	
+				svc->is_server_dead=sched_is_server_dead(svc);
+				if(svc->is_server_dead < 0) {
+						sched_reschedule(svc);
+						return -1;	
+				}
+		
+				if(svc->srv->server_enabled == 0) {
+					sched_reschedule(svc);
+					return -1;	
+				}
+				
+				if(sched_servergroup_active(svc->srv) == 0) {
+						//Server Group is disabled
+						sched_reschedule(svc);						
+						return -1;
+				}
+				if(sched_servicegroup_active(svc) == 0) {
+					//Service is active but not group
+					sched_reschedule(svc);
+				  return -1;
+				}
+				
+		
+				if(svc->process.pid == 0) {
+					//No check running so DO-IT
+				
+					return 1;
+				} 
+				
 			}
 			
-		}
-	}
+		
+	
 	/*
 	 bug discovered on large NRPE setup where SSL_handshake did not cleanly timeout
 	*/
@@ -547,7 +583,7 @@ void sched_do_now(struct service * svc, char * cfgfile , void * shm_addr, void *
 	
 	
 	
-	
+
 	
 	bartlby_check_service(svc, shm_addr, SOHandle, cfgfile);	
 	
@@ -793,11 +829,8 @@ int schedule_loop(char * cfgfile, void * shm_addr, void * SOHandle) {
 					//WTF?
 					if(ssort[x].svc->service_type != SVC_TYPE_PASSIVE) {
 						ssort[x].svc->last_check=time(NULL);
-						gettimeofday(&ssort[x].svc->lcheck, NULL);
-					} else {
-						gettimeofday(&ssort[x].svc->lcheck, NULL);
-					}
-			 		
+					} 
+			 		sched_reschedule(ssort[x].svc);
 			 		sched_run_check(ssort[x].svc, cfgfile, shm_addr, SOHandle);
 			 		
 			 		usleep(g_micros_before_after_check);

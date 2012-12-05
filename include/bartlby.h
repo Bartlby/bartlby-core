@@ -56,6 +56,9 @@
 
 #define DT_SERVICE 1
 #define DT_SERVER 2
+#define DT_SERVERGROUP 3
+#define DT_SERVICEGROUP 4
+
 
 #define SVC_TYPE_ACTIVE 1
 #define SVC_TYPE_PASSIVE 2
