@@ -169,7 +169,7 @@ int bartlby_is_in_downtime(void * bartlby_address, struct service * svc) {
 					//Check if svc is a member of servicegroup supplied with dtmap.service_id
 					
 					if(bartlby_svc_is_in_svcgroup(bartlby_address, svc, dtmap[x].service_id) > 0) {
-						is_down=3;
+						is_down=4;
 					}
 					
 				break;
