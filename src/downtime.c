@@ -40,92 +40,42 @@ $Author$
 
 
 int bartlby_svc_is_in_svcgroup(void * bartlby_address, struct service * svc, int servicegroup_id) {
-	struct shm_header * hdr;
-	
-	struct servicegroup * svcgrpmap;
-	struct servergroup * srvgrpmap;
-	int is_member;
-	
-	char * group_has_service;
-	int y;
-	
-	is_member=0;
-	hdr=bartlby_SHM_GetHDR(bartlby_address);
-	
-	
-	srvgrpmap=bartlby_SHM_ServerGroupMap(bartlby_address);
-	svcgrpmap=bartlby_SHM_ServiceGroupMap(bartlby_address);
-	
-	
-	
-	group_has_service = malloc(sizeof(char)*8);
-	for(y=0; y<hdr->svcgroupcount; y++) {
-		
-		
-		sprintf(group_has_service, "|%ld|", svc->service_id);
-		if(strstr(svcgrpmap[y].servicegroup_members, group_has_service) != NULL) {
-			if(svcgrpmap[y].servicegroup_id == servicegroup_id) {
-				is_member=1;
-				break;		
+	int x;
+		//Check if service group is enabled to run checks
+		if(svc->servicegroup_counter == 0) {
+				///service is not member of a group
+				return 0;
+		}
+		//Loop Threw service Groups
+		for(x=0; x<svc->servicegroup_counter; x++) {
+			if(svc->servicegroups[x]->servicegroup_id == servicegroup_id) {
+				return 1;	
 			}
-			
-			
 		}
 		
-	}
-	
-	free(group_has_service);
-	if(is_member == 1) {
-			//_log("SVC: %s is membership in group %s", svc->service_name,svcgrpmap[y].servicegroup_name); 
-			return 1; //svc is a member of group
-	}
-	
+		
 	
 	return 0;	
 }
 
 int bartlby_svc_is_in_srvgroup(void * bartlby_address,struct service * svc, int servergroup_id) {
 
-	struct shm_header * hdr;
-	
-	struct servicegroup * svcgrpmap;
-	struct servergroup * srvgrpmap;
-	int is_member;
-	
-	char * group_has_server;
-	int y;
-	
-	is_member=0;
-	hdr=bartlby_SHM_GetHDR(bartlby_address);
-	
-	
-	srvgrpmap=bartlby_SHM_ServerGroupMap(bartlby_address);
-	svcgrpmap=bartlby_SHM_ServiceGroupMap(bartlby_address);
-	
-	
-	
-	group_has_server = malloc(sizeof(char)*8);
-	for(y=0; y<hdr->srvgroupcount; y++) {
-		
-		
-		sprintf(group_has_server, "|%ld|", svc->srv->server_id);
-		if(strstr(srvgrpmap[y].servergroup_members, group_has_server) != NULL) {
-			if(srvgrpmap[y].servergroup_id == servergroup_id) {
-				is_member=1;
-				break;		
+	int x;
+		//Check if server group is enabled to run checks
+		if(svc->srv->servergroup_counter == 0) {
+				///Server is not member of a group
+				return 0;
+		}
+		//Loop Threw Server Groups
+		for(x=0; x<svc->srv->servergroup_counter; x++) {
+			if(svc->srv->servergroups[x]->servergroup_id == servergroup_id) {
+				
+				return 1;
 			}
-			
-			
 		}
 		
-	}
-	
-	free(group_has_server);
-	if(is_member == 1) {
-			//_log("SVC: %s is membership in group %s", svc->service_name,svcgrpmap[y].servicegroup_name); 
-			return 1; //svc is a member of group
-	}
-	
+		
+		
 	
 	
 	return 0;	
