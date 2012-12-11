@@ -49,6 +49,10 @@ clean:
 	@list='$(SUBDIRS)'; for subdir in $$list; do \
 	  test "$$subdir" = . || (cd $$subdir && make clean); \
 	done
+	$(RMVFR) *.deb
+	$(RMVFR) *.tgz
+	
+
 
 
 distclean:
