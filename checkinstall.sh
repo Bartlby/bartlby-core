@@ -11,4 +11,4 @@ fi;
 
 
 
-checkinstall --install=no --pkgversion=$v --nodoc --maintainer=helmut@januschka.com --pkgname=bartlby-core  -y --requires=libssl,libmysqlclient15
+checkinstall --install=no --pkgversion=$v --nodoc --maintainer=helmut@januschka.com --pkgname=bartlby-core  -y --requires=libssl0.9.8,libmysqlclient16
