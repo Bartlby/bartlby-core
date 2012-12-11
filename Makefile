@@ -62,6 +62,8 @@ distclean:
 	$(RMVFR) bartlby.cfg
 	$(RMVFR) Makefile.conf
 	$(RMVFR) include/bartlby_v2_dh.h
+	$(RMVFR) postinstall-pak
+	$(RMVFR) preinstall-pak
 
 changelog:
 	../make_changelog
