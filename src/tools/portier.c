@@ -280,6 +280,12 @@ int main(int argc, char ** argv) {
 							
 							sprintf(passive_text, "%s", token);
 							
+							token = strtok(NULL, "|");
+							if(token != NULL) {
+								strcat(passive_text, " - |");
+								strcat(passive_text, token);
+							}
+							
 						} else {
 							sprintf(passive_text," ");
 									
