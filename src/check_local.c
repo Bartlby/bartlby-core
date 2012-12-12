@@ -84,7 +84,7 @@ void bartlby_check_local(struct service * svc, char * cfgfile) {
 	
 	if(stat(file_request, &plg_stat) < 0) {
 		//oops file is not here
-		sprintf(svc->new_server_text, "Plugin does not exist");
+		sprintf(svc->new_server_text, "Plugin does not exist in %s",file_request );
 		svc->current_state=STATE_CRITICAL;		  	
 		free(plugin_dir);
 		free(file_request);	

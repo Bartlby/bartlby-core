@@ -276,6 +276,14 @@ int bartlby_action_handle_reply_line(struct service * svc, char * line, char * c
         	return_token = strtok(NULL, "|");
         	if(return_token != NULL) {
         		sprintf(svc->new_server_text, "%s", return_token);
+        		//see if we have nagios plugin perf-data
+        		return_token = strtok(NULL, "|");
+        		if(return_token != NULL) {
+        				//append the nagiosperfdata after the normal output 
+        				strcat(svc->new_server_text, " - |");
+        				strcat(svc->new_server_text, return_token);
+        		}
+        		
         	} else {
         		
         		sprintf(svc->new_server_text, "(empty output)");
