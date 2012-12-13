@@ -39,7 +39,7 @@ $Author$
 
 #include <bartlby.h>
 
-#define DEFAULT_NOTIFY_MSG "State Change ($READABLE_STATE)\\n*********** $PROGNAME $VERSION ********************\\n[  Server: $SERVER, Service: $SERVICE, State: $READABLE_STATE]\\n%$MESSAGE"
+#define DEFAULT_NOTIFY_MSG "State Change ($READABLE_STATE$)\\n*********** $PROGNAME$ $VERSION$ ********************\\n[  Server: $SERVER$, Service: $SERVICE$, State: $READABLE_STATE$]\\n%$MESSAGE$"
 #define FL 0
 #define TR 1
 

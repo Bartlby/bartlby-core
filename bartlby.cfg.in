@@ -18,7 +18,7 @@ micros_before_after=700
 ui_right_dir=/var/www/htdocs/dev.bartlby.org/bartlby-ui/rights/
 
 
-trigger_msg=State Change ($READABLE_STATE)\\\\n*********** $PROGNAME $VERSION ********************\\\\n[  Server: $SERVER, Service: $SERVICE, State: $READABLE_STATE]\\\\n$MESSAGE
+trigger_msg=State Change ($READABLE_STATE$)\\\\n*********** $PROGNAME$ $VERSION$ ********************\\\\n[  Server: $SERVER$, Service: $SERVICE$, State: $READABLE_STATE$]\\\\n$MESSAGE$
 
 mysql_host=@MYSQL_HOST@
 mysql_user=@MYSQL_USER@
