@@ -16,6 +16,7 @@ function getConfigValue {
 
 
 RRD_HTDOCS=$(getConfigValue performance_rrd_htdocs|tr -d [:blank:]);
+RRD_HTDOCS=$(getConfigValue performance_rrd_htdocs);
 
 RRD_TOOLCFG=$(getConfigValue rrd_tool|tr -d [:blank:]);
 RRDTOOL=${RRD_TOOLCFG:-'/usr/bin/rrdtool'}
