@@ -304,36 +304,64 @@ void str_replace(char *str, const char *from, const char *to, int maxlen)
 
 void bartlby_replace_svc_in_str(char * str, struct service * svc, int max) {
 	char * human_state, * human_state_last;
-	char * srv;
+	char * server_id, * service_id;
 	
+	
+	
+	server_id=malloc(20);
+	service_id=malloc(20);
+	
+	
+	sprintf(server_id, "%ld", svc->srv->server_id);
+	sprintf(service_id, "%ld", svc->service_id);
 	
 	human_state=bartlby_beauty_state(svc->current_state);
 	human_state_last=bartlby_beauty_state(svc->last_state);
 	
 	
-	str_replace(str,"$READABLE_STATE", human_state, max); 
+	str_replace(str,"$READABLE_STATE$", human_state, max); 
 	setenv("READABLE_STATE", human_state, 1);
 	setenv("READABLE_LAST", human_state_last, 1);
-	str_replace(str,"$READABLE_LAST", human_state_last, max); 
+	str_replace(str,"$READABLE_LAST$", human_state_last, max); 
 	setenv("PROGNAME", PROGNAME, 1);
-	str_replace(str,"$PROGNAME", PROGNAME, max); 
+	str_replace(str,"$PROGNAME$", PROGNAME, max); 
 	setenv("VERSION", VERSION, 1);
-	str_replace(str,"$VERSION", VERSION, max); 
+	str_replace(str,"$VERSION$", VERSION, max); 
 	
 	
 	setenv("SERVICE", svc->service_name, 1);
-	str_replace(str,"$SERVICE", svc->service_name, max); 
+	str_replace(str,"$SERVICE$", svc->service_name, max); 
 	setenv("MESSAGE",  svc->new_server_text, 1);
-	str_replace(str,"$MESSAGE", svc->new_server_text, max); 
+	
+	
+	
+	
+	setenv("SERVER_ID",  server_id, 1);
+	setenv("SERVICE_ID", service_id, 1);
+	
+	str_replace(str,"$SERVICE_ID$", service_id, max); 
+	str_replace(str,"$SERVER_ID$", server_id, max); 
+	
+	setenv("SERVICE_NAME",  svc->service_name, 1);
+	str_replace(str,"$SERVICE_NAME$", svc->service_name, max); 
 
-	srv=getenv("BARTLBY_CURR_HOST");
-	if(srv != NULL) {
-		 setenv("SERVER",  srv, 1);
-		 str_replace(str,"$SERVER", srv, max);
-	}
+	setenv("SERVICE_PLUGIN",  svc->plugin, 1);
+	str_replace(str,"$SERVICE_PLUGIN$", svc->plugin, max); 
+
+
+
+
+	
+	 setenv("SERVER",  svc->srv->server_name, 1);
+	 str_replace(str,"$SERVER$",  svc->srv->server_name, max);
+	
+	 setenv("SERVER_NAME",  svc->srv->server_name, 1);
+	 str_replace(str,"$SERVER_NAME$",  svc->srv->server_name, max);
+	
 	
 		
-	
+	free(server_id);
+	free(service_id);
 	free(human_state_last);
 	free(human_state);
 }
