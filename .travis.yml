@@ -1,0 +1,3 @@
+before_script:
+    # Compile bartlby
+    - ./travis/compile.sh
