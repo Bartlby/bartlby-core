@@ -27,6 +27,22 @@ $Author$
 
 
 #include <string.h>
+#include <errno.h>
+#include <dlfcn.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <malloc.h>
+#include <sys/ipc.h>
+#include <sys/shm.h>
+#include <signal.h>
+#include <sys/types.h>
+#include <time.h>
+#include <sys/wait.h>
+#include <unistd.h>
+#include <sys/time.h>
+
+
 
 #include <bartlby.h>
 
