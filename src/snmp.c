@@ -20,8 +20,12 @@ $Date$
 $Author$ 
 */
 
+#ifdef SNMP_ADDON
 #include <net-snmp/net-snmp-config.h>
 #include <net-snmp/net-snmp-includes.h>
+#endif
+
+
 #include <string.h>
 
 #include <bartlby.h>
