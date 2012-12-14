@@ -1,2 +1,2 @@
-./configure --enable-nrpe --enable-ssl --enable-snmp --prefix=/opt/bartlby/
+./configure --enable-nrpe --enable-ssl  --prefix=/opt/bartlby/
 make
