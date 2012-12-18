@@ -55,6 +55,6 @@ install-data-hook:
 	 chmod +x $(DESTDIR)$(prefix)/etc/bartlby.startup
 	 
 dist-hook:
-        rm -rf $(distdir)/src/src
+	rm -rf $(distdir)/src/src
 
 dist_noinst_SCRIPTS = autogen.sh
