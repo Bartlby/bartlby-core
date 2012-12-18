@@ -1,6 +1,7 @@
 AUTOMAKE_OPTIONS = subdir-objects
 ACLOCAL_AMFLAGS = ${ACLOCAL_FLAGS}
 
+noinst_HEADERS = include/bartlby.h
 
 bin_PROGRAMS = bartlby bartlby_shmt bartlby_portier
 bartlby_SOURCES = src/bartlby.c src/config.c src/global.c src/sched.c src/shm.c src/check.c src/trigger.c src/daemon.c src/replication.c src/perf.c src/downtime.c src/ack.c src/event.c src/snmp.c src/ src/ext.c src/check_active_v2.c src/check_active.c src/check_local.c src/check_group.c src/check_nrpe.c
@@ -53,6 +54,7 @@ install-data-hook:
 	 $(MKDIR_P) $(DESTDIR)$(prefix)/var/log
 	 chmod +x $(DESTDIR)$(prefix)/etc/bartlby.startup
 	 
-
+dist-hook:
+        rm -rf $(distdir)/src/src
 
 dist_noinst_SCRIPTS = autogen.sh
