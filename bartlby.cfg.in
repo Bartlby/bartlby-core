@@ -1,4 +1,4 @@
-data_library=@prefix@/lib/mysql.so
+data_library=@prefix@/lib/libmysql.so
 max_concurent_checks=6
 max_load=0
 portier_use_ssl=0
