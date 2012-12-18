@@ -23,7 +23,6 @@ $Author$
 #include <mysql/mysql.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <malloc.h>
 #include <string.h>
 #include <time.h>
 

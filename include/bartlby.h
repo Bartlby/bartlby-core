@@ -1,5 +1,8 @@
 #include "config.h"
 
+#ifdef HAVE_MALLOC_H
+#include <malloc.h>
+#endif
 
 #define PROGNAME "bartlby"
 #define REL_NAME "fusion"

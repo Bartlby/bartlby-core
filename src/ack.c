@@ -25,7 +25,7 @@ $Author$
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
-#include <malloc.h>
+
 #include <sys/ipc.h>
 #include <sys/shm.h>
 #include <signal.h>
