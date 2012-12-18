@@ -4,7 +4,7 @@ ACLOCAL_AMFLAGS = ${ACLOCAL_FLAGS}
 
 bin_PROGRAMS = bartlby bartlby_shmt bartlby_portier
 bartlby_SOURCES = src/bartlby.c src/config.c src/global.c src/sched.c src/shm.c src/check.c src/trigger.c src/daemon.c src/replication.c src/perf.c src/downtime.c src/ack.c src/event.c src/snmp.c src/ src/ext.c src/check_active_v2.c src/check_active.c src/check_local.c src/check_group.c src/check_nrpe.c
-nodist_bartlby_SOURCES = src/bartlby.c src/config.c src/global.c src/sched.c src/shm.c src/check.c src/trigger.c src/daemon.c src/replication.c src/perf.c src/downtime.c src/ack.c src/event.c src/snmp.c src/ src/ext.c src/check_active_v2.c src/check_active.c src/check_local.c src/check_group.c src/check_nrpe.c
+
 
 bartlby_LDADD = -ldl $(OPENSSL_FLAG) $(SNMP_FLAG)
 bartlby_CFLAGS = $(AM_CFLAGS)  $(NRPE_ADDON) $(SSL_ADDON)  $(SNMP_ADDON)
@@ -13,17 +13,14 @@ bartlby_CFLAGS = $(AM_CFLAGS)  $(NRPE_ADDON) $(SSL_ADDON)  $(SNMP_ADDON)
 
 
 bartlby_shmt_SOURCES = src/shm.c src/config.c src/global.c src/tools/shmt.c
-nodist_bartlby_shmt_SOURCES = src/shm.c src/config.c src/global.c src/tools/shmt.c
 bartlby_shmt_LDADD = -ldl $(OPENSSL_FLAG) $(SNMP_FLAG)
 bartlby_shmt_CFLAGS = $(AM_CFLAGS) $(NRPE_ADDON) $(SSL_ADDON)  $(SNMP_ADDON)
 
 bartlby_portier_SOURCES =  src/config.c src/global.c src/shm.c src/perf.c src/ext.c src/tools/portier.c
-nodist_bartlby_portier_SOURCES =  src/config.c src/global.c src/shm.c src/perf.c src/ext.c src/tools/portier.c
 bartlby_portier_LDADD = -ldl $(OPENSSL_FLAG) $(SNMP_FLAG)
 bartlby_portier_CFLAGS = $(AM_CFLAGS) $(NRPE_ADDON) $(SSL_ADDON) $(SNMP_ADDON)
 
 lib_LTLIBRARIES = libmysql.la
-nodist_libmysql_la_SOURCES = src/global.c src/config.c src/libs/mysql.c 
 libmysql_la_SOURCES = src/global.c src/config.c src/libs/mysql.c 
 libmysql_la_LIBADD = $(LIB_MYSQL)  
 
