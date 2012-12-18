@@ -1,3 +1,14 @@
+stamp-h1
+*.la
+libtool
+bartlby
+bartlby_shmt
+bartlby_portier
+.libs/
+include/config.h
+.dirstamp
+Makefile
+*.lo
 ltmain.sh
 missing
 depcomp
