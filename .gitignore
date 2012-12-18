@@ -1,3 +1,16 @@
+ltmain.sh
+missing
+depcomp
+compile
+install-sh
+include/config.h.in~
+config.guess
+config.sub
+m4
+aclocal.m4
+autom4te.cache
+.deps
+Makefile.in
 *.tgz
 *.deb
 *.o
