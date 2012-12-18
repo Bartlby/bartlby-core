@@ -1,4 +1,5 @@
 install-sh
+configure
 stamp-h1
 Makefile.in
 config.sub
