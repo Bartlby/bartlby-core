@@ -2091,7 +2091,7 @@ int GetServiceMap(struct service * svcs, char * config) {
       			
 			svcs[i].is_gone = 0;	
       				
-      			bartlby_replace_svc_in_str(svcs[i].plugin_arguments, &svcs[i], 2048);
+      			//bartlby_replace_svc_in_str(svcs[i].plugin_arguments, &svcs[i], 2048);
       			i++;
       		}
       		
