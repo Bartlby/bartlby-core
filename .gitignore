@@ -13,7 +13,6 @@ ltmain.sh
 missing
 depcomp
 compile
-install-sh
 include/config.h.in~
 config.guess
 config.sub
