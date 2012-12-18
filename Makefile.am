@@ -27,29 +27,29 @@ libmysql_la_LIBADD = $(LIB_MYSQL)
 
 #perfhandler
 perfhandlerdir=$(prefix)/perf
-perfhandler_DATA=perf/bartlby_files_in_dir perf/bartlby_http perf/bartlby_if perf/bartlby_load perf/bartlby_snmp.sh perf/bartlby_swap.sh
+dist_perfhandler_DATA=perf/bartlby_files_in_dir perf/bartlby_http perf/bartlby_if perf/bartlby_load perf/bartlby_snmp.sh perf/bartlby_swap.sh
 
 #perfhandler-defaults
 perfhandlerdefaultsdir=$(prefix)/perf/defaults
-perfhandlerdefaults_DATA=perf/defaults/bartlby_files_in_dir.rrd.xml  perf/defaults/bartlby_http.rrd.xml perf/defaults/bartlby_if.rrd.xml perf/defaults/bartlby_load.rrd.xml perf/defaults/bartlby_snmp.sh.rrd.xml perf/defaults/bartlby_swap.sh.rrd.xml 
+dist_perfhandlerdefaults_DATA=perf/defaults/bartlby_files_in_dir.rrd.xml  perf/defaults/bartlby_http.rrd.xml perf/defaults/bartlby_if.rrd.xml perf/defaults/bartlby_load.rrd.xml perf/defaults/bartlby_snmp.sh.rrd.xml perf/defaults/bartlby_swap.sh.rrd.xml 
 
 
 #trigger
 triggerdir=$(prefix)/trigger
-trigger_DATA=trigger/icq.sh trigger/jabber.sh trigger/mail.sh trigger/push.sh trigger/sms.sh
+dist_trigger_DATA=trigger/icq.sh trigger/jabber.sh trigger/mail.sh trigger/push.sh trigger/sms.sh
 
 sysconf_DATA=bartlby.cfg bartlby.startup
 
 mysqldir=$(prefix)
-mysql_DATA=mysql.shema
+dist_mysql_DATA=mysql.shema
 
 
 
 
 install-data-hook:
-	 for i in $(perfhandler_DATA) ; do chmod +x $(DESTDIR)$(prefix)/$$i ; done ;
-	 for i in $(perfhandlerdefaults_DATA) ; do chmod +x $(DESTDIR)$(prefix)/$$i ; done ;
-	 for i in $(trigger_DATA) ; do chmod +x $(DESTDIR)$(prefix)/$$i ; done ;
+	 for i in $(dist_perfhandler_DATA) ; do chmod +x $(DESTDIR)$(prefix)/$$i ; done ;
+	 for i in $(dist_perfhandlerdefaults_DATA) ; do chmod +x $(DESTDIR)$(prefix)/$$i ; done ;
+	 for i in $(dist_trigger_DATA) ; do chmod +x $(DESTDIR)$(prefix)/$$i ; done ;
 	 $(MKDIR_P) $(DESTDIR)$(prefix)/contrib
 	 $(MKDIR_P) $(DESTDIR)$(prefix)/var/log
 	 chmod +x $(DESTDIR)$(prefix)/etc/bartlby.startup
