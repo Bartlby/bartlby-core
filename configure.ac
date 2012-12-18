@@ -122,7 +122,7 @@ AC_PREFIX_DEFAULT(/usr/local/bartlby)
 AC_CONFIG_HEADERS([include/config.h])
 AC_CONFIG_MACRO_DIR([m4])
 AM_INIT_AUTOMAKE
-
+AM_SILENT_RULES([yes])
 dnl check for mysql user
 
 AC_ARG_WITH(mysql-user, AC_HELP_STRING([--with-mysql-user], [Mysql User]), MYSQL_USER="${withval}", MYSQL_USER="root")

@@ -21,7 +21,6 @@ $Author$
 */
 #include <stdio.h>
 #include <stdlib.h>
-#include <malloc.h>
 #include <string.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
