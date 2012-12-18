@@ -15,7 +15,6 @@ depcomp
 compile
 include/config.h.in~
 config.guess
-config.sub
 m4
 aclocal.m4
 autom4te.cache
