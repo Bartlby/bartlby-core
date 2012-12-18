@@ -1,4 +1,8 @@
+install-sh
 stamp-h1
+Makefile.in
+config.sub
+config.guess
 *.la
 libtool
 bartlby
