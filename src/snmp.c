@@ -20,10 +20,10 @@ $Date$
 $Author$ 
 */
 
-#ifdef SNMP_ADDON
-#include <net-snmp/net-snmp-config.h>
-#include <net-snmp/net-snmp-includes.h>
-#endif
+
+
+
+
 
 
 #include <string.h>
@@ -32,7 +32,6 @@ $Author$
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <malloc.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
 #include <signal.h>
@@ -43,8 +42,12 @@ $Author$
 #include <sys/time.h>
 
 
-
 #include <bartlby.h>
+
+#ifdef SNMP_ADDON
+#include <net-snmp/net-snmp-config.h>
+#include <net-snmp/net-snmp-includes.h>
+#endif
 
 
 

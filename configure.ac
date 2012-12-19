@@ -1,4 +1,4 @@
-AC_DEFUN(AC_CHECK_LIBMYSQLCLIENT, [
+AC_DEFUN([AC_CHECK_LIBMYSQLCLIENT], [
   AC_MSG_CHECKING(for MySQL Client support)
 
   AC_ARG_ENABLE(
@@ -99,7 +99,7 @@ AC_DEFUN(AC_CHECK_LIBMYSQLCLIENT, [
         dnl The above error will be removed eventually, and we need to clear this var if it fails.
         LIB_MYSQL=""
       else
-        AC_DEFINE(HAVE_MYSQL)
+        AC_DEFINE([HAVE_MYSQL],[] , [Have Mysql])
         dnl Cache trick for lib.
         ac_cv_lib_mysqlclient_mysql_libdir="$LIB_MYSQL"
         LIB_MYSQL="$LIB_MYSQL -lmysqlclient"
@@ -117,9 +117,12 @@ AC_DEFUN(AC_CHECK_LIBMYSQLCLIENT, [
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.59)
-AC_INIT(bartlby, 1.1.4, helmut@januschka.com)
+AC_INIT(bartlby, 1.4.0, helmut@januschka.com)
 AC_PREFIX_DEFAULT(/usr/local/bartlby)
-
+AC_CONFIG_HEADERS([include/config.h])
+AC_CONFIG_MACRO_DIR([m4])
+AM_INIT_AUTOMAKE
+AM_SILENT_RULES([yes])
 dnl check for mysql user
 
 AC_ARG_WITH(mysql-user, AC_HELP_STRING([--with-mysql-user], [Mysql User]), MYSQL_USER="${withval}", MYSQL_USER="root")
@@ -306,9 +309,12 @@ INSTALL_OPTIONS="-o $BARTLBY_USER";
 AC_SUBST(BARTLBY_USER)
 
 dnl Checks for programs.
+AC_PROG_LIBTOOL
 AC_PROG_AWK
 AC_PROG_CC
 AC_PROG_MAKE_SET
+AM_PROG_CC_C_O
+
 
 AC_PATH_PROG(INSTALL_PATH, install)
 AC_PATH_PROG(OPEN_SSL_PATH, openssl)
@@ -347,7 +353,7 @@ AC_FUNC_VPRINTF
 AC_CHECK_FUNCS([alarm gethostbyname gettimeofday inet_ntoa memmove memset setenv socket strdup strstr])
 
 
-AC_CONFIG_FILES([Makefile.conf bartlby.cfg bartlby.startup preinstall-pak postinstall-pak])
+AC_CONFIG_FILES([Makefile bartlby.cfg bartlby.startup preinstall-pak postinstall-pak])
 AC_OUTPUT
 echo "######################################"
 echo "#          bartlby Core              #"
