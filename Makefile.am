@@ -39,15 +39,35 @@ dist_perfhandlerdefaults_DATA=perf/defaults/bartlby_files_in_dir.rrd.xml  perf/d
 triggerdir=$(prefix)/trigger
 dist_trigger_DATA=trigger/icq.sh trigger/jabber.sh trigger/mail.sh trigger/push.sh trigger/sms.sh
 
-sysconf_DATA=bartlby.cfg bartlby.startup
+
 
 mysqldir=$(prefix)
 dist_mysql_DATA=mysql.shema
 
+startupdir=$(prefix)/etc
+dist_startup_DATA=bartlby.startup
 
+cfgdir=$(prefix)/etc
+dist_noinst_cfg=bartlby.cfg
+
+
+MAINTAINERCLEANFILES = Makefile.in aclocal.m4 compile \
+            config.guess config.sub depcomp \
+            install-sh ltmain.sh missing \
+            include/config.h.in include/config.h.in~ configure m4/libtool.m4 m4/ltoptions.m4 \
+            m4/ltsugar.m4 m4/ltversion.m4 m4/lt~obsolete.m4
 
 
 install-data-hook:
+	@list='$(dist_noinst_cfg)'; for p in $$list; do \
+	    dest=`echo $$p`; \
+	    if test -f $(DESTDIR)$(sysconfdir)/$$dest; then \
+		echo "$@ will not overwrite existing $(DESTDIR)$(sysconfdir)/$$dest"; \
+	    else \
+		echo " $(INSTALL_DATA) $$p $(DESTDIR)$(sysconfdir)/$$dest"; \
+		$(INSTALL_DATA) $$p $(DESTDIR)$(sysconfdir)/$$dest; \
+	    fi; \
+	done
 	 for i in $(dist_perfhandler_DATA) ; do chmod +x $(DESTDIR)$(prefix)/$$i ; done ;
 	 for i in $(dist_perfhandlerdefaults_DATA) ; do chmod +x $(DESTDIR)$(prefix)/$$i ; done ;
 	 for i in $(dist_trigger_DATA) ; do chmod +x $(DESTDIR)$(prefix)/$$i ; done ;
