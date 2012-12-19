@@ -8,7 +8,7 @@ bartlby_SOURCES = src/bartlby.c src/config.c src/global.c src/sched.c src/shm.c 
 
 
 bartlby_LDADD = -ldl $(OPENSSL_FLAG) $(SNMP_FLAG)
-bartlby_CFLAGS = $(AM_CFLAGS)  $(NRPE_ADDON) $(SSL_ADDON)  $(SNMP_ADDON)
+bartlby_CFLAGS = $(AM_CFLAGS)  $(NRPE_ADDON) $(OPENSSL_ADDON)  $(SNMP_ADDON)
 
 
 
