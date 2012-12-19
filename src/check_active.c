@@ -178,7 +178,7 @@ void bartlby_check_active(struct service * svc, char * cfgfile) {
 		
 	}
 	
-	//_log("ALL: '%s'", rmessage);
+
 	
 	//Check if timed out or Receive error
 	if(connection_timed_out == 1 || sum_rmessage <= 0) {
@@ -228,7 +228,11 @@ void bartlby_action_handle_reply(struct service * svc, char * rmessage, char * c
    			curr_line[cur_char_idx]='\0';
    			
    			if(strlen(curr_line) > 0) {
+
    				data_is_ok=bartlby_action_handle_reply_line(svc, curr_line, cfgfile);
+   				if(data_is_ok == 1) {
+   					break;
+   				}
    			}
    			
    			cur_char_idx=0;	
@@ -269,6 +273,7 @@ int bartlby_action_handle_reply_line(struct service * svc, char * line, char * c
         	//Verfiy result code to be 0-2 :-) 
         	if(return_token[0] != '0' && return_token[0] != '1' && return_token[0] != '2' && return_token[0] != '4') {
         		svc->current_state=STATE_UNKOWN;	
+        		return 0;
         	} else {
         		svc->current_state=atoi(return_token);
         	}
