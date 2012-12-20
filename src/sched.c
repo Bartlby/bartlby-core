@@ -375,6 +375,33 @@ void sched_reschedule(struct service * svc) {
 	gettimeofday(&svc->lcheck, NULL);
 }
 
+
+int sched_check_timeout(void * shm_addr, struct service * svc, char * cfg, void * SOHandle) {
+	int my_diff, kill_diff;
+	int cur_time;
+	
+	cur_time=time(NULL);
+	if(svc->process.pid > 2) {
+			
+		
+		kill_diff=(svc->service_check_timeout);
+		my_diff=cur_time - svc->process.start_time;
+		
+		if(svc->service_type != SVC_TYPE_PASSIVE) {
+			//Passive's should'nt time out either
+			if(my_diff > kill_diff+10) {
+				//_log("@@@ %d/%d @@ ", my_diff, kill_diff);
+				//A little offset
+				//so this is a "so called" miss coded extension ;) with faulted timeout handlers ;)
+				sched_kill_runaaway(shm_addr, svc, cfg,SOHandle);	
+				return -1;
+			}	
+		}
+	}
+	
+	
+}
+
 /*
 function: sched_check_waiting
 checks if a service is required to check or not
@@ -494,34 +521,22 @@ if any of these chain members does not match - service lcheck (for next round di
 	 bug discovered on large NRPE setup where SSL_handshake did not cleanly timeout
 	*/
 	
-	if(svc->process.pid > 2) {
-			
-		
-		kill_diff=(svc->service_check_timeout);
-		my_diff=cur_time - svc->process.start_time;
-		
-		if(svc->service_type != SVC_TYPE_PASSIVE) {
-			//Passive's should'nt time out either
-			if(my_diff > kill_diff+10) {
-				//_log("@@@ %d/%d @@ ", my_diff, kill_diff);
-				//A little offset
-				//so this is a "so called" miss coded extension ;) with faulted timeout handlers ;)
-				sched_kill_runaaway(shm_addr, svc, cfg,SOHandle);	
-				return -1;
-			}	
-		}
-	}
+	sched_check_timeout(shm_addr, svc, cfg, SOHandle);
 	
 	return -1;
 }
+
+
 void sched_definitiv_running() {
 	int definitiv_running=0;
 	int x=0;
 	int y=0;
 	
+	//Loop threw services to see how many threads are running, and call the "check timeout" function to maybe kill a long runnning thread
 	for(y=0; y<gshm_hdr->svccount; y++) {
 			if(gservices[y].process.pid > 0) {
 				//sched_check_waiting(gshm_addr,&gservices[y], gConfig, gSOHandle, -1);
+				sched_check_timeout(gshm_addr, &gservices[y], gConfig, gSOHandle);
 				definitiv_running++;	
 			}
 	}
@@ -810,14 +825,15 @@ int schedule_loop(char * cfgfile, void * shm_addr, void * SOHandle) {
 		
 		
 		shortest_intervall=10;
+		getloadavg(current_load, 3);
+		sched_definitiv_running();
 		for(x=0; x<gshm_hdr->svccount; x++) {
 			
 			
 			if(do_shutdown == 1 || gshm_hdr->do_reload == 1) {
 				break;	
 			}
-			getloadavg(current_load, 3);
-			//sched_definitiv_running();
+			
 			
 			if(gshm_hdr->current_running < cfg_max_parallel || (int)current_load[0] < cfg_max_load) { 
 				if(sched_check_waiting(shm_addr, ssort[x].svc, cfgfile, SOHandle, sched_pause) == 1) {
@@ -853,8 +869,10 @@ int schedule_loop(char * cfgfile, void * shm_addr, void * SOHandle) {
 			 		
 				}				
 			} else {
+				
 				while(waitpid(-1, &childstatus, WNOHANG ) > 0 );
 				sched_wait_open(60,cfg_max_parallel-1);	
+				
 			}
 			
 		}

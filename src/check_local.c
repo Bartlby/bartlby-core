@@ -92,6 +92,7 @@ void bartlby_check_local(struct service * svc, char * cfgfile) {
 	}
 	strcat(file_request, " ");
 	strcat(file_request, svc->plugin_arguments);
+	strcat(file_request, " 2>/dev/null");
 	
 	signal(SIGPIPE,SIG_DFL);
 	signal(SIGCHLD,SIG_DFL);
