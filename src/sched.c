@@ -155,9 +155,7 @@ void sched_reaper(int sig) {
 		_log("reaper: bad signal %d\n", sig);
    	} else {
 
-		while((childpid = waitpid(-1, &childstatus, WNOHANG | WUNTRACED)) > 0 ) {
-			_log("reaped: %d", childpid);
-		}
+		childpid = waitpid(-1, &childstatus, WNOHANG | WUNTRACED);
 		
 		
 	}
@@ -612,9 +610,15 @@ void sched_do_now(struct service * svc, char * cfgfile , void * shm_addr, void *
 void sched_run_check(struct service * svc, char * cfgfile, void * shm_addr, void * SOHandle) {
       
 
-       int child_pid;
-       
+    int child_pid;
+    struct sigaction sa;
      
+     
+   
+   sigfillset(&sa.sa_mask);
+   sa.sa_handler = sched_reaper;
+   sa.sa_flags = 0;
+   sigaction(SIGCHLD, &sa, NULL);
      
        
 	child_pid=fork();
