@@ -514,13 +514,28 @@ if any of these chain members does not match - service lcheck (for next round di
 	
 	return -1;
 }
-
+void sched_definitiv_running() {
+	int definitiv_running=0;
+	int x=0;
+	int y=0;
+	
+	for(y=0; y<gshm_hdr->svccount; y++) {
+			if(gservices[y].process.pid > 0) {
+				//sched_check_waiting(gshm_addr,&gservices[y], gConfig, gSOHandle, -1);
+				definitiv_running++;	
+			}
+	}
+	//_log("RUN ADJUST RUNNING from: %d to: %d", gshm_hdr->current_running, definitiv_running);
+	gshm_hdr->current_running=definitiv_running;
+	
+	
+}
 void sched_wait_open(int timeout, int fasten) {
 	int x;
 	int y;
 	
 	int olim;
-	int definitiv_running=0;
+	
 	
 	y=0;
 	x=0;
@@ -538,13 +553,8 @@ void sched_wait_open(int timeout, int fasten) {
 		x+=10;
 		olim=gshm_hdr->current_running*timeout;
 		
-		//definitiv_running=0
-		for(y=0; y<gshm_hdr->svccount; y++) {
-			sched_check_waiting(gshm_addr,&gservices[y], gConfig, gSOHandle, -1);
-			if(gservices[y].process.pid > 0) {
-				definitiv_running++;	
-			}
-		}
+		
+		
 		
 		
 		if(gshm_hdr->current_running <= fasten) {
@@ -807,7 +817,7 @@ int schedule_loop(char * cfgfile, void * shm_addr, void * SOHandle) {
 				break;	
 			}
 			getloadavg(current_load, 3);
-			
+			//sched_definitiv_running();
 			
 			if(gshm_hdr->current_running < cfg_max_parallel || (int)current_load[0] < cfg_max_load) { 
 				if(sched_check_waiting(shm_addr, ssort[x].svc, cfgfile, SOHandle, sched_pause) == 1) {
