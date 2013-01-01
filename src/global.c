@@ -20,17 +20,7 @@ $Date$
 $Author$ 
 */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <stdarg.h>
-#include <time.h>
-#include <sys/types.h>
-#include <unistd.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <errno.h>
-#include <sys/stat.h>
+
 
 
 #include <bartlby.h>
@@ -243,8 +233,7 @@ int _log(const char * str,  ...) {
 			exit(1);	
 		}
 		if(strcmp(logfile_dd, "/dev/stdout") != 0) {
-			logfile=malloc(sizeof(char) * (strlen(logfile_dd)+50));
-			sprintf(logfile, "%s.%02d.%02d.%02d", logfile_dd, tmnow->tm_year + 1900,tmnow->tm_mon + 1,tmnow->tm_mday); 	
+			asprintf(&logfile, "%s.%02d.%02d.%02d", logfile_dd, tmnow->tm_year + 1900,tmnow->tm_mon + 1,tmnow->tm_mday); 	
 		} else {
 			logfile=strdup("/dev/stdout");	
 		}
@@ -307,12 +296,10 @@ void bartlby_replace_svc_in_str(char * str, struct service * svc, int max) {
 	
 	
 	
-	server_id=malloc(20);
-	service_id=malloc(20);
 	
 	
-	sprintf(server_id, "%ld", svc->srv->server_id);
-	sprintf(service_id, "%ld", svc->service_id);
+	asprintf(&server_id, "%ld", svc->srv->server_id);
+	asprintf(&service_id, "%ld", svc->service_id);
 	
 	human_state=bartlby_beauty_state(svc->current_state);
 	human_state_last=bartlby_beauty_state(svc->last_state);

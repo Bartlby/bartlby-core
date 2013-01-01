@@ -20,30 +20,11 @@ $Date$
 $Author$ 
 */
 
-#include <dlfcn.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <string.h>
-#include <sys/ipc.h>
-#include <sys/shm.h>
-#include <signal.h>
-#include <sys/types.h>
-#include <time.h>
-#include <sys/wait.h>  
-#include <unistd.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <netdb.h>
-#include <bartlby.h>
-#include <errno.h>
 
-
+#include "bartlby.h"
 
 
 int replication_go(char * cfgfile, void * shm_addr, void * SOHandle) {
-	//_log("FIXME: replication with external program XML-RPC API");
 	bartlby_callback(EXTENSION_CALLBACK_REPLICATION_GO, NULL);
 	return 1;
 }

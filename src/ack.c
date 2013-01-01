@@ -20,20 +20,7 @@ $Date$
 $Author$ 
 */
 
-#include <dlfcn.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <string.h>
 
-#include <sys/ipc.h>
-#include <sys/shm.h>
-#include <signal.h>
-#include <sys/types.h>
-#include <time.h>
-#include <sys/wait.h>  
-#include <unistd.h>
-#include <sys/time.h>
 
 
 #include <bartlby.h>
@@ -68,8 +55,7 @@ void bartlby_check_sirene(char * configfile, void * bartlby_address) {
 	}
 	last_sirene=time(NULL);
 	
-	//sprintf(svc.client_ip, "0.0.0.0");
-	//sprintf(svc.server_name, "CORE");
+	
 	svc.srv=malloc(sizeof(struct server));
 	if(svc.srv == NULL) {
 		_log("malloc failed in bartlby_check_sirene()");

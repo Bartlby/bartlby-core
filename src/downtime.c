@@ -19,20 +19,7 @@ $HeadURL$
 $Date$
 $Author$ 
 */
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
-#include <string.h>
-#include <sys/ipc.h>
-#include <sys/shm.h>
-#include <sys/wait.h>	
-#include <unistd.h>	
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <pwd.h>
 
-#include <dlfcn.h>
-#include <sys/time.h>
 
 
 #include <bartlby.h>

@@ -47,20 +47,7 @@ $Author$
 
 
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <signal.h>
-#include <unistd.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <strings.h>
-#include <netdb.h>
-#include <ctype.h>
-#include <string.h>
-#include <errno.h>
-#include <arpa/inet.h>
-#include <time.h>
-#include <fcntl.h>
+
 
 #include <bartlby.h>
 
@@ -125,7 +112,7 @@ typedef struct packet_struct{
         
 
 void nrpe_generate_crc32_table(void);
-int my_connect(char *host_name,int port,int *sd,char *proto, struct service * svc);
+int my_nrpe_connect(char *host_name,int port,int *sd,char *proto, struct service * svc);
 void alarm_handler(int sig);
 int my_tcp_connect(char *host_name,int port,int *sd, struct service * svc);
 int my_inet_aton_self(register const char *cp, struct in_addr *addr);
@@ -428,7 +415,7 @@ void nrpe_generate_crc32_table(void){
 
 
 /* opens a tcp or udp connection to a remote host */
-int my_connect(char *host_name,int port,int *sd,char *proto, struct service * svc){
+int my_nrpe_connect(char *host_name,int port,int *sd,char *proto, struct service * svc){
 	struct sockaddr_in servaddr;
 	struct hostent *hp;
 	struct protoent *ptrp;
@@ -505,7 +492,7 @@ void alarm_handler(int sig){
 int my_tcp_connect(char *host_name,int port,int *sd, struct service * svc){
 	int result;
 
-	result=my_connect(host_name,port,sd,"tcp", svc);
+	result=my_nrpe_connect(host_name,port,sd,"tcp", svc);
 
 	return result;
 }

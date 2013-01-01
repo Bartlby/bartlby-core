@@ -19,20 +19,7 @@ $HeadURL$
 $Date$
 $Author$ 
 */
-#include <stdio.h>
-#include <dlfcn.h>
-#include <stdlib.h>
-#include <netdb.h>
-#include <arpa/inet.h>
-#include <netinet/in.h>
-#include <sys/socket.h>
-#include <signal.h>
-#include <string.h>
-#include <time.h>
-#include <unistd.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <sys/wait.h>
+
 
 #include <bartlby.h>
 

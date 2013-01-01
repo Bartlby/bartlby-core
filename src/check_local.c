@@ -19,20 +19,7 @@ $HeadURL$
 $Date$
 $Author$ 
 */
-#include <stdio.h>
-#include <dlfcn.h>
-#include <stdlib.h>
-#include <netdb.h>
-#include <arpa/inet.h>
-#include <netinet/in.h>
-#include <sys/socket.h>
-#include <signal.h>
-#include <string.h>
-#include <time.h>
-#include <unistd.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <sys/wait.h>
+
 
 #include <bartlby.h>
 
@@ -79,8 +66,8 @@ void bartlby_check_local(struct service * svc, char * cfgfile) {
 		return;
         }
 	connection_timed_out=0;
-	file_request=malloc(sizeof(char)*(strlen(svc->plugin)+strlen(svc->plugin_arguments)+30+strlen(plugin_dir)));
-	sprintf(file_request, "%s/%s",plugin_dir, svc->plugin);
+	
+	asprintf(&file_request, "%s/%s",plugin_dir, svc->plugin);
 	
 	if(stat(file_request, &plg_stat) < 0) {
 		//oops file is not here
@@ -90,9 +77,10 @@ void bartlby_check_local(struct service * svc, char * cfgfile) {
 		free(file_request);	
 		return;
 	}
-	strcat(file_request, " ");
-	strcat(file_request, svc->plugin_arguments);
-	strcat(file_request, " 2>/dev/null");
+	
+	free(file_request);
+	asprintf(&file_request, "%s/%s %s 2>/dev/null",plugin_dir, svc->plugin, svc->plugin_arguments);
+	
 	
 	signal(SIGPIPE,SIG_DFL);
 	signal(SIGCHLD,SIG_DFL);
