@@ -20,11 +20,7 @@ $Date$
 $Author$ 
 */
 
-#include <mysql/mysql.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
+
 
 #include <bartlby.h>
 
@@ -325,8 +321,8 @@ int UpdateDowntime(struct downtime * svc, char *config) {
       		CHK_ERR(mysql);
 	
 	
-	sqlupd=malloc(sizeof(char)*(strlen(UPDATE_DOWNTIME)+sizeof(struct downtime)+200));
-	sprintf(sqlupd, UPDATE_DOWNTIME, svc->downtime_notice, svc->downtime_from, svc->downtime_to, svc->service_id, svc->downtime_type, svc->downtime_id);
+	
+	asprintf(&sqlupd, UPDATE_DOWNTIME, svc->downtime_notice, svc->downtime_from, svc->downtime_to, svc->service_id, svc->downtime_type, svc->downtime_id);
 	
 	
 	
@@ -368,8 +364,8 @@ int DeleteDowntime(int downtime_id, char * config) {
       		CHK_ERR(mysql);
 	
 	
-	sqlupd=malloc(sizeof(char)*(strlen(DEL_DOWNTIME)+20));
-	sprintf(sqlupd, DEL_DOWNTIME, downtime_id);
+	
+	asprintf(&sqlupd, DEL_DOWNTIME, downtime_id);
 	
 	//Log("dbg", sqlupd);
 	
@@ -412,8 +408,8 @@ int DowntimeChangeId(int from, int to, char * config) {
       		CHK_ERR(mysql);
 	
 	
-	sqlupd=malloc(sizeof(char)*(strlen(DOWNTIME_CHANGE_ID)+40));
-	sprintf(sqlupd, DOWNTIME_CHANGE_ID, to, from);
+	
+	asprintf(&sqlupd, DOWNTIME_CHANGE_ID, to, from);
 	
 	
 	
@@ -452,8 +448,8 @@ int WorkerChangeId(int from, int to, char * config) {
       		CHK_ERR(mysql);
 	
 	
-	sqlupd=malloc(sizeof(char)*(strlen(WORKER_CHANGE_ID)+40));
-	sprintf(sqlupd, WORKER_CHANGE_ID, to, from);
+	
+	asprintf(&sqlupd, WORKER_CHANGE_ID, to, from);
 	
 	
 	
@@ -492,8 +488,8 @@ int ServiceChangeId(int from, int to, char * config) {
       		CHK_ERR(mysql);
 	
 	
-	sqlupd=malloc(sizeof(char)*(strlen(SERVICE_CHANGE_ID)+40));
-	sprintf(sqlupd, SERVICE_CHANGE_ID, to, from);
+	
+	asprintf(&sqlupd, SERVICE_CHANGE_ID, to, from);
 	
 	
 	
@@ -532,8 +528,8 @@ int ServerChangeId(int from, int to, int sr, char * config) {
       		CHK_ERR(mysql);
 	
 	
-	sqlupd=malloc(sizeof(char)*(strlen(SERVER_CHANGE_ID)+40));
-	sprintf(sqlupd, SERVER_CHANGE_ID, to, from);
+	
+	asprintf(&sqlupd, SERVER_CHANGE_ID, to, from);
 	
 	
 	
@@ -544,8 +540,8 @@ int ServerChangeId(int from, int to, int sr, char * config) {
 	
 	if(sr == 1) {
 		
-		sqlupd=malloc(sizeof(char)*(strlen(SERVER_CHANGE_SERVICES)+40));
-		sprintf(sqlupd, SERVER_CHANGE_SERVICES, to,from);
+		
+		asprintf(&sqlupd, SERVER_CHANGE_SERVICES, to,from);
 		mysql_query(mysql, sqlupd);
 			CHK_ERR(mysql);
 		free(sqlupd);	
@@ -582,8 +578,8 @@ int AddDowntime(struct downtime * svc, char *config) {
       		CHK_ERR(mysql);
 	
 	
-	sqlupd=malloc(sizeof(char)*(strlen(ADD_DOWNTIME)+sizeof(struct downtime)+40));
-	sprintf(sqlupd, ADD_DOWNTIME, svc->downtime_type, svc->downtime_from, svc->downtime_to, svc->service_id, svc->downtime_notice);
+	
+	asprintf(&sqlupd, ADD_DOWNTIME, svc->downtime_type, svc->downtime_from, svc->downtime_to, svc->service_id, svc->downtime_notice);
 	
 	
 	
@@ -735,8 +731,8 @@ int GetWorkerById(int worker_id, struct worker * svc, char * config) {
       	mysql_select_db(mysql, mysql_db);
       		CHK_ERR(mysql);
 	
-	sqlupd=malloc(sizeof(char)*(strlen(WORKER_SEL)+sizeof(struct worker)+200));
-	sprintf(sqlupd, WORKER_SEL, worker_id);
+	
+	asprintf(&sqlupd, WORKER_SEL, worker_id);
 	
 	
 	mysql_query(mysql, sqlupd);
@@ -853,8 +849,8 @@ int UpdateWorker(struct worker * svc, char *config) {
       		CHK_ERR(mysql);
 	
 	
-	sqlupd=malloc(sizeof(char)*(strlen(UPDATE_WORKER)+sizeof(struct worker)+200));
-	sprintf(sqlupd, UPDATE_WORKER, svc->mail, svc->icq, svc->notify_levels, svc->active, svc->name,svc->password,svc->enabled_triggers,svc->escalation_limit, svc->escalation_minutes, svc->notify_plan,svc->services, svc->worker_id);
+	
+	asprintf(&sqlupd, UPDATE_WORKER, svc->mail, svc->icq, svc->notify_levels, svc->active, svc->name,svc->password,svc->enabled_triggers,svc->escalation_limit, svc->escalation_minutes, svc->notify_plan,svc->services, svc->worker_id);
 	
 	
 	
@@ -901,8 +897,8 @@ int DeleteWorker(int worker_id, char * config) {
       		CHK_ERR(mysql);
 	
 	
-	sqlupd=malloc(sizeof(char)*(strlen(DELETE_WORKER)+20));
-	sprintf(sqlupd, DELETE_WORKER, worker_id);
+	
+	asprintf(&sqlupd, DELETE_WORKER, worker_id);
 	
 	//Log("dbg", sqlupd);
 	
@@ -951,8 +947,8 @@ int AddWorker(struct worker * svc, char *config) {
       		CHK_ERR(mysql);
 	
 	
-	sqlupd=malloc(sizeof(char)*(strlen(ADD_WORKER)+sizeof(struct worker)+40));
-	sprintf(sqlupd, ADD_WORKER, svc->mail, svc->icq, svc->notify_levels, svc->active, svc->name, svc->password, svc->enabled_triggers, svc->escalation_limit, svc->escalation_minutes, svc->notify_plan);
+	
+	asprintf(&sqlupd, ADD_WORKER, svc->mail, svc->icq, svc->notify_levels, svc->active, svc->name, svc->password, svc->enabled_triggers, svc->escalation_limit, svc->escalation_minutes, svc->notify_plan);
 	
 	
 	
@@ -1001,8 +997,8 @@ int GetServiceById(int service_id, struct service * svc, char * config) {
       	mysql_select_db(mysql, mysql_db);
       		CHK_ERR(mysql);
 	
-	sqlupd=malloc(sizeof(char)*(strlen(SERVICE_SELECTOR)+20));
-	sprintf(sqlupd, SERVICE_SELECTOR, service_id);
+	
+	asprintf(&sqlupd, SERVICE_SELECTOR, service_id);
 	
 	
 	mysql_query(mysql, sqlupd);
@@ -1220,8 +1216,7 @@ int UpdateService(struct service * svc, char *config) {
 	
 	 */
 	 
-	sqlupd=malloc(sizeof(char)*(strlen(UPDATE_SERVICE)+sizeof(struct service)+20));
-	sprintf(sqlupd, UPDATE_SERVICE, 
+	asprintf(&sqlupd, UPDATE_SERVICE, 
 	svc->service_type, 
 	svc->service_name, 
 	svc->server_id,
@@ -1294,8 +1289,8 @@ int DeleteService(int service_id, char * config) {
       		CHK_ERR(mysql);
 	
 	
-	sqlupd=malloc(sizeof(char)*(strlen(DELETE_SERVICE)+20));
-	sprintf(sqlupd, DELETE_SERVICE, service_id);
+	
+	asprintf(&sqlupd, DELETE_SERVICE, service_id);
 	
 	//Log("dbg", sqlupd);
 	
@@ -1373,11 +1368,10 @@ int AddService(struct service * svc, char *config) {
 		
 	 */
 	 
-	sqlupd=malloc(sizeof(char)*(strlen(ADD_SERVICE)+sizeof(struct service)+20));
 	
 	
 	
-	sprintf(sqlupd, ADD_SERVICE, 
+	asprintf(&sqlupd, ADD_SERVICE, 
 	svc->server_id, 
 	svc->plugin, 
 	svc->service_name,
@@ -1450,8 +1444,7 @@ int GetServerById(int server_id, struct server * svc, char * config) {
       	mysql_select_db(mysql, mysql_db);
       		CHK_ERR(mysql);
 	
-	sqlupd=malloc(sizeof(char)*(strlen(SERVER_SELECTOR)+20));
-	sprintf(sqlupd, SERVER_SELECTOR, server_id);
+	asprintf(&sqlupd, SERVER_SELECTOR, server_id);
 	
 	
 	mysql_query(mysql, sqlupd);
@@ -1537,8 +1530,7 @@ int ModifyServer(struct server * svc, char *config) {
       		CHK_ERR(mysql);
 	
 	
-	sqlupd=malloc(sizeof(char)*(strlen(UPDATE_SERVER)+strlen(svc->server_name)+strlen(svc->client_ip)+20+strlen(svc->server_icon)));
-	sprintf(sqlupd, UPDATE_SERVER, svc->server_name, svc->client_ip, svc->client_port,svc->server_icon,svc->server_enabled, svc->server_notify, svc->server_flap_seconds,svc->server_dead, svc->server_id);
+	asprintf(&sqlupd, UPDATE_SERVER, svc->server_name, svc->client_ip, svc->client_port,svc->server_icon,svc->server_enabled, svc->server_notify, svc->server_flap_seconds,svc->server_dead, svc->server_id);
 	
 	//Log("dbg", sqlupd);
 	
@@ -1584,8 +1576,7 @@ int DeleteServer(int server_id, char * config) {
       		CHK_ERR(mysql);
 	
 	
-	sqlupd=malloc(sizeof(char)*(strlen(DELETE_SERVER)+20));
-	sprintf(sqlupd, DELETE_SERVER, server_id);
+	asprintf(&sqlupd, DELETE_SERVER, server_id);
 	
 	//Log("dbg", sqlupd);
 	
@@ -1597,8 +1588,7 @@ int DeleteServer(int server_id, char * config) {
 	
 	
 	//DELETE_SERVICE_BY_SERVER
-	sqlupd=malloc(sizeof(char)*(strlen(DELETE_SERVICE_BY_SERVER)+20));
-	sprintf(sqlupd, DELETE_SERVICE_BY_SERVER, server_id);
+	asprintf(&sqlupd, DELETE_SERVICE_BY_SERVER, server_id);
 	mysql_query(mysql, sqlupd);
 		CHK_ERR(mysql);
 	
@@ -1643,8 +1633,7 @@ int AddServer(struct server * svc, char *config) {
       		CHK_ERR(mysql);
 	
 	
-	sqlupd=malloc(sizeof(char)*(strlen(ADD_SERVER)+strlen(svc->server_name)+strlen(svc->client_ip)+20+strlen(svc->server_icon)));
-	sprintf(sqlupd, ADD_SERVER, svc->server_name, svc->client_ip, svc->client_port, svc->server_icon, svc->server_enabled, svc->server_notify, svc->server_flap_seconds, svc->server_dead);
+	asprintf(&sqlupd, ADD_SERVER, svc->server_name, svc->client_ip, svc->client_port, svc->server_icon, svc->server_enabled, svc->server_notify, svc->server_flap_seconds, svc->server_dead);
 	
 	//Log("dbg", sqlupd);
 	
@@ -1676,8 +1665,7 @@ char * GetAutor() {
 }
 char * GetVersion() {
 	char * vers;
-	vers = malloc(sizeof(char) * (strlen(DLVERSION)+strlen(MYSQL_SERVER_VERSION)+30));
-	sprintf(vers, "%s on %s", DLVERSION, MYSQL_SERVER_VERSION);
+	asprintf(&vers, "%s on %s", DLVERSION, MYSQL_SERVER_VERSION);
 	return vers;
 }
 
@@ -1705,10 +1693,9 @@ int doUpdateServer(struct server * svc, char * config) {
                 CHK_ERR(mysql);
 
 
-	sqlupd=malloc(sizeof(char) *(strlen(SERVER_UPDATE_TEXT)+sizeof(struct service)+255));
+	
 
-
-        sprintf(sqlupd, SERVER_UPDATE_TEXT, svc->server_enabled, svc->server_notify, svc->server_id);
+        asprintf(&sqlupd, SERVER_UPDATE_TEXT, svc->server_enabled, svc->server_notify, svc->server_id);
 
 
         mysql_query(mysql, sqlupd);
@@ -1749,9 +1736,8 @@ int doUpdate(struct service * svc, char * config) {
 	
 	service_mysql_safe(svc);
 	
-	sqlupd=malloc(sizeof(char) *(strlen(SERVICE_UPDATE_TEXT)+sizeof(struct service)+255));
 	
-	sprintf(sqlupd, SERVICE_UPDATE_TEXT, svc->last_check, svc->new_server_text, svc->current_state, svc->service_id);
+	asprintf(&sqlupd, SERVICE_UPDATE_TEXT, svc->last_check, svc->new_server_text, svc->current_state, svc->service_id);
 	
 	
 	mysql_query(mysql, sqlupd);
@@ -2239,8 +2225,7 @@ int ServerGroupChangeId(int from, int to, char * config) {
       		CHK_ERR(mysql);
 	
 	
-	sqlupd=malloc(sizeof(char)*(strlen(SERVERGROUP_CHANGE_ID)+40));
-	sprintf(sqlupd, SERVERGROUP_CHANGE_ID, to, from);
+	asprintf(&sqlupd, SERVERGROUP_CHANGE_ID, to, from);
 	
 	
 	
@@ -2377,8 +2362,7 @@ int AddServerGroup(struct servergroup * svc, char *config) {
       		CHK_ERR(mysql);
 	
 	
-	sqlupd=malloc(sizeof(char)*(strlen(ADD_SERVERGROUP)+sizeof(struct servergroup)+40));
-	sprintf(sqlupd, ADD_SERVERGROUP, svc->servergroup_name, svc->servergroup_notify, svc->servergroup_active, svc->servergroup_members);
+	asprintf(&sqlupd, ADD_SERVERGROUP, svc->servergroup_name, svc->servergroup_notify, svc->servergroup_active, svc->servergroup_members);
 	
 	
 	
@@ -2421,8 +2405,7 @@ int DeleteServerGroup(int servergroup_id, char * config) {
       		CHK_ERR(mysql);
 	
 	
-	sqlupd=malloc(sizeof(char)*(strlen(DEL_DOWNTIME)+20));
-	sprintf(sqlupd, DEL_SERVERGROUP, servergroup_id);
+	asprintf(&sqlupd, DEL_SERVERGROUP, servergroup_id);
 	
 	//Log("dbg", sqlupd);
 	
@@ -2469,8 +2452,7 @@ int UpdateServerGroup(struct servergroup * svc, char *config) {
 	
 	
 	
-	sqlupd=malloc(sizeof(char)*(strlen(UPDATE_SERVERGROUP)+sizeof(struct servergroup)+200));
-	sprintf(sqlupd, UPDATE_SERVERGROUP, svc->servergroup_name, svc->servergroup_notify, svc->servergroup_active, svc->servergroup_members, svc->servergroup_id);
+	asprintf(&sqlupd, UPDATE_SERVERGROUP, svc->servergroup_name, svc->servergroup_notify, svc->servergroup_active, svc->servergroup_members, svc->servergroup_id);
 	
 	
 	
@@ -2513,8 +2495,7 @@ int ServiceGroupChangeId(int from, int to, char * config) {
       		CHK_ERR(mysql);
 	
 	
-	sqlupd=malloc(sizeof(char)*(strlen(SERVICEGROUP_CHANGE_ID)+40));
-	sprintf(sqlupd, SERVICEGROUP_CHANGE_ID, to, from);
+	asprintf(&sqlupd, SERVICEGROUP_CHANGE_ID, to, from);
 	
 	
 	
@@ -2651,8 +2632,7 @@ int AddServiceGroup(struct servicegroup * svc, char *config) {
       		CHK_ERR(mysql);
 	
 	
-	sqlupd=malloc(sizeof(char)*(strlen(ADD_SERVICEGROUP)+sizeof(struct servicegroup)+40));
-	sprintf(sqlupd, ADD_SERVICEGROUP, svc->servicegroup_name, svc->servicegroup_notify, svc->servicegroup_active, svc->servicegroup_members);
+	asprintf(&sqlupd, ADD_SERVICEGROUP, svc->servicegroup_name, svc->servicegroup_notify, svc->servicegroup_active, svc->servicegroup_members);
 	
 	
 	
@@ -2695,8 +2675,7 @@ int DeleteServiceGroup(int servicegroup_id, char * config) {
       		CHK_ERR(mysql);
 	
 	
-	sqlupd=malloc(sizeof(char)*(strlen(DEL_DOWNTIME)+20));
-	sprintf(sqlupd, DEL_SERVICEGROUP, servicegroup_id);
+	asprintf(&sqlupd, DEL_SERVICEGROUP, servicegroup_id);
 	
 	//Log("dbg", sqlupd);
 	
@@ -2743,8 +2722,7 @@ int UpdateServiceGroup(struct servicegroup * svc, char *config) {
 	
 	
 	
-	sqlupd=malloc(sizeof(char)*(strlen(UPDATE_SERVICEGROUP)+sizeof(struct servicegroup)+200));
-	sprintf(sqlupd, UPDATE_SERVICEGROUP, svc->servicegroup_name, svc->servicegroup_notify, svc->servicegroup_active, svc->servicegroup_members, svc->servicegroup_id);
+	asprintf(&sqlupd, UPDATE_SERVICEGROUP, svc->servicegroup_name, svc->servicegroup_notify, svc->servicegroup_active, svc->servicegroup_members, svc->servicegroup_id);
 	
 	
 	

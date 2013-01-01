@@ -1,13 +1,69 @@
 #include "config.h"
 
 
+
+#include <arpa/inet.h>
+#include <ctype.h>
+#include <dirent.h>
+#include <dlfcn.h>
+#include <errno.h>
+#include <fcntl.h>
+#include <getopt.h>
+#include <netdb.h>
+#include <netinet/in.h>
+#include <pwd.h>
+#include <signal.h>
+#include <stdarg.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <strings.h>
+#include <sys/ipc.h>
+#include <sys/resource.h>
+#include <sys/shm.h>
+#include <sys/socket.h>
+#include <sys/stat.h>
+#include <sys/time.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <sys/wait.h>	
+#include <sys/wait.h>  
+#include <time.h>
+#include <unistd.h>
+#include <unistd.h>
+
+#include <mysql/mysql.h>
+
+
 /* BIT MORE PORTABLE :)*/
 #ifdef HAVE_MALLOC_H
 #include <malloc.h>
 #endif
+
+
+/* SIGCHLD fix for OSX*/
 #ifndef SIGCLD
 #define SIGCLD SIGCHLD
 #endif
+
+
+#ifdef HAVE_SSL 
+	#include <openssl/dh.h>
+	#include <openssl/ssl.h>
+	#include <openssl/err.h>
+	
+#endif
+#ifdef SNMP_ADDON
+#include <net-snmp/net-snmp-config.h>
+#include <net-snmp/net-snmp-includes.h>
+#endif
+
+
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE
+#endif
+
+
 
 
 

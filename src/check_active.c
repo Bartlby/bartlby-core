@@ -19,21 +19,7 @@ $HeadURL$
 $Date$
 $Author$ 
 */
-#include <stdio.h>
-#include <dlfcn.h>
-#include <stdlib.h>
-#include <netdb.h>
-#include <arpa/inet.h>
-#include <netinet/in.h>
-#include <sys/socket.h>
-#include <signal.h>
-#include <string.h>
-#include <time.h>
-#include <unistd.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <errno.h>
+
 
 #include <bartlby.h>
 
@@ -144,8 +130,7 @@ void bartlby_check_active(struct service * svc, char * cfgfile) {
 		SEND Request
 	*/
 	connection_timed_out=0;
-	client_request=malloc(sizeof(char)*(strlen(svc->plugin)+strlen(svc->plugin_arguments)+30));
-	sprintf(client_request, "%s| %s|", svc->plugin, svc->plugin_arguments);
+	asprintf(&client_request, "%s| %s|", svc->plugin, svc->plugin_arguments);
 	
 	//Encode it
 	bartlby_encode(client_request, strlen(client_request));

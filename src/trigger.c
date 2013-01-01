@@ -20,22 +20,6 @@ $Date$
 $Author$ 
 */
 
-#include <stdio.h>
-#include <dlfcn.h>
-#include <stdlib.h>
-#include <netdb.h>
-#include <errno.h>
-#include <arpa/inet.h>
-#include <netinet/in.h>
-#include <sys/socket.h>
-#include <signal.h>
-#include <string.h>
-#include <time.h>
-#include <unistd.h>
-#include <dirent.h>
-#include <sys/stat.h>
-
-
 
 #include <bartlby.h>
 
@@ -63,11 +47,9 @@ int bartlby_trigger_worker_level(struct worker * w,  struct service * svc) {
 	last  = svc->notify_last_state;
 	
 	blevel=bartlby_beauty_state(level);
-	find_level=malloc(10+2);
-	last_level=malloc(10+2);
 	
-	sprintf(last_level, "|%d|", last);
-	sprintf(find_level, "|%d|",level);
+	asprintf(&last_level, "|%d|", last);
+	asprintf(&find_level, "|%d|",level);
 	if(strstr(w->notify_levels, find_level) != NULL || strlen(w->notify_levels) == 0) {
 		if(level < last) {
 			//_log("@debug level:%d < last:%d", level, last);
@@ -196,9 +178,9 @@ int bartlby_worker_has_service(struct worker * w, struct service * svc, char * c
 		_log("variable 'ui_right_dir' unset wich should point to the right folder down in bartlby-ui");
 		return 1; // if any right reading problem OK -> for backcomp
 	}
-	user_dat = malloc(sizeof(char) * (strlen(uir) + 20 + strlen(".dat") + 2));
 	
-	sprintf(user_dat, "%s/%ld.dat", uir, w->worker_id);
+	
+	asprintf(&user_dat, "%s/%ld.dat", uir, w->worker_id);
 	free(uir);
 	
 	//_log("user_right_file: %s", user_dat);
@@ -226,11 +208,9 @@ int bartlby_worker_has_service(struct worker * w, struct service * svc, char * c
 	if(selected_servers == NULL) 
 		selected_servers=strdup("");
 	
-	find_server=malloc(sizeof(char)*20);
-	find_service=malloc(sizeof(char)*20);
 	
-	sprintf(find_server, ",%ld,", svc->server_id);
-	sprintf(find_service, ",%ld,", svc->service_id);
+	asprintf(&find_server, ",%ld,", svc->server_id);
+	asprintf(&find_service, ",%ld,", svc->service_id);
 	
 	
 	
@@ -315,7 +295,7 @@ void bartlby_trigger(struct service * svc, char * cfgfile, void * shm_addr, int 
 	char * exec_str;
 	FILE * ptrigger;
 	char * find_trigger;
-	char trigger_return[128];
+	char trigger_return[1024];
 	struct sigaction act1, oact1;
 	char * cfg_trigger_msg;
 	int notify_mem;
@@ -355,17 +335,13 @@ void bartlby_trigger(struct service * svc, char * cfgfile, void * shm_addr, int 
 	PROGNAME VERSION
 	SERVERN SERVICE CUR MSG
 	*/
-	find_str=malloc(10+2);
-	find_trigger=malloc(100+200);
 	
-	sprintf(find_str, "|%ld|", svc->service_id);
+	asprintf(&find_str, "|%ld|", svc->service_id);
 	cfg_trigger_msg=getConfigValue("trigger_msg", cfgfile);
 	if(cfg_trigger_msg == NULL) {
 		cfg_trigger_msg=strdup(DEFAULT_NOTIFY_MSG);	
 	}
-	notify_mem=(strlen(cfg_trigger_msg)+40+strlen(svc->service_name)+strlen(PROGNAME)+strlen(VERSION)+strlen(svc->srv->server_name)+strlen(svc->service_name)+40+strlen(svc->new_server_text));
-	notify_msg=malloc(sizeof(char)*notify_mem);
-	sprintf(notify_msg, "%s", cfg_trigger_msg);
+	asprintf(&notify_msg, "%s", cfg_trigger_msg);
 	//$VARS
 	
 	bartlby_replace_svc_in_str(notify_msg, svc, notify_mem);
@@ -388,9 +364,8 @@ void bartlby_trigger(struct service * svc, char * cfgfile, void * shm_addr, int 
 		return;	
 	}
 	while((entry = readdir(dtrigger)) != NULL) {
-		sprintf(find_trigger, "|%s|" , entry->d_name);
-		full_path=malloc(sizeof(char) * (strlen(entry->d_name)+strlen(trigger_dir)+2));
-		sprintf(full_path, "%s/%s", trigger_dir, entry->d_name);
+		asprintf(&find_trigger, "|%s|" , entry->d_name);
+		asprintf(&full_path, "%s/%s", trigger_dir, entry->d_name);
 		if(lstat(full_path, &finfo) < 0) {
 			_log("lstat() %s failed", full_path);
 			return;	
@@ -420,8 +395,7 @@ void bartlby_trigger(struct service * svc, char * cfgfile, void * shm_addr, int 
 							svc->last_notify_send=time(NULL);
 							svc->srv->last_notify_send=time(NULL);
 							wrkmap[x].escalation_time=time(NULL);
-							exec_str=malloc(sizeof(char)*(strlen(full_path)+strlen("\"\"\"\"                         ")+strlen(wrkmap[x].icq)+strlen(wrkmap[x].name)+strlen(notify_msg)+strlen(wrkmap[x].mail)));
-							sprintf(exec_str, "%s \"%s\" \"%s\" \"%s\" \"%s\"", full_path, wrkmap[x].mail,wrkmap[x].icq,wrkmap[x].name, notify_msg);
+							asprintf(&exec_str, "%s \"%s\" \"%s\" \"%s\" \"%s\"", full_path, wrkmap[x].mail,wrkmap[x].icq,wrkmap[x].name, notify_msg);
 							ptrigger=popen(exec_str, "r");
 							if(ptrigger != NULL) {
 								connection_timed_out=0;

@@ -20,16 +20,7 @@ $Date$
 $Author$ 
 */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <stdarg.h>
-#include <time.h>
-#include <sys/types.h>
-#include <unistd.h>
-#include <sys/stat.h>
-#include <sys/time.h>
-#include <signal.h>
+
 
 
 #include <bartlby.h>
@@ -109,13 +100,12 @@ void bartlby_perf_track(struct service * svc,char * return_buffer, int return_by
 	
 	cfg_perf_dir=getConfigValue("performance_dir", cfgfile);
 	if(cfg_perf_dir != NULL) {
-		perf_trigger = malloc(sizeof(char) * (strlen(cfg_perf_dir)+50+strlen(svc->plugin)+return_bytes+50));
-		sprintf(perf_trigger, "%s/%s", cfg_perf_dir, svc->plugin);
+		asprintf(&perf_trigger, "%s/%s", cfg_perf_dir, svc->plugin);
 		if(stat(perf_trigger, &perf_s) < 0) {
 			_log("Performance Trigger: %s not found", perf_trigger);	
 		} else {
-			
-			sprintf(perf_trigger, "%s/%s %ld %s 2>&1 > /dev/null", cfg_perf_dir, svc->plugin, svc->service_id, return_buffer);
+			free(perf_trigger);
+			asprintf(&perf_trigger, "%s/%s %ld %s 2>&1 > /dev/null", cfg_perf_dir, svc->plugin, svc->service_id, return_buffer);
 			signal(SIGPIPE,SIG_DFL);
 			signal(SIGCHLD,SIG_DFL);
 			gettimeofday(&stat_start,NULL);
@@ -123,7 +113,7 @@ void bartlby_perf_track(struct service * svc,char * return_buffer, int return_by
 			
 			phandler=popen(perf_trigger, "r");
 			if(phandler != NULL) {
-				fgets(dummy_buffer, 1024, phandler);
+				fgets(dummy_buffer, 1024, phandler); //FIXME what todo?
 				pclose(phandler);	
 				
 			} else {

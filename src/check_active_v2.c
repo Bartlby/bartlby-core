@@ -21,31 +21,15 @@ $Author$
 */
 
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <signal.h>
-#include <unistd.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <strings.h>
-#include <netdb.h>
-#include <ctype.h>
-#include <string.h>
-#include <errno.h>
-#include <arpa/inet.h>
-#include <time.h>
-#include <fcntl.h>
 
 
-#ifdef HAVE_SSL 
-	#include <openssl/dh.h>
-	#include <openssl/ssl.h>
-	#include <openssl/err.h>
-	#include <bartlby_v2_dh.h>
-#endif
+
 
 #include <bartlby.h>
 
+#ifdef HAVE_SSL
+#include <bartlby_v2_dh.h>
+#endif
 
 
 static sig_atomic_t conn_timedout = 0;

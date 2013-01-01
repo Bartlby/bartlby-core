@@ -20,29 +20,10 @@ $Date$
 $Author$ 
 */
 
-#include <errno.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
-#include <string.h>
-#include <sys/ipc.h>
-#include <sys/shm.h>
-#include <sys/wait.h>	
-#include <unistd.h>	
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <pwd.h>
-#include <getopt.h>
-
-#include <dlfcn.h>
 
 
-#ifdef HAVE_SSL 
-	#include <openssl/dh.h>
-	#include <openssl/ssl.h>
-	#include <openssl/err.h>
-	
-#endif
+
+
 
 #include <bartlby.h>
 

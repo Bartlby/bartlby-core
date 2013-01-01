@@ -20,9 +20,7 @@ $Date$
 $Author$ 
 */
 
-#include <string.h>
-#include <stdlib.h>
-#include <stdio.h>
+
 
 
 #include <bartlby.h>
@@ -94,8 +92,8 @@ void bartlby_SHM_link_services_servers(void * shm_addr, char * cfgfile) {
 	for(y=0; y<hdr->srvgroupcount; y++) {
 		//_log("SRV-GROUP NAME: %s", srvgrpmap[y].servergroup_name);
 		for(x=0; x<hdr->srvcount; x++) {
-			group_has_server = malloc(sizeof(char)*8);
-			sprintf(group_has_server, "|%ld|", srvmap[x].server_id);
+			
+			asprintf(&group_has_server, "|%ld|", srvmap[x].server_id);
 			
 			if(strstr(srvgrpmap[y].servergroup_members, group_has_server) != NULL) {
 				
@@ -115,8 +113,8 @@ void bartlby_SHM_link_services_servers(void * shm_addr, char * cfgfile) {
 	for(y=0; y<hdr->svcgroupcount; y++) {
 		//_log("SVC-GROUP NAME: %s", svcgrpmap[y].servicegroup_name);
 		for(x=0; x<hdr->svccount; x++) {
-			group_has_service = malloc(sizeof(char)*8);
-			sprintf(group_has_server, "|%ld|", svcmap[x].service_id);
+			
+			asprintf(&group_has_service, "|%ld|", svcmap[x].service_id);
 			
 			if(strstr(svcgrpmap[y].servicegroup_members, group_has_service) != NULL) {
 				
