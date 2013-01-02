@@ -70,7 +70,6 @@ void bartlby_perf_track(struct service * svc,char * return_buffer, int return_by
 	
 	FILE * phandler;
 	char dummy_buffer[1024];
-			
 	
 	
 	//signal(SIGCHLD, SIG_IGN);
@@ -113,7 +112,9 @@ void bartlby_perf_track(struct service * svc,char * return_buffer, int return_by
 			
 			phandler=popen(perf_trigger, "r");
 			if(phandler != NULL) {
-				fgets(dummy_buffer, 1024, phandler); //FIXME what todo?
+				if(fgets(dummy_buffer, 1024, phandler) == NULL) { 
+					_log("Performance Trigger: %s fgets failed", perf_trigger);	
+				}
 				pclose(phandler);	
 				
 			} else {
