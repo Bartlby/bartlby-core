@@ -131,7 +131,7 @@ AC_SUBST(MYSQL_USER)
 
 dnl check for mysql password 
 
-AC_ARG_WITH(mysql-password,AC_HELP_STRING([--with-mysql-password], [Mysql password]), MYSQL_PASS="$withval", MYSQL_PASS="xxx")
+AC_ARG_WITH(mysql-password,AC_HELP_STRING([--with-mysql-password], [Mysql password]), MYSQL_PASS="$withval", MYSQL_PASS="")
 AC_SUBST(MYSQL_PASS)
 
 dnl check for mysql host

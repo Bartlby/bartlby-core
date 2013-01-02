@@ -2,5 +2,6 @@ before_script:
     # Compile PHP
     - ./travis/compile.sh
 
-script: ./bartlby -v
+script: 
+ - ./travis/build_check.sh
 
