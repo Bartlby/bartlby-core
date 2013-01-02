@@ -134,7 +134,7 @@ void bartlby_check_nrpe(struct service * svc, char * cfgfile, int use_ssl) {
 	char query[MAX_INPUT_BUFFER]="";
 	
 	#ifdef HAVE_SSL
-	SSL_METHOD *meth;
+	
 	SSL_CTX *ctx;
 	SSL *ssl;
 	#endif
@@ -157,9 +157,9 @@ void bartlby_check_nrpe(struct service * svc, char * cfgfile, int use_ssl) {
         if(use_ssl==TRUE){
                 SSL_library_init();
                 SSLeay_add_ssl_algorithms();
-                meth=SSLv23_client_method();
+                
                 SSL_load_error_strings();
-                if((ctx=SSL_CTX_new(meth))==NULL){
+                if((ctx=SSL_CTX_new(SSLv23_client_method()))==NULL){
                         sprintf(svc->new_server_text, "%s", "CHECK_NRPE: Error - could not create SSL context.\n");
                         svc->current_state=STATE_CRITICAL;
                         }

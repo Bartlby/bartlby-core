@@ -51,7 +51,6 @@ void bartlby_check_v2(struct service * svc, char * cfgfile, int use_ssl) {
 	int sd;
 	
 #ifdef HAVE_SSL 
-	SSL_METHOD *meth;
 	SSL_CTX *ctx;
 	SSL *ssl;
 #endif     
@@ -71,8 +70,8 @@ void bartlby_check_v2(struct service * svc, char * cfgfile, int use_ssl) {
 #ifdef HAVE_SSL
 	if(use_ssl == 1) {
 		
-		meth=SSLv23_client_method();
-       	if((ctx=SSL_CTX_new(meth))==NULL){
+		
+    if((ctx=SSL_CTX_new(SSLv23_client_method()))==NULL){
 			sprintf(svc->new_server_text, "%s", "AgentV2: Error - could not create SSL context.");
        		svc->current_state=STATE_CRITICAL;
        		_log("%s", ERR_error_string(ERR_get_error(), NULL));
