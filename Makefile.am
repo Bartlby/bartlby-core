@@ -3,8 +3,12 @@ ACLOCAL_AMFLAGS = ${ACLOCAL_FLAGS}
 
 noinst_HEADERS = include/bartlby.h
 
+
+EXTRA_DIST = src
+
+
 bin_PROGRAMS = bartlby bartlby_shmt bartlby_portier
-bartlby_SOURCES = src/bartlby.c src/config.c src/global.c src/sched.c src/shm.c src/check.c src/trigger.c src/daemon.c src/replication.c src/perf.c src/downtime.c src/ack.c src/event.c src/snmp.c src/ src/ext.c src/check_active_v2.c src/check_active.c src/check_local.c src/check_group.c src/check_nrpe.c
+nodist_bartlby_SOURCES = src/bartlby.c src/config.c src/global.c src/sched.c src/shm.c src/check.c src/trigger.c src/daemon.c src/replication.c src/perf.c src/downtime.c src/ack.c src/event.c src/snmp.c src/ src/ext.c src/check_active_v2.c src/check_active.c src/check_local.c src/check_group.c src/check_nrpe.c
 
 
 bartlby_LDADD = -ldl $(OPENSSL_FLAG) $(SNMP_FLAG)
@@ -13,16 +17,16 @@ bartlby_CFLAGS = $(AM_CFLAGS)  $(NRPE_ADDON) $(OPENSSL_ADDON)  $(SNMP_ADDON)
 
 
 
-bartlby_shmt_SOURCES = src/shm.c src/config.c src/global.c src/tools/shmt.c
+nodist_bartlby_shmt_SOURCES = src/shm.c src/config.c src/global.c src/tools/shmt.c
 bartlby_shmt_LDADD = -ldl $(OPENSSL_FLAG) $(SNMP_FLAG)
 bartlby_shmt_CFLAGS = $(AM_CFLAGS) $(NRPE_ADDON) $(SSL_ADDON)  $(SNMP_ADDON)
 
-bartlby_portier_SOURCES =  src/config.c src/global.c src/shm.c src/perf.c src/ext.c src/tools/portier.c
+nodist_bartlby_portier_SOURCES =  src/config.c src/global.c src/shm.c src/perf.c src/ext.c src/tools/portier.c
 bartlby_portier_LDADD = -ldl $(OPENSSL_FLAG) $(SNMP_FLAG)
 bartlby_portier_CFLAGS = $(AM_CFLAGS) $(NRPE_ADDON) $(SSL_ADDON) $(SNMP_ADDON)
 
 lib_LTLIBRARIES = libmysql.la
-libmysql_la_SOURCES = src/global.c src/config.c src/libs/mysql.c 
+nodist_libmysql_la_SOURCES = src/global.c src/config.c src/libs/mysql.c 
 libmysql_la_LIBADD = $(LIB_MYSQL)  
 libmysql_la_LDFLAGS = -avoid-version -modules
 
@@ -44,8 +48,8 @@ dist_trigger_DATA=trigger/icq.sh trigger/jabber.sh trigger/mail.sh trigger/push.
 mysqldir=$(prefix)
 dist_mysql_DATA=mysql.shema
 
-startupdir=$(prefix)/etc
-dist_startup_DATA=bartlby.startup
+inst_startupdir=$(prefix)/etc
+nodist_inst_startup_DATA=bartlby.startup
 
 cfgdir=$(prefix)/etc
 dist_noinst_cfg=bartlby.cfg
@@ -76,6 +80,10 @@ install-data-hook:
 	 chmod +x $(DESTDIR)$(prefix)/etc/bartlby.startup
 	 
 dist-hook:
-	rm -rf $(distdir)/src/src
+	make clean
+	rm -rf `find $(distdir) -type f -name \*.o -print` 
+	rm -rf `find $(distdir) -type f -name \*.dirstamp -print` 
+	rm -rf `find $(distdir) -type d -name .deps -print` 
+	rm -rf `find $(distdir) -type d -name .libs -print` 
 
 dist_noinst_SCRIPTS = autogen.sh
