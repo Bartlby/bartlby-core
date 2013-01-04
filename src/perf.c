@@ -113,7 +113,9 @@ void bartlby_perf_track(struct service * svc,char * return_buffer, int return_by
 			phandler=popen(perf_trigger, "r");
 			if(phandler != NULL) {
 				if(fgets(dummy_buffer, 1024, phandler) == NULL) { 
-					_log("Performance Trigger: %s fgets failed", perf_trigger);	
+					if(!feof(phandler)) {
+						_log("Performance Trigger: %s fgets failed (%s)", perf_trigger, strerror(errno));	
+					}
 				}
 				pclose(phandler);	
 				
