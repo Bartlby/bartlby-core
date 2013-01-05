@@ -25,10 +25,10 @@ nodist_bartlby_portier_SOURCES =  src/config.c src/global.c src/shm.c src/perf.c
 bartlby_portier_LDADD = -ldl $(OPENSSL_FLAG) $(SNMP_FLAG)
 bartlby_portier_CFLAGS = $(AM_CFLAGS) $(NRPE_ADDON) $(SSL_ADDON) $(SNMP_ADDON)
 
-lib_LTLIBRARIES = libmysql.la
-nodist_libmysql_la_SOURCES = src/global.c src/config.c src/libs/mysql.c 
-libmysql_la_LIBADD = $(LIB_MYSQL)  
-libmysql_la_LDFLAGS = -avoid-version -modules
+lib_LTLIBRARIES = mysql.la
+nodist_mysql_la_SOURCES = src/global.c src/config.c src/libs/mysql.c 
+mysql_la_LIBADD = $(LIB_MYSQL)  
+mysql_la_LDFLAGS = -avoid-version -module
 
 #perfhandler
 perfhandlerdir=$(prefix)/perf
