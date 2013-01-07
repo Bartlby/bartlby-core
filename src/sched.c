@@ -260,6 +260,15 @@ int sched_is_server_dead(struct service * svc) {
 				rt = -1;	
 				break;
 			}
+			//If the Dead marker is not active break out!
+			if(dm->service_active == 0) {
+				rt = -1;
+				break;
+			}
+			if(dm->srv->server_enabled == 0){
+				rt = -1;
+				break;
+			}
 						
 			//if the next server has a dead marker and is not itself, fetch next
 			if(dm->srv->server_dead != 0 && dm->service_id != dm->srv->server_dead) {
@@ -316,6 +325,111 @@ int sched_servicegroup_notify(struct service * svc) {
 		return 1;	
 }
 
+int sched_servicegroup_dead(struct service * svc) {
+	//Check if service group is enabled to run checks
+	struct service * svc_to_check;
+	int x;
+		//Check if service group is enabled to run checks
+		if(svc->servicegroup_counter == 0) {
+				///service is not member of a group
+				return 1;
+		}
+		//Loop Threw service Groups
+		for(x=0; x<svc->servicegroup_counter; x++) {
+			svc_to_check = svc->servicegroups[x]->dead_marker;
+			
+			if(svc_to_check == NULL) continue;
+				
+			if(svc_to_check->service_active == 0) {
+				//Check if dead marker is active
+				return 0;
+			}
+			if(sched_is_server_dead(svc_to_check)<0) {
+				//Check if dead marker's server is alive
+				return 0;				
+			}
+			if(sched_servicegroup_active(svc_to_check) == 0) {
+				return 0;
+			}
+			if(sched_servergroup_active(svc_to_check->srv) == 0) {
+				return 0;
+			}
+			if(sched_servergroup_dead(svc_to_check->srv) == 0) {
+					return 0;
+			}
+			if(sched_servicegroup_dead(svc_to_check) == 0) {
+					return 0;
+			}
+			if(svc_to_check->srv->server_enabled == 0) {
+				return 0;
+			}
+			if(svc_to_check->current_state == STATE_CRITICAL && svc_to_check->service_retain_current >= svc_to_check->service_retain) {
+				//Check if dead marker is alive :)
+				return 0;	
+			}
+			
+			
+			
+			
+			
+		}
+		
+		return 1;	
+	
+}
+
+int sched_servergroup_dead(struct server * srv) {
+		//Check if servergroup group is enabled to run checks
+		struct service * svc_to_check;
+		int x;
+		//Check if service group is enabled to run checks
+		if(srv->servergroup_counter == 0) {
+				///service is not member of a group
+				return 1;
+		}
+		//Loop Threw service Groups
+		for(x=0; x<srv->servergroup_counter; x++) {
+			svc_to_check = srv->servergroups[x]->dead_marker;
+			
+			if(svc_to_check == NULL) continue;
+				
+			if(svc_to_check->service_active == 0) {
+				//Check if dead marker is active
+				return 0;
+			}
+			if(sched_is_server_dead(svc_to_check)<0) {
+				//Check if dead marker's server is alive
+				return 0;				
+			}
+			if(sched_servicegroup_active(svc_to_check) == 0) {
+				return 0;
+			}
+			if(sched_servergroup_active(svc_to_check->srv) == 0) {
+				return 0;
+			}
+			if(sched_servergroup_dead(svc_to_check->srv) == 0) {
+					return 0;
+			}
+			if(sched_servicegroup_dead(svc_to_check) == 0) {
+					return 0;
+			}
+			if(svc_to_check->srv->server_enabled == 0) {
+				return 0;
+			}
+			if(svc_to_check->current_state == STATE_CRITICAL && svc_to_check->service_retain_current >= svc_to_check->service_retain) {
+				//Check if dead marker is alive :)
+				return 0;	
+			}
+			
+			
+			
+			
+			
+		}
+		
+		return 1;	
+		
+}
 
 
 int sched_servergroup_active(struct server * srv) {
@@ -441,6 +555,8 @@ scheduler flow:
 		server is enabled
 		servergroup is enabled
 		servicegroup is enabled
+		servergroup alifemarker dead
+		servicegroup alifemarker dead
 
 
 if any of these chain members does not match - service lcheck (for next round difF) gets updated and check will not be done		
@@ -492,6 +608,18 @@ if any of these chain members does not match - service lcheck (for next round di
 					sched_reschedule(svc);
 				  return -1;
 				}
+				//Check if Groups are dead
+				if(sched_servicegroup_dead(svc) == 0) {
+					//Servicegroup is dead
+					sched_reschedule(svc);
+				  return -1;
+				}
+				if(sched_servergroup_dead(svc->srv) == 0) {
+					//servergroup is dead
+					sched_reschedule(svc);
+				  return -1;
+				}
+				
 				
 		
 				if(svc->process.pid == 0) {

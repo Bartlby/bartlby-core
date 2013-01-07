@@ -117,6 +117,7 @@ CREATE TABLE `servicegroups` (
   `servicegroup_notify` int(2) NOT NULL default '0',
   `servicegroup_active` int(2) NOT NULL default '1',
   `servicegroup_members` text NOT NULL default '',
+  `servicegroup_dead` int(11) NOT NULL default '0',
   PRIMARY KEY  (`servicegroup_id`)
 )  ;
 CREATE TABLE `servergroups` (
@@ -125,6 +126,7 @@ CREATE TABLE `servergroups` (
   `servergroup_notify` int(2) NOT NULL default '0',
   `servergroup_active` int(2) NOT NULL default '1',
   `servergroup_members` text NOT NULL default '',
+  `servergroup_dead` int(11) NOT NULL default '0',
   PRIMARY KEY  (`servergroup_id`)
 )  ;
 
