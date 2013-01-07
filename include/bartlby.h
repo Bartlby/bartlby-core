@@ -35,6 +35,14 @@
 #include <mysql/mysql.h>
 
 
+/* DEBUGGING */
+
+#define HAVE_DEBUG 1
+#define _debug(...) if(HAVE_DEBUG==1) { _log(__VA_ARGS__); }
+
+
+
+
 /* BIT MORE PORTABLE :)*/
 #ifdef HAVE_MALLOC_H
 #include <malloc.h>
@@ -170,9 +178,6 @@
         	exit(1); \
     	}
 
-#define HAVE_DEBUG 1
-
-#define _debug(...) if(HAVE_DEBUG==1) { _log(__VA_ARGS__); }
 
 
 
