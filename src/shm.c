@@ -130,6 +130,36 @@ void bartlby_SHM_link_services_servers(void * shm_addr, char * cfgfile) {
 	}
 	
 	
+	//Link Group DeadMarkers
+	for(y=0; y<hdr->svcgroupcount; y++) {
+		marker_found=0;
+		for(x=0; x<hdr->svccount; x++) {
+			if(svcmap[x].service_id == svcgrpmap[y].servicegroup_dead) {
+				marker_found=1;
+				svcgrpmap[y].dead_marker=&svcmap[x];
+			}
+		}
+		if(marker_found == 0 && svcgrpmap[y].servicegroup_dead != 0) {
+			_log("Service assigned as a alive-marker for service-group  %d not found service_id: %d", svcgrpmap[y].servicegroup_id, svcgrpmap[y].servicegroup_dead);	
+		}
+		
+	}
+	
+	for(y=0; y<hdr->srvgroupcount; y++) {
+		marker_found=0;
+		for(x=0; x<hdr->svccount; x++) {
+			if(svcmap[x].service_id == srvgrpmap[y].servergroup_dead) {
+				marker_found=1;
+				srvgrpmap[y].dead_marker=&svcmap[x];
+			}
+		}
+		if(marker_found == 0 && srvgrpmap[y].servergroup_dead != 0) {
+			_log("Service assigned as a alive-marker for server-group  %d not found service_id: %d", srvgrpmap[y].servergroup_id, srvgrpmap[y].servergroup_dead);	
+		}
+		
+	}
+	
+	
 	_log("linked services with servers!");
 	
 }

@@ -96,17 +96,17 @@ $Author$
 
 
 
-#define UPDATE_SERVERGROUP "update servergroups set servergroup_name='%s', servergroup_notify=%d,servergroup_active=%d, servergroup_members='%s' where servergroup_id=%ld"
+#define UPDATE_SERVERGROUP "update servergroups set servergroup_name='%s', servergroup_notify=%d,servergroup_active=%d, servergroup_members='%s', servergroup_dead=%d where servergroup_id=%ld"
 #define DEL_SERVERGROUP "delete from servergroups where servergroup_id=%d"
-#define ADD_SERVERGROUP "INSERT INTO servergroups(servergroup_name, servergroup_notify,servergroup_active,servergroup_members) VALUES('%s', %d,%d,'%s')"
-#define SERVERGROUP_SEL "select servergroup_id, servergroup_name, servergroup_notify, servergroup_active, servergroup_members from servergroups"
+#define ADD_SERVERGROUP "INSERT INTO servergroups(servergroup_name, servergroup_notify,servergroup_active,servergroup_members, servergroup_dead) VALUES('%s', %d,%d,'%s', %d)"
+#define SERVERGROUP_SEL "select servergroup_id, servergroup_name, servergroup_notify, servergroup_active, servergroup_members, servergroup_dead from servergroups"
 #define SERVERGROUP_CHANGE_ID "update servergroups set servergroup_id=%d where servergroup_id=%d"
 
 
-#define UPDATE_SERVICEGROUP "update servicegroups set servicegroup_name='%s', servicegroup_notify=%d,servicegroup_active=%d, servicegroup_members='%s' where servicegroup_id=%ld"
+#define UPDATE_SERVICEGROUP "update servicegroups set servicegroup_name='%s', servicegroup_notify=%d,servicegroup_active=%d, servicegroup_members='%s', servicegroup_dead=%d where servicegroup_id=%ld"
 #define DEL_SERVICEGROUP "delete from servicegroups where servicegroup_id=%d"
-#define ADD_SERVICEGROUP "INSERT INTO servicegroups(servicegroup_name, servicegroup_notify,servicegroup_active,servicegroup_members) VALUES('%s', %d,%d,'%s')"
-#define SERVICEGROUP_SEL "select servicegroup_id, servicegroup_name, servicegroup_notify, servicegroup_active, servicegroup_members from servicegroups"
+#define ADD_SERVICEGROUP "INSERT INTO servicegroups(servicegroup_name, servicegroup_notify,servicegroup_active,servicegroup_members, servicegroup_dead) VALUES('%s', %d,%d,'%s', %d)"
+#define SERVICEGROUP_SEL "select servicegroup_id, servicegroup_name, servicegroup_notify, servicegroup_active, servicegroup_members, servicegroup_dead from servicegroups"
 #define SERVICEGROUP_CHANGE_ID "update servicegroups set servicegroup_id=%d where servicegroup_id=%d"
 
 
@@ -2309,7 +2309,11 @@ int GetServerGroupMap(struct servergroup * svcs, char * config) {
       			} else {
       				sprintf(svcs[i].servergroup_members, "(null)");     				
       			}
-      			
+						if(row[5] != NULL) {
+      				svcs[i].servergroup_dead = atoi(row[5]);
+      			} else{
+      				svcs[i].servergroup_dead = 0;
+      			}
       			
       			
 		
@@ -2362,7 +2366,7 @@ int AddServerGroup(struct servergroup * svc, char *config) {
       		CHK_ERR(mysql);
 	
 	
-	asprintf(&sqlupd, ADD_SERVERGROUP, svc->servergroup_name, svc->servergroup_notify, svc->servergroup_active, svc->servergroup_members);
+	asprintf(&sqlupd, ADD_SERVERGROUP, svc->servergroup_name, svc->servergroup_notify, svc->servergroup_active, svc->servergroup_members, svc->servergroup_dead);
 	
 	
 	
@@ -2452,7 +2456,7 @@ int UpdateServerGroup(struct servergroup * svc, char *config) {
 	
 	
 	
-	asprintf(&sqlupd, UPDATE_SERVERGROUP, svc->servergroup_name, svc->servergroup_notify, svc->servergroup_active, svc->servergroup_members, svc->servergroup_id);
+	asprintf(&sqlupd, UPDATE_SERVERGROUP, svc->servergroup_name, svc->servergroup_notify, svc->servergroup_active, svc->servergroup_members,svc->servergroup_dead, svc->servergroup_id);
 	
 	
 	
@@ -2580,6 +2584,12 @@ int GetServiceGroupMap(struct servicegroup * svcs, char * config) {
       				sprintf(svcs[i].servicegroup_members, "(null)");     				
       			}
       			
+      			if(row[5] != NULL) {
+      				svcs[i].servicegroup_dead = atoi(row[5]);
+      			} else{
+      				svcs[i].servicegroup_dead = 0;
+      			}
+      			
       			
       			
 		
@@ -2632,7 +2642,7 @@ int AddServiceGroup(struct servicegroup * svc, char *config) {
       		CHK_ERR(mysql);
 	
 	
-	asprintf(&sqlupd, ADD_SERVICEGROUP, svc->servicegroup_name, svc->servicegroup_notify, svc->servicegroup_active, svc->servicegroup_members);
+	asprintf(&sqlupd, ADD_SERVICEGROUP, svc->servicegroup_name, svc->servicegroup_notify, svc->servicegroup_active, svc->servicegroup_members, svc->servicegroup_dead);
 	
 	
 	
@@ -2722,7 +2732,7 @@ int UpdateServiceGroup(struct servicegroup * svc, char *config) {
 	
 	
 	
-	asprintf(&sqlupd, UPDATE_SERVICEGROUP, svc->servicegroup_name, svc->servicegroup_notify, svc->servicegroup_active, svc->servicegroup_members, svc->servicegroup_id);
+	asprintf(&sqlupd, UPDATE_SERVICEGROUP, svc->servicegroup_name, svc->servicegroup_notify, svc->servicegroup_active, svc->servicegroup_members,svc->servicegroup_dead, svc->servicegroup_id);
 	
 	
 	
