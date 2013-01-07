@@ -336,6 +336,9 @@ struct servicegroup {
 	int servicegroup_active;
 	char servicegroup_members[1024];
 	
+	int servicegroup_dead;
+	struct service * dead_marker;
+	
 };
 
 struct servergroup {
@@ -344,7 +347,8 @@ struct servergroup {
 	int servergroup_notify;
 	int servergroup_active;
 	char servergroup_members[1024];
-	
+	int servergroup_dead;
+	struct service * dead_marker;
 };
 
 
