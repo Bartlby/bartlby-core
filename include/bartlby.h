@@ -169,8 +169,10 @@
         	_log("-Error: %s", dlmsg); \
         	exit(1); \
     	}
-    	
 
+#define HAVE_DEBUG 1
+
+#define _debug(...) if(HAVE_DEBUG==1) { _log(__VA_ARGS__); }
 
 
 

@@ -89,7 +89,7 @@ void bartlby_fin_service(struct service * svc, void * SOHandle, void * shm_addr,
 	hdr=bartlby_SHM_GetHDR(shm_addr);
 	wrkmap=bartlby_SHM_WorkerMap(shm_addr);
 	
-		
+	
 	if(svc->current_state != svc->last_state) {
 		svc->service_retain_current=0;
 		svc->last_state=svc->current_state;

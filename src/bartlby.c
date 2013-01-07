@@ -228,6 +228,10 @@ void bartlby_init(void) {
 	#ifdef WITH_NRPE
 	_log("NRPE Support compiled in");
 	#endif
+	#ifdef HAVE_DEBUG
+	_log("DEBUGING ENABLED");
+	_debug("DEBUG test");
+	#endif
 	
 }
 void bartlby_setuid(void) {
