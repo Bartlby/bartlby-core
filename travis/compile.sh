@@ -1,5 +1,4 @@
 ./autogen.sh
-<<<<<<< HEAD
 ./configure --enable-nrpe --enable-ssl --prefix=$PWD/installation --with-user=travis
 make
 make install
@@ -17,8 +16,4 @@ exit 0;
 
 
 
-=======
-./configure --enable-nrpe --enable-ssl
-make
->>>>>>> master
 
