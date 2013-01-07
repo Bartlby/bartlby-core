@@ -2,6 +2,10 @@ before_script:
     # Compile PHP
     - ./travis/compile.sh
 
+<<<<<<< HEAD
 script: 
  - ./travis/build_check.sh
+=======
+script: ./bartlby -v
+>>>>>>> master
 
