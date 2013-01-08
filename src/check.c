@@ -23,7 +23,51 @@ $Author$
 
 #include <bartlby.h>
 
+void bartlby_check_eventhandler(struct service * svc, char * cfgfile) {
+	//Copy service to new service - run check based on type with a replace plugin <EVENT>_PLUGIN PLUGIN_ARGS STATE RETAIN COUNT
+	struct service event_service;
+	int eventhandler_called;
+	
+	
+	
+	memcpy(&event_service, svc, sizeof(struct service));
+	
+	//change plugin name - and args
+	sprintf(event_service.plugin, "event_%s", svc->plugin);
+	sprintf(event_service.plugin_arguments, "%s %d %d", svc->plugin_arguments, svc->current_state, svc->service_retain_current);
+	
+	eventhandler_called=0;
+	if(svc->service_type == SVC_TYPE_ACTIVE) {
+		bartlby_check_active(&event_service,cfgfile);
+		eventhandler_called=1;
+	}
+	if(svc->service_type == SVC_TYPE_LOCAL) {
+		bartlby_check_local(&event_service,cfgfile);
+		eventhandler_called=1;
+	}
+	
+	if(svc->service_type == SVC_TYPE_NRPE) {
+		bartlby_check_nrpe(&event_service, cfgfile, 0);	
+		eventhandler_called=1;
+	}                                                       
+	if(svc->service_type == SVC_TYPE_NRPE_SSL) {
+		bartlby_check_nrpe(&event_service, cfgfile, 1);
+		eventhandler_called=1;
 
+	}
+	if(svc->service_type == SVC_TYPE_V2) {
+		bartlby_check_v2(&event_service, cfgfile, 1);
+		eventhandler_called=1;
+	}
+	if(svc->service_type == SVC_TYPE_V2_NO_SSL) {
+		bartlby_check_v2(&event_service, cfgfile, 0);
+		eventhandler_called=1;
+	}
+	if(eventhandler_called == 1) {
+		_debug("Event handlder called output: %s", event_service.new_server_text);
+	}
+	
+}
 
 void bartlby_check_grep_perf_line(char * l, struct service * svc, char * cfgfile) {
 	char * tmp_line;
@@ -117,6 +161,12 @@ void bartlby_fin_service(struct service * svc, void * SOHandle, void * shm_addr,
 		if(svc->service_ack == ACK_NEEDED && svc->current_state == STATE_CRITICAL) {
 			svc->service_ack=ACK_OUTSTANDING;	
 		}
+		
+		// if service is dead / and retain is reached (see above if) - call event handler
+		if(svc->current_state == STATE_CRITICAL) {
+				bartlby_check_eventhandler(svc, cfgfile);
+		}
+		
 		
 		
 	
