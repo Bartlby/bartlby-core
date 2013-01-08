@@ -164,7 +164,7 @@ void bartlby_fin_service(struct service * svc, void * SOHandle, void * shm_addr,
 		}
 		
 		// if service is dead / and retain is reached (see above if) - call event handler
-		if(svc->current_state == STATE_CRITICAL) {
+		if(svc->current_state == STATE_CRITICAL && svc->fires_events == 1) {
 				bartlby_check_eventhandler(svc, cfgfile);
 		}
 		
