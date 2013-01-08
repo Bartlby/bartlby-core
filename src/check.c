@@ -65,6 +65,7 @@ void bartlby_check_eventhandler(struct service * svc, char * cfgfile) {
 	}
 	if(eventhandler_called == 1) {
 		_debug("Event handlder called output: %s", event_service.new_server_text);
+		//
 	}
 	
 }
