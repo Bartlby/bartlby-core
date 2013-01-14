@@ -28,13 +28,28 @@ void bartlby_check_eventhandler(struct service * svc, char * cfgfile) {
 	struct service event_service;
 	int eventhandler_called;
 	
+	int is_hard;
+	char state_level[20];
 	
+	is_hard=(svc->service_retain_current+1) % (svc->service_retain+1);
+	
+	if( is_hard == 0) {
+		sprintf(state_level, "HARD");
+		if(svc->fires_events == 2) { //only soft enabled
+			return;
+		}
+	} else {
+		sprintf(state_level, "SOFT");
+		if(svc->fires_events == 1) { //only hard enabled
+			return;
+		}
+	}
 	
 	memcpy(&event_service, svc, sizeof(struct service));
 	
 	//change plugin name - and args
 	sprintf(event_service.plugin, "event_%s", svc->plugin);
-	sprintf(event_service.plugin_arguments, "%s %d %d", svc->plugin_arguments, svc->current_state, svc->service_retain_current);
+	sprintf(event_service.plugin_arguments, "%s %s %d %d", state_level, svc->plugin_arguments, svc->current_state, svc->service_retain_current);
 	
 	eventhandler_called=0;
 	if(svc->service_type == SVC_TYPE_ACTIVE) {
@@ -64,7 +79,7 @@ void bartlby_check_eventhandler(struct service * svc, char * cfgfile) {
 		eventhandler_called=1;
 	}
 	if(eventhandler_called == 1) {
-		_debug("@EV-HANDLER@ %s/%s - Event handlder called (%s) with output: %s",svc->srv->server_name, svc->service_name, event_service.plugin, event_service.new_server_text);
+		_log("@EV-HANDLER@%d|0|0|||%s/%s - Event handlder called (%s) with output: %s - LEVEL: %s",svc->service_id, svc->srv->server_name, svc->service_name, event_service.plugin, event_service.new_server_text, state_level);
 		//
 	}
 	
@@ -164,14 +179,15 @@ void bartlby_fin_service(struct service * svc, void * SOHandle, void * shm_addr,
 		}
 		
 		// if service is dead / and retain is reached (see above if) - call event handler
-		if(svc->current_state == STATE_CRITICAL && svc->fires_events == 1) {
-				bartlby_check_eventhandler(svc, cfgfile);
-		}
+		
 		
 		
 		
 	
 	}
+	if(svc->current_state == STATE_CRITICAL && svc->fires_events > 0) {
+				bartlby_check_eventhandler(svc, cfgfile);
+		}
 	/* Check if we need to re-notify */
 	/* when retain in reached */
 	/* current state is critical*/
