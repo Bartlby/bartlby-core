@@ -79,7 +79,8 @@ void bartlby_check_eventhandler(struct service * svc, char * cfgfile) {
 		eventhandler_called=1;
 	}
 	if(eventhandler_called == 1) {
-		_log("@EV-HANDLER@%d|0|0|||%s/%s - Event handlder called (%s) with output: %s - LEVEL: %s",svc->service_id, svc->srv->server_name, svc->service_name, event_service.plugin, event_service.new_server_text, state_level);
+		
+		_log("@EV-HANDLER@%ld|%d|%s:%d/%s|%s|(%s)-%s", svc->service_id, svc->current_state, svc->srv->server_name, svc->srv->client_port, svc->service_name, state_level, event_service.plugin, event_service.new_server_text);
 		//
 	}
 	
