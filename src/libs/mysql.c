@@ -52,7 +52,7 @@ $Author$
 #define NAME "MYSQL Connector"
 #define DLVERSION  "1.3.2"
 
-#define SERVER_MAP_SELECTOR "select server_id, server_ip, server_name, server_ico, server_enabled, server_port, server_dead, server_flap_seconds, server_notify from servers"
+#define SERVER_MAP_SELECTOR "select server_id, server_ip, server_name, server_ico, server_enabled, server_port, server_dead, server_flap_seconds, server_notify, server_ssh_keyfile, server_ssh_passphrase, server_ssh_username from servers"
 
 #define SELECTOR "select svc.service_id, svc.service_name, svc.service_state, srv.server_name, srv.server_id, srv.server_port, srv.server_ip, svc.service_plugin, svc.service_args, UNIX_TIMESTAMP(svc.service_last_check), svc.service_interval, svc.service_text, 'a', 'a', 'a','a', svc.service_notify, svc.service_type, svc.service_var, svc.service_passive_timeout,service_active, svc.service_check_timeout, srv.server_ico, svc.service_ack, svc.service_retain, svc.service_snmp_community, svc.service_snmp_objid, svc.service_snmp_version, svc.service_snmp_warning, svc.service_snmp_critical, svc.service_snmp_type, svc.flap_seconds, svc.service_exec_plan, svc.renotify_interval, svc.escalate_divisor, svc.fires_events   from services svc, servers srv where svc.server_id=srv.server_id ORDER BY RAND()"
 #define WORKER_SELECTOR "select worker_mail, worker_icq, enabled_services ,notify_levels, worker_active, worker_name, worker_id, password, enabled_triggers, escalation_limit, escalation_minutes, notify_plan from workers"
@@ -60,10 +60,10 @@ $Author$
 
 
 
-#define ADD_SERVER "insert into servers (server_name,server_ip,server_port, server_ico, server_enabled, server_notify, server_flap_seconds, server_dead) VALUES('%s','%s', '%d', '%s', '%d', '%d', '%ld', '%d')"
+#define ADD_SERVER "insert into servers (server_name,server_ip,server_port, server_ico, server_enabled, server_notify, server_flap_seconds, server_dead, server_ssh_keyfile, server_ssh_passphrase, server_ssh_username) VALUES('%s','%s', '%d', '%s', '%d', '%d', '%ld', '%d', '%s','%s', '%s')"
 #define DELETE_SERVER "delete from servers where server_id=%d"
-#define UPDATE_SERVER "update servers set server_name='%s',server_ip='%s',server_port=%d, server_ico='%s', server_enabled='%d', server_notify='%d', server_flap_seconds='%ld', server_dead='%d' where server_id=%ld"
-#define SERVER_SELECTOR "select server_name, server_ip, server_port, server_ico, server_enabled, server_notify, server_flap_seconds, server_dead from servers where server_id=%d"
+#define UPDATE_SERVER "update servers set server_name='%s',server_ip='%s',server_port=%d, server_ico='%s', server_enabled='%d', server_notify='%d', server_flap_seconds='%ld', server_dead='%d', server_ssh_keyfile='%s', server_ssh_passphrase='%s', server_ssh_username='%s' where server_id=%ld"
+#define SERVER_SELECTOR "select server_name, server_ip, server_port, server_ico, server_enabled, server_notify, server_flap_seconds, server_dead, server_ssh_keyfile, server_ssh_passphrase, server_ssh_username from servers where server_id=%d"
 #define SERVER_CHANGE_ID "update servers set server_id=%d where server_id=%d"
 #define SERVER_CHANGE_SERVICES "update services set server_id=%d where server_id=%d"
 
@@ -76,7 +76,7 @@ $Author$
 #define SERVICE_CHANGE_ID "update services set service_id=%d where service_id=%d"
 
 #define UPDATE_SERVICE "update services set service_type=%d,service_name='%s',server_id=%ld,service_interval = %ld, service_plugin='%s',service_args='%s',service_passive_timeout=%ld, service_var='%s',service_check_timeout=%ld, service_ack='%d', service_retain='%ld', service_snmp_community='%s', service_snmp_objid='%s', service_snmp_version='%d', service_snmp_warning='%ld', service_snmp_critical='%ld', service_snmp_type='%ld', service_notify='%d', service_active='%d', flap_seconds='%ld', service_exec_plan='%s',renotify_interval=%ld, escalate_divisor=%ld, fires_events=%ld  where service_id=%ld"
-#define SERVICE_SELECTOR "select svc.service_id, svc.service_name, svc.service_state, srv.server_name, srv.server_id, srv.server_port, srv.server_ip, svc.service_plugin, svc.service_args, UNIX_TIMESTAMP(svc.service_last_check), svc.service_interval, svc.service_text, 'a', 'a','a', 'a', svc.service_notify, svc.service_type, svc.service_var, svc.service_passive_timeout, svc.service_active,svc.service_check_timeout, svc.service_ack, svc.service_retain, svc.service_snmp_community, svc.service_snmp_objid, svc.service_snmp_version, svc.service_snmp_warning, svc.service_snmp_critical, svc.service_snmp_type, srv.server_ico, svc.flap_seconds, svc.service_exec_plan, svc.renotify_interval, svc.escalate_divisor, svc.fires_events  from services svc, servers srv where svc.server_id=srv.server_id and svc.service_id=%d"
+#define SERVICE_SELECTOR "select svc.service_id, svc.service_name, svc.service_state, srv.server_name, srv.server_id, srv.server_port, srv.server_ip, svc.service_plugin, svc.service_args, UNIX_TIMESTAMP(svc.service_last_check), svc.service_interval, svc.service_text, 'a', 'a','a', 'a', svc.service_notify, svc.service_type, svc.service_var, svc.service_passive_timeout, svc.service_active,svc.service_check_timeout, svc.service_ack, svc.service_retain, svc.service_snmp_community, svc.service_snmp_objid, svc.service_snmp_version, svc.service_snmp_warning, svc.service_snmp_critical, svc.service_snmp_type, srv.server_ico, svc.flap_seconds, svc.service_exec_plan, svc.renotify_interval, svc.escalate_divisor, svc.fires_events, srv.server_ssh_keyfile, srv.server_ssh_passphrase, srv.server_ssh_username  from services svc, servers srv where svc.server_id=srv.server_id and svc.service_id=%d"
 
 
 
@@ -1052,6 +1052,23 @@ int GetServiceById(int service_id, struct service * svc, char * config) {
       		}		
       		
       		n_srv->client_port=atoi(row[5]);
+      		
+      		if(row[36] != NULL) {
+      			snprintf(n_srv->server_ssh_keyfile, 512, "%s", row[36]);
+      		} else {
+      			sprintf(n_srv->server_ssh_keyfile, " ");	
+      		}
+					if(row[37] != NULL) {
+      			snprintf(n_srv->server_ssh_passphrase, 512, "%s", row[37]);
+      		} else {
+      			sprintf(n_srv->server_ssh_passphrase, " ");	
+      		}
+					if(row[38] != NULL) {
+      			snprintf(n_srv->server_ssh_username, 512, "%s", row[38]);
+      		} else {
+      			sprintf(n_srv->server_ssh_username, " ");	
+      		}
+      		
       		svc->srv=n_srv;
       		
       		
@@ -1091,16 +1108,10 @@ int GetServiceById(int service_id, struct service * svc, char * config) {
       		svc->check_interval_original=atol(row[10])*1000;
       		      		
       		
-      		//svc->hour_from=atoi(row[12]);
-      		//svc->min_from=atoi(row[13]);
-      		
-      		//svc->hour_to=atoi(row[14]);
-      		//svc->min_to=atoi(row[15]);
+      	
       		
       		svc->notify_enabled=atoi(row[16]);
-      		//svc->last_notify_send=time(NULL);
-      		
-      		//svc.service_type, svc.service_var, svc.service_passive_timeout
+      	
       		svc->service_type = atoi(row[17]);
       		
       		if(row[18] != NULL) {
@@ -1153,6 +1164,9 @@ int GetServiceById(int service_id, struct service * svc, char * config) {
       		svc->renotify_interval=atoi(row[33]);
       		svc->escalate_divisor=atoi(row[34]);
       		svc->fires_events=atoi(row[35]);
+				
+					
+	
 	
     		svc->is_gone = 0;  		
       		tmprc=0;
@@ -1484,6 +1498,25 @@ int GetServerById(int server_id, struct server * svc, char * config) {
       		svc->server_notify=atoi(row[5]);
       		svc->server_flap_seconds=atoi(row[6]);
       		svc->server_dead=atoi(row[7]);
+      		if(row[8] != NULL) {
+      			sprintf(svc->server_ssh_keyfile, "%s", row[8]);
+      		} else {
+      			sprintf(svc->server_ssh_keyfile, " ");
+      		}
+      		if(row[9] != NULL) {
+      			sprintf(svc->server_ssh_passphrase, "%s", row[9]);
+      		} else {
+      			sprintf(svc->server_ssh_passphrase, " ");
+      		}
+      		if(row[10] != NULL) {
+      			sprintf(svc->server_ssh_username, "%s", row[10]);
+      		} else {
+      			sprintf(svc->server_ssh_username, " ");
+      		}
+
+
+
+
 
 		svc->is_gone=0;  		
       		
@@ -1533,7 +1566,7 @@ int ModifyServer(struct server * svc, char *config) {
       		CHK_ERR(mysql);
 	
 	
-	asprintf(&sqlupd, UPDATE_SERVER, svc->server_name, svc->client_ip, svc->client_port,svc->server_icon,svc->server_enabled, svc->server_notify, svc->server_flap_seconds,svc->server_dead, svc->server_id);
+	asprintf(&sqlupd, UPDATE_SERVER, svc->server_name, svc->client_ip, svc->client_port,svc->server_icon,svc->server_enabled, svc->server_notify, svc->server_flap_seconds,svc->server_dead,svc->server_ssh_keyfile, svc->server_ssh_passphrase, svc->server_ssh_username, svc->server_id);
 	
 	//Log("dbg", sqlupd);
 	
@@ -1636,7 +1669,7 @@ int AddServer(struct server * svc, char *config) {
       		CHK_ERR(mysql);
 	
 	
-	asprintf(&sqlupd, ADD_SERVER, svc->server_name, svc->client_ip, svc->client_port, svc->server_icon, svc->server_enabled, svc->server_notify, svc->server_flap_seconds, svc->server_dead);
+	asprintf(&sqlupd, ADD_SERVER, svc->server_name, svc->client_ip, svc->client_port, svc->server_icon, svc->server_enabled, svc->server_notify, svc->server_flap_seconds, svc->server_dead, svc->server_ssh_keyfile, svc->server_ssh_passphrase, svc->server_ssh_username);
 	
 	//Log("dbg", sqlupd);
 	
@@ -1975,23 +2008,12 @@ int GetServiceMap(struct service * svcs, char * config) {
       				      
       			svcs[i].lcheck.tv_usec=0;
       			svcs[i].lcheck.tv_sec=atoi(row[9]);                      
-			svcs[i].last_check=atoi(row[9]);    				                            
+						svcs[i].last_check=atoi(row[9]);    				                            
       				                                 
       			svcs[i].check_interval=atol(row[10]);
       			svcs[i].check_interval_original=atol(row[10])*1000;
       			
-      			/*if(i > POS2_QUEUER_THREADS*POS2_QUEUER_THREADS*POS2_QUEUER_THREADS) {
-      				ht += 10;
-      				svcs[i].check_interval=ht;
-      				_log("New distance : %d", svcs[i].check_interval);
-      			}*/
       			
-      			
-      			//svcs[i].hour_from=atoi(row[12]);
-      			//svcs[i].min_from=atoi(row[13]);
-      			
-      			//svcs[i].hour_to=atoi(row[14]);
-      			//svcs[i].min_to=atoi(row[15]);
       			
       			svcs[i].notify_enabled=atoi(row[16]);
       			svcs[i].last_notify_send=time(NULL);
@@ -2041,12 +2063,7 @@ int GetServiceMap(struct service * svcs, char * config) {
       			}
       			
       			
-      			//Log("load", "%s -> %s", svcs[i].plugin, svcs[i].plugin_arguments);
-      			//int notify_enabled;
-			//int last_notify_send;
-			//int flap_count;
-      			//, HOUR(svc.service_time_from), MINUTE(svc.service_time_from), HOUR(svc.service_time_to), MINUTE(svc.service_time_to)
-      				
+      			
       				
       			if(row[25] != NULL) {
       				snprintf(svcs[i].snmp_info.community, 500, "%s", row[25]);
@@ -2182,6 +2199,33 @@ int GetServerMap(struct server * srv, char * config) {
       				//svcs[i].service_name=NULL;     				
       				sprintf(srv[i].server_icon, "(null)");
       			}
+      			
+      			if(row[9] != NULL) {
+      				//svcs[i].service_name=malloc(strlen(row[1])*sizeof(char)+2);
+      				sprintf(srv[i].server_ssh_keyfile, "%s", row[9]);
+      				
+      			} else {
+      				//svcs[i].service_name=NULL;     				
+      				sprintf(srv[i].server_ssh_keyfile, " ");
+      			}
+      			if(row[10] != NULL) {
+      				//svcs[i].service_name=malloc(strlen(row[1])*sizeof(char)+2);
+      				sprintf(srv[i].server_ssh_passphrase, "%s", row[10]);
+      				
+      			} else {
+      				//svcs[i].service_name=NULL;     				
+      				sprintf(srv[i].server_ssh_passphrase, " ");
+      			}
+      			if(row[11] != NULL) {
+      				//svcs[i].service_name=malloc(strlen(row[1])*sizeof(char)+2);
+      				sprintf(srv[i].server_ssh_username, "%s", row[11]);
+      				
+      			} else {
+      				//svcs[i].service_name=NULL;     				
+      				sprintf(srv[i].server_ssh_username, " ");
+      			}
+      			
+      			
       			
  			srv[i].is_gone=0;     			
       			i++;

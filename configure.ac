@@ -252,6 +252,49 @@ else
 	AC_MSG_RESULT(no)
 fi;	
 
+dnl Check for ssh library.
+  
+  
+  AC_ARG_ENABLE(ssh,
+  [  --enable-ssh=PREFIX       Enable SSH in varios parts of CORE)],
+  [
+  	case "$withval" in
+  		n|no)
+  			;;
+  		y|ye|yes)
+  			enable_ssh=yes
+  			;;
+  		*)
+  			SSH_DIR="$withval"
+  			LIBS="$LIBS -L$SSH_DIR/lib"
+  			enable_SSH=yes
+  			;;
+  	esac
+  ])
+  AC_MSG_CHECKING(for libssh support)
+  if test "$enable_ssh" == "yes" ; then
+  	AC_MSG_RESULT(yes)
+  	AC_CHECK_LIB(ssh, ssh_options_set,ssh_lib_found=yes,ssh_lib_found=no)
+  	AC_CHECK_HEADER(libssh/libssh.h,ssh_lib_found=yes,ssh_lib_found=no)
+  	
+  	if test "$ssh_lib_found" == "yes"; then
+  	
+  		SSH_ADDON="-DSSH_ADDON"
+		SSH_FLAG="-lssh"
+		SSH_LIBDIR="-L$SSH_DIR/include"
+		SSH_INCDIR=""
+		AC_SUBST(SSH_LIBDIR)
+		AC_SUBST(SSH_INCDIR)
+		AC_SUBST(SSH_ADDON)
+		AC_SUBST(SSH_FLAG)
+		
+	fi;
+  		
+  else
+  	AC_MSG_RESULT(no)
+  	
+  fi
+
 dnl Check for ssl library.
   enable_ssl=yes
   
