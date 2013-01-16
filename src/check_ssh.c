@@ -74,7 +74,7 @@ void bartlby_check_ssh(struct service * svc, char * cfgfile) {
 		svc->current_state = STATE_CRITICAL;
 		return;
   }
-   
+   ssh_set_blocking(my_ssh_session, 1);
    pkey=privatekey_from_file(my_ssh_session, svc->srv->server_ssh_keyfile,0, svc->srv->server_ssh_passphrase); 
    if(pkey == NULL) {
    	 	sprintf(svc->new_server_text, "failed to load private key '%s'", svc->srv->server_ssh_keyfile);
@@ -96,7 +96,7 @@ void bartlby_check_ssh(struct service * svc, char * cfgfile) {
    }
    rc=ssh_userauth_pubkey(my_ssh_session, NULL, pubstring, pkey);
    if(rc != SSH_AUTH_SUCCESS) {
-   		sprintf(svc->new_server_text, "authentication failed using private key '%s' user: '%s'", svc->srv->server_ssh_keyfile, svc->srv->server_ssh_username);
+   		sprintf(svc->new_server_text, "authentication failed using private key '%s' user: '%s' return code: %d", svc->srv->server_ssh_keyfile, svc->srv->server_ssh_username, rc);
 			svc->current_state = STATE_CRITICAL;
 			return;
 	 	
