@@ -54,7 +54,10 @@ void bartlby_check_ssh(struct service * svc, char * cfgfile) {
 	char rmessage[1024];
 	int bytes_read;
 	
+	int log=9;
 	char * cmd_line;
+	
+	
 	
 	my_ssh_session = ssh_new();
 	if (my_ssh_session == NULL) {
@@ -62,9 +65,10 @@ void bartlby_check_ssh(struct service * svc, char * cfgfile) {
 		return;
   }
   
-   ssh_options_set(my_ssh_session, SSH_OPTIONS_HOST, svc->srv->client_ip);
+  ssh_options_set(my_ssh_session, SSH_OPTIONS_HOST, svc->srv->client_ip);
   ssh_options_set(my_ssh_session, SSH_OPTIONS_PORT, &svc->srv->client_port);
-  //ssh_options_set(my_ssh_session, SSH_OPTIONS_LOG_VERBOSITY, &log);
+  
+ 	//ssh_options_set(my_ssh_session, SSH_OPTIONS_LOG_VERBOSITY, &log);
   ssh_options_set(my_ssh_session, SSH_OPTIONS_USER, svc->srv->server_ssh_username);
   
   
@@ -75,7 +79,7 @@ void bartlby_check_ssh(struct service * svc, char * cfgfile) {
 		return;
   }
    ssh_set_blocking(my_ssh_session, 1);
-   pkey=privatekey_from_file(my_ssh_session, svc->srv->server_ssh_keyfile,0, svc->srv->server_ssh_passphrase); 
+   pkey=privatekey_from_file(my_ssh_session, svc->srv->server_ssh_keyfile,2, svc->srv->server_ssh_passphrase);  //ONLY RSA KEYS WILL WORK
    if(pkey == NULL) {
    	 	sprintf(svc->new_server_text, "failed to load private key '%s'", svc->srv->server_ssh_keyfile);
 			svc->current_state = STATE_CRITICAL;
@@ -95,8 +99,13 @@ void bartlby_check_ssh(struct service * svc, char * cfgfile) {
 	 	
    }
    rc=ssh_userauth_pubkey(my_ssh_session, NULL, pubstring, pkey);
+   //rc=ssh_userauth_try_publickey(my_ssh_session, NULL, pubkey);
+   privatekey_free(pkey);
+	 string_free(pubstring);
+   
+   
    if(rc != SSH_AUTH_SUCCESS) {
-   		sprintf(svc->new_server_text, "authentication failed using private key '%s' user: '%s' return code: %d", svc->srv->server_ssh_keyfile, svc->srv->server_ssh_username, rc);
+   		sprintf(svc->new_server_text, "authentication failed using private key '%s' user: '%s' return code: %d error-msg: %s", svc->srv->server_ssh_keyfile, svc->srv->server_ssh_username, rc, ssh_get_error(my_ssh_session));
 			svc->current_state = STATE_CRITICAL;
 			return;
 	 	
@@ -140,8 +149,7 @@ void bartlby_check_ssh(struct service * svc, char * cfgfile) {
     }
   	
 
-		privatekey_free(pkey);
-		string_free(pubstring);
+		
     channel_send_eof(channel);
     rc=channel_get_exit_status(channel);
     
