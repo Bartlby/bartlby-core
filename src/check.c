@@ -64,7 +64,11 @@ void bartlby_check_eventhandler(struct service * svc, char * cfgfile) {
 	if(svc->service_type == SVC_TYPE_NRPE) {
 		bartlby_check_nrpe(&event_service, cfgfile, 0);	
 		eventhandler_called=1;
-	}                                                       
+	}    
+	if(svc->service_type == SVC_TYPE_SSH) {
+		bartlby_check_ssh(&event_service, cfgfile);	
+		eventhandler_called=1;
+	}                                                      
 	if(svc->service_type == SVC_TYPE_NRPE_SSL) {
 		bartlby_check_nrpe(&event_service, cfgfile, 1);
 		eventhandler_called=1;
@@ -304,6 +308,12 @@ void bartlby_check_service(struct service * svc, void * shm_addr, void * SOHandl
 	}                                                       
 	if(svc->service_type == SVC_TYPE_NRPE_SSL) {
 		bartlby_check_nrpe(svc, cfgfile, 1);	           
+		bartlby_fin_service(svc,SOHandle,shm_addr,cfgfile);
+		return;
+	
+	}
+	if(svc->service_type == SVC_TYPE_SSH) {
+		bartlby_check_ssh(svc, cfgfile);	           
 		bartlby_fin_service(svc,SOHandle,shm_addr,cfgfile);
 		return;
 	

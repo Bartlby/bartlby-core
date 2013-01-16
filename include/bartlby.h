@@ -61,6 +61,12 @@
 	#include <openssl/err.h>
 	
 #endif
+
+#ifdef SSH_ADDON 
+	#include <libssh/libssh.h>	
+#endif
+
+
 #ifdef SNMP_ADDON
 #include <net-snmp/net-snmp-config.h>
 #include <net-snmp/net-snmp-includes.h>
@@ -145,6 +151,7 @@
 #define SVC_TYPE_NRPE_SSL 7
 #define SVC_TYPE_V2 8
 #define SVC_TYPE_V2_NO_SSL 9
+#define SVC_TYPE_SSH 10
 
 
 #define SVC_THRESHOLD 10
@@ -258,6 +265,12 @@ struct server {
 	struct servergroup * servergroups[200];
 	long servergroup_counter;
 	long servergroup_place[200];
+	
+	char server_ssh_keyfile[512];
+	char server_ssh_passphrase[512];
+	char server_ssh_username[512];
+	
+	
 } xxyz;
 
 
@@ -466,6 +479,7 @@ void bartlby_check_group(struct service * svc, void * shm_addr);
 
 
 void bartlby_check_snmp(struct service * svc, char * cfgfile);
+void bartlby_check_ssh(struct service * svc, char * cfgfile);
 void bartlby_check_nrpe(struct service * svc, char * cfgfile, int use_ssl);
 
 void str_mysql_safe(char * str);
