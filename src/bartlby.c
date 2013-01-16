@@ -218,6 +218,9 @@ void bartlby_init(void) {
 	#ifdef SNMP_ADDON
 	_log("SNMP support compiled in");
 	#endif
+	#ifdef SSH_ADDON
+	_log("SSH support compiled in");
+	#endif
 	#ifdef HAVE_SSL
 	_log("SSL support compiled in");
 	SSL_library_init();
