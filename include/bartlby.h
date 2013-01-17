@@ -84,7 +84,7 @@
 #define PROGNAME "bartlby"
 #define REL_NAME "fusion"
 //#define VERSION  "1.4.0"
-#define EXPECTCORE 1400003 //Module V Check's
+#define EXPECTCORE 1400004 //Module V Check's
 
 #define MAX_CCACHE 1024
 #define MAX_CCACHE_KEY 1024
@@ -270,6 +270,7 @@ struct server {
 	char server_ssh_passphrase[512];
 	char server_ssh_username[512];
 	
+	char enabled_triggers[512];
 	
 } xxyz;
 
@@ -364,6 +365,8 @@ struct servicegroup {
 	int servicegroup_dead;
 	struct service * dead_marker;
 	
+	char enabled_triggers[512];
+	
 };
 
 struct servergroup {
@@ -374,6 +377,7 @@ struct servergroup {
 	char servergroup_members[1024];
 	int servergroup_dead;
 	struct service * dead_marker;
+	char enabled_triggers[512];
 };
 
 

@@ -44,6 +44,7 @@ CREATE TABLE `servers` (
   `server_ssh_keyfile` varchar(512) NOT NULL default '',
   `server_ssh_passphrase` varchar(512) NOT NULL default '',
   `server_ssh_username` varchar(512) NOT NULL default '',
+  `enabled_triggers` varchar(512) NOT NULL default '',
   PRIMARY KEY  (`server_id`),
   UNIQUE KEY `server_id` (`server_id`)
 )  ;
@@ -123,6 +124,7 @@ CREATE TABLE `servicegroups` (
   `servicegroup_active` int(2) NOT NULL default '1',
   `servicegroup_members` text NOT NULL default '',
   `servicegroup_dead` int(11) NOT NULL default '0',
+  `enabled_triggers` varchar(512) NOT NULL default '',
   PRIMARY KEY  (`servicegroup_id`)
 )  ;
 CREATE TABLE `servergroups` (
@@ -132,6 +134,7 @@ CREATE TABLE `servergroups` (
   `servergroup_active` int(2) NOT NULL default '1',
   `servergroup_members` text NOT NULL default '',
   `servergroup_dead` int(11) NOT NULL default '0',
+  `enabled_triggers` varchar(512) NOT NULL default '',
   PRIMARY KEY  (`servergroup_id`)
 )  ;
 
