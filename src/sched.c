@@ -340,12 +340,15 @@ int sched_servicegroup_dead(struct service * svc) {
 			svc_to_check = svc->servicegroups[x]->dead_marker;
 			
 			if(svc_to_check == NULL) continue;
-				
+			if(svc_to_check->service_id == svc->service_id) continue;
+			
 			if(svc_to_check->service_active == 0) {
 				//Check if dead marker is active
 				_debug("DEBUG-DEAD: svcGRP assigned service is inactive [group: %s -> marker: %s/%s - svcToCheck: %s/%s]", svc->servicegroups[x]->servicegroup_name, svc_to_check->srv->server_name, svc_to_check->service_name, svc->srv->server_name, svc->service_name);
 				return -1;
 			}
+			
+			
 			svc_to_check->is_server_dead=sched_is_server_dead(svc_to_check);
 			if(svc_to_check->is_server_dead<0) {
 				//Check if dead marker's server is alive
@@ -359,7 +362,20 @@ int sched_servicegroup_dead(struct service * svc) {
 			if(sched_servergroup_active(svc_to_check->srv) == 0) {
 				_log("DEBUG-DEAD: svcGRP server-group of assigned service is not active [group: %s -> marker: %s/%s - svcToCheck: %s/%s]", svc->servicegroups[x]->servicegroup_name, svc_to_check->srv->server_name, svc_to_check->service_name, svc->srv->server_name, svc->service_name);
 				return -1;
+			}		
+			
+			if(svc_to_check->srv->server_enabled == 0) {
+				_debug("DEBUG-DEAD: svcGRP server of assigned service is not active [group: %s -> marker: %s/%s - svcToCheck: %s/%s]", svc->servicegroups[x]->servicegroup_name, svc_to_check->srv->server_name, svc_to_check->service_name, svc->srv->server_name, svc->service_name);
+				return -1;
 			}
+			if(svc_to_check->current_state == STATE_CRITICAL && svc_to_check->service_retain_current >= svc_to_check->service_retain) {
+				//Check if dead marker is alive :)
+				_debug("DEBUG-DEAD: svcGRP assigned indiciator is not alive [group: %s -> marker: %s/%s - svcToCheck: %s/%s]", svc->servicegroups[x]->servicegroup_name, svc_to_check->srv->server_name, svc_to_check->service_name, svc->srv->server_name, svc->service_name);
+				return -1;	
+			}
+			
+			continue;
+			//FIXME
 			
 			svc_to_check->is_server_dead=sched_servergroup_dead(svc_to_check->srv, svc_to_check);
 			if(svc_to_check->is_server_dead < 0) {
@@ -372,18 +388,6 @@ int sched_servicegroup_dead(struct service * svc) {
 					_debug("DEBUG-DEAD: svcGRP service-group of assigned service is dead [group: %s -> marker: %s/%s - svcToCheck: %s/%s]", svc->servicegroups[x]->servicegroup_name, svc_to_check->srv->server_name, svc_to_check->service_name, svc->srv->server_name, svc->service_name);
 					return -1;
 			}
-			
-			
-			if(svc_to_check->srv->server_enabled == 0) {
-				_debug("DEBUG-DEAD: svcGRP server of assigned service is not active [group: %s -> marker: %s/%s - svcToCheck: %s/%s]", svc->servicegroups[x]->servicegroup_name, svc_to_check->srv->server_name, svc_to_check->service_name, svc->srv->server_name, svc->service_name);
-				return -1;
-			}
-			if(svc_to_check->current_state == STATE_CRITICAL && svc_to_check->service_retain_current >= svc_to_check->service_retain) {
-				//Check if dead marker is alive :)
-				_debug("DEBUG-DEAD: svcGRP assigned indiciator is not alive [group: %s -> marker: %s/%s - svcToCheck: %s/%s]", svc->servicegroups[x]->servicegroup_name, svc_to_check->srv->server_name, svc_to_check->service_name, svc->srv->server_name, svc->service_name);
-				return -1;	
-			}
-			
 			
 			
 			
@@ -409,6 +413,7 @@ int sched_servergroup_dead(struct server * srv, struct service * svc) {
 			svc_to_check = srv->servergroups[x]->dead_marker;
 			
 			if(svc_to_check == NULL) continue;
+			if(svc_to_check->service_id == svc->service_id) continue;
 				
 				if(svc_to_check->service_active == 0) {
 				//Check if dead marker is active
@@ -429,16 +434,7 @@ int sched_servergroup_dead(struct server * srv, struct service * svc) {
 				_debug("DEBUG-DEAD: srvGRP server-group of assigned service is not active [group: %s -> marker: %s/%s - svcToCheck: %s/%s]", srv->servergroups[x]->servergroup_name, svc_to_check->srv->server_name, svc_to_check->service_name, svc->srv->server_name, svc->service_name);
 				return -1;
 			}
-			svc_to_check->is_server_dead=sched_servergroup_dead(svc_to_check->srv, svc_to_check);
-			if(svc_to_check->is_server_dead<0) {
-				_debug("DEBUG-DEAD: srvGRP server-group of assigned service is dead [group: %s -> marker: %s/%s - svcToCheck: %s/%s]", srv->servergroups[x]->servergroup_name, svc_to_check->srv->server_name, svc_to_check->service_name, svc->srv->server_name, svc->service_name);
-				return -1;
-			}
-			svc_to_check->is_server_dead=sched_servicegroup_dead(svc_to_check);
-			if(svc_to_check->is_server_dead < 0) {
-					_debug("DEBUG-DEAD: srvGRP service-group of assigned service is dead [group: %s -> marker: %s/%s - svcToCheck: %s/%s]", srv->servergroups[x]->servergroup_name, svc_to_check->srv->server_name, svc_to_check->service_name, svc->srv->server_name, svc->service_name);
-					return -1;
-			}
+			
 			if(svc_to_check->srv->server_enabled == 0) {
 				_debug("DEBUG-DEAD: srvGRP server of assigned service is not active [group: %s -> marker: %s/%s - svcToCheck: %s/%s]", srv->servergroups[x]->servergroup_name, svc_to_check->srv->server_name, svc_to_check->service_name, svc->srv->server_name, svc->service_name);
 				return -1;
@@ -449,6 +445,19 @@ int sched_servergroup_dead(struct server * srv, struct service * svc) {
 				return -1;	
 			}
 			
+			
+			continue;
+			//FIXME
+			svc_to_check->is_server_dead=sched_servergroup_dead(svc_to_check->srv, svc_to_check);
+			if(svc_to_check->is_server_dead<0) {
+				_debug("DEBUG-DEAD: srvGRP server-group of assigned service is dead [group: %s -> marker: %s/%s - svcToCheck: %s/%s]", srv->servergroups[x]->servergroup_name, svc_to_check->srv->server_name, svc_to_check->service_name, svc->srv->server_name, svc->service_name);
+				return -1;
+			}
+			svc_to_check->is_server_dead=sched_servicegroup_dead(svc_to_check);
+			if(svc_to_check->is_server_dead < 0) {
+					_debug("DEBUG-DEAD: srvGRP service-group of assigned service is dead [group: %s -> marker: %s/%s - svcToCheck: %s/%s]", srv->servergroups[x]->servergroup_name, svc_to_check->srv->server_name, svc_to_check->service_name, svc->srv->server_name, svc->service_name);
+					return -1;
+			}
 			
 			
 			

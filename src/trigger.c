@@ -36,6 +36,43 @@ static void trigger_conn_timeout(int signo) {
  	connection_timed_out = 1;
 }
 
+int bartlby_servicegroup_has_trigger(struct service * svc, char * trigger) {
+		//Check if servicegroup has notifications on
+
+	
+	int x;
+		//Check if service group is enabled to run checks
+		if(svc->servicegroup_counter == 0) {
+				///service is not member of a group
+				return 1;
+		}
+		//Loop Threw service Groups
+		for(x=0; x<svc->servicegroup_counter; x++) {
+			if(strlen(svc->servicegroups[x]->enabled_triggers) > 2 && strstr(svc->servicegroups[x]->enabled_triggers, trigger) == NULL) {
+				return 0;
+			}
+		}
+		
+		return 1;	
+}
+
+int bartlby_servergroup_has_trigger(struct server * srv, char * trigger) {
+		int x;
+		//Check if server group has notifications
+		if(srv->servergroup_counter == 0) {
+				///Server is not member of a group
+				return 1;
+		}
+		//Loop Threw Server Groups
+		for(x=0; x<srv->servergroup_counter; x++) {
+			if(strlen(srv->servergroups[x]->enabled_triggers) > 2 && strstr(srv->servergroups[x]->enabled_triggers, trigger) == NULL) {
+				return 0;
+			}
+		}
+		
+		return 1;
+}
+
 int bartlby_trigger_worker_level(struct worker * w,  struct service * svc) {
 	char * find_level, * last_level;
 	char * blevel;
@@ -375,7 +412,28 @@ void bartlby_trigger(struct service * svc, char * cfgfile, void * shm_addr, int 
 			_log("lstat() %s failed", full_path);
 			return;	
 		}
-		_log("ENABLED TRIGGERS %s", svc->enabled_triggers);
+		
+		if(bartlby_servergroup_has_trigger(svc->srv, find_trigger) != 1) {
+			
+			free(find_trigger);
+			free(full_path);
+			continue;
+		}
+		if(bartlby_servicegroup_has_trigger(svc, find_trigger) != 1) {
+			
+			free(find_trigger);
+			free(full_path);
+			continue;
+		}
+		
+		if(strlen(svc->srv->enabled_triggers) > 2 && strstr(svc->srv->enabled_triggers, find_trigger) == NULL) {
+			
+			free(find_trigger);
+			free(full_path);
+			continue;
+		}
+		
+		
 		
 		if(strlen(svc->enabled_triggers) > 2 && strstr(svc->enabled_triggers, find_trigger) == NULL) {
 			//Service has selected wich triggers - and current trigger 'find_trigger' is not activated/selected

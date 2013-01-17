@@ -52,7 +52,7 @@ $Author$
 #define NAME "MYSQL Connector"
 #define DLVERSION  "1.3.2"
 
-#define SERVER_MAP_SELECTOR "select server_id, server_ip, server_name, server_ico, server_enabled, server_port, server_dead, server_flap_seconds, server_notify, server_ssh_keyfile, server_ssh_passphrase, server_ssh_username from servers"
+#define SERVER_MAP_SELECTOR "select server_id, server_ip, server_name, server_ico, server_enabled, server_port, server_dead, server_flap_seconds, server_notify, server_ssh_keyfile, server_ssh_passphrase, server_ssh_username, enabled_triggers from servers"
 
 #define SELECTOR "select svc.service_id, svc.service_name, svc.service_state, srv.server_name, srv.server_id, srv.server_port, srv.server_ip, svc.service_plugin, svc.service_args, UNIX_TIMESTAMP(svc.service_last_check), svc.service_interval, svc.service_text, 'a', 'a', 'a','a', svc.service_notify, svc.service_type, svc.service_var, svc.service_passive_timeout,service_active, svc.service_check_timeout, srv.server_ico, svc.service_ack, svc.service_retain, svc.service_snmp_community, svc.service_snmp_objid, svc.service_snmp_version, svc.service_snmp_warning, svc.service_snmp_critical, svc.service_snmp_type, svc.flap_seconds, svc.service_exec_plan, svc.renotify_interval, svc.escalate_divisor, svc.fires_events, svc.enabled_triggers   from services svc, servers srv where svc.server_id=srv.server_id ORDER BY RAND()"
 #define WORKER_SELECTOR "select worker_mail, worker_icq, enabled_services ,notify_levels, worker_active, worker_name, worker_id, password, enabled_triggers, escalation_limit, escalation_minutes, notify_plan from workers"
@@ -60,10 +60,10 @@ $Author$
 
 
 
-#define ADD_SERVER "insert into servers (server_name,server_ip,server_port, server_ico, server_enabled, server_notify, server_flap_seconds, server_dead, server_ssh_keyfile, server_ssh_passphrase, server_ssh_username) VALUES('%s','%s', '%d', '%s', '%d', '%d', '%ld', '%d', '%s','%s', '%s')"
+#define ADD_SERVER "insert into servers (server_name,server_ip,server_port, server_ico, server_enabled, server_notify, server_flap_seconds, server_dead, server_ssh_keyfile, server_ssh_passphrase, server_ssh_username, enabled_triggers) VALUES('%s','%s', '%d', '%s', '%d', '%d', '%ld', '%d', '%s','%s', '%s', '%s')"
 #define DELETE_SERVER "delete from servers where server_id=%d"
-#define UPDATE_SERVER "update servers set server_name='%s',server_ip='%s',server_port=%d, server_ico='%s', server_enabled='%d', server_notify='%d', server_flap_seconds='%ld', server_dead='%d', server_ssh_keyfile='%s', server_ssh_passphrase='%s', server_ssh_username='%s' where server_id=%ld"
-#define SERVER_SELECTOR "select server_name, server_ip, server_port, server_ico, server_enabled, server_notify, server_flap_seconds, server_dead, server_ssh_keyfile, server_ssh_passphrase, server_ssh_username from servers where server_id=%d"
+#define UPDATE_SERVER "update servers set server_name='%s',server_ip='%s',server_port=%d, server_ico='%s', server_enabled='%d', server_notify='%d', server_flap_seconds='%ld', server_dead='%d', server_ssh_keyfile='%s', server_ssh_passphrase='%s', server_ssh_username='%s', enabled_triggers='%s' where server_id=%ld"
+#define SERVER_SELECTOR "select server_name, server_ip, server_port, server_ico, server_enabled, server_notify, server_flap_seconds, server_dead, server_ssh_keyfile, server_ssh_passphrase, server_ssh_username, enabled_triggers from servers where server_id=%d"
 #define SERVER_CHANGE_ID "update servers set server_id=%d where server_id=%d"
 #define SERVER_CHANGE_SERVICES "update services set server_id=%d where server_id=%d"
 
@@ -76,7 +76,7 @@ $Author$
 #define SERVICE_CHANGE_ID "update services set service_id=%d where service_id=%d"
 
 #define UPDATE_SERVICE "update services set service_type=%d,service_name='%s',server_id=%ld,service_interval = %ld, service_plugin='%s',service_args='%s',service_passive_timeout=%ld, service_var='%s',service_check_timeout=%ld, service_ack='%d', service_retain='%ld', service_snmp_community='%s', service_snmp_objid='%s', service_snmp_version='%d', service_snmp_warning='%ld', service_snmp_critical='%ld', service_snmp_type='%ld', service_notify='%d', service_active='%d', flap_seconds='%ld', service_exec_plan='%s',renotify_interval=%ld, escalate_divisor=%ld, fires_events=%ld, enabled_triggers='%s'  where service_id=%ld"
-#define SERVICE_SELECTOR "select svc.service_id, svc.service_name, svc.service_state, srv.server_name, srv.server_id, srv.server_port, srv.server_ip, svc.service_plugin, svc.service_args, UNIX_TIMESTAMP(svc.service_last_check), svc.service_interval, svc.service_text, 'a', 'a','a', 'a', svc.service_notify, svc.service_type, svc.service_var, svc.service_passive_timeout, svc.service_active,svc.service_check_timeout, svc.service_ack, svc.service_retain, svc.service_snmp_community, svc.service_snmp_objid, svc.service_snmp_version, svc.service_snmp_warning, svc.service_snmp_critical, svc.service_snmp_type, srv.server_ico, svc.flap_seconds, svc.service_exec_plan, svc.renotify_interval, svc.escalate_divisor, svc.fires_events, srv.server_ssh_keyfile, srv.server_ssh_passphrase, srv.server_ssh_username, svc.enabled_triggers  from services svc, servers srv where svc.server_id=srv.server_id and svc.service_id=%d"
+#define SERVICE_SELECTOR "select svc.service_id, svc.service_name, svc.service_state, srv.server_name, srv.server_id, srv.server_port, srv.server_ip, svc.service_plugin, svc.service_args, UNIX_TIMESTAMP(svc.service_last_check), svc.service_interval, svc.service_text, 'a', 'a','a', 'a', svc.service_notify, svc.service_type, svc.service_var, svc.service_passive_timeout, svc.service_active,svc.service_check_timeout, svc.service_ack, svc.service_retain, svc.service_snmp_community, svc.service_snmp_objid, svc.service_snmp_version, svc.service_snmp_warning, svc.service_snmp_critical, svc.service_snmp_type, srv.server_ico, svc.flap_seconds, svc.service_exec_plan, svc.renotify_interval, svc.escalate_divisor, svc.fires_events, srv.server_ssh_keyfile, srv.server_ssh_passphrase, srv.server_ssh_username, svc.enabled_triggers, srv.enabled_triggers  from services svc, servers srv where svc.server_id=srv.server_id and svc.service_id=%d"
 
 
 
@@ -96,17 +96,17 @@ $Author$
 
 
 
-#define UPDATE_SERVERGROUP "update servergroups set servergroup_name='%s', servergroup_notify=%d,servergroup_active=%d, servergroup_members='%s', servergroup_dead=%d where servergroup_id=%ld"
+#define UPDATE_SERVERGROUP "update servergroups set servergroup_name='%s', servergroup_notify=%d,servergroup_active=%d, servergroup_members='%s', servergroup_dead=%d, enabled_triggers='%s' where servergroup_id=%ld"
 #define DEL_SERVERGROUP "delete from servergroups where servergroup_id=%d"
-#define ADD_SERVERGROUP "INSERT INTO servergroups(servergroup_name, servergroup_notify,servergroup_active,servergroup_members, servergroup_dead) VALUES('%s', %d,%d,'%s', %d)"
-#define SERVERGROUP_SEL "select servergroup_id, servergroup_name, servergroup_notify, servergroup_active, servergroup_members, servergroup_dead from servergroups"
+#define ADD_SERVERGROUP "INSERT INTO servergroups(servergroup_name, servergroup_notify,servergroup_active,servergroup_members, servergroup_dead, enabled_triggers) VALUES('%s', %d,%d,'%s', %d, '%s')"
+#define SERVERGROUP_SEL "select servergroup_id, servergroup_name, servergroup_notify, servergroup_active, servergroup_members, servergroup_dead, enabled_triggers from servergroups"
 #define SERVERGROUP_CHANGE_ID "update servergroups set servergroup_id=%d where servergroup_id=%d"
 
 
-#define UPDATE_SERVICEGROUP "update servicegroups set servicegroup_name='%s', servicegroup_notify=%d,servicegroup_active=%d, servicegroup_members='%s', servicegroup_dead=%d where servicegroup_id=%ld"
+#define UPDATE_SERVICEGROUP "update servicegroups set servicegroup_name='%s', servicegroup_notify=%d,servicegroup_active=%d, servicegroup_members='%s', servicegroup_dead=%d, enabled_triggers='%s' where servicegroup_id=%ld"
 #define DEL_SERVICEGROUP "delete from servicegroups where servicegroup_id=%d"
-#define ADD_SERVICEGROUP "INSERT INTO servicegroups(servicegroup_name, servicegroup_notify,servicegroup_active,servicegroup_members, servicegroup_dead) VALUES('%s', %d,%d,'%s', %d)"
-#define SERVICEGROUP_SEL "select servicegroup_id, servicegroup_name, servicegroup_notify, servicegroup_active, servicegroup_members, servicegroup_dead from servicegroups"
+#define ADD_SERVICEGROUP "INSERT INTO servicegroups(servicegroup_name, servicegroup_notify,servicegroup_active,servicegroup_members, servicegroup_dead, enabled_triggers) VALUES('%s', %d,%d,'%s', %d, '%s')"
+#define SERVICEGROUP_SEL "select servicegroup_id, servicegroup_name, servicegroup_notify, servicegroup_active, servicegroup_members, servicegroup_dead, enabled_triggers from servicegroups"
 #define SERVICEGROUP_CHANGE_ID "update servicegroups set servicegroup_id=%d where servicegroup_id=%d"
 
 
@@ -1074,6 +1074,11 @@ int GetServiceById(int service_id, struct service * svc, char * config) {
       		} else {
       			sprintf(svc->enabled_triggers, "");	
       		}
+      		if(row[40] != NULL) {
+      			snprintf(n_srv->enabled_triggers, 512, "%s", row[40]);
+      		} else {
+      			sprintf(n_srv->enabled_triggers, "");	
+      		}
       		
       		svc->srv=n_srv;
       		
@@ -1521,7 +1526,11 @@ int GetServerById(int server_id, struct server * svc, char * config) {
       		} else {
       			sprintf(svc->server_ssh_username, " ");
       		}
-
+					if(row[11] != NULL) {
+      			sprintf(svc->enabled_triggers, "%s", row[11]);
+      		} else {
+      			sprintf(svc->enabled_triggers, " ");
+      		}
 
 
 
@@ -1574,7 +1583,7 @@ int ModifyServer(struct server * svc, char *config) {
       		CHK_ERR(mysql);
 	
 	
-	asprintf(&sqlupd, UPDATE_SERVER, svc->server_name, svc->client_ip, svc->client_port,svc->server_icon,svc->server_enabled, svc->server_notify, svc->server_flap_seconds,svc->server_dead,svc->server_ssh_keyfile, svc->server_ssh_passphrase, svc->server_ssh_username, svc->server_id);
+	asprintf(&sqlupd, UPDATE_SERVER, svc->server_name, svc->client_ip, svc->client_port,svc->server_icon,svc->server_enabled, svc->server_notify, svc->server_flap_seconds,svc->server_dead,svc->server_ssh_keyfile, svc->server_ssh_passphrase, svc->server_ssh_username,svc->enabled_triggers, svc->server_id);
 	
 	//Log("dbg", sqlupd);
 	
@@ -1677,7 +1686,7 @@ int AddServer(struct server * svc, char *config) {
       		CHK_ERR(mysql);
 	
 	
-	asprintf(&sqlupd, ADD_SERVER, svc->server_name, svc->client_ip, svc->client_port, svc->server_icon, svc->server_enabled, svc->server_notify, svc->server_flap_seconds, svc->server_dead, svc->server_ssh_keyfile, svc->server_ssh_passphrase, svc->server_ssh_username);
+	asprintf(&sqlupd, ADD_SERVER, svc->server_name, svc->client_ip, svc->client_port, svc->server_icon, svc->server_enabled, svc->server_notify, svc->server_flap_seconds, svc->server_dead, svc->server_ssh_keyfile, svc->server_ssh_passphrase, svc->server_ssh_username, svc->enabled_triggers);
 	
 	//Log("dbg", sqlupd);
 	
@@ -2239,7 +2248,14 @@ int GetServerMap(struct server * srv, char * config) {
       				//svcs[i].service_name=NULL;     				
       				sprintf(srv[i].server_ssh_username, " ");
       			}
-      			
+      			if(row[12] != NULL) {
+      				//svcs[i].service_name=malloc(strlen(row[1])*sizeof(char)+2);
+      				sprintf(srv[i].enabled_triggers, "%s", row[12]);
+      				
+      			} else {
+      				//svcs[i].service_name=NULL;     				
+      				sprintf(srv[i].enabled_triggers, " ");
+      			}
       			
       			
  			srv[i].is_gone=0;     			
@@ -2377,7 +2393,12 @@ int GetServerGroupMap(struct servergroup * svcs, char * config) {
       			} else{
       				svcs[i].servergroup_dead = 0;
       			}
-      			
+      			if(row[6] != NULL) {
+      				
+      				sprintf(svcs[i].enabled_triggers, "%s", row[6]);
+      			} else {
+      				sprintf(svcs[i].enabled_triggers, "");     				
+      			}
       			
 		
       			i++;
@@ -2429,7 +2450,7 @@ int AddServerGroup(struct servergroup * svc, char *config) {
       		CHK_ERR(mysql);
 	
 	
-	asprintf(&sqlupd, ADD_SERVERGROUP, svc->servergroup_name, svc->servergroup_notify, svc->servergroup_active, svc->servergroup_members, svc->servergroup_dead);
+	asprintf(&sqlupd, ADD_SERVERGROUP, svc->servergroup_name, svc->servergroup_notify, svc->servergroup_active, svc->servergroup_members, svc->servergroup_dead, svc->enabled_triggers);
 	
 	
 	
@@ -2519,7 +2540,7 @@ int UpdateServerGroup(struct servergroup * svc, char *config) {
 	
 	
 	
-	asprintf(&sqlupd, UPDATE_SERVERGROUP, svc->servergroup_name, svc->servergroup_notify, svc->servergroup_active, svc->servergroup_members,svc->servergroup_dead, svc->servergroup_id);
+	asprintf(&sqlupd, UPDATE_SERVERGROUP, svc->servergroup_name, svc->servergroup_notify, svc->servergroup_active, svc->servergroup_members,svc->servergroup_dead,svc->enabled_triggers, svc->servergroup_id);
 	
 	
 	
@@ -2653,7 +2674,11 @@ int GetServiceGroupMap(struct servicegroup * svcs, char * config) {
       				svcs[i].servicegroup_dead = 0;
       			}
       			
-      			
+      			if(row[6] != NULL) {
+      				sprintf(svcs[i].enabled_triggers, "%s", row[6]);
+      			} else{
+      				sprintf(svcs[i].enabled_triggers, " ");
+      			}
       			
 		
       			i++;
@@ -2705,7 +2730,7 @@ int AddServiceGroup(struct servicegroup * svc, char *config) {
       		CHK_ERR(mysql);
 	
 	
-	asprintf(&sqlupd, ADD_SERVICEGROUP, svc->servicegroup_name, svc->servicegroup_notify, svc->servicegroup_active, svc->servicegroup_members, svc->servicegroup_dead);
+	asprintf(&sqlupd, ADD_SERVICEGROUP, svc->servicegroup_name, svc->servicegroup_notify, svc->servicegroup_active, svc->servicegroup_members, svc->servicegroup_dead, svc->enabled_triggers);
 	
 	
 	
@@ -2795,7 +2820,7 @@ int UpdateServiceGroup(struct servicegroup * svc, char *config) {
 	
 	
 	
-	asprintf(&sqlupd, UPDATE_SERVICEGROUP, svc->servicegroup_name, svc->servicegroup_notify, svc->servicegroup_active, svc->servicegroup_members,svc->servicegroup_dead, svc->servicegroup_id);
+	asprintf(&sqlupd, UPDATE_SERVICEGROUP, svc->servicegroup_name, svc->servicegroup_notify, svc->servicegroup_active, svc->servicegroup_members,svc->servicegroup_dead,svc->enabled_triggers, svc->servicegroup_id);
 	
 	
 	
