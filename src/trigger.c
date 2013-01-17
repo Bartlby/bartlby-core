@@ -364,12 +364,27 @@ void bartlby_trigger(struct service * svc, char * cfgfile, void * shm_addr, int 
 		return;	
 	}
 	while((entry = readdir(dtrigger)) != NULL) {
+		
+		if(entry->d_name[0] == '.') continue;
+		
 		asprintf(&find_trigger, "|%s|" , entry->d_name);
 		asprintf(&full_path, "%s/%s", trigger_dir, entry->d_name);
 		if(lstat(full_path, &finfo) < 0) {
+			free(find_trigger);
+			free(full_path);
 			_log("lstat() %s failed", full_path);
 			return;	
 		}
+		_log("ENABLED TRIGGERS %s", svc->enabled_triggers);
+		
+		if(strlen(svc->enabled_triggers) > 2 && strstr(svc->enabled_triggers, find_trigger) == NULL) {
+			//Service has selected wich triggers - and current trigger 'find_trigger' is not activated/selected
+			free(find_trigger);
+			free(full_path);
+			continue;
+			
+		}
+		
 		if(S_ISREG(finfo.st_mode)) {
 			
 			for(x=0; x<hdr->wrkcount; x++) {
@@ -423,6 +438,7 @@ void bartlby_trigger(struct service * svc, char * cfgfile, void * shm_addr, int 
 						} else {
 							//_log("Worker: %s does not have trigger: %s", wrkmap[x].name, entry->d_name);
 						}
+						
 					}
 				}
 			}	
@@ -431,8 +447,9 @@ void bartlby_trigger(struct service * svc, char * cfgfile, void * shm_addr, int 
 		
 		
 		free(full_path);
+		free(find_trigger);
 	}
-	free(find_trigger);
+	
 	free(find_str);
 	
 	
