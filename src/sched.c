@@ -340,7 +340,7 @@ int sched_servicegroup_dead(struct service * svc) {
 			svc_to_check = svc->servicegroups[x]->dead_marker;
 			
 			if(svc_to_check == NULL) continue;
-			if(svc_to_check->service_id == svc->service_id) continue;
+			
 			
 			if(svc_to_check->service_active == 0) {
 				//Check if dead marker is active
@@ -413,7 +413,7 @@ int sched_servergroup_dead(struct server * srv, struct service * svc) {
 			svc_to_check = srv->servergroups[x]->dead_marker;
 			
 			if(svc_to_check == NULL) continue;
-			if(svc_to_check->service_id == svc->service_id) continue;
+			
 				
 				if(svc_to_check->service_active == 0) {
 				//Check if dead marker is active
