@@ -84,7 +84,7 @@
 #define PROGNAME "bartlby"
 #define REL_NAME "fusion"
 //#define VERSION  "1.4.0"
-#define EXPECTCORE 1400002 //Module V Check's
+#define EXPECTCORE 1400003 //Module V Check's
 
 #define MAX_CCACHE 1024
 #define MAX_CCACHE_KEY 1024
@@ -349,6 +349,8 @@ struct service {
 	long servicegroup_place[200];
 	
 	long fires_events;
+	
+	char enabled_triggers[512];
 	
 };
 
