@@ -97,6 +97,8 @@ void bartlby_SHM_link_services_servers(void * shm_addr, char * cfgfile) {
 		//_log("SRV-GROUP NAME: %s", srvgrpmap[y].servergroup_name);
 		if(strcmp(srvgrpmap[y].servergroup_name, "DEFAULT") == 0) {
 			default_group_index=y;
+			sprintf(srvgrpmap[y].servergroup_members, "");
+			continue;
 		}
 		for(x=0; x<hdr->srvcount; x++) {
 			
