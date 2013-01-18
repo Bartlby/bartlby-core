@@ -2667,6 +2667,11 @@ int GetServiceGroupMap(struct servicegroup * svcs, char * config) {
       			if(row[4] != NULL) {
       				
       				sprintf(svcs[i].servicegroup_members, "%s", row[4]);
+      				
+      				if(strcmp(svcs[i].servicegroup_name, "DEFAULT") == 0) {
+      					sprintf(svcs[i].servicegroup_members, "");
+      				}  
+      				
       			} else {
       				sprintf(svcs[i].servicegroup_members, "(null)");     				
       			}
