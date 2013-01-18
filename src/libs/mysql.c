@@ -2385,6 +2385,9 @@ int GetServerGroupMap(struct servergroup * svcs, char * config) {
       			if(row[4] != NULL) {
       				
       				sprintf(svcs[i].servergroup_members, "%s", row[4]);
+      				if(strcmp(svcs[i].servergroup_name, "DEFAULT") == 0) {
+      					sprintf(svcs[i].servergroup_members, "");
+      				}      				
       			} else {
       				sprintf(svcs[i].servergroup_members, "(null)");     				
       			}
