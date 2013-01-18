@@ -40,10 +40,14 @@ void bartlby_SHM_link_services_servers(void * shm_addr, char * cfgfile) {
 	int x;
 	int y;
 	int marker_found;
+	int default_group_index;
 	
 	
 	char * group_has_server;
 	char * group_has_service;
+	
+	
+	default_group_index=-1;
 	
 	hdr=bartlby_SHM_GetHDR(shm_addr);
 	srvmap=bartlby_SHM_ServerMap(shm_addr);
@@ -91,6 +95,9 @@ void bartlby_SHM_link_services_servers(void * shm_addr, char * cfgfile) {
 		//Server
 	for(y=0; y<hdr->srvgroupcount; y++) {
 		//_log("SRV-GROUP NAME: %s", srvgrpmap[y].servergroup_name);
+		if(strcmp(srvgrpmap[y].servergroup_name, "DEFAULT") == 0) {
+			default_group_index=y;
+		}
 		for(x=0; x<hdr->srvcount; x++) {
 			
 			asprintf(&group_has_server, "|%ld|", srvmap[x].server_id);
@@ -108,6 +115,12 @@ void bartlby_SHM_link_services_servers(void * shm_addr, char * cfgfile) {
 			free(group_has_server);
 		}
 	}
+	
+	
+						
+		
+
+	
 	
 	
 	for(y=0; y<hdr->svcgroupcount; y++) {
@@ -159,6 +172,28 @@ void bartlby_SHM_link_services_servers(void * shm_addr, char * cfgfile) {
 		
 	}
 	
+	
+	//If we have a "DEFAULT" GROUP add all unassigned servers to it
+	if (default_group_index>0) {
+	
+		for(x=0; x<hdr->srvcount; x++) {
+							
+					if(srvmap[x].servergroup_counter == 0) {
+						asprintf(&group_has_server, "|%d|", srvmap[x].server_id);
+						
+						srvmap[x].servergroups[srvmap[x].servergroup_counter] = &srvgrpmap[default_group_index];
+						srvmap[x].servergroup_place[srvmap[x].servergroup_counter]=default_group_index;
+						srvmap[x].servergroup_counter++;
+						strncat(srvgrpmap[default_group_index].servergroup_members, group_has_server, 1024);
+						
+						
+						free(group_has_server);
+					}
+								
+	
+		}
+		
+	}	
 	
 	_log("linked services with servers!");
 	
