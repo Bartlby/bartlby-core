@@ -154,6 +154,7 @@ void bartlby_SHM_link_services_servers(void * shm_addr, char * cfgfile) {
 	//Link Group DeadMarkers
 	for(y=0; y<hdr->svcgroupcount; y++) {
 		marker_found=0;
+		svcgrpmap[y].dead_marker=NULL;
 		for(x=0; x<hdr->svccount; x++) {
 			if(svcmap[x].service_id == svcgrpmap[y].servicegroup_dead) {
 				marker_found=1;
@@ -168,6 +169,7 @@ void bartlby_SHM_link_services_servers(void * shm_addr, char * cfgfile) {
 	
 	for(y=0; y<hdr->srvgroupcount; y++) {
 		marker_found=0;
+		srvgrpmap[y].dead_marker=NULL;
 		for(x=0; x<hdr->svccount; x++) {
 			if(svcmap[x].service_id == srvgrpmap[y].servergroup_dead) {
 				marker_found=1;
@@ -192,7 +194,10 @@ void bartlby_SHM_link_services_servers(void * shm_addr, char * cfgfile) {
 						srvmap[x].servergroups[srvmap[x].servergroup_counter] = &srvgrpmap[default_server_group_index];
 						srvmap[x].servergroup_place[srvmap[x].servergroup_counter]=default_server_group_index;
 						srvmap[x].servergroup_counter++;
-						strncat(srvgrpmap[default_server_group_index].servergroup_members, group_has_server, 1024);
+						
+						if(strlen(srvgrpmap[default_server_group_index].servergroup_members)+strlen(group_has_server) < 1024) {
+							strcat(srvgrpmap[default_server_group_index].servergroup_members, group_has_server);
+						}
 						
 						
 						free(group_has_server);
@@ -208,13 +213,19 @@ void bartlby_SHM_link_services_servers(void * shm_addr, char * cfgfile) {
 			for(x=0; x<hdr->svccount; x++) {
 				
 				if(svcmap[x].servicegroup_counter == 0) {
+					
+					
 					asprintf(&group_has_service, "|%ld|", svcmap[x].service_id);
 				
 					
 					svcmap[x].servicegroups[svcmap[x].servicegroup_counter] = &svcgrpmap[default_service_group_index];
 					svcmap[x].servicegroup_place[svcmap[x].servicegroup_counter]=default_service_group_index;
 					svcmap[x].servicegroup_counter++;
-					strncat(svcgrpmap[default_service_group_index].servicegroup_members, group_has_service, 1024);
+					if(strlen(svcgrpmap[default_service_group_index].servicegroup_members)+strlen(group_has_service) < 1024) {
+						strcat(svcgrpmap[default_service_group_index].servicegroup_members, group_has_service);
+					}
+					
+					
 					free(group_has_service);
 			}	
 		}
