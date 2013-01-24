@@ -80,11 +80,17 @@
 
 
 
+#define SNMP_CHECK_TYPE_LOWER 1
+#define SNMP_CHECK_TYPE_GREATER 2
+#define SNMP_CHECK_TYPE_EQ 3
+#define SNMP_CHECK_TYPE_NOT_EQ 4
+#define SNMP_CHECK_TYPE_CONTAINS 5
+
 
 #define PROGNAME "bartlby"
 #define REL_NAME "fusion"
 //#define VERSION  "1.4.0"
-#define EXPECTCORE 1400004 //Module V Check's
+#define EXPECTCORE 1400005 //Module V Check's
 
 #define MAX_CCACHE 1024
 #define MAX_CCACHE_KEY 1024
@@ -210,6 +216,7 @@ struct snmpi {
 	long warn;
 	long crit;
 	long type;
+	char textmatch[1024];
 };
 struct sprocess {
 	int start_time;

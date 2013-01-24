@@ -87,6 +87,7 @@ CREATE TABLE `services` (
   `escalate_divisor` int(11) NOT NULL default '0',  
   `fires_events` int(11) NOT NULL default '0',  
   `enabled_triggers` varchar(512) NOT NULL default '',
+  `service_snmp_textmatch` varchar(1024) NOT NULL default '',
   PRIMARY KEY  (`service_id`),
   KEY `service_id` (`service_id`),
   KEY `service_id_2` (`service_id`,`server_id`)
