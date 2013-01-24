@@ -335,7 +335,7 @@ void bartlby_trigger(struct service * svc, char * cfgfile, void * shm_addr, int 
 	char trigger_return[1024];
 	struct sigaction act1, oact1;
 	char * cfg_trigger_msg;
-	int notify_mem;
+	
 	
 	hdr=bartlby_SHM_GetHDR(shm_addr);
 	wrkmap=bartlby_SHM_WorkerMap(shm_addr);
@@ -381,7 +381,7 @@ void bartlby_trigger(struct service * svc, char * cfgfile, void * shm_addr, int 
 	asprintf(&notify_msg, "%s", cfg_trigger_msg);
 	//$VARS
 	
-	bartlby_replace_svc_in_str(notify_msg, svc, notify_mem);
+	bartlby_replace_svc_in_str(notify_msg, svc, strlen(notify_msg)-1);
 	
 	
 	free(cfg_trigger_msg);
