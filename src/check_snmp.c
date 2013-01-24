@@ -47,6 +47,7 @@ void bartlby_check_snmp(struct service * svc, char * cfgfile) {
 	
 	struct variable_list *vars;
 	int status;
+	char buf[1024];
 	
 	
 	
@@ -94,37 +95,93 @@ void bartlby_check_snmp(struct service * svc, char * cfgfile) {
     		*/
     		vars = response->variables;
     		switch(vars->type) {
-    			case ASN_COUNTER:
+    			
     			case ASN_INTEGER:
-    				sprintf(svc->new_server_text, "ASN_INTEGER: %ld", *vars->val.integer);
-				svc->current_state=STATE_OK;
-				switch(svc->snmp_info.type) {
-					case 1:
-						if(*vars->val.integer < svc->snmp_info.crit) {
-								svc->current_state=STATE_CRITICAL;
-						}
-						if(*vars->val.integer < svc->snmp_info.warn) {
-								svc->current_state=STATE_WARNING;
-						}
-					break;
-					case 2:
-						if(*vars->val.integer > svc->snmp_info.crit) {
-								svc->current_state=STATE_CRITICAL;
-						}
-						if(*vars->val.integer > svc->snmp_info.warn) {
-								svc->current_state=STATE_WARNING;
-						}
-					break;
+    			case ASN_TIMETICKS:
+    			case ASN_COUNTER:
+    				snprint_value(buf, sizeof(buf), vars->name, vars->name_length, vars);
+    				sprintf(svc->new_server_text, "Output %s - compare against: %ld", buf, *vars->val.integer);
+						svc->current_state=STATE_OK;
 						
-					
-				}
 				
+						switch(svc->snmp_info.type) {
+							case SNMP_CHECK_TYPE_LOWER: 
+								if(*vars->val.integer < svc->snmp_info.crit) {
+										svc->current_state=STATE_CRITICAL;
+								}
+								if(*vars->val.integer < svc->snmp_info.warn) {
+										svc->current_state=STATE_WARNING;
+								}
+							break;
+							case SNMP_CHECK_TYPE_GREATER:
+								if(*vars->val.integer > svc->snmp_info.crit) {
+										svc->current_state=STATE_CRITICAL;
+								}
+								if(*vars->val.integer > svc->snmp_info.warn) {
+										svc->current_state=STATE_WARNING;
+								}
+							break;
+							case SNMP_CHECK_TYPE_EQ:
+								if(*vars->val.integer != svc->snmp_info.warn) {
+									svc->current_state=STATE_WARNING;
+								} 
+								if(*vars->val.integer != svc->snmp_info.crit) {
+									svc->current_state=STATE_CRITICAL;
+								} 
+								
+									
+							break;
+							case SNMP_CHECK_TYPE_NOT_EQ:
+								if(*vars->val.integer == svc->snmp_info.warn) {
+									svc->current_state=STATE_WARNING;
+								} 
+								if(*vars->val.integer == svc->snmp_info.crit) {
+									svc->current_state=STATE_CRITICAL;
+								} 
+								
+									
+							break;
+							default:
+									sprintf(svc->new_server_text, "Integer return %ld - does not support 'contain'", *vars->val.integer);
+									svc->current_state=STATE_CRITICAL;
+							break;
+							
+							
+						}
 				
+	
     			break;
     			
     			default:	
-    				sprintf(svc->new_server_text, "Unkown Return variable: %d/%d/%d", vars->type, ASN_INTEGER, ASN_COUNTER);
-				svc->current_state=STATE_CRITICAL;
+    				snprint_value(buf, sizeof(buf), vars->name, vars->name_length, vars);
+    				svc->current_state=STATE_OK;
+    				switch(svc->snmp_info.type) {
+    					case SNMP_CHECK_TYPE_EQ:
+    						if(strcmp(buf, svc->snmp_info.textmatch) != 0) {
+    							svc->current_state=STATE_CRITICAL;
+    						}
+    					break;
+    					case SNMP_CHECK_TYPE_NOT_EQ:
+    						if(strcmp(buf, svc->snmp_info.textmatch) == 0) {
+    							svc->current_state=STATE_CRITICAL;
+    						}
+    					break;
+    					case SNMP_CHECK_TYPE_CONTAINS:
+    						
+    						if(strstr(buf, svc->snmp_info.textmatch) == NULL) {
+    							svc->current_state=STATE_CRITICAL;
+    							
+    						}
+    					break;
+    					default:
+    						//INTEGER CHECK ON text Output
+    						svc->current_state=STATE_CRITICAL;
+    						sprintf(buf, "String return and integer check!");	
+    					break;
+    				}
+    				
+    				sprintf(svc->new_server_text, "%s - match against: '%s' - Type: %d", buf, svc->snmp_info.textmatch, svc->snmp_info.type);
+						
     		}
     		
     		
