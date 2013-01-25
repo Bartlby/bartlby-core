@@ -93,7 +93,13 @@ void bartlby_ext_shutdown(int sched_exit_code) {
 void bartlby_ext_load(char * mod) {
 	int dlLoadOK;
 	int (*mod_startup)(void *, void *, char *);
-	
+	long   (*ExpectVersion)();
+	char * gGetAutorStr;
+	char * gGetVersionStr;
+	char * gGetNameStr;
+	char * (*gGetAutor)();
+	char * (*gGetVersion)();
+	char * (*gGetName)();
 	
 	_log("Module: %s", mod);	
 	
@@ -105,8 +111,36 @@ void bartlby_ext_load(char * mod) {
     	} else {
     		//CALL init function
     		//module_count++
+    		ExpectVersion=dlsym(dl_objects[module_count].soHandle, "ExpectVersion");
+    		gGetAutor=dlsym(dl_objects[module_count].soHandle, "GetAutor");
+    		gGetVersion=dlsym(dl_objects[module_count].soHandle, "GetVersion");
+    		gGetName=dlsym(dl_objects[module_count].soHandle, "GetName");
+    		if((dlmsg=dlerror()) != NULL) {
+    			_log("%s skipping extension Error: %s", mod, dlmsg);
+        	return;
+    		}
+    		if(ExpectVersion() > EXPECTCORE || EXPECTCORE < ExpectVersion() || EXPECTCORE != ExpectVersion()) {
+    			_log("*****Version check failed Module(%s) is compiled for version '%ld' of %s requiring '%d'",mod, ExpectVersion(), PROGNAME, EXPECTCORE);	
+    			_log("Skipping module: %s", mod);
+    			return;
+    		}
+    		
+    		
+    		gGetAutorStr=gGetAutor();
+    		gGetVersionStr=gGetVersion();
+    		gGetNameStr=gGetName();
+    		
+    		_log("Extension (%s) by: '%s' Version: %s", gGetNameStr, gGetAutorStr, gGetVersionStr);
+    		
+    		free(gGetAutorStr);
+				free(gGetVersionStr);
+				free(gGetNameStr);
+    		
     		snprintf(dl_objects[module_count].dlname,1000, "%s", mod);
     		mod_startup=dlsym(dl_objects[module_count].soHandle, "bartlby_extension_startup");
+    		
+    		
+    		
     		if((dlmsg=dlerror()) != NULL) {
         		_log("%s skipping extension Error: %s", mod, dlmsg);
         		return;

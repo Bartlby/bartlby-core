@@ -188,8 +188,8 @@ void bartlby_load_shm_stuff(char * cfgfile) {
     	gGetNameStr=gGetName();
     	
     	if(gExpectVersion() > EXPECTCORE || EXPECTCORE < gExpectVersion() || EXPECTCORE != gExpectVersion()) {
-    		_log("*****Version check failed Module is compiled for version '%ld' of %s", gExpectVersion(), PROGNAME);	
-    		_log("*****The Module is compiled under '%d' Version of %s", EXPECTCORE, PROGNAME);
+    		_log("*****Version check failed Module is compiled for version '%ld' of %s requiring '%ld'", gExpectVersion(), PROGNAME, EXPECTCORE);	
+    		
     		exit(1);
     	} 
     	
