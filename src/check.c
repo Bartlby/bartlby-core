@@ -49,7 +49,7 @@ void bartlby_check_eventhandler(struct service * svc, char * cfgfile) {
 	
 	//change plugin name - and args
 	sprintf(event_service.plugin, "event_%s", svc->plugin);
-	sprintf(event_service.plugin_arguments, "%s %s %d %d", state_level, svc->plugin_arguments, svc->current_state, svc->service_retain_current);
+	sprintf(event_service.plugin_arguments, "%s %s %d %ld", state_level, svc->plugin_arguments, svc->current_state, svc->service_retain_current);
 	
 	eventhandler_called=0;
 	if(svc->service_type == SVC_TYPE_ACTIVE) {
