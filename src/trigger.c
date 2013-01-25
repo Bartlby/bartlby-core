@@ -378,10 +378,11 @@ void bartlby_trigger(struct service * svc, char * cfgfile, void * shm_addr, int 
 	if(cfg_trigger_msg == NULL) {
 		cfg_trigger_msg=strdup(DEFAULT_NOTIFY_MSG);	
 	}
-	asprintf(&notify_msg, "%s", cfg_trigger_msg);
+	notify_msg=malloc(2048);
+	snprintf(notify_msg,1024, "%s", cfg_trigger_msg);
 	//$VARS
+	bartlby_replace_svc_in_str(notify_msg, svc, 2047);
 	
-	bartlby_replace_svc_in_str(notify_msg, svc, strlen(notify_msg)-1);
 	
 	
 	free(cfg_trigger_msg);
