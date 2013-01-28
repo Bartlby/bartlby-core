@@ -131,6 +131,7 @@ int replay_shm(char * k, char * f, long size) {
 	char * shm_char;
 	int x;
 		
+	printf("KEY => %s - FILE=>%s", k, f);
 	gshm_id = shmget(ftok(k, 32), gSHMSize,IPC_CREAT | IPC_EXCL | 0777);
 		if(gshm_id < 0) {
 			//REUSE
@@ -191,7 +192,7 @@ int main(int argc, char ** argv) {
 		} else if ( strcmp(argv[1], "replay") == 0 ) {
 			x = replay_shm(argv[2], argv[3], atol(argv[4]));		
 			if(x == 0) {
-				printf("FILLED SHM %s - with data from %s", argv[2], argv[3]);
+				printf("FILLED SHM %s - with data from %s\n", argv[2], argv[3]);
 			}
 			exit(1);
 	}
