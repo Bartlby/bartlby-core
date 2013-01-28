@@ -184,7 +184,7 @@ void bartlby_SHM_link_services_servers(void * shm_addr, char * cfgfile) {
 	
 	
 	//If we have a "DEFAULT" GROUP add all unassigned servers to it
-	if (default_server_group_index>0) {
+	if (default_server_group_index>-1) {
 	
 		for(x=0; x<hdr->srvcount; x++) {
 							
@@ -209,7 +209,7 @@ void bartlby_SHM_link_services_servers(void * shm_addr, char * cfgfile) {
 	}	
 	
 	//If we have a "DEFAULT" GROUP add all unassigned services to it
-	if (default_service_group_index>0) {
+	if (default_service_group_index>-1) {
 			for(x=0; x<hdr->svccount; x++) {
 				
 				if(svcmap[x].servicegroup_counter == 0) {
