@@ -2714,7 +2714,7 @@ int GetServiceGroupMap(struct servicegroup * svcs, char * config) {
 		free(mysql_db);
       		return i;
       	} else { 
-      		_log( "no Servergroups found!");	
+      		_log( "no Servicegroups found!");	
       	}
 	
 	
