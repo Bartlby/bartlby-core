@@ -228,6 +228,12 @@ int main(int argc, char ** argv) {
 				printf("%ld;%s;%d;%s;%d;\n", svcmap[x].service_id, srvmap[svcmap[x].srv_place].server_name, srvmap[svcmap[x].srv_place].client_port, svcmap[x].service_name, svcmap[x].current_state);
 			}
 			exit(1);
+		} else if ( strcmp(argv[2], "reload") == 0 ) {
+			bartlby_address=shmat(shm_id,NULL,0);
+			shm_hdr=bartlby_SHM_GetHDR(bartlby_address);
+			shm_hdr->do_reload=1;
+			printf("Reload Scheduled\n");
+			exit(1);
 		} 
 		printf("Unknown option: status|remove|list");
 		
