@@ -182,6 +182,7 @@ int main(int argc, char ** argv) {
 	struct service * svcmap;
 	struct server * srvmap;
 	int x;
+	key_t key;
 	
 	if ( strcmp(argv[1], "dump") == 0 ) {
 			x = dumpSHMToFile(argv[2], argv[3]);		
@@ -194,6 +195,14 @@ int main(int argc, char ** argv) {
 			if(x == 0) {
 				printf("FILLED SHM %s - with data from %s\n", argv[2], argv[3]);
 			}
+			exit(1);
+	}else if ( strcmp(argv[1], "ftok") == 0 ) {
+			key = ftok(argv[2], 32);
+			printf("0x%jx\n", key);
+			exit(1);
+	}else if ( strcmp(argv[1], "expectcore") == 0 ) {
+			
+			printf("%ld", EXPECTCORE);
 			exit(1);
 	}
 	
