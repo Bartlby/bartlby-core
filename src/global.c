@@ -462,9 +462,7 @@ int bartlby_agent_tcp_my_connect(char *host_name,int port,int *sd,char *proto, s
  
 	*sd=sockfd;
 	
-	 if(sockfd==-1) {
-  	return STATE_CRITICAL;
-   }
+	
 	
 	switch(errno){  
 		case ECONNREFUSED:
@@ -484,7 +482,9 @@ int bartlby_agent_tcp_my_connect(char *host_name,int port,int *sd,char *proto, s
 			break;
 		
   } 
-	
+	 if(sockfd==-1) {
+  	return STATE_CRITICAL;
+   }
 	
 
 	return STATE_OK;
