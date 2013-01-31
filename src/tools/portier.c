@@ -79,7 +79,7 @@ int main(int argc, char ** argv) {
 	
 	char * allowed_ip_list;
 	int ip_ok=-1;
-	struct sockaddr_in name;
+	struct sockaddr_storage name;
    	unsigned int namelen = sizeof(name);
 	
 	char * token;
@@ -88,6 +88,9 @@ int main(int argc, char ** argv) {
 	int command;
 	int svc_found=0;
 	
+	int error;
+	char namebuf[50];
+	char portbuf[50];
 	
 	
 	
@@ -130,17 +133,26 @@ int main(int argc, char ** argv) {
    	} else {
    		//syslog(LOG_INFO, "Connection from %s",	inet_ntoa(name.sin_addr));
    	}
+   	 error = getnameinfo((struct sockaddr *)&name, namelen,
+                    namebuf, sizeof(namebuf),
+                    portbuf, sizeof(portbuf),
+                    NI_NUMERICHOST);
+                    
+        if (error) {
+   					//syslog(LOG_ERR, "getnameinfo failed %s", gai_strerror(error));
+   					exit(1);
+   			}
         
         while(token != NULL) {
         	//printf("CHECKING: %s against %s\n", token, inet_ntoa(name.sin_addr));
-        	if(strcmp(token, inet_ntoa(name.sin_addr)) == 0) {
+        	if(strcmp(token,namebuf) == 0) {
         		ip_ok=0;	
         	}
         	token=strtok(NULL, ",");	
         }
         free(allowed_ip_list);
         if(ip_ok < 0) {
-        	printf("-IP Blocked\n");
+        	printf("-IP Blocked %s\n", namebuf);
 		exit(1);
         }	
 	
