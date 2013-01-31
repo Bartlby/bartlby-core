@@ -312,44 +312,48 @@ void agent_v2_generate_crc32_table(void){
 
 /* opens a tcp or udp connection to a remote host */
 int agent_v2_my_connect(char *host_name,int port,int *sd,char *proto, struct service * svc){
-	struct sockaddr_in servaddr;
-	struct hostent *hp;
-	struct protoent *ptrp;
 	int result;
 
-	bzero((char *)&servaddr,sizeof(servaddr));
-	servaddr.sin_family=AF_INET;
-	servaddr.sin_port=htons(port);
 
-	hp=gethostbyname((const char *)host_name);
-	if(hp==NULL){
-		sprintf(svc->new_server_text, "Invalid host name '%s'\n",host_name);
-		svc->current_state=STATE_CRITICAL;
-		return STATE_CRITICAL;
-	}
-
-	memcpy(&servaddr.sin_addr,hp->h_addr,hp->h_length);
+	struct addrinfo hints, *res, *ressave;
+	char ipvservice[20];
+	int sockfd;
 	
+	sprintf(ipvservice, "%d",port);
+	
+	 memset(&hints, 0, sizeof(struct addrinfo));
 
-	/* map transport protocol name to protocol number */
-	if(((ptrp=getprotobyname(proto)))==NULL){
-		sprintf(svc->new_server_text, "Cannot map \"%s\" to protocol number\n",proto);
-		svc->current_state=STATE_CRITICAL;
-		return STATE_CRITICAL;
-	        }
+   hints.ai_family = AF_UNSPEC;
+   hints.ai_socktype = SOCK_STREAM;
+	
+	 result = getaddrinfo(host_name, ipvservice, &hints, &res);
+	 if(result < 0) {
+	 		sprintf(svc->new_server_text, "getaddrinfo failed on '%s' - '%s'\n", host_name, gai_strerror(result));
+			svc->current_state=STATE_CRITICAL;
+			return STATE_CRITICAL;
+	}
+	ressave = res;
+	 
+	sockfd-1;
+	while (res) {
+        sockfd = socket(res->ai_family,
+                        res->ai_socktype,
+                        res->ai_protocol);
 
-	/* create a socket */
-	*sd=socket(PF_INET,(!strcmp(proto,"udp"))?SOCK_DGRAM:SOCK_STREAM,ptrp->p_proto);
-	if(*sd<0){
-		sprintf(svc->new_server_text, "Socket creation failed\n");
-		svc->current_state=STATE_CRITICAL;
-		return STATE_CRITICAL;
-	        }
+        if (!(sockfd < 0)) {
+            if (connect(sockfd, res->ai_addr, res->ai_addrlen) == 0)
+                break;
 
-	/* open a connection */
-	result=connect(*sd,(struct sockaddr *)&servaddr,sizeof(servaddr));
-	if(result<0){
-		switch(errno){  
+            close(sockfd);
+            sockfd=-1;
+        }
+    res=res->ai_next;
+  }
+  freeaddrinfo(ressave);
+ 
+	*sd=sockfd;
+	
+	switch(errno){  
 		case ECONNREFUSED:
 			sprintf(svc->new_server_text, "Connection refused by host\n");
 			svc->current_state=STATE_CRITICAL;
@@ -365,10 +369,12 @@ int agent_v2_my_connect(char *host_name,int port,int *sd,char *proto, struct ser
 		default:
 			sprintf(svc->new_server_text, "Connection refused or timed out\n");
 			svc->current_state=STATE_CRITICAL;
-		}
-
-			return STATE_CRITICAL;
-	 }
+  		break;
+  } 
+	
+	 if(sockfd==-1) {
+  	return STATE_CRITICAL;
+   }
 
 	return STATE_OK;
 }
