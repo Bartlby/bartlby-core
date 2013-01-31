@@ -577,3 +577,6 @@ int sched_servergroup_notify(struct server * srv);
 int sched_servergroup_active(struct server * srv);
 int sched_servicegroup_notify(struct service * svc);
 int sched_servicegroup_active(struct service * svc);
+
+int bartlby_agent_tcp_my_connect(char *host_name,int port,int *sd,char *proto, struct service * svc);
+int bartlby_agent_tcp_connect(char *host_name,int port,int *sd, struct service * svc);

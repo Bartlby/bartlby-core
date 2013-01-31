@@ -38,9 +38,7 @@ static unsigned long crc32_table[256];
 
 
 void agent_v2_generate_crc32_table(void);
-int agent_v2_my_connect(char *host_name,int port,int *sd,char *proto, struct service * svc);
 void agent_v2_alarm_handler(int sig);
-int agent_v2_my_tcp_connect(char *host_name,int port,int *sd, struct service * svc);
 unsigned long agent_v2_calculate_crc32(char *buffer, int buffer_size);
 void agent_v2_randomize_buffer(char *buffer,int buffer_size);
 
@@ -83,7 +81,7 @@ void bartlby_check_v2(struct service * svc, char * cfgfile, int use_ssl) {
 
 	conn_timedout=0;
 	alarm(svc->service_check_timeout);
-	result=agent_v2_my_tcp_connect(svc->srv->client_ip,svc->srv->client_port,&sd, svc);
+	result=bartlby_agent_tcp_connect(svc->srv->client_ip,svc->srv->client_port,&sd, svc);
 	
 	if(conn_timedout == 1) {
 		sprintf(svc->new_server_text, "%s", "timed out");
@@ -311,73 +309,6 @@ void agent_v2_generate_crc32_table(void){
 
 
 /* opens a tcp or udp connection to a remote host */
-int agent_v2_my_connect(char *host_name,int port,int *sd,char *proto, struct service * svc){
-	int result;
-
-
-	struct addrinfo hints, *res, *ressave;
-	char ipvservice[20];
-	int sockfd;
-	
-	sprintf(ipvservice, "%d",port);
-	
-	 memset(&hints, 0, sizeof(struct addrinfo));
-
-   hints.ai_family = AF_UNSPEC;
-   hints.ai_socktype = SOCK_STREAM;
-	
-	 result = getaddrinfo(host_name, ipvservice, &hints, &res);
-	 if(result < 0) {
-	 		sprintf(svc->new_server_text, "getaddrinfo failed on '%s' - '%s'\n", host_name, gai_strerror(result));
-			svc->current_state=STATE_CRITICAL;
-			return STATE_CRITICAL;
-	}
-	ressave = res;
-	 
-	sockfd-1;
-	while (res) {
-        sockfd = socket(res->ai_family,
-                        res->ai_socktype,
-                        res->ai_protocol);
-
-        if (!(sockfd < 0)) {
-            if (connect(sockfd, res->ai_addr, res->ai_addrlen) == 0)
-                break;
-
-            close(sockfd);
-            sockfd=-1;
-        }
-    res=res->ai_next;
-  }
-  freeaddrinfo(ressave);
- 
-	*sd=sockfd;
-	
-	switch(errno){  
-		case ECONNREFUSED:
-			sprintf(svc->new_server_text, "Connection refused by host\n");
-			svc->current_state=STATE_CRITICAL;
-			break;
-		case ETIMEDOUT:
-			sprintf(svc->new_server_text, "Timeout while attempting connection\n");
-			svc->current_state=STATE_CRITICAL;
-			break;
-		case ENETUNREACH:
-			sprintf(svc->new_server_text, "Network is unreachable\n");
-			svc->current_state=STATE_CRITICAL;
-			break;
-		default:
-			sprintf(svc->new_server_text, "Connection refused or timed out\n");
-			svc->current_state=STATE_CRITICAL;
-  		break;
-  } 
-	
-	 if(sockfd==-1) {
-  	return STATE_CRITICAL;
-   }
-
-	return STATE_OK;
-}
 
 void agent_v2_alarm_handler(int sig){
 
@@ -387,13 +318,7 @@ void agent_v2_alarm_handler(int sig){
        
        
 }
-int agent_v2_my_tcp_connect(char *host_name,int port,int *sd, struct service * svc){
-	int result;
 
-	result=agent_v2_my_connect(host_name,port,sd,"tcp", svc);
-
-	return result;
-}
 
 
         
