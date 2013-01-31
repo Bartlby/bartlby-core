@@ -475,10 +475,7 @@ int bartlby_agent_tcp_my_connect(char *host_name,int port,int *sd,char *proto, s
 			sprintf(svc->new_server_text, "Network is unreachable\n");
 			svc->current_state=STATE_CRITICAL;
 			break;
-		default:
-			sprintf(svc->new_server_text, "Connection refused or timed out\n");
-			svc->current_state=STATE_CRITICAL;
-  		break;
+		
   } 
 	
 	 if(sockfd==-1) {
