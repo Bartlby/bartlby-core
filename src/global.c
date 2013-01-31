@@ -462,25 +462,30 @@ int bartlby_agent_tcp_my_connect(char *host_name,int port,int *sd,char *proto, s
  
 	*sd=sockfd;
 	
+	 if(sockfd==-1) {
+  	return STATE_CRITICAL;
+   }
+	
 	switch(errno){  
 		case ECONNREFUSED:
 			sprintf(svc->new_server_text, "Connection refused by host\n");
 			svc->current_state=STATE_CRITICAL;
+			return STATE_CRITICAL;
 			break;
 		case ETIMEDOUT:
 			sprintf(svc->new_server_text, "Timeout while attempting connection\n");
 			svc->current_state=STATE_CRITICAL;
+			return STATE_CRITICAL;
 			break;
 		case ENETUNREACH:
 			sprintf(svc->new_server_text, "Network is unreachable\n");
 			svc->current_state=STATE_CRITICAL;
+			return STATE_CRITICAL;
 			break;
 		
   } 
 	
-	 if(sockfd==-1) {
-  	return STATE_CRITICAL;
-   }
+	
 
 	return STATE_OK;
 }
