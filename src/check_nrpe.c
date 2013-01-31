@@ -174,8 +174,7 @@ void bartlby_check_nrpe(struct service * svc, char * cfgfile, int use_ssl) {
 
 	conn_timedout=0;
 	alarm(svc->service_check_timeout);
-	result=my_tcp_connect(svc->srv->client_ip,svc->srv->client_port,&sd, svc);
-	
+	result = bartlby_agent_tcp_connect(svc->srv->client_ip,svc->srv->client_port,&sd, svc);
 	if(conn_timedout == 1) {
 		sprintf(svc->new_server_text, "%s", "timed out");
 		svc->current_state=STATE_CRITICAL;	
@@ -493,7 +492,7 @@ int my_tcp_connect(char *host_name,int port,int *sd, struct service * svc){
 	int result;
 
 	result=my_nrpe_connect(host_name,port,sd,"tcp", svc);
-
+	
 	return result;
 }
 
