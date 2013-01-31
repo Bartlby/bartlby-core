@@ -112,9 +112,9 @@ typedef struct packet_struct{
         
 
 void nrpe_generate_crc32_table(void);
-int my_nrpe_connect(char *host_name,int port,int *sd,char *proto, struct service * svc);
+//int my_nrpe_connect(char *host_name,int port,int *sd,char *proto, struct service * svc);
 void alarm_handler(int sig);
-int my_tcp_connect(char *host_name,int port,int *sd, struct service * svc);
+//int my_tcp_connect(char *host_name,int port,int *sd, struct service * svc);
 int my_inet_aton_self(register const char *cp, struct in_addr *addr);
 unsigned long calculate_crc32(char *buffer, int buffer_size);
 void randomize_buffer(char *buffer,int buffer_size);
@@ -412,8 +412,7 @@ void nrpe_generate_crc32_table(void){
 	return;
 }
 
-
-/* opens a tcp or udp connection to a remote host */
+/*
 int my_nrpe_connect(char *host_name,int port,int *sd,char *proto, struct service * svc){
 	struct sockaddr_in servaddr;
 	struct hostent *hp;
@@ -424,10 +423,10 @@ int my_nrpe_connect(char *host_name,int port,int *sd,char *proto, struct service
 	servaddr.sin_family=AF_INET;
 	servaddr.sin_port=htons(port);
 
-	/* try to bypass using a DNS lookup if this is just an IP address */
+
 	if(!my_inet_aton_self(host_name,&servaddr.sin_addr)){
 
-		/* else do a DNS lookup */
+		
 		hp=gethostbyname((const char *)host_name);
 		if(hp==NULL){
 			sprintf(svc->new_server_text, "Invalid host name '%s'\n",host_name);
@@ -438,14 +437,14 @@ int my_nrpe_connect(char *host_name,int port,int *sd,char *proto, struct service
 		memcpy(&servaddr.sin_addr,hp->h_addr,hp->h_length);
 	        }
 
-	/* map transport protocol name to protocol number */
+	
 	if(((ptrp=getprotobyname(proto)))==NULL){
 		sprintf(svc->new_server_text, "Cannot map \"%s\" to protocol number\n",proto);
 		svc->current_state=STATE_CRITICAL;
 		return STATE_UNKNOWN;
 	        }
 
-	/* create a socket */
+	
 	*sd=socket(PF_INET,(!strcmp(proto,"udp"))?SOCK_DGRAM:SOCK_STREAM,ptrp->p_proto);
 	if(*sd<0){
 		sprintf(svc->new_server_text, "Socket creation failed\n");
@@ -453,7 +452,7 @@ int my_nrpe_connect(char *host_name,int port,int *sd,char *proto, struct service
 		return STATE_UNKNOWN;
 	        }
 
-	/* open a connection */
+	
 	result=connect(*sd,(struct sockaddr *)&servaddr,sizeof(servaddr));
 	if(result<0){
 		switch(errno){  
@@ -479,7 +478,7 @@ int my_nrpe_connect(char *host_name,int port,int *sd,char *proto, struct service
 
 	return STATE_OK;
 }
-
+*/
 void alarm_handler(int sig){
 
         conn_timedout = 1;
@@ -488,6 +487,7 @@ void alarm_handler(int sig){
        
        
 }
+/*
 int my_tcp_connect(char *host_name,int port,int *sd, struct service * svc){
 	int result;
 
@@ -495,6 +495,7 @@ int my_tcp_connect(char *host_name,int port,int *sd, struct service * svc){
 	
 	return result;
 }
+*/
 
 
 /* This code was taken from Fyodor's nmap utility, which was originally taken from
