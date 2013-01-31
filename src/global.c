@@ -411,5 +411,80 @@ int bartlby_tcp_recvall(int s, char *buf, int *len, int timeout){
 	/* return <=0 on failure, bytes received on success */
 	return (n<=0)?n:total;
         }
+
+int bartlby_agent_tcp_connect(char *host_name,int port,int *sd, struct service * svc){
+	int result;
+
+	result=bartlby_agent_tcp_my_connect(host_name,port,sd,"tcp", svc);
+
+	return result;
+}
         
+int bartlby_agent_tcp_my_connect(char *host_name,int port,int *sd,char *proto, struct service * svc){
+	int result;
+
+
+	struct addrinfo hints, *res, *ressave;
+	char ipvservice[20];
+	int sockfd;
+	
+	sprintf(ipvservice, "%d",port);
+	
+	 memset(&hints, 0, sizeof(struct addrinfo));
+
+   hints.ai_family = AF_UNSPEC;
+   hints.ai_socktype = SOCK_STREAM;
+	
+	 result = getaddrinfo(host_name, ipvservice, &hints, &res);
+	 if(result < 0) {
+	 		sprintf(svc->new_server_text, "getaddrinfo failed on '%s' - '%s'\n", host_name, gai_strerror(result));
+			svc->current_state=STATE_CRITICAL;
+			return STATE_CRITICAL;
+	}
+	ressave = res;
+	 
+	sockfd-1;
+	while (res) {
+        sockfd = socket(res->ai_family,
+                        res->ai_socktype,
+                        res->ai_protocol);
+
+        if (!(sockfd < 0)) {
+            if (connect(sockfd, res->ai_addr, res->ai_addrlen) == 0)
+                break;
+
+            close(sockfd);
+            sockfd=-1;
+        }
+    res=res->ai_next;
+  }
+  freeaddrinfo(ressave);
+ 
+	*sd=sockfd;
+	
+	switch(errno){  
+		case ECONNREFUSED:
+			sprintf(svc->new_server_text, "Connection refused by host\n");
+			svc->current_state=STATE_CRITICAL;
+			break;
+		case ETIMEDOUT:
+			sprintf(svc->new_server_text, "Timeout while attempting connection\n");
+			svc->current_state=STATE_CRITICAL;
+			break;
+		case ENETUNREACH:
+			sprintf(svc->new_server_text, "Network is unreachable\n");
+			svc->current_state=STATE_CRITICAL;
+			break;
+		default:
+			sprintf(svc->new_server_text, "Connection refused or timed out\n");
+			svc->current_state=STATE_CRITICAL;
+  		break;
+  } 
+	
+	 if(sockfd==-1) {
+  	return STATE_CRITICAL;
+   }
+
+	return STATE_OK;
+}
 

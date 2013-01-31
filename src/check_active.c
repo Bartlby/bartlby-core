@@ -40,13 +40,11 @@ void bartlby_check_active(struct service * svc, char * cfgfile) {
 	char * client_request;
 	
 	
+	int result;
 	
 	
 	
 	
-	struct sockaddr_in remote_side;
-	struct hostent * remote_host;
-	struct sigaction act1, oact1;
 	
 	/*
 	NEW
@@ -58,74 +56,19 @@ void bartlby_check_active(struct service * svc, char * cfgfile) {
 	
 	
 	//sleep(40);
-	
 	connection_timed_out=0;
-	
-	if((remote_host = gethostbyname(svc->srv->client_ip)) == 0) {
-		
-		sprintf(svc->new_server_text, "%s", DNS_ERROR);
-		svc->current_state=STATE_CRITICAL;
-		
-		return;
-	}
-	memset(&remote_side, '\0', sizeof(remote_side));
-	remote_side.sin_family=AF_INET;
-	remote_side.sin_addr.s_addr = htonl(INADDR_ANY);
-	remote_side.sin_addr.s_addr = ((struct in_addr *) (remote_host->h_addr))->s_addr;
-	remote_side.sin_port=htons(svc->srv->client_port);
-	
-	if((client_socket = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
-			
-		
-		sprintf(svc->new_server_text, "%s", SOCKET_CREATE_ERROR);
-		svc->current_state=STATE_CRITICAL;
-				
-		return;
-			
-			
-	}
-	act1.sa_handler = bartlby_conn_timeout;
-		
-	
-	if(sigemptyset(&act1.sa_mask) < 0) {
-		
-		sprintf(svc->new_server_text, "%s", ALARM_ERROR);
-		svc->current_state=STATE_CRITICAL;
-				
-		return;
-	
-		
-	}	
-	
-	act1.sa_flags=0;
-	#ifdef SA_INTERRUPT
-	act1.sa_flags |= SA_INTERRUPT;
-	#endif
-	
-	if(sigaction(SIGALRM, &act1, &oact1) < 0) {
-		
-		sprintf(svc->new_server_text, "%s", ALARM_ERROR);
-		svc->current_state=STATE_CRITICAL;
-				
-		return;
-	
-		
-	}
 	alarm(svc->service_check_timeout);
-	client_connect_retval = connect(client_socket, (void *) &remote_side, sizeof(remote_side));
-	alarm(0);
+	result = bartlby_agent_tcp_connect(svc->srv->client_ip,svc->srv->client_port,&client_socket, svc);
 	
-	if(connection_timed_out == 1 || client_connect_retval == -1) {
-		sprintf(svc->new_server_text, "%s", CONN_ERROR);
-		svc->current_state=STATE_CRITICAL;
-		
-		if(close(client_socket) < 0) {
-			_log("close() in check_active failed! '%s`", strerror(errno));	
-		}
+	if(connection_timed_out == 1) {
+		sprintf(svc->new_server_text, "%s", "timed out");
+		svc->current_state=STATE_CRITICAL;	
 		return;
-	} 
-	
-	
+	}
+	if(result != STATE_OK) {
+		svc->current_state=STATE_CRITICAL;
+		return;
+	}
 	/*
 		SEND Request
 	*/
