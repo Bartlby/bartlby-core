@@ -320,8 +320,8 @@ int bartlby_populate_shm(char * cfgfile) {
 		if(gshm_id != -1) {
 			gBartlby_address=shmat(gshm_id,NULL,0);
 			
-			gshm_hdr=(struct shm_header *)(void *)gBartlby_address;
-			gsvcmap=(struct service *)(void *)gBartlby_address+sizeof(struct shm_header);
+			gshm_hdr=bartlby_SHM_GetHDR(gBartlby_address);
+			gsvcmap=bartlby_SHM_ServiceMap(gBartlby_address);
 			
 							
 				
@@ -331,15 +331,16 @@ int bartlby_populate_shm(char * cfgfile) {
 			
 			gsvcmap=bartlby_SHM_ServiceMap(gBartlby_address);
 			
-			gwrkmap=(struct worker *)(void*)&gsvcmap[gshm_svc_cnt]+20;
+			
+			gwrkmap = bartlby_SHM_WorkerMap(gBartlby_address);
 			gshm_wrk_cnt=gGetWorkerMap(gwrkmap, cfgfile);
 			gshm_hdr->wrkcount=gshm_wrk_cnt;
 			
-			gdtmap=(struct downtime *)(void *)&gwrkmap[gshm_wrk_cnt]+20;
+			gdtmap=bartlby_SHM_DowntimeMap(gBartlby_address);
 			gshm_dt_cnt=gGetDowntimeMap(gdtmap, cfgfile);
 			gshm_hdr->dtcount=gshm_dt_cnt;
 				
-			gsrvmap=(struct server *)(void *)&gdtmap[gshm_dt_cnt]+20;
+			gsrvmap=bartlby_SHM_ServerMap(gBartlby_address);
 			gshm_srv_cnt=gGetServerMap(gsrvmap, cfgfile);
 			
 			gshm_hdr->srvcount=gshm_srv_cnt;
