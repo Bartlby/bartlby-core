@@ -189,7 +189,7 @@ void bartlby_SHM_link_services_servers(void * shm_addr, char * cfgfile) {
 		for(x=0; x<hdr->srvcount; x++) {
 							
 					if(srvmap[x].servergroup_counter == 0) {
-						asprintf(&group_has_server, "%d|", srvmap[x].server_id);
+						asprintf(&group_has_server, "|%d|", srvmap[x].server_id);
 						
 						srvmap[x].servergroups[srvmap[x].servergroup_counter] = &srvgrpmap[default_server_group_index];
 						srvmap[x].servergroup_place[srvmap[x].servergroup_counter]=default_server_group_index;
@@ -215,7 +215,7 @@ void bartlby_SHM_link_services_servers(void * shm_addr, char * cfgfile) {
 				if(svcmap[x].servicegroup_counter == 0) {
 					
 					
-					asprintf(&group_has_service, "%ld|", svcmap[x].service_id);
+					asprintf(&group_has_service, "|%ld|", svcmap[x].service_id);
 				
 					
 					svcmap[x].servicegroups[svcmap[x].servicegroup_counter] = &svcgrpmap[default_service_group_index];
