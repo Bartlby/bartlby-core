@@ -246,7 +246,7 @@ struct servicegroup * bartlby_SHM_ServiceGroupMap(void * shm_addr) {
 	srvgrpmap=bartlby_SHM_ServerGroupMap(shm_addr);
 	
 	
-	return (struct servicegroup *)(void *)&srvgrpmap[hdr->srvgroupcount]+20;
+	return (struct servicegroup *)(void *)&srvgrpmap[hdr->srvgroupcount+1];
 }
 
 struct servergroup * bartlby_SHM_ServerGroupMap(void * shm_addr) {
@@ -258,7 +258,7 @@ struct servergroup * bartlby_SHM_ServerGroupMap(void * shm_addr) {
 	evmap=bartlby_SHM_EventMap(shm_addr);
 	
 	
-	return (struct servergroup *)(void *)&evmap[EVENT_QUEUE_MAX]+20;
+	return (struct servergroup *)(void *)&evmap[EVENT_QUEUE_MAX+1];
 }
 
 struct btl_event * bartlby_SHM_EventMap(void * shm_addr) {
@@ -270,7 +270,7 @@ struct btl_event * bartlby_SHM_EventMap(void * shm_addr) {
 	srvmap=bartlby_SHM_ServerMap(shm_addr);
 	
 	
-	return (struct btl_event *)(void *)&srvmap[hdr->srvcount]+20;
+	return (struct btl_event *)(void *)&srvmap[hdr->srvcount+1];
 }
 
 struct server * bartlby_SHM_ServerMap(void * shm_addr) {
@@ -282,10 +282,10 @@ struct server * bartlby_SHM_ServerMap(void * shm_addr) {
 	hdr=bartlby_SHM_GetHDR(shm_addr);
 	
 	svcmap=bartlby_SHM_ServiceMap(shm_addr);
-	//wrkmap=(struct worker *)(void*)&svcmap[hdr->svccount]+20;
+	//wrkmap=(struct worker *)(void*)&svcmap[hdr->svccount];
 	dtmap=bartlby_SHM_DowntimeMap(shm_addr);
 	
-	return (struct server *)(void *)&dtmap[hdr->dtcount]+20;
+	return (struct server *)(void *)&dtmap[hdr->dtcount+1];
 }
 
 struct downtime * bartlby_SHM_DowntimeMap(void * shm_addr) {
@@ -297,10 +297,10 @@ struct downtime * bartlby_SHM_DowntimeMap(void * shm_addr) {
 	hdr=bartlby_SHM_GetHDR(shm_addr);
 	
 	svcmap=bartlby_SHM_ServiceMap(shm_addr);
-	//wrkmap=(struct worker *)(void*)&svcmap[hdr->svccount]+20;
+	//wrkmap=(struct worker *)(void*)&svcmap[hdr->svccount];
 	wrkmap=bartlby_SHM_WorkerMap(shm_addr);
 	
-	return (struct downtime *)(void *)&wrkmap[hdr->wrkcount]+20;
+	return (struct downtime *)(void *)&wrkmap[hdr->wrkcount+1];
 }
 
 struct worker * bartlby_SHM_WorkerMap(void * shm_addr) {
@@ -311,10 +311,10 @@ struct worker * bartlby_SHM_WorkerMap(void * shm_addr) {
 	
 	svcmap=bartlby_SHM_ServiceMap(shm_addr);
 	
-	return (struct worker *)(void*)&svcmap[hdr->svccount]+20;
+	return (struct worker *)(void*)&svcmap[hdr->svccount+1];
 }
 
 struct service * bartlby_SHM_ServiceMap(void * shm_addr) {
 	//Is beyond the 3 integers :-)
-	return (struct service *)(void *)shm_addr+sizeof(struct shm_header);
+	return (struct service *)(void *)(shm_addr+sizeof(struct shm_header));
 }
