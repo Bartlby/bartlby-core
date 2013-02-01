@@ -321,15 +321,11 @@ int bartlby_populate_shm(char * cfgfile) {
 			gBartlby_address=shmat(gshm_id,NULL,0);
 			
 			gshm_hdr=bartlby_SHM_GetHDR(gBartlby_address);
-			gsvcmap=bartlby_SHM_ServiceMap(gBartlby_address);
 			
-							
-				
+			
+			gsvcmap=bartlby_SHM_ServiceMap(gBartlby_address);
 			gshm_svc_cnt=gGetServiceMap(gsvcmap, cfgfile);
-			
 			gshm_hdr->svccount=gshm_svc_cnt;
-			
-			gsvcmap=bartlby_SHM_ServiceMap(gBartlby_address);
 			
 			
 			gwrkmap = bartlby_SHM_WorkerMap(gBartlby_address);
