@@ -180,7 +180,7 @@ void bartlby_check_snmp(struct service * svc, char * cfgfile) {
     					break;
     				}
     				
-    				sprintf(svc->new_server_text, "%s - match against: '%s' - Type: %d", buf, svc->snmp_info.textmatch, svc->snmp_info.type);
+    				sprintf(svc->new_server_text, "%s - match against: '%s' - Type: %ld", buf, svc->snmp_info.textmatch, svc->snmp_info.type);
 						
     		}
     		
