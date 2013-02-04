@@ -1,3 +1,5 @@
+GIT_DESCR := $(shell sh -c 'git describe --abbrev=4 --always | sed s/^v//')
+GIT_VERSION = -D__GIT_VERSION=\"$(GIT_DESCR)\"
 AUTOMAKE_OPTIONS = subdir-objects
 ACLOCAL_AMFLAGS = ${ACLOCAL_FLAGS}
 
@@ -12,18 +14,18 @@ nodist_bartlby_SOURCES = src/bartlby.c src/config.c src/global.c src/sched.c src
 
 
 bartlby_LDADD = -ldl $(OPENSSL_FLAG) $(SNMP_FLAG) $(SSH_FLAG)
-bartlby_CFLAGS = $(AM_CFLAGS)  $(NRPE_ADDON) $(OPENSSL_ADDON)  $(SNMP_ADDON) $(SSH_ADDON)
+bartlby_CFLAGS = $(AM_CFLAGS)  $(NRPE_ADDON) $(OPENSSL_ADDON)  $(SNMP_ADDON) $(SSH_ADDON) $(GIT_VERSION)
 
 
 
 
 nodist_bartlby_shmt_SOURCES = src/shm.c src/config.c src/global.c src/tools/shmt.c
 bartlby_shmt_LDADD = -ldl $(OPENSSL_FLAG) $(SNMP_FLAG) $(SSH_FLAG)
-bartlby_shmt_CFLAGS = $(AM_CFLAGS) $(NRPE_ADDON) $(SSL_ADDON)  $(SNMP_ADDON) $(SSH_ADDON)
+bartlby_shmt_CFLAGS = $(AM_CFLAGS) $(NRPE_ADDON) $(SSL_ADDON)  $(SNMP_ADDON) $(SSH_ADDON) $(GIT_VERSION)
 
 nodist_bartlby_portier_SOURCES =  src/config.c src/global.c src/shm.c src/perf.c src/ext.c src/tools/portier.c
 bartlby_portier_LDADD = -ldl $(OPENSSL_FLAG) $(SNMP_FLAG) $(SSH_FLAG)
-bartlby_portier_CFLAGS = $(AM_CFLAGS) $(NRPE_ADDON) $(SSL_ADDON) $(SNMP_ADDON) $(SSH_ADDON)
+bartlby_portier_CFLAGS = $(AM_CFLAGS) $(NRPE_ADDON) $(SSL_ADDON) $(SNMP_ADDON) $(SSH_ADDON) $(GIT_VERSION)
 
 lib_LTLIBRARIES = mysql.la
 nodist_mysql_la_SOURCES = src/global.c src/config.c src/libs/mysql.c 
