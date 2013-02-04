@@ -199,7 +199,7 @@ int bartlby_action_handle_reply_line(struct service * svc, char * line, char * c
 	return_token = strtok(line, "|");
         if(return_token != NULL) {
         	//Verfiy result code to be 0-2 :-) 
-        	if(return_token[0] != '0' && return_token[0] != '1' && return_token[0] != '2' && return_token[0] != '4') {
+        	if(return_token[0] != '0' && return_token[0] != '1' && return_token[0] != '2' && return_token[0] != '4' && return_token[0] != '3') {
         		svc->current_state=STATE_UNKOWN;	
         		return 0;
         	} else {
