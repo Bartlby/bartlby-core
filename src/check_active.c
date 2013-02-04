@@ -26,13 +26,14 @@ $Author$
 
 static sig_atomic_t connection_timed_out=0;
 
+
 static void bartlby_conn_timeout(int signo) {
  	connection_timed_out = 1;
 }
 
 void bartlby_check_active(struct service * svc, char * cfgfile) {
 	int client_socket;
-	int client_connect_retval=-1;
+	
 	int return_bytes;
 	
 	
@@ -52,8 +53,36 @@ void bartlby_check_active(struct service * svc, char * cfgfile) {
 	char * rmessage;
 	int sum_rmessage;
 	
+	struct sigaction act1, oact1;
 	
 	
+	act1.sa_handler = bartlby_conn_timeout;
+
+
+	if(sigemptyset(&act1.sa_mask) < 0) {
+
+		sprintf(svc->new_server_text, "%s", ALARM_ERROR);
+		svc->current_state=STATE_CRITICAL;
+
+		return;
+
+
+	}	
+
+	act1.sa_flags=0;
+	#ifdef SA_INTERRUPT
+	act1.sa_flags |= SA_INTERRUPT;
+	#endif
+
+	if(sigaction(SIGALRM, &act1, &oact1) < 0) {
+
+		sprintf(svc->new_server_text, "%s", ALARM_ERROR);
+		svc->current_state=STATE_CRITICAL;
+
+		return;
+
+
+	}
 	
 	//sleep(40);
 	connection_timed_out=0;
@@ -75,8 +104,6 @@ void bartlby_check_active(struct service * svc, char * cfgfile) {
 	connection_timed_out=0;
 	asprintf(&client_request, "%s| %s|", svc->plugin, svc->plugin_arguments);
 	
-	//Encode it
-	bartlby_encode(client_request, strlen(client_request));
 	
 	//Send it
 	alarm(svc->service_check_timeout);
@@ -144,7 +171,7 @@ void bartlby_action_handle_reply(struct service * svc, char * rmessage, char * c
 	char_idx=0;
 	curr_line=malloc(sizeof(char) * (strlen(rmessage)+20));
 	
-	
+	 
 	
 	data_is_ok=0;
    	while(char_idx < strlen(rmessage)) {
