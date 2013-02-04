@@ -98,7 +98,7 @@ void bartlby_SHM_link_services_servers(void * shm_addr, char * cfgfile) {
 		//_log("SRV-GROUP NAME: %s", srvgrpmap[y].servergroup_name);
 		if(strcmp(srvgrpmap[y].servergroup_name, "DEFAULT") == 0) {
 			default_server_group_index=y;
-			sprintf(srvgrpmap[y].servergroup_members, "");
+			sprintf(srvgrpmap[y].servergroup_members, "%s", "");
 			continue;
 		}
 		for(x=0; x<hdr->srvcount; x++) {
@@ -130,7 +130,7 @@ void bartlby_SHM_link_services_servers(void * shm_addr, char * cfgfile) {
 		//_log("SVC-GROUP NAME: %s", svcgrpmap[y].servicegroup_name);
 		if(strcmp(svcgrpmap[y].servicegroup_name, "DEFAULT") == 0) {
 			default_service_group_index=y;
-			sprintf(svcgrpmap[y].servicegroup_members, "");
+			sprintf(svcgrpmap[y].servicegroup_members, "%s", "");
 			continue;
 		}
 		for(x=0; x<hdr->svccount; x++) {

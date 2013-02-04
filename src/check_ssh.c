@@ -133,7 +133,7 @@ void bartlby_check_ssh(struct service * svc, char * cfgfile) {
     if (rc < 0) {
         goto failed;
     }
-		sprintf(buffer2, "");
+		sprintf(buffer2, "%s","");
 		bytes_read=0;
     nbytes = channel_read(channel, buffer, sizeof(buffer), 0);
   	

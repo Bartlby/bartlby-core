@@ -198,11 +198,11 @@ int main(int argc, char ** argv) {
 			exit(1);
 	}else if ( strcmp(argv[1], "ftok") == 0 ) {
 			key = ftok(argv[2], 32);
-			printf("0x%jx\n", key);
+			printf("0x%jx\n", (uintmax_t)key);
 			exit(1);
 	}else if ( strcmp(argv[1], "expectcore") == 0 ) {
 			
-			printf("%ld", EXPECTCORE);
+			printf("%d", EXPECTCORE);
 			exit(1);
 	}
 	

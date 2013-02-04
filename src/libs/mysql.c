@@ -1072,18 +1072,18 @@ int GetServiceById(int service_id, struct service * svc, char * config) {
       		if(row[39] != NULL) {
       			snprintf(svc->enabled_triggers, 512, "%s", row[39]);
       		} else {
-      			sprintf(svc->enabled_triggers, "");	
+      			sprintf(svc->enabled_triggers, "%s", "");	
       		}
       		if(row[40] != NULL) {
       			snprintf(n_srv->enabled_triggers, 512, "%s", row[40]);
       		} else {
-      			sprintf(n_srv->enabled_triggers, "");	
+      			sprintf(n_srv->enabled_triggers, "%s", "");	
       		}
       		
       		if(row[41] != NULL) {
       			snprintf(svc->snmp_info.textmatch, 1024, "%s", row[41]);
       		} else {
-      			sprintf(svc->snmp_info.textmatch, "");	
+      			sprintf(svc->snmp_info.textmatch, "%s", "");	
       		}
       		
       		svc->srv=n_srv;
@@ -2113,7 +2113,7 @@ int GetServiceMap(struct service * svcs, char * config) {
       			if(row[32] != NULL) {
       				snprintf(svcs[i].service_exec_plan, 2047, "%s", row[32]);
       			} else {
-      				sprintf(svcs[i].service_exec_plan, " ");	
+      				sprintf(svcs[i].service_exec_plan, "%s", "");	
       			}
       			
       			//renotify_interval, escalate_divisor
@@ -2127,12 +2127,12 @@ int GetServiceMap(struct service * svcs, char * config) {
 						if(row[36] != NULL) {
       				snprintf(svcs[i].enabled_triggers, 512, "%s", row[36]);
       			} else {
-      				sprintf(svcs[i].enabled_triggers, "");	
+      				sprintf(svcs[i].enabled_triggers, "%s", "");	
       			}
       			if(row[37] != NULL) {
       				snprintf(svcs[i].snmp_info.textmatch, 1024, "%s", row[37]);
       			} else {
-      				sprintf(svcs[i].snmp_info.textmatch, "");	
+      				sprintf(svcs[i].snmp_info.textmatch, "%s", "");	
       			}
       				
       			//bartlby_replace_svc_in_str(svcs[i].plugin_arguments, &svcs[i], 2048);
@@ -2400,7 +2400,7 @@ int GetServerGroupMap(struct servergroup * svcs, char * config) {
       				
       				sprintf(svcs[i].servergroup_members, "%s", row[4]);
       				if(strcmp(svcs[i].servergroup_name, "DEFAULT") == 0) {
-      					sprintf(svcs[i].servergroup_members, "");
+      					sprintf(svcs[i].servergroup_members, "%s", "");
       				}      				
       			} else {
       				sprintf(svcs[i].servergroup_members, "(null)");     				
@@ -2414,7 +2414,7 @@ int GetServerGroupMap(struct servergroup * svcs, char * config) {
       				
       				sprintf(svcs[i].enabled_triggers, "%s", row[6]);
       			} else {
-      				sprintf(svcs[i].enabled_triggers, "");     				
+      				sprintf(svcs[i].enabled_triggers, "%s", "");     				
       			}
       			
 		
@@ -2665,7 +2665,7 @@ int GetServiceGroupMap(struct servicegroup * svcs, char * config) {
       				sprintf(svcs[i].servicegroup_name, "%s", row[1]);
       			} else {
       				sprintf(svcs[i].servicegroup_name, "(null)");     				
-      			}
+      			} 
       			if(row[2] != NULL) {
       				
       				svcs[i].servicegroup_notify = atoi(row[2]);
@@ -2683,7 +2683,7 @@ int GetServiceGroupMap(struct servicegroup * svcs, char * config) {
       				sprintf(svcs[i].servicegroup_members, "%s", row[4]);
       				
       				if(strcmp(svcs[i].servicegroup_name, "DEFAULT") == 0) {
-      					sprintf(svcs[i].servicegroup_members, "");
+      					sprintf(svcs[i].servicegroup_members, "%s", "");
       				}  
       				
       			} else {
