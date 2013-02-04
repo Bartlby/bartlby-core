@@ -78,6 +78,7 @@ struct shm_header * gshm_hdr;
 
 
 int gReuseSHM=0;
+int gOnlySHMPop=0;
 
 
 
@@ -121,7 +122,7 @@ void bartlby_parse_argv(int argc, char ** argv){
 	}
 	
 	for (;;) {
-		c = getopt_long(argc, argv, "hdrv", longopts, (int *) 0);
+		c = getopt_long(argc, argv, "hdrsv", longopts, (int *) 0);
 		if (c == -1)
 			break;
 		switch (c) {
@@ -134,6 +135,9 @@ void bartlby_parse_argv(int argc, char ** argv){
 		break;
 		case 'r':
 			gReuseSHM=1;
+		break;
+		case 's':
+			gOnlySHMPop=1;	
 		break;
 		case 'v':
 			printf("%s\n", VERSION);
@@ -480,6 +484,18 @@ int main(int argc, char ** argv) {
 	
 	
 	bartlby_init();
+	
+	if(gOnlySHMPop == 1) {
+		bartlby_load_shm_stuff(gCfgfile);
+		bartlby_shm_fits(gCfgfile);
+	
+		if(bartlby_populate_shm(gCfgfile) < 0) {
+			//in case of zero workers
+			exit(1);
+		}
+		_log("SHM Populated");
+		exit(0);
+	}
 	
 	bartlby_setuid();
 	
