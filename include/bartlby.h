@@ -88,7 +88,8 @@
 
 
 #define PROGNAME "bartlby"
-#define REL_NAME "fusion"
+#define REL_NAME_INT "fusion"
+#define REL_NAME REL_NAME_INT " - rev:" __GIT_VERSION
 //#define VERSION  "1.4.0"
 #define EXPECTCORE 1400006 //Module V Check's
 
