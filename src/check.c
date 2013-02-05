@@ -163,6 +163,7 @@ void bartlby_fin_service(struct service * svc, void * SOHandle, void * shm_addr,
 		bartlby_push_event(EVENT_STATUS_CHANGED, "Service-Changed;%d;%s:%d/%s;%d;%s", svc->service_id, svc->srv->server_name, svc->srv->client_port, svc->service_name, svc->current_state, svc->new_server_text);
 		bartlby_callback(EXTENSION_CALLBACK_STATE_CHANGED, svc);
 	}	
+
 	if(svc->service_retain_current == svc->service_retain && svc->current_state != svc->notify_last_state) {
 	
 		bartlby_push_event(EVENT_TRIGGER_PUSHED, "Service-Changed;%d;%s:%d/%s;%d;%s", svc->service_id, svc->srv->server_name, svc->srv->client_port, svc->service_name, svc->current_state, svc->new_server_text);
@@ -224,7 +225,7 @@ void bartlby_fin_service(struct service * svc, void * SOHandle, void * shm_addr,
 	bartlby_callback(EXTENSION_CALLBACK_POST_CHECK, svc);
 	
 	svc->service_retain_current++;
-	
+
 	
 	
 	cfg_instant_wb = getConfigValue("instant_write_back", cfgfile);
