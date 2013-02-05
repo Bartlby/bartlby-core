@@ -608,8 +608,12 @@ if any of these chain members does not match - service lcheck (for next round di
 				//diff is higher
 				if(bartlby_is_in_downtime(shm_addr, svc) < 0) {
 					//downtimed
-					sched_reschedule(svc);
-					return -1;
+					//If we are in downtime :)
+						svc->current_state = STATE_DOWNTIME;
+						sprintf(svc->new_server_text, "%s", "Service is in Downtime");
+						bartlby_fin_service(svc,SOHandle,shm_addr,cfg);		
+						sched_reschedule(svc);
+						return -1;
 				}	
 				if(svc->service_active != 1) {
 						sched_reschedule(svc);						

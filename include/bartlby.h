@@ -135,7 +135,7 @@
 #define STATE_UNKOWN 3
 #define STATE_INFO 4
 #define STATE_SIRENE 7
-
+#define STATE_DOWNTIME 8
 
 //Service ACK
 
