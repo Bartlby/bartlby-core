@@ -103,7 +103,7 @@ then
 		COMMENT:"\\n"  
 		
 		
-		rrdtool graph $PNGFILE_YEAR  --start -1month \
+		rrdtool graph $PNGFILE_YEAR  --start -1year \
 		-a PNG \
 		--vertical-label "Generic PerfGraph" \
 		 -w 600 -h 300 \
@@ -166,6 +166,7 @@ RRA:LAST:0.5:288:800
 
 fi;
 rrdtool update $RRDFILE N:${UPD_STR%?};
+echo "UPDATED ${UPD_STR%?}";
 
 
 
