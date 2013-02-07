@@ -34,11 +34,11 @@ mysql_la_LDFLAGS = -avoid-version -module
 
 #perfhandler
 perfhandlerdir=$(prefix)/perf
-dist_perfhandler_DATA=perf/bartlby_files_in_dir perf/bartlby_http perf/bartlby_if perf/bartlby_load perf/bartlby_snmp.sh perf/bartlby_swap.sh
+dist_perfhandler_DATA=perf/bartlby_generic.sh  perf/bartlby_http perf/bartlby_if perf/bartlby_load perf/bartlby_snmp.sh perf/bartlby_swap.sh
 
 #perfhandler-defaults
 perfhandlerdefaultsdir=$(prefix)/perf/defaults
-dist_perfhandlerdefaults_DATA=perf/defaults/bartlby_files_in_dir.rrd.xml  perf/defaults/bartlby_http.rrd.xml perf/defaults/bartlby_if.rrd.xml perf/defaults/bartlby_load.rrd.xml perf/defaults/bartlby_snmp.sh.rrd.xml perf/defaults/bartlby_swap.sh.rrd.xml 
+dist_perfhandlerdefaults_DATA=perf/defaults/bartlby_http.rrd.xml perf/defaults/bartlby_if.rrd.xml perf/defaults/bartlby_load.rrd.xml perf/defaults/bartlby_snmp.sh.rrd.xml perf/defaults/bartlby_swap.sh.rrd.xml 
 
 
 #trigger
