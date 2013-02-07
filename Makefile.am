@@ -1,4 +1,4 @@
-GIT_DESCR := $(shell sh -c 'git describe --abbrev=4 --always | sed s/^v//')
+GIT_DESCR = $(shell sh -c 'git describe --abbrev=4 --always | sed s/^v//')
 GIT_VERSION = -D__GIT_VERSION=\"$(GIT_DESCR)\"
 AUTOMAKE_OPTIONS = subdir-objects
 ACLOCAL_AMFLAGS = ${ACLOCAL_FLAGS}
