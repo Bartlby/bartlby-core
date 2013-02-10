@@ -34,9 +34,9 @@ GRAPH_STR="";
 cnt=1;
 LEGEND_STR="";
 
-cl[1]="#ff0000";
-cl[2]="#00ff00";
-cl[3]="#0000ff";
+cl[1]="#54EC48";
+cl[2]="#ECD748";
+cl[3]="#DE48EC";
 
 
 function rrd_getDS {
@@ -135,7 +135,7 @@ do
 	
 	k=$(echo $x| awk -F"=" '{print $1}');
 	v=$(echo $x| awk -F"=" '{print $2}');
-	DS_STR="${DS_STR} DS:${k}:GAUGE:600:0:U";
+	DS_STR="${DS_STR} DS:${k}:GAUGE:120:U:U";
 	UPD_STR="${UPD_STR}${v}:";
 	cnt=$[cnt+1];
 
@@ -143,23 +143,23 @@ done
 
 if [ ! -f $RRDFILE  ];
 then 
-rrdtool create $RRDFILE $DS_STR \
-RRA:AVERAGE:0.5:1:800 \
-RRA:AVERAGE:0.5:6:800 \
-RRA:AVERAGE:0.5:24:800 \
-RRA:AVERAGE:0.5:288:800 \
-RRA:MAX:0.5:1:800 \
-RRA:MAX:0.5:6:800 \
-RRA:MAX:0.5:24:800 \
-RRA:MAX:0.5:288:800 \
-RRA:MIN:0.5:1:800 \
-RRA:MIN:0.5:6:800 \
-RRA:MIN:0.5:24:800 \
-RRA:MIN:0.5:288:800 \
-RRA:LAST:0.5:1:800 \
-RRA:LAST:0.5:6:800 \
-RRA:LAST:0.5:24:800 \
-RRA:LAST:0.5:288:800
+rrdtool create $RRDFILE --step 60 $DS_STR \
+RRA:AVERAGE:0.5:1:2880 \
+RRA:AVERAGE:0.5:5:2880 \
+RRA:AVERAGE:0.5:30:5840 \
+RRA:AVERAGE:0.5:300:7840 \
+RRA:MAX:0.5:1:2880 \
+RRA:MAX:0.5:5:2880 \
+RRA:MAX:0.5:30:5840 \
+RRA:MAX:0.5:300:7840 \
+RRA:MIN:0.5:1:2880 \
+RRA:MIN:0.5:5:2880 \
+RRA:MIN:0.5:30:5840 \
+RRA:MIN:0.5:300:7840 \
+RRA:LAST:0.5:1:2880 \
+RRA:LAST:0.5:5:2880 \
+RRA:LAST:0.5:30:5840 \
+RRA:LAST:0.5:300:7840
 
 
 
