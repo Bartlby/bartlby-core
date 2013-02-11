@@ -41,38 +41,22 @@ cl[3]="#DE48EC";
 
 function rrd_getDS {
 			
-			rrdtool info $1  |grep "ds\["|awk -F"." '{gsub(/ds\[/, "", $1); gsub(/\]/, "", $1); DS[$1]=1;} END {for(x in DS) { print x}}'|while read k; 
+			rrdtool info $2  |grep "ds\["|awk -F"." '{gsub(/ds\[/, "", $1); gsub(/\]/, "", $1); DS[$1]=1;} END {for(x in DS) { print x}}'|while read k; 
 			do
 				
+				#graph each DS
+				
+				RRDFILE="$2";
+				PNGFILE="${RRD_HTDOCS}/${1}_${MY_NAME}${k}.png";
+				PNGFILE_SEVEN="${RRD_HTDOCS}/${1}_${MY_NAME}${k}7.png";
+				PNGFILE_MONTH="${RRD_HTDOCS}/${1}_${MY_NAME}${k}31.png";
+				PNGFILE_YEAR="${RRD_HTDOCS}/${1}_${MY_NAME}${k}365.png";
+				PNGFILE_HOUR="${RRD_HTDOCS}/${1}_${MY_NAME}${k}60min.png";
 				
 				GRAPH_STR="DEF:report${cnt}=${RRDFILE}:${k}:AVERAGE LINE${cnt}:report${cnt}${cl[$cnt]}:${k}"
-				cnt=$[cnt+1];
-				echo $GRAPH_STR;
-			done;
-
-}
-
-if [ "x$1" = "xgraph" ];
-then
-	
-		RRDFILE="${RRD_HTDOCS}/${2}_${MY_NAME}.rrd";
-		PNGFILE="${RRD_HTDOCS}/${2}_${MY_NAME}.png";
-		PNGFILE_SEVEN="${RRD_HTDOCS}/${2}_${MY_NAME}7.png";
-		PNGFILE_MONTH="${RRD_HTDOCS}/${2}_${MY_NAME}31.png";
-		PNGFILE_YEAR="${RRD_HTDOCS}/${2}_${MY_NAME}365.png";
-		PNGFILE_HOUR="${RRD_HTDOCS}/${2}_${MY_NAME}60min.png";
-
-		if [ ! -f $RRDFILE ];
-		then
-			echo "NO RRD DB exists";
-			exit;
-		fi;
-		
-	
-		GRAPH_STR=$(rrd_getDS $RRDFILE);		
-		
-	
-		rrdtool graph $PNGFILE_HOUR  --start -1hour \
+				
+				
+				rrdtool graph $PNGFILE_HOUR  --start -1hour \
 		-a PNG \
 		--vertical-label "Generic PerfGraph" \
 		 -w 600 -h 300 \
@@ -112,6 +96,35 @@ then
 		
 		
 		echo "done $PNGFILE_HOUR";
+		
+				
+				
+				cnt=$[cnt+1];
+				
+				
+				
+				
+				
+			done;
+
+}
+
+if [ "x$1" = "xgraph" ];
+then
+	
+		RRDFILE="${RRD_HTDOCS}/${2}_${MY_NAME}.rrd";
+		
+
+		if [ ! -f $RRDFILE ];
+		then
+			echo "NO RRD DB exists";
+			exit;
+		fi;
+		
+	
+		rrd_getDS $2 $RRDFILE;		
+		
+	
 		
 		exit;
 				
