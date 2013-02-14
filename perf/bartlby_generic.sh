@@ -53,45 +53,100 @@ function rrd_getDS {
 				PNGFILE_YEAR="${RRD_HTDOCS}/${1}_${MY_NAME}${k}365.png";
 				PNGFILE_HOUR="${RRD_HTDOCS}/${1}_${MY_NAME}${k}60min.png";
 				
-				GRAPH_STR="DEF:report${cnt}=${RRDFILE}:${k}:AVERAGE LINE${cnt}:report${cnt}${cl[$cnt]}:${k}"
+				
 				
 				
 				rrdtool graph $PNGFILE_HOUR  --start -1hour \
 		-a PNG \
-		--vertical-label "Generic PerfGraph" \
+		--vertical-label "Generic PerfGraph" -t "Last Hour ( $BARTLBY_CURR_HOST / $BARTLBY_CURR_SERVICE )" \
 		 -w 600 -h 300 \
-		$GRAPH_STR \
+				DEF:report${cnt}=${RRDFILE}:${k}:AVERAGE \
+				AREA:report${cnt}${cl[$cnt]}:${k}  \
+				VDEF:report${cnt}l=report${cnt},LAST \
+				VDEF:report${cnt}mi=report${cnt},MINIMUM \
+				VDEF:report${cnt}ma=report${cnt},MAXIMUM  \
+				VDEF:report${cnt}avg=report${cnt},AVERAGE \
+				COMMENT:"Generated @ $(/bin/date "+%d.%m.%Y %H\:%M\:%S")\\n" \
+				GPRINT:report${cnt}l:"Last %5.2lf" \
+				GPRINT:report${cnt}mi:"Min %5.2lf" \
+				GPRINT:report${cnt}ma:"Max %5.2lf" \
+				GPRINT:report${cnt}avg:"AVG %5.2lf" \
+				LINE1:report${cnt}#000000 \
 		COMMENT:"\\n"  
 		
 		
 		rrdtool graph $PNGFILE  --start -86400 \
 		-a PNG \
-		--vertical-label "Generic PerfGraph" \
+		--vertical-label "Generic PerfGraph" -t "Last 24Hours ( $BARTLBY_CURR_HOST / $BARTLBY_CURR_SERVICE )" \
 		 -w 600 -h 300 \
-		$GRAPH_STR \
+				DEF:report${cnt}=${RRDFILE}:${k}:AVERAGE \
+				AREA:report${cnt}${cl[$cnt]}:${k}  \
+				VDEF:report${cnt}l=report${cnt},LAST \
+				VDEF:report${cnt}mi=report${cnt},MINIMUM \
+				VDEF:report${cnt}ma=report${cnt},MAXIMUM  \
+				VDEF:report${cnt}avg=report${cnt},AVERAGE \
+				COMMENT:"Generated @ $(/bin/date "+%d.%m.%Y %H\:%M\:%S")\\n" \
+				GPRINT:report${cnt}l:"Last %5.2lf" \
+				GPRINT:report${cnt}mi:"Min %5.2lf" \
+				GPRINT:report${cnt}ma:"Max %5.2lf" \
+				GPRINT:report${cnt}avg:"AVG %5.2lf" \
+				LINE1:report${cnt}#000000 \
 		COMMENT:"\\n"  
 		
-		rrdtool graph $PNGFILE_SEVEN  --start -1week \
+		rrdtool graph $PNGFILE_SEVEN  --start -1week -t "Last Week ( $BARTLBY_CURR_HOST / $BARTLBY_CURR_SERVICE )" \
 		-a PNG \
 		--vertical-label "Generic PerfGraph" \
 		 -w 600 -h 300 \
-		$GRAPH_STR \
+		 		DEF:report${cnt}=${RRDFILE}:${k}:AVERAGE \
+				AREA:report${cnt}${cl[$cnt]}:${k}  \
+				VDEF:report${cnt}l=report${cnt},LAST \
+				VDEF:report${cnt}mi=report${cnt},MINIMUM \
+				VDEF:report${cnt}ma=report${cnt},MAXIMUM  \
+				VDEF:report${cnt}avg=report${cnt},AVERAGE \
+				COMMENT:"Generated @ $(/bin/date "+%d.%m.%Y %H\:%M\:%S")\\n" \
+				GPRINT:report${cnt}l:"Last %5.2lf" \
+				GPRINT:report${cnt}mi:"Min %5.2lf" \
+				GPRINT:report${cnt}ma:"Max %5.2lf" \
+				GPRINT:report${cnt}avg:"AVG %5.2lf" \
+				LINE1:report${cnt}#000000 \
 		COMMENT:"\\n"  
 		
 		
 		rrdtool graph $PNGFILE_MONTH  --start -1month \
 		-a PNG \
-		--vertical-label "Generic PerfGraph" \
+		--vertical-label "Generic PerfGraph" -t "Last Month ( $BARTLBY_CURR_HOST / $BARTLBY_CURR_SERVICE )" \
 		 -w 600 -h 300 \
-		$GRAPH_STR \
+				DEF:report${cnt}=${RRDFILE}:${k}:AVERAGE \
+				AREA:report${cnt}${cl[$cnt]}:${k}  \
+				VDEF:report${cnt}l=report${cnt},LAST \
+				VDEF:report${cnt}mi=report${cnt},MINIMUM \
+				VDEF:report${cnt}ma=report${cnt},MAXIMUM  \
+				VDEF:report${cnt}avg=report${cnt},AVERAGE \
+				COMMENT:"Generated @ $(/bin/date "+%d.%m.%Y %H\:%M\:%S")\\n" \
+				GPRINT:report${cnt}l:"Last %5.2lf" \
+				GPRINT:report${cnt}mi:"Min %5.2lf" \
+				GPRINT:report${cnt}ma:"Max %5.2lf" \
+				GPRINT:report${cnt}avg:"AVG %5.2lf" \
+				LINE1:report${cnt}#000000 \
 		COMMENT:"\\n"  
 		
 		
-		rrdtool graph $PNGFILE_YEAR  --start -1year \
+		rrdtool graph $PNGFILE_YEAR  --start -1year -t "Last YEAR ( $BARTLBY_CURR_HOST / $BARTLBY_CURR_SERVICE )" \
 		-a PNG \
 		--vertical-label "Generic PerfGraph" \
 		 -w 600 -h 300 \
-		$GRAPH_STR \
+				DEF:report${cnt}=${RRDFILE}:${k}:AVERAGE \
+				AREA:report${cnt}${cl[$cnt]}:${k}  \
+				VDEF:report${cnt}l=report${cnt},LAST \
+				VDEF:report${cnt}mi=report${cnt},MINIMUM \
+				VDEF:report${cnt}ma=report${cnt},MAXIMUM  \
+				VDEF:report${cnt}avg=report${cnt},AVERAGE \
+				COMMENT:"Generated @ $(/bin/date "+%d.%m.%Y %H\:%M\:%S")\\n" \
+				GPRINT:report${cnt}l:"Last %5.2lf" \
+				GPRINT:report${cnt}mi:"Min %5.2lf" \
+				GPRINT:report${cnt}ma:"Max %5.2lf" \
+				GPRINT:report${cnt}avg:"AVG %5.2lf" \
+				LINE1:report${cnt}#000000 \
 		COMMENT:"\\n"  
 		
 		
