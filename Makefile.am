@@ -33,7 +33,7 @@ mysql_la_LIBADD = $(LIB_MYSQL)
 mysql_la_LDFLAGS = -avoid-version -module
 
 #perfhandler
-perfhandlerdir=$(DESTDIR)$(prefix)/perf
+perfhandlerdir=$(prefix)/perf
 dist_perfhandler_DATA=perf/bartlby_generic.sh  perf/bartlby_http perf/bartlby_if perf/bartlby_load perf/bartlby_snmp.sh perf/bartlby_swap.sh
 #dist_perfhandler_DATA=perf/bartlby_http perf/bartlby_if perf/bartlby_load perf/bartlby_snmp.sh perf/bartlby_swap.sh
 
@@ -71,8 +71,8 @@ install-data-hook:
 	    if test -f $(DESTDIR)$(sysconfdir)/$$dest; then \
 		echo "$@ will not overwrite existing $(DESTDIR)$(sysconfdir)/$$dest"; \
 	    else \
-		echo " $(INSTALL_DATA) $$p $(DESTDIR)$(prefix)$(sysconfdir)/$$dest"; \
-		$(INSTALL_DATA) $$p $(DESTDIR)$(prefix)$(sysconfdir)/$$dest; \
+		echo " $(INSTALL_DATA) $$p $(DESTDIR)$(sysconfdir)/$$dest"; \
+		$(INSTALL_DATA) $$p $(DESTDIR)$(sysconfdir)/$$dest; \
 	    fi; \
 	done
 	 for i in $(dist_perfhandler_DATA) ; do chmod +x $(DESTDIR)$(prefix)/$$i ; done ;
