@@ -33,8 +33,9 @@ mysql_la_LIBADD = $(LIB_MYSQL)
 mysql_la_LDFLAGS = -avoid-version -module
 
 #perfhandler
-perfhandlerdir=$(prefix)/perf
+perfhandlerdir=$(DESTDIR)$(prefix)/perf
 dist_perfhandler_DATA=perf/bartlby_generic.sh  perf/bartlby_http perf/bartlby_if perf/bartlby_load perf/bartlby_snmp.sh perf/bartlby_swap.sh
+#dist_perfhandler_DATA=perf/bartlby_http perf/bartlby_if perf/bartlby_load perf/bartlby_snmp.sh perf/bartlby_swap.sh
 
 #perfhandler-defaults
 perfhandlerdefaultsdir=$(prefix)/perf/defaults
