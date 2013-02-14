@@ -1,2 +1,8 @@
 #!/bin/sh
 #POSTINST
+#db_get meinpaket/reboot-now
+#if [ "$RET" = true ]; then
+#            shutdown -r now
+#         fi
+
+#import SQL

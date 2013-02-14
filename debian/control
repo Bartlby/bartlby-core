@@ -8,6 +8,6 @@ Homepage: http://www.bartlby.org
 
 Package: bartlby-core
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}
+Depends: ${shlibs:Depends}, ${misc:Depends}, rrdtool
 Description: Bartlby Network Monitoring CORE
  Installs the bartlby core
