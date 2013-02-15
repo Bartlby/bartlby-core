@@ -1,3 +1,11 @@
+BARTLBY.local.krone
+BARTLBY.local.second
+bartlby-1.4.4 /
+bartlby-1.4.4.tar.gz
+bartlby-dump.shm.gz
+debian/bartlby-core.debhelper.log
+debian/bartlby-core.substvars
+debian/bartlby-core/
 BARTLBY.local
 install-sh
 configure
