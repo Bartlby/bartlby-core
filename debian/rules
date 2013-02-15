@@ -13,4 +13,4 @@
 	dh $@ 
 
 override_dh_auto_configure:
-	dh_auto_configure -- --enable-ssl --prefix=/opt/bartlby/ --enable-ssh --enable-nrpe --enable-snmp
+	./configure --enable-ssl --prefix=/opt/bartlby/ --enable-ssh --enable-nrpe --enable-snmp
