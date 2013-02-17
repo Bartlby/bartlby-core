@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 MY_NAME=$(basename $0);
 MY_NAME=${MY_NAME/./}

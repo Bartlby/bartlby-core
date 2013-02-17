@@ -15,7 +15,7 @@ sched_round_pause=6
 sirene_interval=10
 instant_write_back=true
 micros_before_after=700
-ui_right_dir=/var/www/htdocs/dev.bartlby.org/bartlby-ui/rights/
+ui_right_dir=/var/www/bartlby-ui/rights/
 
 
 trigger_msg=State Change ($READABLE_STATE$)\\\\n*********** $PROGNAME$ $VERSION$ ********************\\\\n[  Server: $SERVER$, Service: $SERVICE$, State: $READABLE_STATE$]\\\\n$MESSAGE$
@@ -30,12 +30,8 @@ perfhandler_enabled=true
 agent_plugin_dir=@PLUGIN_DIR@
 
 
-jabber_host=dev.januschka.com
-jabber_from=bartlby
-jabber_pass=123
-jabber_hjanuschka=klewan@dev.januschka.com
-licq_fifo=/root/.licq/licq_fifo
 
 
-performance_rrd_htdocs=/var/www/htdocs/rrd/
-rrd_tool=/usr/local/rrdtool/bin/rrdtool
+
+performance_rrd_htdocs=/var/www/bartlby-ui/rrd/
+rrd_tool=rrdtool
