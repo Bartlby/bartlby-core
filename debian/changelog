@@ -1,3 +1,9 @@
+bartlby-core (1.4.5) unstable; urgency=low
+
+  * DEB
+
+ -- root <root@Debian-60-squeeze-64-minimal>  Sun, 17 Feb 2013 16:08:44 +0100
+
 bartlby-core (1.4.4) unstable; urgency=low
 
   * CORE DEB
