@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #2559 PERF: RAM SWAP last
 # Load Plugin Functions
 

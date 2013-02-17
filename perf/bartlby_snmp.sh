@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # SVCID PERF: '192.168.2.228' 'public' 'hrProcessorLoad.3' 'INTEGER: 5' '20' '30'
 # Load Plugin Functions
 
