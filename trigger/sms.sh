@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 ###############
 # Smstools compatible sms trigger for bartlby
 # <hjanuschka> 2008

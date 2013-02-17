@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #exit;
 ###############
 # Smstools compatible sms trigger for bartlby
