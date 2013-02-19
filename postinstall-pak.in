@@ -266,12 +266,12 @@ then
 	echo "--------------------------------------------------------------";
 	echo "";
 	echo "";
-	mysqldiff  --host=$MYSQL_HOST --user=$MYSQL_USER --password=$MYSQL_PASSWORD $MYSQL_DB $BARTLBY_HOME/mysql.shema
+	mysqldiff  --host=$MYSQL_HOST --user=$MYSQL_USER --password=$MYSQL_PASSWORD db:$MYSQL_DB $BARTLBY_HOME/mysql.shema
 	echo -n "Apply Patch [y/n]";
   read stopit;
   if [ "$stopit" != "n" ];
   then
-  	 mysqldiff  --host=$MYSQL_HOST --user=$MYSQL_USER --password=$MYSQL_PASSWORD $MYSQL_DB $BARTLBY_HOME/mysql.shema |$MYSQL_COMMAND -D $MYSQL_DB
+  	 mysqldiff  --host=$MYSQL_HOST --user=$MYSQL_USER --password=$MYSQL_PASSWORD db:$MYSQL_DB $BARTLBY_HOME/mysql.shema |$MYSQL_COMMAND -D $MYSQL_DB
    	echo "DB Patching done";
   fi;
 
