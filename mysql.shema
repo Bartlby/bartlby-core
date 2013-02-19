@@ -1,19 +1,5 @@
--- phpMyAdmin SQL Dump
--- version 2.6.3-pl1
--- http://www.phpmyadmin.net
--- Host: localhost
--- Erstellungszeit: 20. Mai 2006 um 22:24
--- Server Version: 4.0.24
--- PHP-Version: 5.1.2
--- 
--- Datenbank: `poseidon`
--- 
 
--- --------------------------------------------------------
 
--- 
--- Tabellenstruktur für Tabelle `downtime`
--- 
 
 CREATE TABLE `downtime` (
   `downtime_id` int(12) NOT NULL auto_increment,
@@ -25,11 +11,7 @@ CREATE TABLE `downtime` (
   PRIMARY KEY  (`downtime_id`)
 )  ;
 
--- --------------------------------------------------------
 
--- 
--- Tabellenstruktur für Tabelle `servers`
--- 
 
 CREATE TABLE `servers` (
   `server_id` int(12) NOT NULL auto_increment,
@@ -49,11 +31,7 @@ CREATE TABLE `servers` (
   UNIQUE KEY `server_id` (`server_id`)
 )  ;
 
--- --------------------------------------------------------
 
--- 
--- Tabellenstruktur für Tabelle `services`
--- 
 
 CREATE TABLE `services` (
   `service_id` int(12) NOT NULL auto_increment,
@@ -95,11 +73,7 @@ CREATE TABLE `services` (
   KEY `service_id_2` (`service_id`,`server_id`)
 )  ;
 
--- --------------------------------------------------------
 
--- 
--- Tabellenstruktur für Tabelle `workers`
--- 
 
 CREATE TABLE `workers` (
   `worker_id` int(12) NOT NULL auto_increment,
