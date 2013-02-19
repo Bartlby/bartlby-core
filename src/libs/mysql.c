@@ -1985,7 +1985,7 @@ int GetServiceMap(struct service * svcs, char * config) {
       	res = mysql_store_result(mysql);
       		CHK_ERR(mysql);
       		
-      		_log("SELECTOR: %s", SELECTOR);
+      		
       		
 	if(mysql_num_rows(res) > 0) {
       		
