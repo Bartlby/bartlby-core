@@ -158,6 +158,7 @@ void bartlby_fin_service(struct service * svc, void * SOHandle, void * shm_addr,
 	if(svc->current_state != svc->last_state) {
 		svc->service_retain_current=0;
 		svc->last_state=svc->current_state;
+		svc->last_state_change=time(NULL);
 		
 		_log("@LOG@%ld|%d|%s:%d/%s|%s", svc->service_id, svc->current_state, svc->srv->server_name, svc->srv->client_port, svc->service_name, svc->new_server_text);
 		bartlby_push_event(EVENT_STATUS_CHANGED, "Service-Changed;%d;%s:%d/%s;%d;%s", svc->service_id, svc->srv->server_name, svc->srv->client_port, svc->service_name, svc->current_state, svc->new_server_text);

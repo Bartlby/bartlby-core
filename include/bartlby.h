@@ -91,7 +91,7 @@
 #define REL_NAME_INT "fusion"
 #define REL_NAME REL_NAME_INT " - rev:" __GIT_VERSION
 //#define VERSION  "1.4.0"
-#define EXPECTCORE 1400006 //Module V Check's
+#define EXPECTCORE 1450006 //Module V Check's
 
 #define MAX_CCACHE 1024
 #define MAX_CCACHE_KEY 1024
@@ -267,6 +267,7 @@ struct server {
 	long server_flap_seconds;
 	int flap_count;
 	int last_notify_send;
+	
 	struct service * dead_marker;
 	int is_gone;
 	
@@ -307,6 +308,7 @@ struct service {
 	/*Notify things*/
 	int notify_enabled;
 	int last_notify_send;
+	int last_state_change;
 	long flap_count;
 	
 	int service_active;
