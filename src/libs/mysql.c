@@ -54,9 +54,9 @@ $Author$
 
 #define SERVER_MAP_SELECTOR "select server_id, server_ip, server_name, server_ico, server_enabled, server_port, server_dead, server_flap_seconds, server_notify, server_ssh_keyfile, server_ssh_passphrase, server_ssh_username, enabled_triggers from servers"
 
-#define SELECTOR "select svc.service_id, svc.service_name, svc.service_state, srv.server_name, srv.server_id, srv.server_port, srv.server_ip, svc.service_plugin, svc.service_args, UNIX_TIMESTAMP(svc.service_last_check), svc.service_interval, svc.service_text, 'a', 'a', 'a','a', svc.service_notify, svc.service_type, svc.service_var, svc.service_passive_timeout,service_active, svc.service_check_timeout, srv.server_ico, svc.service_ack, svc.service_retain, svc.service_snmp_community, svc.service_snmp_objid, svc.service_snmp_version, svc.service_snmp_warning, svc.service_snmp_critical, svc.service_snmp_type, svc.flap_seconds, svc.service_exec_plan, svc.renotify_interval, svc.escalate_divisor, svc.fires_events, svc.enabled_triggers, svc.service_snmp_textmatch, UNIX_TIMESTAMP(svc.service_last_notify_send), UNIX_TIMESTAMP(svc.service_last_state_change)   from services svc, servers srv where svc.server_id=srv.server_id ORDER BY RAND()"
+#define SELECTOR "select svc.service_id, svc.service_name, svc.service_state, srv.server_name, srv.server_id, srv.server_port, srv.server_ip, svc.service_plugin, svc.service_args, UNIX_TIMESTAMP(svc.service_last_check), svc.service_interval, svc.service_text, 'a', 'a', 'a','a', svc.service_notify, svc.service_type, svc.service_var, svc.service_passive_timeout,service_active, svc.service_check_timeout, srv.server_ico, svc.service_ack, svc.service_retain, svc.service_snmp_community, svc.service_snmp_objid, svc.service_snmp_version, svc.service_snmp_warning, svc.service_snmp_critical, svc.service_snmp_type, svc.flap_seconds, svc.service_exec_plan, svc.renotify_interval, svc.escalate_divisor, svc.fires_events, svc.enabled_triggers, svc.service_snmp_textmatch, UNIX_TIMESTAMP(svc.service_last_notify_send), UNIX_TIMESTAMP(svc.service_last_state_change),service_retain_current   from services svc, servers srv where svc.server_id=srv.server_id ORDER BY RAND()"
 #define WORKER_SELECTOR "select worker_mail, worker_icq, enabled_services ,notify_levels, worker_active, worker_name, worker_id, password, enabled_triggers, escalation_limit, escalation_minutes, notify_plan from workers"
-#define SERVICE_UPDATE_TEXT "update services set service_last_check=FROM_UNIXTIME(%d), service_text='%s', service_state=%d, service_last_notify_send=FROM_UNIXTIME(%d), service_last_state_change=FROM_UNIXTIME(%d), service_ack=%d where service_id=%ld"
+#define SERVICE_UPDATE_TEXT "update services set service_last_check=FROM_UNIXTIME(%d), service_text='%s', service_state=%d, service_last_notify_send=FROM_UNIXTIME(%d), service_last_state_change=FROM_UNIXTIME(%d), service_ack=%d, service_retain_current=%d where service_id=%ld"
 
 
 
@@ -1805,7 +1805,7 @@ int doUpdate(struct service * svc, char * config) {
 	service_mysql_safe(svc);
 	
 	
-	asprintf(&sqlupd, SERVICE_UPDATE_TEXT, svc->last_check, svc->new_server_text, svc->current_state, svc->last_notify_send, svc->last_state_change, svc->service_ack, svc->service_id);
+	asprintf(&sqlupd, SERVICE_UPDATE_TEXT, svc->last_check, svc->new_server_text, svc->current_state, svc->last_notify_send, svc->last_state_change, svc->service_ack,svc->service_retain_current, svc->service_id);
 	
 	
 	mysql_query(mysql, sqlupd);
@@ -2080,14 +2080,14 @@ int GetServiceMap(struct service * svcs, char * config) {
       			}
       			
       			svcs[i].service_retain=atoi(row[24]);
-      			svcs[i].service_retain_current=atoi(row[24])+1;
+      			svcs[i].service_retain_current=atoi(row[40]);
       			
       			svcs[i].flap_count=0;
       			svcs[i].process.pid = 0;
       			svcs[i].process.start_time = 0;
       			
       			svcs[i].notify_last_state=svcs[i].current_state;
-      			svcs[i].notify_last_time=time(NULL);
+      			
       			svcs[i].pstat.sum=0;
       			svcs[i].pstat.counter=0;
       			
