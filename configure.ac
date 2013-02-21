@@ -117,7 +117,7 @@ AC_DEFUN([AC_CHECK_LIBMYSQLCLIENT], [
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.59)
-AC_INIT(bartlby,1.4.6, helmut@januschka.com)
+AC_INIT(bartlby,1.4.7, helmut@januschka.com)
 AC_PREFIX_DEFAULT(/usr/local/bartlby)
 AC_CONFIG_HEADERS([include/config.h])
 AC_CONFIG_MACRO_DIR([m4])
