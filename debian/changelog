@@ -1,5 +1,11 @@
 bartlby-core (1.4.7) unstable; urgency=low
 
+  * REL
+
+ -- root <root@Debian-60-squeeze-64-minimal>  Thu, 21 Feb 2013 08:25:38 +0100
+
+bartlby-core (1.4.7) unstable; urgency=low
+
   *  REL
 
  -- root <root@Debian-60-squeeze-64-minimal>  Thu, 21 Feb 2013 08:21:36 +0100
