@@ -155,7 +155,8 @@ input: service
 returns 1 if ACK is outstanding
 */
 int sched_needs_ack(struct service * svc) {
-	if(svc->service_ack == ACK_OUTSTANDING) {
+			
+	if(svc->service_ack_current == ACK_OUTSTANDING && svc->service_ack_enabled == 1) {
 		return 1; //Skip it something unAcked found
 	} else {
 		return 0; // No doIT

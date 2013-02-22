@@ -181,8 +181,8 @@ void bartlby_fin_service(struct service * svc, void * SOHandle, void * shm_addr,
 			
 		}
 		
-		if(svc->service_ack == ACK_NEEDED && svc->current_state == STATE_CRITICAL) {
-			svc->service_ack=ACK_OUTSTANDING;	
+		if(svc->service_ack_enabled == 1 && svc->current_state == STATE_CRITICAL) {
+			svc->service_ack_current=ACK_OUTSTANDING;	
 		}
 		
 		// if service is dead / and retain is reached (see above if) - call event handler
