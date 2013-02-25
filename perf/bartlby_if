@@ -66,10 +66,14 @@ then
                 DEF:outoctets=${RRDFILE}:output:AVERAGE \
                 'CDEF:inbits=inoctets,8,*' \
                 'CDEF:outbits=outoctets,8,*' \
+                 VDEF:ifInOctetsTotal=inoctets,TOTAL \
+                 VDEF:ifOutOctetsTotal=outoctets,TOTAL \
                 'GPRINT:outbits:LAST:Last %.3lf %sbytes Out\j' \
                 'GPRINT:inbits:LAST:Last %.3lf %sbytes In\j' \
                 'GPRINT:outbits:AVERAGE:AVG %.3lf %sbytes Out\j' \
                 'GPRINT:inbits:AVERAGE:AVG %.3lf %sbytes In\j' \
+                'GPRINT:ifInOctetsTotal:Total In Traffic %.1lf %sbytes \j' \
+                'GPRINT:ifOutOctetsTotal:Total Out Traffic %.1lf %sbytes \j' \
                 AREA:inbits#00FF00:"In traffic" \
                 LINE1:outbits#0000FF:"Out traffic" \
 
@@ -79,23 +83,31 @@ then
                 DEF:outoctets=${RRDFILE}:output:AVERAGE \
                 'CDEF:inbits=inoctets,8,*' \
                 'CDEF:outbits=outoctets,8,*' \
+                 VDEF:ifInOctetsTotal=inoctets,TOTAL \
+                 VDEF:ifOutOctetsTotal=outoctets,TOTAL \
                 'GPRINT:outbits:LAST:Last %.3lf %sbytes Out\j' \
                 'GPRINT:inbits:LAST:Last %.3lf %sbytes In\j' \
                 'GPRINT:outbits:AVERAGE:AVG %.3lf %sbytes Out\j' \
                 'GPRINT:inbits:AVERAGE:AVG %.3lf %sbytes In\j' \
+                'GPRINT:ifInOctetsTotal:Total In Traffic %.1lf %sbytes \j' \
+                'GPRINT:ifOutOctetsTotal:Total Out Traffic %.1lf %sbytes \j' \
                 AREA:inbits#00FF00:"In traffic" \
                 LINE1:outbits#0000FF:"Out traffic" \
 
 
         $RRDTOOL graph $PNGFILE_SEVEN --start -1week  -w 600 -h 300 \
-                DEF:inoctets=${RRDFILE}:input:AVERAGE \
+               DEF:inoctets=${RRDFILE}:input:AVERAGE \
                 DEF:outoctets=${RRDFILE}:output:AVERAGE \
                 'CDEF:inbits=inoctets,8,*' \
                 'CDEF:outbits=outoctets,8,*' \
+                 VDEF:ifInOctetsTotal=inoctets,TOTAL \
+                 VDEF:ifOutOctetsTotal=outoctets,TOTAL \
                 'GPRINT:outbits:LAST:Last %.3lf %sbytes Out\j' \
                 'GPRINT:inbits:LAST:Last %.3lf %sbytes In\j' \
                 'GPRINT:outbits:AVERAGE:AVG %.3lf %sbytes Out\j' \
                 'GPRINT:inbits:AVERAGE:AVG %.3lf %sbytes In\j' \
+                'GPRINT:ifInOctetsTotal:Total In Traffic %.1lf %sbytes \j' \
+                'GPRINT:ifOutOctetsTotal:Total Out Traffic %.1lf %sbytes \j' \
                 AREA:inbits#00FF00:"In traffic" \
                 LINE1:outbits#0000FF:"Out traffic" \
 
@@ -105,10 +117,14 @@ then
                 DEF:outoctets=${RRDFILE}:output:AVERAGE \
                 'CDEF:inbits=inoctets,8,*' \
                 'CDEF:outbits=outoctets,8,*' \
+                 VDEF:ifInOctetsTotal=inoctets,TOTAL \
+                 VDEF:ifOutOctetsTotal=outoctets,TOTAL \
                 'GPRINT:outbits:LAST:Last %.3lf %sbytes Out\j' \
                 'GPRINT:inbits:LAST:Last %.3lf %sbytes In\j' \
                 'GPRINT:outbits:AVERAGE:AVG %.3lf %sbytes Out\j' \
                 'GPRINT:inbits:AVERAGE:AVG %.3lf %sbytes In\j' \
+                'GPRINT:ifInOctetsTotal:Total In Traffic %.1lf %sbytes \j' \
+                'GPRINT:ifOutOctetsTotal:Total Out Traffic %.1lf %sbytes \j' \
                 AREA:inbits#00FF00:"In traffic" \
                 LINE1:outbits#0000FF:"Out traffic" \
 
@@ -118,10 +134,14 @@ then
                 DEF:outoctets=${RRDFILE}:output:AVERAGE \
                 'CDEF:inbits=inoctets,8,*' \
                 'CDEF:outbits=outoctets,8,*' \
+                VDEF:ifInOctetsTotal=inoctets,TOTAL \
+                 VDEF:ifOutOctetsTotal=outoctets,TOTAL \
                 'GPRINT:outbits:LAST:Last %.3lf %sbytes Out\j' \
                 'GPRINT:inbits:LAST:Last %.3lf %sbytes In\j' \
                 'GPRINT:outbits:AVERAGE:AVG %.3lf %sbytes Out\j' \
                 'GPRINT:inbits:AVERAGE:AVG %.3lf %sbytes In\j' \
+                'GPRINT:ifInOctetsTotal:Total In Traffic %.1lf %sbytes \j' \
+                'GPRINT:ifOutOctetsTotal:Total Out Traffic %.1lf %sbytes \j' \
                 AREA:inbits#00FF00:"In traffic" \
                 LINE1:outbits#0000FF:"Out traffic" \
 
