@@ -396,7 +396,7 @@ AC_FUNC_VPRINTF
 AC_CHECK_FUNCS([alarm gethostbyname gettimeofday inet_ntoa memmove memset setenv socket strdup strstr])
 
 
-AC_CONFIG_FILES([Makefile bartlby.cfg bartlby.startup preinstall-pak postinstall-pak])
+AC_CONFIG_FILES([Makefile bartlby.cfg bartlby.startup postinstall-pak])
 AC_OUTPUT
 echo "######################################"
 echo "#          bartlby Core              #"
