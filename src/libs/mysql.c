@@ -168,7 +168,7 @@ struct shm_counter * GetCounter(char * config) {
      	row=mysql_fetch_row(res);
 
   		if(row[0] != NULL) {
-     	 	shmc->services = atoi(row[0]);
+     	 	shmc->services = atol(row[0]);
      	}
      	
      	
@@ -188,7 +188,7 @@ struct shm_counter * GetCounter(char * config) {
      	row=mysql_fetch_row(res);
 
   		if(row[0] != NULL) {
-     	 	shmc->worker = atoi(row[0]);
+     	 	shmc->worker = atol(row[0]);
      	}
      	
      	
@@ -208,7 +208,7 @@ struct shm_counter * GetCounter(char * config) {
      	row=mysql_fetch_row(res);
 
   		if(row[0] != NULL) {
-     	 	shmc->downtimes = atoi(row[0]);
+     	 	shmc->downtimes = atol(row[0]);
      	}
      	
      	
@@ -228,7 +228,7 @@ struct shm_counter * GetCounter(char * config) {
      	row=mysql_fetch_row(res);
 
   		if(row[0] != NULL) {
-     	 	shmc->servers = atoi(row[0]);
+     	 	shmc->servers = atol(row[0]);
      	}
      	
      	
@@ -251,7 +251,7 @@ struct shm_counter * GetCounter(char * config) {
      	row=mysql_fetch_row(res);
 
   		if(row[0] != NULL) {
-     	 	shmc->servicegroups = atoi(row[0]);
+     	 	shmc->servicegroups = atol(row[0]);
      	}
      	
      	
@@ -274,7 +274,7 @@ struct shm_counter * GetCounter(char * config) {
      	row=mysql_fetch_row(res);
 
   		if(row[0] != NULL) {
-     	 	shmc->servergroups = atoi(row[0]);
+     	 	shmc->servergroups = atol(row[0]);
      	}
      	
      	
@@ -635,7 +635,7 @@ int GetDowntimeMap(struct downtime * svcs, char * config) {
 
   			if(row[0] != NULL) {
       				
-      				svcs[i].downtime_id = atoi(row[0]);
+      				svcs[i].downtime_id = atol(row[0]);
       			} else {
       				svcs[i].downtime_id = -1;    				
       			}
@@ -667,7 +667,7 @@ int GetDowntimeMap(struct downtime * svcs, char * config) {
       			}
       			if(row[5] != NULL) {
       				
-      				svcs[i].service_id = atoi(row[5]);
+      				svcs[i].service_id = atol(row[5]);
       			} else {
       				svcs[i].service_id = -1;    				
       			}
@@ -775,7 +775,7 @@ int GetWorkerById(int worker_id, struct worker * svc, char * config) {
       			sprintf(svc->name, "(null)");	
       		}
       		if(row[6] != NULL) {
-      			svc->worker_id=atoi(row[6]);	
+      			svc->worker_id=atol(row[6]);	
       		} else {
       			svc->worker_id=-1;	
       		}
@@ -792,12 +792,12 @@ int GetWorkerById(int worker_id, struct worker * svc, char * config) {
       			sprintf(svc->enabled_triggers, "(null)");	
       		}
       		if(row[9] != NULL) {
-      			svc->escalation_limit=atoi(row[9]);	
+      			svc->escalation_limit=atol(row[9]);	
       		} else {
       			svc->escalation_limit=50;	
       		}
       		if(row[10] != NULL) {
-      			svc->escalation_minutes=atoi(row[10]);	
+      			svc->escalation_minutes=atol(row[10]);	
       		} else {
       			svc->escalation_minutes=2;	
       		}
@@ -1009,8 +1009,8 @@ int GetServiceById(int service_id, struct service * svc, char * config) {
       	
       	if(mysql_num_rows(res) == 1 ) {
       		row=mysql_fetch_row(res);
-      		svc->service_id=atoi(row[0]);
-      		svc->server_id=atoi(row[4]);
+      		svc->service_id=atol(row[0]);
+      		svc->server_id=atol(row[4]);
       		svc->last_state=atoi(row[2]);
       		svc->current_state=atoi(row[2]);
       		
@@ -1089,7 +1089,7 @@ int GetServiceById(int service_id, struct service * svc, char * config) {
       		svc->last_notify_send=atoi(row[42]);
       		svc->last_state_change=atoi(row[43]);
       		
-      		svc->service_retain_current=atoi(row[44]);
+      		svc->service_retain_current=atol(row[44]);
       		svc->service_ack_current=atoi(row[45]);
       		
       		if(svc->last_notify_send == 0) svc->last_notify_send = time(NULL);
@@ -1149,14 +1149,14 @@ int GetServiceById(int service_id, struct service * svc, char * config) {
       			sprintf(svc->service_var, "(null)");
       		}
       		
-      		svc->service_passive_timeout=atoi(row[19]);
+      		svc->service_passive_timeout=atol(row[19]);
       		
       		svc->service_active=atoi(row[20]);
-      		svc->service_check_timeout=atoi(row[21]);
+      		svc->service_check_timeout=atol(row[21]);
       		if(row[22] != NULL) {
       			svc->service_ack_enabled = atoi(row[22]);	
       		} 
-      		svc->service_retain=atoi(row[23]);
+      		svc->service_retain=atol(row[23]);
       		svc->flap_count=0;
       		
       		if(row[24] != NULL) {
@@ -1172,11 +1172,11 @@ int GetServiceById(int service_id, struct service * svc, char * config) {
       		}
       		
       		svc->snmp_info.version = atoi(row[26]);
-      		svc->snmp_info.warn = atoi(row[27]);
-      		svc->snmp_info.crit = atoi(row[28]);
-      		svc->snmp_info.type = atoi(row[29]);
+      		svc->snmp_info.warn = atol(row[27]);
+      		svc->snmp_info.crit = atol(row[28]);
+      		svc->snmp_info.type = atol(row[29]);
       		
-      		svc->flap_seconds = atoi(row[31]);
+      		svc->flap_seconds = atol(row[31]);
       		
       		if(row[32] != NULL) {
       			snprintf(svc->service_exec_plan, 2047, "%s", row[32]);
@@ -1185,9 +1185,9 @@ int GetServiceById(int service_id, struct service * svc, char * config) {
       		}
       		//svc.renotify_interval, svc.escalate_divisor
       		
-      		svc->renotify_interval=atoi(row[33]);
-      		svc->escalate_divisor=atoi(row[34]);
-      		svc->fires_events=atoi(row[35]);
+      		svc->renotify_interval=atol(row[33]);
+      		svc->escalate_divisor=atol(row[34]);
+      		svc->fires_events=atol(row[35]);
 				
 					
 					if(svc->service_ack_enabled == 0) svc->service_ack_current=0;
@@ -1525,7 +1525,7 @@ int GetServerById(int server_id, struct server * svc, char * config) {
       		
       		svc->server_enabled=atoi(row[4]);
       		svc->server_notify=atoi(row[5]);
-      		svc->server_flap_seconds=atoi(row[6]);
+      		svc->server_flap_seconds=atol(row[6]);
       		svc->server_dead=atoi(row[7]);
       		if(row[8] != NULL) {
       			sprintf(svc->server_ssh_keyfile, "%s", row[8]);
@@ -1900,7 +1900,7 @@ int GetWorkerMap(struct worker * svcs, char * config) {
       				sprintf(svcs[i].name, "(null)");	
       			}
       			if(row[6] != NULL) {
-      				svcs[i].worker_id = atoi(row[6]);	
+      				svcs[i].worker_id = atol(row[6]);	
       			} else {
       				svcs[i].worker_id = -1;
       			}
@@ -1917,12 +1917,12 @@ int GetWorkerMap(struct worker * svcs, char * config) {
       				sprintf(svcs[i].enabled_triggers, "(null)");	
       			}
       			if(row[9] != NULL) {
-      				svcs[i].escalation_limit = atoi(row[9]);	
+      				svcs[i].escalation_limit = atol(row[9]);	
       			} else {
       				svcs[i].escalation_limit = 50;
       			}
       			if(row[10] != NULL) {
-      				svcs[i].escalation_minutes = atoi(row[10]);	
+      				svcs[i].escalation_minutes = atol(row[10]);	
       			} else {
       				svcs[i].escalation_minutes = 2;
       			}
@@ -1993,8 +1993,8 @@ int GetServiceMap(struct service * svcs, char * config) {
       		
       		while ( (row=mysql_fetch_row(res)) != NULL) {
       			
-      			svcs[i].service_id=atoi(row[0]);
-      			svcs[i].server_id=atoi(row[4]);
+      			svcs[i].service_id=atol(row[0]);
+      			svcs[i].server_id=atol(row[4]);
       			svcs[i].last_state=atoi(row[2]);
       			svcs[i].current_state=atoi(row[2]);
       			svcs[i].servicegroup_counter=0;
@@ -2069,17 +2069,17 @@ int GetServiceMap(struct service * svcs, char * config) {
       				sprintf(svcs[i].service_var, "(null)");
       			}
       			
-      			svcs[i].service_passive_timeout=atoi(row[19]);
+      			svcs[i].service_passive_timeout=atol(row[19]);
       			svcs[i].service_active=atoi(row[20]);
-      			svcs[i].service_check_timeout=atoi(row[21]);
+      			svcs[i].service_check_timeout=atol(row[21]);
       			
       			
       			if(row[23] != NULL) {
       				svcs[i].service_ack_enabled = atoi(row[23]);
       			}
       			
-      			svcs[i].service_retain=atoi(row[24]);
-      			svcs[i].service_retain_current=atoi(row[40]);
+      			svcs[i].service_retain=atol(row[24]);
+      			svcs[i].service_retain_current=atol(row[40]);
       			svcs[i].service_ack_current=atoi(row[41]);
       			//DFF
       			svcs[i].flap_count=0;
@@ -2116,11 +2116,11 @@ int GetServiceMap(struct service * svcs, char * config) {
       			}
       			
       			svcs[i].snmp_info.version = atoi(row[27]);
-      			svcs[i].snmp_info.warn = atoi(row[28]);
-      			svcs[i].snmp_info.crit = atoi(row[29]);
-      			svcs[i].snmp_info.type = atoi(row[30]);
+      			svcs[i].snmp_info.warn = atol(row[28]);
+      			svcs[i].snmp_info.crit = atol(row[29]);
+      			svcs[i].snmp_info.type = atol(row[30]);
       			
-      			svcs[i].flap_seconds=atoi(row[31]);
+      			svcs[i].flap_seconds=atol(row[31]);
       			
       			if(row[32] != NULL) {
       				snprintf(svcs[i].service_exec_plan, 2047, "%s", row[32]);
@@ -2129,10 +2129,10 @@ int GetServiceMap(struct service * svcs, char * config) {
       			}
       			
       			//renotify_interval, escalate_divisor
-      			svcs[i].renotify_interval=atoi(row[33]);
-      			svcs[i].escalate_divisor=atoi(row[34]);
+      			svcs[i].renotify_interval=atol(row[33]);
+      			svcs[i].escalate_divisor=atol(row[34]);
       			
-      			svcs[i].fires_events=atoi(row[35]);
+      			svcs[i].fires_events=atol(row[35]);
 						svcs[i].is_gone = 0;	
 						
 						
@@ -2217,11 +2217,11 @@ int GetServerMap(struct server * srv, char * config) {
       		
       		while ( (row=mysql_fetch_row(res)) != NULL) {
       			
-      			srv[i].server_id=atoi(row[0]);
+      			srv[i].server_id=atol(row[0]);
       			srv[i].server_enabled=atoi(row[4]);
       			srv[i].client_port=atoi(row[5]);
       			srv[i].server_dead=atoi(row[6]);
-      			srv[i].server_flap_seconds=atoi(row[7]);
+      			srv[i].server_flap_seconds=atol(row[7]);
       			srv[i].server_notify=atoi(row[8]);
       			srv[i].last_notify_send=time(NULL);
       			srv[i].flap_count=0;
@@ -2387,7 +2387,7 @@ int GetServerGroupMap(struct servergroup * svcs, char * config) {
 
   			if(row[0] != NULL) {
       				
-      				svcs[i].servergroup_id = atoi(row[0]);
+      				svcs[i].servergroup_id = atol(row[0]);
       			} else {
       				svcs[i].servergroup_id = -1;    				
       			}
@@ -2669,7 +2669,7 @@ int GetServiceGroupMap(struct servicegroup * svcs, char * config) {
 
   			if(row[0] != NULL) {
       				
-      				svcs[i].servicegroup_id = atoi(row[0]);
+      				svcs[i].servicegroup_id = atol(row[0]);
       			} else {
       				svcs[i].servicegroup_id = -1;    				
       			}
