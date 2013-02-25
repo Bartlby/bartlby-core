@@ -225,6 +225,9 @@ void bartlby_fin_service(struct service * svc, void * SOHandle, void * shm_addr,
 	
 	bartlby_callback(EXTENSION_CALLBACK_POST_CHECK, svc);
 	
+	if(svc->service_retain_current == LONG_MAX) {
+		svc->service_retain_current=svc->service_retain;
+	}
 	svc->service_retain_current++;
 
 	
