@@ -31,6 +31,7 @@
 #include <time.h>
 #include <unistd.h>
 #include <unistd.h>
+#include <limits.h>
 
 #include <mysql/mysql.h>
 
