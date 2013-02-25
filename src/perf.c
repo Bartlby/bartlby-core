@@ -35,15 +35,31 @@ long bartlby_milli_timediff(struct timeval end, struct timeval start) {
 
 int bartlby_core_perf_track(struct shm_header * hdr, struct service * svc, int type, int time) {
 	
+	
 	// be nice to CFG access use env variable :-)
 	switch(type) {
 		case PERF_TYPE_ROUND_TIME:
 			
+			if(hdr->pstat.counter == LONG_MAX) {
+				hdr->pstat.counter=0;
+			}
+			if(hdr->pstat.sum >= LONG_MAX-time) {
+				hdr->pstat.sum=0;
+			}	
+					
 			hdr->pstat.counter++;
 			hdr->pstat.sum += time;
 			bartlby_callback(EXTENSION_CALLBACK_ROUND_TIME, hdr);
 		break;
 		case PERF_TYPE_SVC_TIME:
+			
+			if(svc->pstat.counter == LONG_MAX) {
+				svc->pstat.counter=0;
+			}
+			if( svc->pstat.sum >= LONG_MAX-time) {
+				svc->pstat.sum=0;
+			}	
+			
 			svc->pstat.counter++;
 			svc->pstat.sum += time;
 			bartlby_callback(EXTENSION_CALLBACK_CHECK_TIME, svc);
