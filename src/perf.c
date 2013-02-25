@@ -42,8 +42,10 @@ int bartlby_core_perf_track(struct shm_header * hdr, struct service * svc, int t
 			
 			if(hdr->pstat.counter == LONG_MAX) {
 				hdr->pstat.counter=0;
+				hdr->pstat.sum=0;
 			}
 			if(hdr->pstat.sum >= LONG_MAX-time) {
+				hdr->pstat.counter=0;
 				hdr->pstat.sum=0;
 			}	
 					
@@ -54,10 +56,12 @@ int bartlby_core_perf_track(struct shm_header * hdr, struct service * svc, int t
 		case PERF_TYPE_SVC_TIME:
 			
 			if(svc->pstat.counter == LONG_MAX) {
+				svc->pstat.sum=0;
 				svc->pstat.counter=0;
 			}
 			if( svc->pstat.sum >= LONG_MAX-time) {
 				svc->pstat.sum=0;
+				svc->pstat.counter=0;
 			}	
 			
 			svc->pstat.counter++;
