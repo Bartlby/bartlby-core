@@ -29,4 +29,4 @@ SUBJ="bartlby notify: ${BARTLBY_CURR_HOST} / ${BARTLBY_CURR_SERVICE} : ${READABL
 MSG=$(echo -e $4);
 
 echo -e ${BARTLBY_CURR_HOST} $MSG|mail -s "$SUBJ" $1
-echo "Mail sent to $1";
+echo "Mail sent to $1 ($SERVICE_LAST_STATE_CHANGE)";
