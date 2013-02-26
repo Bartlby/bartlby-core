@@ -293,11 +293,11 @@ void str_replace(char *str, const char *from, const char *to, int maxlen)
 void bartlby_replace_svc_in_str(char * str, struct service * svc, int max) {
 	char * human_state, * human_state_last;
 	char * server_id, * service_id;
+	char * last_state_change;
 	
 	
 	
-	
-	
+	asprintf(&last_state_change, "%d", svc->last_state_change);
 	asprintf(&server_id, "%ld", svc->srv->server_id);
 	asprintf(&service_id, "%ld", svc->service_id);
 	
@@ -317,6 +317,7 @@ void bartlby_replace_svc_in_str(char * str, struct service * svc, int max) {
   str_replace(str,"$SERVER$",  svc->srv->server_name, max);
   str_replace(str,"$SERVER_NAME$",  svc->srv->server_name, max);
   str_replace(str,"$MESSAGE$",  svc->new_server_text, max);
+  str_replace(str,"$SERVICE_LAST_STATE_CHANGE$", last_state_change , max);
 	
 	setenv("SERVICE", svc->service_name, 1);
 	setenv("PROGNAME", PROGNAME, 1);
@@ -330,12 +331,13 @@ void bartlby_replace_svc_in_str(char * str, struct service * svc, int max) {
 	setenv("SERVICE_PLUGIN",  svc->plugin, 1);	
 	setenv("SERVER",  svc->srv->server_name, 1);
 	setenv("SERVER_NAME",  svc->srv->server_name, 1);
-	
+	setenv("SERVICE_LAST_STATE_CHANGE",  last_state_change, 1);
 		
 	free(server_id);
 	free(service_id);
 	free(human_state_last);
 	free(human_state);
+	free(last_state_change);
 }
 
 
