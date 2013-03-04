@@ -22,7 +22,7 @@ RRDTOOL=${RRD_TOOLCFG:-'/usr/bin/rrdtool'}
 
 RRDFILE="${RRD_HTDOCS}/${1}_bartlby_swap.sh.rrd";
 
-PNGFILE="${RRD_HTDOCS}/${1}_bartlby_swap.sh.png";
+PNGFILE="${RRD_HTDOCS}/${1}_bartlby_swap.sh24h.png";
 PNGFILE_SEVEN="${RRD_HTDOCS}/${1}_bartlby_swap.sh7.png";
 PNGFILE_MONTH="${RRD_HTDOCS}/${1}_bartlby_swap.sh31.png";
 
@@ -53,12 +53,12 @@ if [ "$1" = "graph" ];
 then
 	RRDFILE="${RRD_HTDOCS}/${2}_bartlby_swap.sh.rrd";
 
-	PNGFILE="${RRD_HTDOCS}/${2}_bartlby_swap.sh.png";
+	PNGFILE="${RRD_HTDOCS}/${2}_bartlby_swap.sh24h.png";
 	PNGFILE_SEVEN="${RRD_HTDOCS}/${2}_bartlby_swap.sh7.png";
 	PNGFILE_MONTH="${RRD_HTDOCS}/${2}_bartlby_swap.sh31.png";
 
 	PNGFILE_YEAR="${RRD_HTDOCS}/${2}_bartlby_swap.sh365.png";
-	PNGFILE_HOUR="${RRD_HTDOCS}/${2}_bartlby_swap.sh24h.png";
+	PNGFILE_HOUR="${RRD_HTDOCS}/${2}_bartlby_swap.sh.png";
 
 
 	SWAPT=$(cat ${RRDFILE}.info|awk '{print $2}');

@@ -24,7 +24,7 @@ RRDTOOL=${RRD_TOOLCFG:-'/usr/bin/rrdtool'}
 #3188_bartlby_http_192.168.2.228_hrProcessorLoad.3.rrd
 RRDFILE="${RRD_HTDOCS}/${1}_bartlby_http.rrd";
 
-PNGFILE="${RRDFILE}.png";
+PNGFILE="${RRDFILE}24h.png";
 PNGFILE_SEVEN="${RRDFILE}7.png";
 
 
@@ -53,7 +53,7 @@ then
 	#3188_bartlby_http_192.168.2.228_hrProcessorLoad.3.rrd
 	RRDFILE="${RRD_HTDOCS}/${2}_bartlby_http.rrd";
 
-	PNGFILE="${RRDFILE}.png";
+	PNGFILE="${RRDFILE}24h.png";
 	PNGFILE_SEVEN="${RRDFILE}7.png";
 
 	PNGFILE_MONTH="${RRDFILE}31.png";
