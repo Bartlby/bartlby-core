@@ -23,7 +23,7 @@ RRDTOOL=${RRD_TOOLCFG:-'/usr/bin/rrdtool'}
 #3188_bartlby_snmp.sh_192.168.2.228_hrProcessorLoad.3.rrd
 RRDFILE="${RRD_HTDOCS}/${1}_bartlby_snmp.sh_${3}_${5}.rrd";
 
-PNGFILE="${RRDFILE}.png";
+PNGFILE="${RRDFILE}24h.png";
 PNGFILE_SEVEN="${RRDFILE}7.png";
 PNGFILE_MONTH="${RRDFILE}31.png";
 PNGFILE_YEAR="${RRDFILE}365.png";

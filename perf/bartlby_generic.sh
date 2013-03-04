@@ -47,7 +47,7 @@ function rrd_getDS {
 				#graph each DS
 				
 				RRDFILE="$2";
-				PNGFILE="${RRD_HTDOCS}/${1}_${MY_NAME}${k}.png";
+				PNGFILE="${RRD_HTDOCS}/${1}_${MY_NAME}${k}24h.png";
 				PNGFILE_SEVEN="${RRD_HTDOCS}/${1}_${MY_NAME}${k}7.png";
 				PNGFILE_MONTH="${RRD_HTDOCS}/${1}_${MY_NAME}${k}31.png";
 				PNGFILE_YEAR="${RRD_HTDOCS}/${1}_${MY_NAME}${k}365.png";

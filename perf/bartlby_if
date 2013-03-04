@@ -22,7 +22,7 @@ RRDTOOL=${RRD_TOOLCFG:-'/usr/bin/rrdtool'}
 
 RRDFILE="${RRD_HTDOCS}/${1}_bartlby_if.rrd";
 
-PNGFILE="${RRD_HTDOCS}/${1}_bartlby_if.png";
+PNGFILE="${RRD_HTDOCS}/${1}_bartlby_if24h.png";
 PNGFILE_SEVEN="${RRD_HTDOCS}/${1}_bartlby_if7.png";
 PNGFILE_MONTH="${RRD_HTDOCS}/${1}_bartlby_if31.png";
 PNGFILE_YEAR="${RRD_HTDOCS}/${1}_bartlby_if365.png";
@@ -53,12 +53,12 @@ if [ "$1" = "graph" ];
 then
 	RRDFILE="${RRD_HTDOCS}/${2}_bartlby_if.rrd";
 
-	PNGFILE="${RRD_HTDOCS}/${2}_bartlby_if.png";
+	PNGFILE="${RRD_HTDOCS}/${2}_bartlby_if24h.png";
 	PNGFILE_SEVEN="${RRD_HTDOCS}/${2}_bartlby_if7.png";
 	PNGFILE_MONTH="${RRD_HTDOCS}/${2}_bartlby_if31.png";
 
 	PNGFILE_YEAR="${RRD_HTDOCS}/${2}_bartlby_if365.png";
-	PNGFILE_HOUR="${RRD_HTDOCS}/${2}_bartlby_if24h.png";
+	PNGFILE_HOUR="${RRD_HTDOCS}/${2}_bartlby_if.png";
 
 
 	   $RRDTOOL graph $PNGFILE_HOUR --start -1hour  -w 600 -h 300 \

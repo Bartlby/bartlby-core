@@ -21,7 +21,7 @@ RRD_TOOLCFG=$(getConfigValue rrd_tool|tr -d [:blank:]);
 RRDTOOL=${RRD_TOOLCFG:-'nice -n19 /usr/bin/rrdtool'}
 
 RRDFILE="${RRD_HTDOCS}/${1}_bartlby_load.rrd";
-PNGFILE="${RRD_HTDOCS}/${1}_bartlby_load.png";
+PNGFILE="${RRD_HTDOCS}/${1}_bartlby_load24h.png";
 PNGFILE_SEVEN="${RRD_HTDOCS}/${1}_bartlby_load7.png";
 PNGFILE_MONTH="${RRD_HTDOCS}/${1}_bartlby_load31.png";
 PNGFILE_YEAR="${RRD_HTDOCS}/${1}_bartlby_load365.png";
@@ -47,12 +47,12 @@ fi;
 if [ "$1" = "graph" ];
 then
 	RRDFILE="${RRD_HTDOCS}/${2}_bartlby_load.rrd";
-	PNGFILE="${RRD_HTDOCS}/${2}_bartlby_load.png";
+	PNGFILE="${RRD_HTDOCS}/${2}_bartlby_load24h.png";
 	PNGFILE_SEVEN="${RRD_HTDOCS}/${2}_bartlby_load7.png";
 	PNGFILE_MONTH="${RRD_HTDOCS}/${2}_bartlby_load31.png";
 
 	PNGFILE_YEAR="${RRD_HTDOCS}/${2}_bartlby_load365.png";
-	PNGFILE_HOUR="${RRD_HTDOCS}/${2}_bartlby_load24h.png";
+	PNGFILE_HOUR="${RRD_HTDOCS}/${2}_bartlby_load.png";
 
 
 	nice -n19 $RRDTOOL graph $PNGFILE_HOUR --start -1hour \
