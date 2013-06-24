@@ -92,7 +92,7 @@
 #define REL_NAME_INT "fusion"
 #define REL_NAME REL_NAME_INT " - rev:" __GIT_VERSION
 //#define VERSION  "1.4.0"
-#define EXPECTCORE 1490001
+#define EXPECTCORE 1500000
 
 #define MAX_CCACHE 1024
 #define MAX_CCACHE_KEY 1024
