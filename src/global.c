@@ -468,7 +468,7 @@ int bartlby_agent_tcp_my_connect(char *host_name,int port,int *sd,char *proto, s
 	
 	switch(errno){  
 		case ECONNREFUSED:
-			sprintf(svc->new_server_text, "Connection refused by host\n");
+			sprintf(svc->new_server_text, "Connection refused by host (global.c)\n");
 			svc->current_state=STATE_CRITICAL;
 			return STATE_CRITICAL;
 			break;

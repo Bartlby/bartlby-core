@@ -64,7 +64,7 @@ void bartlby_check_ssh(struct service * svc, char * cfgfile) {
 		sprintf(svc->new_server_text, "connect failed");
 		return;
   }
-  
+ 
   ssh_options_set(my_ssh_session, SSH_OPTIONS_HOST, svc->srv->client_ip);
   ssh_options_set(my_ssh_session, SSH_OPTIONS_PORT, &svc->srv->client_port);
   
@@ -79,7 +79,7 @@ void bartlby_check_ssh(struct service * svc, char * cfgfile) {
 		return;
   }
    ssh_set_blocking(my_ssh_session, 1);
-   pkey=privatekey_from_file(my_ssh_session, svc->srv->server_ssh_keyfile,2, svc->srv->server_ssh_passphrase);  //ONLY RSA KEYS WILL WORK
+   pkey=privatekey_from_file(my_ssh_session, svc->srv->server_ssh_keyfile,SSH_KEYTYPE_RSA, svc->srv->server_ssh_passphrase);  //ONLY RSA KEYS WILL WORK
    if(pkey == NULL) {
    	 	sprintf(svc->new_server_text, "failed to load private key '%s'", svc->srv->server_ssh_keyfile);
 			svc->current_state = STATE_CRITICAL;
@@ -160,6 +160,8 @@ void bartlby_check_ssh(struct service * svc, char * cfgfile) {
     
     channel_free(channel);
     ssh_free(my_ssh_session);
+		
+		
 		
   	bartlby_check_grep_perf_line(buffer2, svc, cfgfile);
   	sprintf(rmessage, "%d|%s", rc, buffer2); 
