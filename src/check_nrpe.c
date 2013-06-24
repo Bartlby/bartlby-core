@@ -457,7 +457,7 @@ int my_nrpe_connect(char *host_name,int port,int *sd,char *proto, struct service
 	if(result<0){
 		switch(errno){  
 		case ECONNREFUSED:
-			sprintf(svc->new_server_text, "Connection refused by host\n");
+			sprintf(svc->new_server_text, "Connection refused by host (nrpe)\n");
 			svc->current_state=STATE_CRITICAL;
 			break;
 		case ETIMEDOUT:
