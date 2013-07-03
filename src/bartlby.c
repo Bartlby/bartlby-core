@@ -43,6 +43,7 @@ long   (*gExpectVersion)();
 int (*gGetServiceMap)(struct service *, char *);
 int (*gGetServerMap)(struct server *, char *);
 int (*gGetWorkerMap)(struct worker *,char *);
+
 int (*gGetDowntimeMap)(struct downtime *, char *);
 
 int (*gGetServerGroupMap)(struct servergroup *, char *);
@@ -185,6 +186,8 @@ void bartlby_load_shm_stuff(char * cfgfile) {
     	LOAD_SYMBOL(gGetName,gSOHandle, "GetName");
     	LOAD_SYMBOL(gExpectVersion,gSOHandle, "ExpectVersion");
     	LOAD_SYMBOL(gGetCounter,gSOHandle, "GetCounter");
+    	    	
+    	
     	    	
     	gGetAutorStr=gGetAutor();
     	gGetVersionStr=gGetVersion();
@@ -402,7 +405,7 @@ int bartlby_populate_shm(char * cfgfile) {
 				
 			}
 			
-			bartlby_SHM_link_services_servers(gBartlby_address, cfgfile);
+			bartlby_SHM_link_services_servers(gBartlby_address, cfgfile, gSOHandle);
 			
 			
 		} else {
