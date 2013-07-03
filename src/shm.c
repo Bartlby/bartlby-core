@@ -31,7 +31,7 @@ struct shm_header * bartlby_SHM_GetHDR(void * shm_addr) {
 	return (struct shm_header *)(void *)shm_addr;
 }
 
-void bartlby_SHM_link_services_servers(void * shm_addr, char * cfgfile) {
+void bartlby_SHM_link_services_servers(void * shm_addr, char * cfgfile, void * SOHandle) {
 	struct shm_header * hdr;
 	struct server * srvmap;
 	struct service * svcmap;
@@ -43,9 +43,12 @@ void bartlby_SHM_link_services_servers(void * shm_addr, char * cfgfile) {
 	int default_server_group_index;
 	int default_service_group_index;
 	
+	const char * dlmsg;
 	char * group_has_server;
 	char * group_has_service;
+	char * autodelete_orphaned_services;
 	
+	int (*DeleteService)(int, char *); 
 	
 	default_server_group_index=-1;
 	default_service_group_index=-1;
@@ -59,19 +62,40 @@ void bartlby_SHM_link_services_servers(void * shm_addr, char * cfgfile) {
 	
 	
 	
+	LOAD_SYMBOL(DeleteService, SOHandle, "DeleteService");
+	
+	autodelete_orphaned_services=getConfigValue("autodelete_orphaned_services", cfgfile);
+	if(autodelete_orphaned_services == NULL) {
+		autodelete_orphaned_services=strdup("false");	
+	}
+	
 	for(x=0; x<hdr->svccount; x++) {
+		svcmap[x].srv_place=-1;
 		for(y=0; y<hdr->srvcount; y++) {
 			if(svcmap[x].server_id == srvmap[y].server_id) {
-				//_log("linking: %s -> %s", svcmap[x].service_name, srvmap[y].server_name);
+				
 				svcmap[x].srv=&srvmap[y];
 				svcmap[x].srv_place=y;
 				svcmap[x].check_interval_original += 1+(int) (500.0*rand()/(RAND_MAX+1.0));
 				
+			
+				
 				
 			}
 				
-		}	
+		}
+		if(	svcmap[x].srv_place == -1) {
+			_log("Service-ID: %d is orphaned named %s", svcmap[x].service_id, svcmap[x].service_name);
+			svcmap[x].service_active = 0;
+			if(strcmp(autodelete_orphaned_services,"true") == 0) {	
+				DeleteService(svcmap[x].service_id, cfgfile);
+				hdr->do_reload=1;
+			}
+			
+		}
 	}
+	
+	
 	for(y=0; y<hdr->srvcount; y++) {
 		marker_found = 0;
 		srvmap[y].dead_marker = NULL;

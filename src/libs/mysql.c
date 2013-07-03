@@ -54,7 +54,8 @@ $Author$
 
 #define SERVER_MAP_SELECTOR "select server_id, server_ip, server_name, server_ico, server_enabled, server_port, server_dead, server_flap_seconds, server_notify, server_ssh_keyfile, server_ssh_passphrase, server_ssh_username, enabled_triggers from servers"
 
-#define SELECTOR "select svc.service_id, svc.service_name, svc.service_state, srv.server_name, srv.server_id, srv.server_port, srv.server_ip, svc.service_plugin, svc.service_args, UNIX_TIMESTAMP(svc.service_last_check), svc.service_interval, svc.service_text, 'a', 'a', 'a','a', svc.service_notify, svc.service_type, svc.service_var, svc.service_passive_timeout,service_active, svc.service_check_timeout, srv.server_ico, svc.service_ack_enabled, svc.service_retain, svc.service_snmp_community, svc.service_snmp_objid, svc.service_snmp_version, svc.service_snmp_warning, svc.service_snmp_critical, svc.service_snmp_type, svc.flap_seconds, svc.service_exec_plan, svc.renotify_interval, svc.escalate_divisor, svc.fires_events, svc.enabled_triggers, svc.service_snmp_textmatch, UNIX_TIMESTAMP(svc.service_last_notify_send), UNIX_TIMESTAMP(svc.service_last_state_change),service_retain_current, service_ack_current   from services svc, servers srv where svc.server_id=srv.server_id ORDER BY RAND()"
+
+#define SERVICE_MAP_SELECTOR "select service_id, service_name, service_state, service_plugin, service_args, UNIX_TIMESTAMP(service_last_check), service_interval, service_text, service_notify, service_type, service_var, service_passive_timeout,service_active, service_check_timeout, service_ack_enabled, service_retain, service_snmp_community, service_snmp_objid, service_snmp_version, service_snmp_warning, service_snmp_critical, service_snmp_type, flap_seconds, service_exec_plan, renotify_interval, escalate_divisor, fires_events, enabled_triggers, service_snmp_textmatch, UNIX_TIMESTAMP(service_last_notify_send), UNIX_TIMESTAMP(service_last_state_change),service_retain_current, service_ack_current, server_id   from services svc ORDER BY RAND()"
 #define WORKER_SELECTOR "select worker_mail, worker_icq, enabled_services ,notify_levels, worker_active, worker_name, worker_id, password, enabled_triggers, escalation_limit, escalation_minutes, notify_plan from workers"
 #define SERVICE_UPDATE_TEXT "update services set service_last_check=FROM_UNIXTIME(%d), service_text='%s', service_state=%d, service_last_notify_send=FROM_UNIXTIME(%d), service_last_state_change=FROM_UNIXTIME(%d), service_ack_current=%d, service_retain_current=%d where service_id=%ld"
 
@@ -76,7 +77,8 @@ $Author$
 #define SERVICE_CHANGE_ID "update services set service_id=%d where service_id=%d"
 
 #define UPDATE_SERVICE "update services set service_type=%d,service_name='%s',server_id=%ld,service_interval = %ld, service_plugin='%s',service_args='%s',service_passive_timeout=%ld, service_var='%s',service_check_timeout=%ld, service_ack_enabled='%d', service_retain='%ld', service_snmp_community='%s', service_snmp_objid='%s', service_snmp_version='%d', service_snmp_warning='%ld', service_snmp_critical='%ld', service_snmp_type='%ld', service_notify='%d', service_active='%d', flap_seconds='%ld', service_exec_plan='%s',renotify_interval=%ld, escalate_divisor=%ld, fires_events=%ld, enabled_triggers='%s', service_snmp_textmatch='%s'  where service_id=%ld"
-#define SERVICE_SELECTOR "select svc.service_id, svc.service_name, svc.service_state, srv.server_name, srv.server_id, srv.server_port, srv.server_ip, svc.service_plugin, svc.service_args, UNIX_TIMESTAMP(svc.service_last_check), svc.service_interval, svc.service_text, 'a', 'a','a', 'a', svc.service_notify, svc.service_type, svc.service_var, svc.service_passive_timeout, svc.service_active,svc.service_check_timeout, svc.service_ack_enabled, svc.service_retain, svc.service_snmp_community, svc.service_snmp_objid, svc.service_snmp_version, svc.service_snmp_warning, svc.service_snmp_critical, svc.service_snmp_type, srv.server_ico, svc.flap_seconds, svc.service_exec_plan, svc.renotify_interval, svc.escalate_divisor, svc.fires_events, srv.server_ssh_keyfile, srv.server_ssh_passphrase, srv.server_ssh_username, svc.enabled_triggers, srv.enabled_triggers, svc.service_snmp_textmatch, UNIX_TIMESTAMP(svc.service_last_notify_send), UNIX_TIMESTAMP(svc.service_last_state_change), service_retain_current, service_ack_current  from services svc, servers srv where svc.server_id=srv.server_id and svc.service_id=%d"
+
+#define SERVICE_SELECTOR "select service_id, service_name, service_state, service_plugin, service_args, UNIX_TIMESTAMP(service_last_check), service_interval, service_text, service_notify, service_type, service_var, service_passive_timeout, service_active,service_check_timeout, service_ack_enabled, service_retain, service_snmp_community, service_snmp_objid, service_snmp_version, service_snmp_warning, service_snmp_critical, service_snmp_type, flap_seconds, service_exec_plan, renotify_interval, escalate_divisor, fires_events,  enabled_triggers,  service_snmp_textmatch, UNIX_TIMESTAMP(service_last_notify_send), UNIX_TIMESTAMP(service_last_state_change), service_retain_current, service_ack_current, server_id  from services svc where service_id=%d"
 
 
 
@@ -972,6 +974,7 @@ int AddWorker(struct worker * svc, char *config) {
 int GetServiceById(int service_id, struct service * svc, char * config) {
 	
 	
+	
 	MYSQL *mysql;
 	MYSQL_ROW  row;
 	MYSQL_RES  *res;
@@ -1010,11 +1013,14 @@ int GetServiceById(int service_id, struct service * svc, char * config) {
       	if(mysql_num_rows(res) == 1 ) {
       		row=mysql_fetch_row(res);
       		svc->service_id=atol(row[0]);
-      		svc->server_id=atol(row[4]);
+      		svc->server_id=atol(row[33]);
       		svc->last_state=atoi(row[2]);
       		svc->current_state=atoi(row[2]);
       		
+      		
       		n_srv=malloc(sizeof(struct server));
+      		GetServerById(svc->server_id, n_srv, config);
+      		svc->srv=n_srv;
       		
       		if(row[1] != NULL) {
       			//svc->service_name=malloc(strlen(row[1])*sizeof(char)+2);
@@ -1027,98 +1033,48 @@ int GetServiceById(int service_id, struct service * svc, char * config) {
       		
       		
       		
-      		if(row[3] != NULL) {
-      			//svc->server_name=malloc(strlen(row[3])*sizeof(char)+2);
-      			sprintf(n_srv->server_name, "%s", row[3]);
-      			
-      		} else {
-//    			svc->server_name=NULL;   
-      			sprintf(n_srv->server_name, "(null)");  				
-      		}
-      		
-      		
-      		if(row[6] != NULL) {
-      			//svc->client_ip=malloc(strlen(row[6])*sizeof(char)+2);
-      			sprintf(n_srv->client_ip, "%s", row[6]);
-      			
-      		} else {
-      			  
-      			sprintf(n_srv->client_ip, "(null)");     				
-      		}
-      		if(row[30] != NULL) {
-      			snprintf(n_srv->server_icon, 1000, "%s", row[30]);
-      		} else {
-      			sprintf(n_srv->server_icon, "(null)");	
-      		}		
-      		
-      		n_srv->client_port=atoi(row[5]);
-      		
-      		if(row[36] != NULL) {
-      			snprintf(n_srv->server_ssh_keyfile, 512, "%s", row[36]);
-      		} else {
-      			sprintf(n_srv->server_ssh_keyfile, " ");	
-      		}
-					if(row[37] != NULL) {
-      			snprintf(n_srv->server_ssh_passphrase, 512, "%s", row[37]);
-      		} else {
-      			sprintf(n_srv->server_ssh_passphrase, " ");	
-      		}
-					if(row[38] != NULL) {
-      			snprintf(n_srv->server_ssh_username, 512, "%s", row[38]);
-      		} else {
-      			sprintf(n_srv->server_ssh_username, " ");	
-      		}
-      		
-      		if(row[39] != NULL) {
-      			snprintf(svc->enabled_triggers, 512, "%s", row[39]);
+      		if(row[27] != NULL) {
+      			snprintf(svc->enabled_triggers, 512, "%s", row[27]);
       		} else {
       			sprintf(svc->enabled_triggers, "%s", "");	
       		}
-      		if(row[40] != NULL) {
-      			snprintf(n_srv->enabled_triggers, 512, "%s", row[40]);
-      		} else {
-      			sprintf(n_srv->enabled_triggers, "%s", "");	
-      		}
       		
-      		if(row[41] != NULL) {
-      			snprintf(svc->snmp_info.textmatch, 1024, "%s", row[41]);
+      		
+      		if(row[28] != NULL) {
+      			snprintf(svc->snmp_info.textmatch, 1024, "%s", row[28]);
       		} else {
       			sprintf(svc->snmp_info.textmatch, "%s", "");	
       		}
 					
-      		svc->last_notify_send=atoi(row[42]);
-      		svc->last_state_change=atoi(row[43]);
+      		svc->last_notify_send=atoi(row[29]);
+      		svc->last_state_change=atoi(row[30]);
       		
-      		svc->service_retain_current=atol(row[44]);
-      		svc->service_ack_current=atoi(row[45]);
+      		svc->service_retain_current=atol(row[31]);
+      		svc->service_ack_current=atoi(row[32]);
       		
       		if(svc->last_notify_send == 0) svc->last_notify_send = time(NULL);
       		if(svc->last_state_change == 0) svc->last_state_change = time(NULL);
       		
-      		svc->srv=n_srv;
       		
       		
-//     		svc->new_server_text=malloc(strlen(row[11])*sizeof(char)+2);
       		
-      		sprintf(svc->new_server_text, "%s", row[11]);
-      		
-      		///svc->new_server_text=row[11];
+      		sprintf(svc->new_server_text, "%s", row[7]);
       		
       		
       		
       		
-      		if(row[7] != NULL) {
-      			//svc->plugin=malloc(strlen(row[7])*sizeof(char)+2);
-      			sprintf(svc->plugin, "%s", row[7]);
+      		if(row[3] != NULL) {
+      			
+      			sprintf(svc->plugin, "%s", row[3]);
       			
       		} else {
-      			//svc->plugin=NULL; 
+      			
       			sprintf(svc->plugin, "(null)");       				
       		}
       		
-      		if(row[8] != NULL) {
+      		if(row[4] != NULL) {
       			//svc->plugin_arguments=malloc(strlen(row[8])*sizeof(char)+2);
-      			sprintf(svc->plugin_arguments, "%s", row[8]);
+      			sprintf(svc->plugin_arguments, "%s", row[4]);
       			
       		} else {
       			//svc->plugin_arguments=NULL; 
@@ -1126,68 +1082,68 @@ int GetServiceById(int service_id, struct service * svc, char * config) {
       		}
       		
       		svc->lcheck.tv_usec=0;
-      		svc->lcheck.tv_sec=atoi(row[9]);
-      		svc->last_check=atoi(row[9]);
+      		svc->lcheck.tv_sec=atoi(row[5]);
+      		svc->last_check=atoi(row[5]);
       		
-      		svc->check_interval=atol(row[10]);
+      		svc->check_interval=atol(row[6]);
       		
-      		svc->check_interval_original=atol(row[10])*1000;
+      		svc->check_interval_original=atol(row[6])*1000;
       		      		
       		
       	
       		
-      		svc->notify_enabled=atoi(row[16]);
+      		svc->notify_enabled=atoi(row[8]);
       	
-      		svc->service_type = atoi(row[17]);
+      		svc->service_type = atoi(row[9]);
       		
-      		if(row[18] != NULL) {
+      		if(row[10] != NULL) {
       			//svc->service_var=malloc(strlen(row[18])*sizeof(char)+2);
-      			sprintf(svc->service_var, "%s", row[18]);
+      			sprintf(svc->service_var, "%s", row[10]);
       			
       		} else {
       			//svc->service_var=NULL;
       			sprintf(svc->service_var, "(null)");
       		}
       		
-      		svc->service_passive_timeout=atol(row[19]);
+      		svc->service_passive_timeout=atol(row[11]);
       		
-      		svc->service_active=atoi(row[20]);
-      		svc->service_check_timeout=atol(row[21]);
-      		if(row[22] != NULL) {
-      			svc->service_ack_enabled = atoi(row[22]);	
+      		svc->service_active=atoi(row[12]);
+      		svc->service_check_timeout=atol(row[13]);
+      		if(row[14] != NULL) {
+      			svc->service_ack_enabled = atoi(row[14]);	
       		} 
-      		svc->service_retain=atol(row[23]);
+      		svc->service_retain=atol(row[15]);
       		svc->flap_count=0;
       		
-      		if(row[24] != NULL) {
-      			snprintf(svc->snmp_info.community, 500, "%s", row[24]);
+      		if(row[16] != NULL) {
+      			snprintf(svc->snmp_info.community, 500, "%s", row[16]);
       		} else {
       			sprintf(svc->snmp_info.community, "(null)");
       		}
       		
-      		if(row[25] != NULL) {
-      			snprintf(svc->snmp_info.objid, 1000, "%s", row[25]);
+      		if(row[17] != NULL) {
+      			snprintf(svc->snmp_info.objid, 1000, "%s", row[17]);
       		} else {
       			sprintf(svc->snmp_info.objid, "(null)");	
       		}
       		
-      		svc->snmp_info.version = atoi(row[26]);
-      		svc->snmp_info.warn = atol(row[27]);
-      		svc->snmp_info.crit = atol(row[28]);
-      		svc->snmp_info.type = atol(row[29]);
+      		svc->snmp_info.version = atoi(row[18]);
+      		svc->snmp_info.warn = atol(row[19]);
+      		svc->snmp_info.crit = atol(row[20]);
+      		svc->snmp_info.type = atol(row[21]);
       		
-      		svc->flap_seconds = atol(row[31]);
+      		svc->flap_seconds = atol(row[22]);
       		
-      		if(row[32] != NULL) {
-      			snprintf(svc->service_exec_plan, 2047, "%s", row[32]);
+      		if(row[23] != NULL) {
+      			snprintf(svc->service_exec_plan, 2047, "%s", row[23]);
       		} else {
       			sprintf(svc->service_exec_plan, " ");	
       		}
       		//svc.renotify_interval, svc.escalate_divisor
       		
-      		svc->renotify_interval=atol(row[33]);
-      		svc->escalate_divisor=atol(row[34]);
-      		svc->fires_events=atol(row[35]);
+      		svc->renotify_interval=atol(row[24]);
+      		svc->escalate_divisor=atol(row[25]);
+      		svc->fires_events=atol(row[26]);
 				
 					
 					if(svc->service_ack_enabled == 0) svc->service_ack_current=0;
@@ -1981,7 +1937,7 @@ int GetServiceMap(struct service * svcs, char * config) {
       	mysql_select_db(mysql, mysql_db);
       		CHK_ERR(mysql);
       		
-      	mysql_query(mysql, SELECTOR);
+      	mysql_query(mysql, SERVICE_MAP_SELECTOR);
 		CHK_ERR(mysql);
       	res = mysql_store_result(mysql);
       		CHK_ERR(mysql);
@@ -1990,166 +1946,106 @@ int GetServiceMap(struct service * svcs, char * config) {
       		
 	if(mysql_num_rows(res) > 0) {
       		
-      		
       		while ( (row=mysql_fetch_row(res)) != NULL) {
       			
       			svcs[i].service_id=atol(row[0]);
-      			svcs[i].server_id=atol(row[4]);
+      			svcs[i].server_id=atol(row[33]);
       			svcs[i].last_state=atoi(row[2]);
       			svcs[i].current_state=atoi(row[2]);
       			svcs[i].servicegroup_counter=0;
       			
       			if(row[1] != NULL) {
-      				//svcs[i].service_name=malloc(strlen(row[1])*sizeof(char)+2);
       				sprintf(svcs[i].service_name, "%s", row[1]);
       				
       			} else {
-      				//svcs[i].service_name=NULL;     				
       				sprintf(svcs[i].service_name, "(null)");
       			}
-      			
-      			
-      			
-//     			svcs[i].new_server_text=malloc(strlen(row[11])*sizeof(char)+2);
-      			
-      			sprintf(svcs[i].new_server_text, "%s", row[11]);
-      			
-      			///svcs[i].new_server_text=row[11];
-      			
-      			
-      			
-      			
-      			if(row[7] != NULL) {
-      				//svcs[i].plugin=malloc(strlen(row[7])*sizeof(char)+2);
-      				sprintf(svcs[i].plugin, "%s", row[7]);
+      			sprintf(svcs[i].new_server_text, "%s", row[7]);
+      			if(row[3] != NULL) {
+      				sprintf(svcs[i].plugin, "%s", row[3]);
       				
       			} else {
-      				//svcs[i].plugin=NULL; 
       				sprintf(svcs[i].plugin, "(null)");       				
       			}
-      			
-      			if(row[8] != NULL) {
-      				//svcs[i].plugin_arguments=malloc(strlen(row[8])*sizeof(char)+2);
-      				sprintf(svcs[i].plugin_arguments, "%s", row[8]);
-      				
+      			if(row[4] != NULL) {
+      				sprintf(svcs[i].plugin_arguments, "%s", row[4]);
       			} else {
-      				//svcs[i].plugin_arguments=NULL; 
       				sprintf(svcs[i].plugin_arguments, "(null)");      				
       			}
-      			
-      			
-      			//svcs[i].last_check=time(NULL)+(i*2);
-      				      
       			svcs[i].lcheck.tv_usec=0;
-      			svcs[i].lcheck.tv_sec=atoi(row[9]);                      
-						svcs[i].last_check=atoi(row[9]);    				                            
-      				                                 
-      			svcs[i].check_interval=atol(row[10]);
-      			svcs[i].check_interval_original=atol(row[10])*1000;
-      			
-      			
-      			
-      			svcs[i].notify_enabled=atoi(row[16]);
-      			svcs[i].last_notify_send=atoi(row[38]);
-      			svcs[i].last_state_change=atoi(row[39]);
-      			
-      			
+      			svcs[i].lcheck.tv_sec=atoi(row[5]);                      
+						svcs[i].last_check=atoi(row[5]);    				                            
+      			svcs[i].check_interval=atol(row[6]);
+      			svcs[i].check_interval_original=atol(row[6])*1000;
+      			svcs[i].notify_enabled=atoi(row[8]);
+      			svcs[i].last_notify_send=atoi(row[29]);
+      			svcs[i].last_state_change=atoi(row[30]);
       			if(svcs[i].last_notify_send == 0) svcs[i].last_notify_send=time(NULL);
       			if(svcs[i].last_state_change == 0) svcs[i].last_state_change=time(NULL);
-      			
-      			//svc.service_type, svc.service_var, svc.service_passive_timeout
-      			svcs[i].service_type = atoi(row[17]);
-      			
-      			if(row[18] != NULL) {
-      				//svcs[i].service_var=malloc(strlen(row[18])*sizeof(char)+2);
-      				sprintf(svcs[i].service_var, "%s", row[18]);
-      				
+      			svcs[i].service_type = atoi(row[9]);
+      			if(row[10] != NULL) {
+      				sprintf(svcs[i].service_var, "%s", row[10]);
       			} else {
-      				//svcs[i].service_var=NULL;
       				sprintf(svcs[i].service_var, "(null)");
       			}
-      			
-      			svcs[i].service_passive_timeout=atol(row[19]);
-      			svcs[i].service_active=atoi(row[20]);
-      			svcs[i].service_check_timeout=atol(row[21]);
-      			
-      			
-      			if(row[23] != NULL) {
-      				svcs[i].service_ack_enabled = atoi(row[23]);
+      			svcs[i].service_passive_timeout=atol(row[11]);
+      			svcs[i].service_active=atoi(row[12]);
+      			svcs[i].service_check_timeout=atol(row[13]);
+      			if(row[14] != NULL) {
+      				svcs[i].service_ack_enabled = atoi(row[14]);
       			}
-      			
-      			svcs[i].service_retain=atol(row[24]);
-      			svcs[i].service_retain_current=atol(row[40]);
-      			svcs[i].service_ack_current=atoi(row[41]);
-      			//DFF
+      			svcs[i].service_retain=atol(row[15]);
+      			svcs[i].service_retain_current=atol(row[31]);
+      			svcs[i].service_ack_current=atoi(row[32]);
       			svcs[i].flap_count=0;
       			svcs[i].process.pid = 0;
       			svcs[i].process.start_time = 0;
-      			
       			svcs[i].notify_last_state=svcs[i].current_state;
-      			
       			svcs[i].pstat.sum=0;
       			svcs[i].pstat.counter=0;
-      			
       			svcs[i].delay_time.sum=0;
       			svcs[i].delay_time.counter=0;
-      			
       			svcs[i].do_force=0;
       			svcs[i].recovery_outstanding=RECOVERY_DONE;
       			if(svcs[i].current_state == STATE_CRITICAL) {
       				svcs[i].recovery_outstanding=RECOVERY_OUTSTANDING;
       			}
-      			
-      			
-      			
-      				
-      			if(row[25] != NULL) {
-      				snprintf(svcs[i].snmp_info.community, 500, "%s", row[25]);
+      			if(row[16] != NULL) {
+      				snprintf(svcs[i].snmp_info.community, 500, "%s", row[16]);
       			} else {
       				sprintf(svcs[i].snmp_info.community, "(null)");
       			}
-      			
-      			if(row[26] != NULL) {
-      				snprintf(svcs[i].snmp_info.objid, 1000, "%s", row[26]);
+      			if(row[17] != NULL) {
+      				snprintf(svcs[i].snmp_info.objid, 1000, "%s", row[17]);
       			} else {
       				sprintf(svcs[i].snmp_info.objid, "(null)");	
       			}
-      			
-      			svcs[i].snmp_info.version = atoi(row[27]);
-      			svcs[i].snmp_info.warn = atol(row[28]);
-      			svcs[i].snmp_info.crit = atol(row[29]);
-      			svcs[i].snmp_info.type = atol(row[30]);
-      			
-      			svcs[i].flap_seconds=atol(row[31]);
-      			
-      			if(row[32] != NULL) {
-      				snprintf(svcs[i].service_exec_plan, 2047, "%s", row[32]);
+      			svcs[i].snmp_info.version = atoi(row[18]);
+      			svcs[i].snmp_info.warn = atol(row[19]);
+      			svcs[i].snmp_info.crit = atol(row[20]);
+      			svcs[i].snmp_info.type = atol(row[21]);
+      			svcs[i].flap_seconds=atol(row[22]);
+      			if(row[23] != NULL) {
+      				snprintf(svcs[i].service_exec_plan, 2047, "%s", row[23]);
       			} else {
       				sprintf(svcs[i].service_exec_plan, "%s", "");	
       			}
-      			
-      			//renotify_interval, escalate_divisor
-      			svcs[i].renotify_interval=atol(row[33]);
-      			svcs[i].escalate_divisor=atol(row[34]);
-      			
-      			svcs[i].fires_events=atol(row[35]);
+      			svcs[i].renotify_interval=atol(row[24]);
+      			svcs[i].escalate_divisor=atol(row[25]);
+      			svcs[i].fires_events=atol(row[26]);
 						svcs[i].is_gone = 0;	
-						
-						
-						if(row[36] != NULL) {
-      				snprintf(svcs[i].enabled_triggers, 512, "%s", row[36]);
+						if(row[27] != NULL) {
+      				snprintf(svcs[i].enabled_triggers, 512, "%s", row[27]);
       			} else {
       				sprintf(svcs[i].enabled_triggers, "%s", "");	
       			}
-      			if(row[37] != NULL) {
-      				snprintf(svcs[i].snmp_info.textmatch, 1024, "%s", row[37]);
+      			if(row[28] != NULL) {
+      				snprintf(svcs[i].snmp_info.textmatch, 1024, "%s", row[28]);
       			} else {
       				sprintf(svcs[i].snmp_info.textmatch, "%s", "");	
       			}
       			
       			if(svcs[i].service_ack_enabled == 0) svcs[i].service_ack_current=0;
-      				
-      			//bartlby_replace_svc_in_str(svcs[i].plugin_arguments, &svcs[i], 2048);
       			i++;
       		}
       		
