@@ -92,7 +92,7 @@
 #define REL_NAME_INT "fusion"
 #define REL_NAME REL_NAME_INT " - rev:" __GIT_VERSION
 //#define VERSION  "1.4.0"
-#define EXPECTCORE 1500000
+#define EXPECTCORE 1500001
 
 #define MAX_CCACHE 1024
 #define MAX_CCACHE_KEY 1024
@@ -520,7 +520,7 @@ struct server * bartlby_SHM_ServerMap(void * shm_addr);
 struct servicegroup * bartlby_SHM_ServiceGroupMap(void * shm_addr);
 struct servergroup * bartlby_SHM_ServerGroupMap(void * shm_addr);
 
-void bartlby_SHM_link_services_servers(void * shm_addr, char * cfgfile);
+void bartlby_SHM_link_services_servers(void * shm_addr, char * cfgfile, void * SOHandle);
 
 void bartlby_perf_track(struct service * svc,char * return_buffer, int return_bytes, char * cfgfile);
 int bartlby_core_perf_track(struct shm_header * hdr, struct service * svc, int type, int time);
