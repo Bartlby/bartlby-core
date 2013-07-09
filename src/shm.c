@@ -66,7 +66,7 @@ void bartlby_SHM_link_services_servers(void * shm_addr, char * cfgfile, void * S
 	
 	autodelete_orphaned_services=getConfigValue("autodelete_orphaned_services", cfgfile);
 	if(autodelete_orphaned_services == NULL) {
-		autodelete_orphaned_services=strdup("false");	
+		autodelete_orphaned_services=strdup("true");	
 	}
 	
 	for(x=0; x<hdr->svccount; x++) {
