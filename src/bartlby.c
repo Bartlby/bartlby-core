@@ -62,6 +62,7 @@ struct servicegroup * gsvcgrpmap;
 
 int global_startup_time;
 
+
 int gshm_id;
 void * gBartlby_address;
 int gshm_svc_cnt;
@@ -384,7 +385,8 @@ int bartlby_populate_shm(char * cfgfile) {
 			gshm_hdr->pstat.sum=0;
 			gshm_hdr->pstat.counter=0;
 			
-			
+			gshm_hdr->checks_performed=0;
+			gshm_hdr->checks_performed_time=time(NULL);
 			
 			
 			
@@ -468,6 +470,8 @@ int main(int argc, char ** argv) {
 	
 
 	global_startup_time=time(NULL);
+	
+	
 	
 	//parse argv
 	bartlby_parse_argv(argc, argv);

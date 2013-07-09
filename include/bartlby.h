@@ -252,6 +252,8 @@ struct shm_header {
 	int sirene_mode;
 	struct perf_statistic pstat;
 	int cur_event_index;
+	long checks_performed;
+	int checks_performed_time;
 	
 	
 };
