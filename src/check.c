@@ -154,6 +154,12 @@ void bartlby_fin_service(struct service * svc, void * SOHandle, void * shm_addr,
 	hdr=bartlby_SHM_GetHDR(shm_addr);
 	wrkmap=bartlby_SHM_WorkerMap(shm_addr);
 	
+	if(hdr->checks_performed == LONG_MAX) {
+		hdr->checks_performed=0;
+		hdr->checks_performed_time=time(NULL);
+	}
+	
+	hdr->checks_performed++;
 	
 	if(svc->current_state != svc->last_state) {
 		svc->service_retain_current=0;
