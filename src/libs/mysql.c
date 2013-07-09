@@ -235,7 +235,7 @@ struct shm_counter * GetCounter(char * config) {
      	
      	
      } else {
-     	shmc->downtimes = 0;	
+     		shmc->servers = 0;	
      }
       		
      mysql_free_result(res);
