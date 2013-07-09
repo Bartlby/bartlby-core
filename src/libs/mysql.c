@@ -113,6 +113,8 @@ $Author$
 
 
 
+#define UPDATE_SERVICE_INTERVAL "update services set service_interval=%ld where service_id=%ld"
+
 
 
 //Counters
@@ -1166,7 +1168,48 @@ int GetServiceById(int service_id, struct service * svc, char * config) {
 	
 	return tmprc;	
 }
+int UpdateServiceInterval(struct service * svc, char * config) {
+	MYSQL *mysql;
+	int rtc;
+	
+	char * sqlupd;
+	
+		
+	char * mysql_host = getConfigValue("mysql_host", config);
+	char * mysql_user = getConfigValue("mysql_user", config);
+	char * mysql_pw = getConfigValue("mysql_pw", config);
+	char * mysql_db = getConfigValue("mysql_db", config);
 
+	mysql=mysql_init(NULL);
+		CHK_ERR(mysql);
+	mysql=mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
+		CHK_ERR(mysql);
+	mysql_select_db(mysql, mysql_db);
+      		CHK_ERR(mysql);
+      		
+  
+  asprintf(&sqlupd, UPDATE_SERVICE_INTERVAL, 	svc->check_interval, 	svc->service_id);
+	
+	//Log("dbg", sqlupd);
+
+	mysql_query(mysql, sqlupd);
+		CHK_ERR(mysql);
+	
+	
+	free(sqlupd);
+	rtc=mysql_insert_id(mysql);
+	mysql_close(mysql);
+		
+	free(mysql_host);
+	free(mysql_user);
+	free(mysql_pw);
+	free(mysql_db);
+	
+	
+	return rtc;	
+	
+  
+}
 int UpdateService(struct service * svc, char *config) {
 	/*
 		We get a struct service
