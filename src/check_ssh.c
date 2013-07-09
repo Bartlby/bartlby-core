@@ -26,7 +26,9 @@ $Author$
 
 
 
-
+#ifndef SSH_KEYTYPE_RSA
+#define SSH_KEYTYPE_RSA 2
+#endif
 
 #ifndef SSH_ADDON
 void bartlby_check_ssh(struct service * svc, char * cfgfile) {
