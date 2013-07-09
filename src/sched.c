@@ -788,6 +788,13 @@ void sched_do_now(struct service * svc, char * cfgfile , void * shm_addr, void *
 	}
 	
 	
+	if(gshm_hdr->checks_performed == LONG_MAX) {
+		gshm_hdr->checks_performed=0;
+		gshm_hdr->checks_performed_time=time(NULL);
+	}
+	
+	gshm_hdr->checks_performed++;
+	
 	
 	
 	
