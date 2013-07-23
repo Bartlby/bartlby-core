@@ -12,11 +12,6 @@ CREATE TABLE `downtime` (
 )  ;
 
 
-CREATE TABLE `grouplink` (
-  `grouplink_type` int(12) NOT NULL default '0',
-  `grouplink_group_id` int(24) default NULL,
-  `grouplink_object_id` int(24) default NULL 
-)  ;
 
 
 
