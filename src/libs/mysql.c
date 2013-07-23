@@ -1,8 +1,7 @@
-/* $Id$ */
 /* ----------------------------------------------------------------------- *
  *
- *   Copyright 2005-2009 Helmut Januschka - All Rights Reserved
- *   Contact: <helmut@januschka.com>, <contact@bartlby.org>
+ *   Copyright 2005-2013 Helmut Januschka - All Rights Reserved
+ *   Contact: <helmut@januschka.com>
  *
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -11,15 +10,9 @@
  *   USA; either version 2 of the License, or (at your option) any later
  *   version; incorporated herein by reference.
  *
- *   visit: www.bartlby.org for support
- * ----------------------------------------------------------------------- */
-/*
-$Revision$
-$HeadURL$
-$Date$
-$Author$ 
+  *   support: via http://github.com/Bartlby
+ * ----------------------------------------------------------------------- 
 */
-
 
 
 #include <bartlby.h>
@@ -48,9 +41,9 @@ $Author$
 
 //2 nach exec_plan
 //renotify_interval, escalate_divisor
-#define AUTOR "Helmut Januschka \"helmut@januschka.com\" http://bartlby.org"
+#define AUTOR "btl-core"
 #define NAME "MYSQL Connector"
-#define DLVERSION  "1.3.2"
+#define DLVERSION  "1.5.0"
 
 #define SERVER_MAP_SELECTOR "select server_id, server_ip, server_name, server_ico, server_enabled, server_port, server_dead, server_flap_seconds, server_notify, server_ssh_keyfile, server_ssh_passphrase, server_ssh_username, enabled_triggers from servers"
 
