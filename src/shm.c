@@ -219,7 +219,7 @@ void bartlby_SHM_link_services_servers(void * shm_addr, char * cfgfile, void * S
 						srvmap[x].servergroup_place[srvmap[x].servergroup_counter]=default_server_group_index;
 						srvmap[x].servergroup_counter++;
 						//FIXME enlarge membership possibility
-						if(strlen(srvgrpmap[default_server_group_index].servergroup_members)+strlen(group_has_server) < 1024) {
+						if(strlen(srvgrpmap[default_server_group_index].servergroup_members)+strlen(group_has_server) < GROUP_MEMBER_STR_LENGTH) {
 							strcat(srvgrpmap[default_server_group_index].servergroup_members, group_has_server);
 						} 
 						
@@ -247,7 +247,7 @@ void bartlby_SHM_link_services_servers(void * shm_addr, char * cfgfile, void * S
 					svcmap[x].servicegroup_counter++;
 					
 					//FIXME enlarge membership possibility
-					if(strlen(svcgrpmap[default_service_group_index].servicegroup_members)+strlen(group_has_service) < 1024) {
+					if(strlen(svcgrpmap[default_service_group_index].servicegroup_members)+strlen(group_has_service) < GROUP_MEMBER_STR_LENGTH) {
 						strcat(svcgrpmap[default_service_group_index].servicegroup_members, group_has_service);
 					}
 					
