@@ -135,26 +135,26 @@ void bartlby_check_ssh(struct service * svc, char * cfgfile) {
     if (rc < 0) {
         goto failed;
     }
-		sprintf(buffer2, "%s","");
-    sprintf(buffer, "%s","");
-		bytes_read=0;
+		sprintf(buffer2, "");
+    bytes_read=0;
+    nbytes = channel_read(channel, buffer, sizeof(buffer), 0);
     
-    
-    //FIXME MULTILINE
-		while (channel_read(channel, buffer, sizeof(buffer), 0) > 0) {
-			if(strlen(buffer2) + strlen(buffer) +2 <= 2045) {
-    	 strcat(buffer2, buffer);
-       buffer[0]='\0';
+    while (nbytes > 0) {
       
+      bytes_read += nbytes;
+      if(strlen(buffer2)+strlen(buffer) <= 2044) { //0-127|
+        strcat(buffer2, buffer);
+        nbytes = channel_read(channel, buffer, sizeof(buffer), 0);
       } else {
-        //_log("BUFFER BUFFER WOULD BE: %d", strlen(buffer2) + strlen(buffer) +2);
-        break;
+        //_log("BUFFER BUFFER");
+        break;        
       }
     }
 
     if (nbytes < 0) {
         goto failed;
     }
+    
   	
 
 		
@@ -173,6 +173,7 @@ void bartlby_check_ssh(struct service * svc, char * cfgfile) {
 		
   	bartlby_check_grep_perf_line(buffer2, svc, cfgfile);
   	sprintf(rmessage, "%d|%s", rc, buffer2); 
+   
     bartlby_action_handle_reply(svc, rmessage, cfgfile);
   	
 		
