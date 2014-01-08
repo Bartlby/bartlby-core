@@ -40,7 +40,7 @@ CREATE TABLE `servers` (
 CREATE TABLE `services` (
   `service_id` int(12) NOT NULL auto_increment,
   `server_id` int(12) NOT NULL default '0',
-  `service_plugin` varchar(255) NOT NULL default '',
+  `service_plugin` varchar(2048) NOT NULL default '',
   `service_name` varchar(255) NOT NULL default '',
   `service_state` int(12) NOT NULL default '0',
   `service_text` varchar(255) NOT NULL default '',
