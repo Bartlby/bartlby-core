@@ -1028,6 +1028,8 @@ int schedule_loop(char * cfgfile, void * shm_addr, void * SOHandle) {
 					if(ssort[x].svc->service_type != SVC_TYPE_PASSIVE) {
 						ssort[x].svc->last_check=time(NULL);
 					} 
+					
+					bartlby_callback(EXTENSION_CALLBACK_CHECK_WILL_RUN, ssort[x].svc);
 			 		sched_reschedule(ssort[x].svc);
 			 		sched_run_check(ssort[x].svc, cfgfile, shm_addr, SOHandle);
 			 		
