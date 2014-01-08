@@ -417,6 +417,7 @@ int bartlby_populate_shm(char * cfgfile) {
 			exit(1);
 		}
 
+	
 	return 0;
 }
 
