@@ -51,9 +51,9 @@ void bartlby_check_ssh(struct service * svc, char * cfgfile) {
 	int state;	
 	int nbytes;
 	int auth;
-	char buffer[256];
-	char buffer2[1024];
-	char rmessage[1024];
+	char buffer[2048];
+	char buffer2[2048];
+	char rmessage[2048];
 	int bytes_read;
 	
 	int log=9;
@@ -136,14 +136,20 @@ void bartlby_check_ssh(struct service * svc, char * cfgfile) {
         goto failed;
     }
 		sprintf(buffer2, "%s","");
+    sprintf(buffer, "%s","");
 		bytes_read=0;
-    nbytes = channel_read(channel, buffer, sizeof(buffer), 0);
-  	
-		while (nbytes > 0 && bytes_read <= 1023) {
-			buffer[nbytes]='\0';
-			bytes_read += nbytes;
-    	strcat(buffer2, buffer);
-      nbytes = channel_read(channel, buffer, sizeof(buffer), 0);
+    
+    
+    //FIXME MULTILINE
+		while (channel_read(channel, buffer, sizeof(buffer), 0) > 0) {
+			if(strlen(buffer2) + strlen(buffer) +2 <= 2045) {
+    	 strcat(buffer2, buffer);
+       buffer[0]='\0';
+      
+      } else {
+        //_log("BUFFER BUFFER WOULD BE: %d", strlen(buffer2) + strlen(buffer) +2);
+        break;
+      }
     }
 
     if (nbytes < 0) {
@@ -167,7 +173,7 @@ void bartlby_check_ssh(struct service * svc, char * cfgfile) {
 		
   	bartlby_check_grep_perf_line(buffer2, svc, cfgfile);
   	sprintf(rmessage, "%d|%s", rc, buffer2); 
-		bartlby_action_handle_reply(svc, rmessage, cfgfile);
+    bartlby_action_handle_reply(svc, rmessage, cfgfile);
   	
 		
 		
