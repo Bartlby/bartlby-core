@@ -32,7 +32,7 @@
 #include <unistd.h>
 #include <unistd.h>
 #include <limits.h>
-
+#include <sys/prctl.h>
 #include <mysql/mysql.h>
 
 
@@ -92,7 +92,7 @@
 #define REL_NAME_INT "fusion"
 #define REL_NAME REL_NAME_INT " - rev:" __GIT_VERSION
 //#define VERSION  "1.4.0"
-#define EXPECTCORE 1500002
+#define EXPECTCORE 1500003
 
 #define MAX_CCACHE 1024
 #define MAX_CCACHE_KEY 1024
@@ -187,7 +187,8 @@
 #define GROUP_WITHOUT_PARMS "Group check without parameters"
 #define GROUP_OK "Group check OK"
 
-
+#define SCHED_MODE_WORKER 1
+#define SCHED_MODE_FORK 2
 
 #define LOAD_SYMBOL(x,y,z) 	x=dlsym(y, z); \
     	if((dlmsg=dlerror()) != NULL) { \
@@ -228,11 +229,12 @@ struct sprocess {
 		
 };
 
-struct sched_threads {
+struct sched_worker {
 	int pid;
 	struct service * svc;
 	int start_time;
-	int its_over;
+	int  idle;
+	int shutdown;
 } astt;
 
 
@@ -256,6 +258,7 @@ struct shm_header {
 	int cur_event_index;
 	long checks_performed;
 	int checks_performed_time;
+	struct  sched_worker worker_threads[50];
 	
 	
 };

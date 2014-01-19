@@ -30,7 +30,7 @@ $Author$
 
 void catch_signal(int signum);
 int do_shutdown=0;
-
+int g_current_worker_idx=0;
 pid_t sched_pid;
 
 struct shm_header * gshm_hdr;
@@ -39,6 +39,9 @@ void * gSOHandle;
 void * gshm_addr;
 char * gConfig;
 
+
+int sched_mode=SCHED_MODE_FORK;
+int sched_worker_count=5;
 
 int g_micros_before_after_check=700;
 long shortest_intervall;
@@ -129,6 +132,15 @@ void sched_write_back_all(char * cfgfile, void * shm_addr, void * SOHandle) {
 	
 }
 
+void sched_wait_for_childs() {
+	int childstatus;
+	int x;
+
+	if(sched_mode == SCHED_MODE_FORK) {
+		while(waitpid(-1, &childstatus, WNOHANG ) > 0 );	
+	}
+
+}
 
 /*
 function: sched_reaper
@@ -178,6 +190,8 @@ void sched_kill_runaaway(void * shm_addr, struct service *  svc, char * cfg, voi
 	if(svc->process.pid < 2)  {
 		return;
 	}
+		
+	//FIXME IF IN WORKER MODE - find its IDX kill him and restart this specific worker
 		
 	
 	rtc=kill(svc->process.pid, 9);
@@ -707,6 +721,16 @@ void sched_definitiv_running() {
 	
 	
 }
+void sched_kill_all_workers() {
+	int x;
+	if(sched_mode == SCHED_MODE_WORKER) {
+		for(x=0; x<sched_worker_count; x++)  {
+			_log("Quitting Worker: %d", gshm_hdr->worker_threads[x].pid);
+			kill( gshm_hdr->worker_threads[x].pid, 9);
+		}		
+	}
+}
+
 void sched_wait_open(int timeout, int fasten) {
 	int x;
 	int y;
@@ -748,7 +772,7 @@ void sched_wait_open(int timeout, int fasten) {
 		}
 		
 	}
-	
+	sched_kill_all_workers();
 
 }
 
@@ -800,11 +824,28 @@ void sched_do_now(struct service * svc, char * cfgfile , void * shm_addr, void *
 	
 	
 }
+void sched_run_worker() {
+	int i;
+	prctl(PR_SET_NAME, "bartlby worker");
 
-void sched_run_check(struct service * svc, char * cfgfile, void * shm_addr, void * SOHandle) {
-      
+	while(1) {
 
-    int child_pid;
+		if(gshm_hdr->worker_threads[g_current_worker_idx].svc != NULL ) {
+			gshm_hdr->worker_threads[g_current_worker_idx].idle=0;
+			_log("Worker: %d running %d", g_current_worker_idx, gshm_hdr->worker_threads[g_current_worker_idx].svc->service_id);
+			sched_do_now(gshm_hdr->worker_threads[g_current_worker_idx].svc, gConfig, gshm_hdr, gSOHandle);
+			gshm_hdr->worker_threads[g_current_worker_idx].svc=NULL;
+			gshm_hdr->worker_threads[g_current_worker_idx].idle=1;
+		}
+		if(gshm_hdr->worker_threads[g_current_worker_idx].shutdown == 1) {
+			exit(1);
+		}
+		usleep(9000); //FIXME PAUSE TIME
+	}
+
+}
+int sched_fork_worker() {
+	int child_pid;
     struct sigaction sa;
      
      
@@ -821,9 +862,57 @@ void sched_run_check(struct service * svc, char * cfgfile, void * shm_addr, void
 		_log("FORK Error %s", strerror(errno));
 		return;
 	} else if(child_pid == 0) {
+		prctl(PR_SET_DUMPABLE, 0);
+		setpgid(0,0);
+		sched_run_worker();
+		exit(0);
+	}
+	return child_pid;
+
+
+}
+void sched_init_workers() {
+	int x;
+	if(sched_mode == SCHED_MODE_WORKER) {
+		for(x=0; x<sched_worker_count; x++) {
+			g_current_worker_idx=x;
+			gshm_hdr->worker_threads[x].pid=sched_fork_worker();
+			gshm_hdr->worker_threads[x].start_time=time(NULL);
+			gshm_hdr->worker_threads[x].svc=NULL;
+			gshm_hdr->worker_threads[x].idle=1;
+		}		
+	}	
+}
+
+void sched_run_check(struct service * svc, char * cfgfile, void * shm_addr, void * SOHandle, int worker_slot) {
+      
+
+    int child_pid;
+    struct sigaction sa;
+     
+     
+    if(sched_mode == SCHED_MODE_WORKER) {
+    	gshm_hdr->worker_threads[worker_slot].svc=svc;
+    	return;
+    }
+   
+   sigfillset(&sa.sa_mask);
+   sa.sa_handler = sched_reaper;
+   sa.sa_flags = 0;
+   sigaction(SIGCHLD, &sa, NULL);
+     
+       
+
+
+	child_pid=fork();
+	
+	if(child_pid == -1) {
+		_log("FORK Error %s", strerror(errno));
+		return;
+	} else if(child_pid == 0) {
 		
 		setpgid(0,0);
-		
+		prctl(PR_SET_DUMPABLE, 0);
 		
 		
 		sched_do_now(svc, cfgfile, shm_addr, SOHandle);
@@ -850,6 +939,35 @@ static int cmpservice(const void *m1, const void *m2) {
 		return 0;
 	
 }
+int sched_find_open_worker() {
+	int x;
+	if(sched_mode == SCHED_MODE_WORKER) {
+		for(x=0; x<sched_worker_count; x++) {
+			if(gshm_hdr->worker_threads[x].idle == 1) {
+				return x;
+			}
+		}
+		return -1;
+	}
+	return 0;
+
+}
+void sched_check_for_dead_workers() {
+	int x;
+	if(sched_mode == SCHED_MODE_WORKER) {
+		for(x=0; x<sched_worker_count; x++) {
+			if(kill(gshm_hdr->worker_threads[x].pid, 0) != 0) {
+				_log("worker thread %d died", x);
+				g_current_worker_idx=x;
+				gshm_hdr->worker_threads[x].pid=sched_fork_worker();
+				gshm_hdr->worker_threads[x].start_time=time(NULL);
+				gshm_hdr->worker_threads[x].svc=NULL;
+				gshm_hdr->worker_threads[x].idle=1;
+
+			}
+		}
+	}
+}
 int schedule_loop(char * cfgfile, void * shm_addr, void * SOHandle) {
 
 	
@@ -862,6 +980,8 @@ int schedule_loop(char * cfgfile, void * shm_addr, void * SOHandle) {
 	int round_start, round_visitors;
 	char * cfg_sched_pause;
 	char * cfg_g_micros_before_after_check;
+	char * cfg_sched_mode;
+	char * cfg_sched_worker_count;
 	
 	int sched_pause;
 	
@@ -883,6 +1003,8 @@ int schedule_loop(char * cfgfile, void * shm_addr, void * SOHandle) {
 	
 	
 	int ct, expt;
+
+	int worker_slot=-1;
 	
 	sched_pid=getpid();
 	
@@ -891,7 +1013,7 @@ int schedule_loop(char * cfgfile, void * shm_addr, void * SOHandle) {
 	gConfig=cfgfile;
 	
 	
-	int childstatus;
+
 
 	
 	gshm_hdr=bartlby_SHM_GetHDR(shm_addr);
@@ -956,6 +1078,31 @@ int schedule_loop(char * cfgfile, void * shm_addr, void * SOHandle) {
 			ssort[x].svc=&services[x];	
 	}
 	
+	cfg_sched_mode = getConfigValue("sched_mode", cfgfile);
+	cfg_sched_worker_count = getConfigValue("sched_worker_count", cfgfile);
+
+	if(cfg_sched_mode == NULL) {
+		sched_mode=SCHED_MODE_FORK;
+		_log("Defaulting sched mode to SCHED_MODE_FORK");
+	} else {
+		sched_mode=atoi(cfg_sched_mode);
+		_log("Set sched_mode to:%d", sched_mode);
+		free(cfg_sched_mode);
+	}
+
+	if(cfg_sched_worker_count == NULL) {
+		sched_worker_count=5;
+		_log("Defaulting sched_worker_count to 5");
+	} else {
+		sched_worker_count=atoi(cfg_sched_worker_count);
+		_log("Using %d workers", sched_worker_count);
+		free(cfg_sched_worker_count);
+	}
+
+
+	// Check if we should use worker or per check-fork
+
+	sched_init_workers();
 	
 	while(1) {
 		
@@ -1009,41 +1156,38 @@ int schedule_loop(char * cfgfile, void * shm_addr, void * SOHandle) {
 			if(gshm_hdr->current_running < cfg_max_parallel || (int)current_load[0] < cfg_max_load) { 
 				if(sched_check_waiting(shm_addr, ssort[x].svc, cfgfile, SOHandle, sched_pause) == 1) {
 					
+					if(sched_mode == SCHED_MODE_WORKER) {
+						worker_slot=sched_find_open_worker();						
+						if(worker_slot < 0) {
+							sched_check_for_dead_workers();
+							continue;
+						}
+					}
+
 					gettimeofday(&run_c_start,NULL);
-					
-					
 					round_visitors++;
-					
-					
 					ct = time(NULL);			
 					expt = (ssort[x].svc->last_check+ssort[x].svc->check_interval);
-					
 					if(ct > expt && ssort[x].svc->service_type != SVC_TYPE_PASSIVE) {
 						// service check has delayed
 						ssort[x].svc->delay_time.sum += ct - expt;
 					}
-
 					ssort[x].svc->delay_time.counter++;
-					
-					
 					//WTF?
 					if(ssort[x].svc->service_type != SVC_TYPE_PASSIVE) {
 						ssort[x].svc->last_check=time(NULL);
 					} 
-					
 					bartlby_callback(EXTENSION_CALLBACK_CHECK_WILL_RUN, ssort[x].svc);
 			 		sched_reschedule(ssort[x].svc);
-			 		sched_run_check(ssort[x].svc, cfgfile, shm_addr, SOHandle);
-			 		
+			 		sched_run_check(ssort[x].svc, cfgfile, shm_addr, SOHandle, worker_slot);
 			 		usleep(g_micros_before_after_check);
-			 		
 			 		gettimeofday(&run_c_end,NULL);
 			 		
 			 		
 				}				
 			} else {
 				
-				while(waitpid(-1, &childstatus, WNOHANG ) > 0 );
+				sched_wait_for_childs();
 				sched_wait_open(60,cfg_max_parallel-1);	
 				
 			}
@@ -1059,7 +1203,7 @@ int schedule_loop(char * cfgfile, void * shm_addr, void * SOHandle) {
 		gettimeofday(&stat_round_end,NULL);
 		bartlby_core_perf_track(gshm_hdr, &services[x], PERF_TYPE_ROUND_TIME, bartlby_milli_timediff(stat_round_end,stat_round_start));
 				
-		while(waitpid(-1, &childstatus, WNOHANG ) > 0 );
+		sched_wait_for_childs();
 
 		usleep(sched_pause);
 		if(shortest_intervall > 1) {
@@ -1067,24 +1211,8 @@ int schedule_loop(char * cfgfile, void * shm_addr, void * SOHandle) {
 			
 		}
 		
-						
-	
-		
-		
 		round_start=time(NULL);
 		round_visitors=0;
-		
-		
-		
-		i_am_a_slave = getConfigValue("i_am_a_slave", cfgfile);
-		if(i_am_a_slave == NULL) {
-			replication_go(cfgfile, shm_addr, SOHandle);
-			
-		} else {
-			_log("Skipped repl because me is a slave");	
-			free(i_am_a_slave);
-			return -2;
-		}
 		
 	}
 	

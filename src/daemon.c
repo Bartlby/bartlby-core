@@ -243,7 +243,7 @@ void bartlby_get_daemon(char * cfgfile) {
 	
 	
 	signal(SIGHUP, SIG_IGN);
-	
+	prctl(PR_SET_DUMPABLE, 0);
 	
 	
 	return;
