@@ -34,7 +34,7 @@
 #include <limits.h>
 #include <sys/prctl.h>
 #include <mysql/mysql.h>
-
+#include <sys/times.h> 
 
 /* DEBUGGING */
 
@@ -187,8 +187,9 @@
 #define GROUP_WITHOUT_PARMS "Group check without parameters"
 #define GROUP_OK "Group check OK"
 
-#define SCHED_MODE_WORKER 1
-#define SCHED_MODE_FORK 2
+#define SCHED_MODE_WORKER 2
+#define SCHED_MODE_FORK 1
+
 
 #define LOAD_SYMBOL(x,y,z) 	x=dlsym(y, z); \
     	if((dlmsg=dlerror()) != NULL) { \
@@ -235,6 +236,10 @@ struct sched_worker {
 	int start_time;
 	int  idle;
 	int shutdown;
+	struct tms timing;
+	int idx;
+
+
 } astt;
 
 
@@ -403,6 +408,9 @@ struct servergroup {
 
 struct service_sort {
 	struct service * svc;	
+};
+struct sched_worker_sort {
+	struct sched_worker * th;
 };
 
 
