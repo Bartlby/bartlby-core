@@ -824,23 +824,30 @@ void sched_do_now(struct service * svc, char * cfgfile , void * shm_addr, void *
 	
 	
 }
+void sig_cont_handler(int sig) {
+	//_log("Received SIGCONT: %d", sig);
+
+}
 void sched_run_worker() {
 	int i;
 	prctl(PR_SET_NAME, "bartlby worker");
-
+	prctl(PR_SET_DUMPABLE, 1);
+	signal(SIGCONT, sig_cont_handler);
 	while(1) {
 
 		if(gshm_hdr->worker_threads[g_current_worker_idx].svc != NULL ) {
 			gshm_hdr->worker_threads[g_current_worker_idx].idle=0;
-			_log("Worker: %d running %d", g_current_worker_idx, gshm_hdr->worker_threads[g_current_worker_idx].svc->service_id);
+			
 			sched_do_now(gshm_hdr->worker_threads[g_current_worker_idx].svc, gConfig, gshm_hdr, gSOHandle);
+			times(&gshm_hdr->worker_threads[g_current_worker_idx].timing);
 			gshm_hdr->worker_threads[g_current_worker_idx].svc=NULL;
 			gshm_hdr->worker_threads[g_current_worker_idx].idle=1;
+
 		}
 		if(gshm_hdr->worker_threads[g_current_worker_idx].shutdown == 1) {
 			exit(1);
 		}
-		usleep(9000); //FIXME PAUSE TIME
+		pause();
 	}
 
 }
@@ -880,6 +887,8 @@ void sched_init_workers() {
 			gshm_hdr->worker_threads[x].start_time=time(NULL);
 			gshm_hdr->worker_threads[x].svc=NULL;
 			gshm_hdr->worker_threads[x].idle=1;
+			gshm_hdr->worker_threads[x].idx=x;
+
 		}		
 	}	
 }
@@ -893,6 +902,7 @@ void sched_run_check(struct service * svc, char * cfgfile, void * shm_addr, void
      
     if(sched_mode == SCHED_MODE_WORKER) {
     	gshm_hdr->worker_threads[worker_slot].svc=svc;
+    	kill(gshm_hdr->worker_threads[worker_slot].pid, SIGCONT);
     	return;
     }
    
@@ -912,7 +922,7 @@ void sched_run_check(struct service * svc, char * cfgfile, void * shm_addr, void
 	} else if(child_pid == 0) {
 		
 		setpgid(0,0);
-		prctl(PR_SET_DUMPABLE, 0);
+		prctl(PR_SET_DUMPABLE, 1);
 		
 		
 		sched_do_now(svc, cfgfile, shm_addr, SOHandle);
@@ -939,14 +949,49 @@ static int cmpservice(const void *m1, const void *m2) {
 		return 0;
 	
 }
+static int cmpthread(const void *m1, const void *m2) {
+	struct sched_worker_sort * s1 = (struct sched_worker_sort *) m1;
+	struct sched_worker_sort * s2 = (struct sched_worker_sort *) m2;
+	int d1, d2;
+
+	d1 = s1->th->timing.tms_utime;
+	d2 = s2->th->timing.tms_utime;
+
+	if(d1 < d2)
+		return -1;
+	else if(d1 > d2) 
+		return 1;
+	else
+		return 0;
+	
+
+
+}
 int sched_find_open_worker() {
 	int x;
-	if(sched_mode == SCHED_MODE_WORKER) {
+
+	int ridx;
+	//Sort threw timing.0
+	struct sched_worker_sort * sorted;
+
+
+
+	if(sched_mode == SCHED_MODE_WORKER) { 
+		sorted=malloc(sizeof(struct sched_worker_sort)*sched_worker_count);
 		for(x=0; x<sched_worker_count; x++) {
-			if(gshm_hdr->worker_threads[x].idle == 1) {
-				return x;
+			sorted[x].th=&gshm_hdr->worker_threads[x];
+
+		}
+
+		qsort(sorted, sched_worker_count, sizeof(struct sched_worker_sort), cmpthread);
+		for(x=0; x<sched_worker_count; x++) {
+			if(sorted[x].th->idle == 1 && kill(sorted[x].th->pid, 0) == 0) {
+				ridx=sorted[x].th->idx;
+				free(sorted);
+				return ridx;
 			}
 		}
+		free(sorted);
 		return -1;
 	}
 	return 0;
@@ -963,6 +1008,7 @@ void sched_check_for_dead_workers() {
 				gshm_hdr->worker_threads[x].start_time=time(NULL);
 				gshm_hdr->worker_threads[x].svc=NULL;
 				gshm_hdr->worker_threads[x].idle=1;
+				gshm_hdr->worker_threads[x].idx=x;
 
 			}
 		}
@@ -1088,17 +1134,25 @@ int schedule_loop(char * cfgfile, void * shm_addr, void * SOHandle) {
 		sched_mode=atoi(cfg_sched_mode);
 		_log("Set sched_mode to:%d", sched_mode);
 		free(cfg_sched_mode);
+		sched_worker_count=0;
+		if(sched_mode == SCHED_MODE_WORKER) {
+			if(cfg_sched_worker_count == NULL) {
+				sched_worker_count=5;
+				_log("Defaulting sched_worker_count to 5");
+			} else {
+				sched_worker_count=atoi(cfg_sched_worker_count);
+				_log("Using %d workers", sched_worker_count);
+				free(cfg_sched_worker_count);
+			}
+			_log("USING WORKER MODE");
+		}
+		if(sched_mode == SCHED_MODE_FORK) {
+			_log("using FORK MODE");
+		}
+
 	}
 
-	if(cfg_sched_worker_count == NULL) {
-		sched_worker_count=5;
-		_log("Defaulting sched_worker_count to 5");
-	} else {
-		sched_worker_count=atoi(cfg_sched_worker_count);
-		_log("Using %d workers", sched_worker_count);
-		free(cfg_sched_worker_count);
-	}
-
+	
 
 	// Check if we should use worker or per check-fork
 
