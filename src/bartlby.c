@@ -98,6 +98,8 @@ void dispHelp(void) {
 	printf("	\n");
 	printf("	   -d, --debug          Runs bartlby in foreground with stdout logging\n");
 	printf("	   -r, --reuse          if SHM is already here reuse it (could be dangorous, handle with care)\n");
+	printf("	   -s                   popuplate shm\n");
+	
 	printf("	\n");
 	printf("	   -h, --help           show this help\n");
 	printf("	   -v, --version        version\n");
@@ -110,6 +112,7 @@ void dispHelp(void) {
 void bartlby_parse_argv(int argc, char ** argv){
 	static struct option longopts[] = {
 		{ "help",	0, NULL, 'h'},
+		{ "debug",	0, NULL, 'd'},
 		{ "debug",	0, NULL, 'd'},
 		{ "reuse",	0, NULL, 'r'},
 		{ "version",	0, NULL, 'v'},
