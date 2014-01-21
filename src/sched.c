@@ -52,7 +52,7 @@ catches signals, need for reload and shutdown
 
 void catch_signal(int signum) {
 	pid_t sig_pid;
-	if(signum == SIGINT || signum == SIGUSR1) {
+	if(signum == SIGINT || signum == SIGUSR1 || SIGTERM || SIGKILL) {
 		do_shutdown=1;
 		sig_pid=getpid();
 		if(sig_pid != sched_pid) {
@@ -921,6 +921,8 @@ int schedule_loop(char * cfgfile, void * shm_addr, void * SOHandle) {
 	signal(SIGINT, catch_signal);
 	signal(SIGUSR1, catch_signal);
 	signal(SIGUSR2, catch_signal);
+	signal(SIGTERM, catch_signal);
+	signal(SIGKILL, catch_signal);
 	
 	
 	services=bartlby_SHM_ServiceMap(shm_addr);
