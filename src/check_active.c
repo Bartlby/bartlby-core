@@ -193,6 +193,9 @@ void bartlby_action_handle_reply(struct service * svc, char * rmessage, char * c
    				
    				if(data_is_ok != 1) {
    					data_is_ok=bartlby_action_handle_reply_line(svc, curr_line, cfgfile);
+					cur_char_idx=0;
+					char_idx++;
+					continue;					
    				}
    				if(data_is_ok == 1) {
    					
@@ -229,7 +232,7 @@ void bartlby_action_handle_reply(struct service * svc, char * rmessage, char * c
 }
 int bartlby_action_handle_reply_line(struct service * svc, char * line, char * cfgfile) {
 	char * return_token;
-	
+	char * line_dup;
 	if(strlen(line) == 0) {
 		return 2;	
 	}
@@ -243,7 +246,8 @@ int bartlby_action_handle_reply_line(struct service * svc, char * line, char * c
 		return 0;
 	}
 	//_log("DATA: '%s'", line);
-	return_token = strtok(line, "|");
+	line_dup=strdup(line);
+	return_token = strtok(line_dup, "|");
      if(return_token != NULL) {
       	//Verfiy result code to be 0-2 :-) 
       	if(return_token[0] != '0' && return_token[0] != '1' && return_token[0] != '2' && return_token[0] != '4' && return_token[0] != '3') {
@@ -269,7 +273,8 @@ int bartlby_action_handle_reply_line(struct service * svc, char * line, char * c
        		sprintf(svc->new_server_text, "(empty output)");
        		
        	}	
-       	return 1;
+        free(line_dup);
+        return 1;
        } else {
        	
        	sprintf(svc->new_server_text, PROTOCOL_ERROR);
