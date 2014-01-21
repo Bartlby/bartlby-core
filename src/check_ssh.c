@@ -136,6 +136,8 @@ void bartlby_check_ssh(struct service * svc, char * cfgfile) {
         goto failed;
     }
 		sprintf(buffer2, "");
+	memset(buffer, '\0', sizeof(char)*(1024*2));
+	memset(buffer2, '\0', sizeof(char)*(1024*2));
     bytes_read=0;
     nbytes = channel_read(channel, buffer, sizeof(buffer), 0);
     
@@ -170,8 +172,9 @@ void bartlby_check_ssh(struct service * svc, char * cfgfile) {
     ssh_free(my_ssh_session);
 		
 		
-		
   	bartlby_check_grep_perf_line(buffer2, svc, cfgfile);
+
+	memset(rmessage, '\0', sizeof(char)*(1024*2));
   	sprintf(rmessage, "%d|%s", rc, buffer2); 
    
     bartlby_action_handle_reply(svc, rmessage, cfgfile);
