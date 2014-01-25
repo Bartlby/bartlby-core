@@ -159,13 +159,11 @@ void bartlby_fin_service(struct service * svc, void * SOHandle, void * shm_addr,
 		svc->service_retain_current=0;
 		svc->last_state=svc->current_state;
 		svc->last_state_change=time(NULL);
-		
 		_log("@LOG@%ld|%d|%s:%d/%s|%s", svc->service_id, svc->current_state, svc->srv->server_name, svc->srv->client_port, svc->service_name, svc->new_server_text);
 		//bartlby_push_event(EVENT_STATUS_CHANGED, "Service-Changed;%d;%s:%d/%s;%d;%s", svc->service_id, svc->srv->server_name, svc->srv->client_port, svc->service_name, svc->current_state, svc->new_server_text);
 		bartlby_push_event(EVENT_STATUS_CHANGED, "{\"type\":\"Service-Changed\",\"service_id\":%d,\"server_and_service_name\":\"%s:%d/%s\",\"current_state\":%d,\"current_output\":\"%s\"}",svc->service_id, svc->srv->server_name, svc->srv->client_port, svc->service_name, svc->current_state, svc->new_server_text);
-		
-		
 		bartlby_callback(EXTENSION_CALLBACK_STATE_CHANGED, svc);
+
 	}	
 
 	if(svc->service_retain_current == svc->service_retain && svc->current_state != svc->notify_last_state) {
@@ -198,7 +196,10 @@ void bartlby_fin_service(struct service * svc, void * SOHandle, void * shm_addr,
 	}
 	if(svc->current_state == STATE_CRITICAL && svc->fires_events > 0) {
 				bartlby_check_eventhandler(svc, cfgfile);
-		}
+	}
+	if(svc->current_state == STATE_OK) {
+		svc->handled=SERVICE_UNHANDLED;
+	}
 	/* Check if we need to re-notify */
 	/* when retain in reached */
 	/* current state is critical*/

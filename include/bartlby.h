@@ -190,6 +190,10 @@
 #define SCHED_MODE_WORKER 2
 #define SCHED_MODE_FORK 1
 
+#define SERVICE_UNHANDLED 0;
+#define SERVICE_HANDLED 1;
+
+
 
 #define LOAD_SYMBOL(x,y,z) 	x=dlsym(y, z); \
     	if((dlmsg=dlerror()) != NULL) { \
@@ -377,6 +381,8 @@ struct service {
 	long fires_events;
 	
 	char enabled_triggers[512];
+
+	int handled;
 	
 };
 

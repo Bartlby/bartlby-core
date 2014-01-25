@@ -48,9 +48,9 @@
 #define SERVER_MAP_SELECTOR "select server_id, server_ip, server_name, server_ico, server_enabled, server_port, server_dead, server_flap_seconds, server_notify, server_ssh_keyfile, server_ssh_passphrase, server_ssh_username, enabled_triggers from servers"
 
 
-#define SERVICE_MAP_SELECTOR "select service_id, service_name, service_state, service_plugin, service_args, UNIX_TIMESTAMP(service_last_check), service_interval, service_text, service_notify, service_type, service_var, service_passive_timeout,service_active, service_check_timeout, service_ack_enabled, service_retain, service_snmp_community, service_snmp_objid, service_snmp_version, service_snmp_warning, service_snmp_critical, service_snmp_type, flap_seconds, service_exec_plan, renotify_interval, escalate_divisor, fires_events, enabled_triggers, service_snmp_textmatch, UNIX_TIMESTAMP(service_last_notify_send), UNIX_TIMESTAMP(service_last_state_change),service_retain_current, service_ack_current, server_id   from services svc ORDER BY RAND()"
+#define SERVICE_MAP_SELECTOR "select service_id, service_name, service_state, service_plugin, service_args, UNIX_TIMESTAMP(service_last_check), service_interval, service_text, service_notify, service_type, service_var, service_passive_timeout,service_active, service_check_timeout, service_ack_enabled, service_retain, service_snmp_community, service_snmp_objid, service_snmp_version, service_snmp_warning, service_snmp_critical, service_snmp_type, flap_seconds, service_exec_plan, renotify_interval, escalate_divisor, fires_events, enabled_triggers, service_snmp_textmatch, UNIX_TIMESTAMP(service_last_notify_send), UNIX_TIMESTAMP(service_last_state_change),service_retain_current, service_ack_current, server_id, service_handled   from services svc ORDER BY RAND()"
 #define WORKER_SELECTOR "select worker_mail, worker_icq, enabled_services ,notify_levels, worker_active, worker_name, worker_id, password, enabled_triggers, escalation_limit, escalation_minutes, notify_plan from workers"
-#define SERVICE_UPDATE_TEXT "update services set service_last_check=FROM_UNIXTIME(%d), service_text='%s', service_state=%d, service_last_notify_send=FROM_UNIXTIME(%d), service_last_state_change=FROM_UNIXTIME(%d), service_ack_current=%d, service_retain_current=%d where service_id=%ld"
+#define SERVICE_UPDATE_TEXT "update services set service_last_check=FROM_UNIXTIME(%d), service_text='%s', service_state=%d, service_last_notify_send=FROM_UNIXTIME(%d), service_last_state_change=FROM_UNIXTIME(%d), service_ack_current=%d, service_retain_current=%d, service_handled=%d where service_id=%ld"
 
 
 
@@ -69,9 +69,9 @@
 #define DELETE_SERVICE "delete from services where service_id=%d"
 #define SERVICE_CHANGE_ID "update services set service_id=%d where service_id=%d"
 
-#define UPDATE_SERVICE "update services set service_type=%d,service_name='%s',server_id=%ld,service_interval = %ld, service_plugin='%s',service_args='%s',service_passive_timeout=%ld, service_var='%s',service_check_timeout=%ld, service_ack_enabled='%d', service_retain='%ld', service_snmp_community='%s', service_snmp_objid='%s', service_snmp_version='%d', service_snmp_warning='%ld', service_snmp_critical='%ld', service_snmp_type='%ld', service_notify='%d', service_active='%d', flap_seconds='%ld', service_exec_plan='%s',renotify_interval=%ld, escalate_divisor=%ld, fires_events=%ld, enabled_triggers='%s', service_snmp_textmatch='%s'  where service_id=%ld"
+#define UPDATE_SERVICE "update services set service_type=%d,service_name='%s',server_id=%ld,service_interval = %ld, service_plugin='%s',service_args='%s',service_passive_timeout=%ld, service_var='%s',service_check_timeout=%ld, service_ack_enabled='%d', service_retain='%ld', service_snmp_community='%s', service_snmp_objid='%s', service_snmp_version='%d', service_snmp_warning='%ld', service_snmp_critical='%ld', service_snmp_type='%ld', service_notify='%d', service_active='%d', flap_seconds='%ld', service_exec_plan='%s',renotify_interval=%ld, escalate_divisor=%ld, fires_events=%ld, enabled_triggers='%s', service_snmp_textmatch='%s', service_handled=%d  where service_id=%ld"
 
-#define SERVICE_SELECTOR "select service_id, service_name, service_state, service_plugin, service_args, UNIX_TIMESTAMP(service_last_check), service_interval, service_text, service_notify, service_type, service_var, service_passive_timeout, service_active,service_check_timeout, service_ack_enabled, service_retain, service_snmp_community, service_snmp_objid, service_snmp_version, service_snmp_warning, service_snmp_critical, service_snmp_type, flap_seconds, service_exec_plan, renotify_interval, escalate_divisor, fires_events,  enabled_triggers,  service_snmp_textmatch, UNIX_TIMESTAMP(service_last_notify_send), UNIX_TIMESTAMP(service_last_state_change), service_retain_current, service_ack_current, server_id  from services svc where service_id=%d"
+#define SERVICE_SELECTOR "select service_id, service_name, service_state, service_plugin, service_args, UNIX_TIMESTAMP(service_last_check), service_interval, service_text, service_notify, service_type, service_var, service_passive_timeout, service_active,service_check_timeout, service_ack_enabled, service_retain, service_snmp_community, service_snmp_objid, service_snmp_version, service_snmp_warning, service_snmp_critical, service_snmp_type, flap_seconds, service_exec_plan, renotify_interval, escalate_divisor, fires_events,  enabled_triggers,  service_snmp_textmatch, UNIX_TIMESTAMP(service_last_notify_send), UNIX_TIMESTAMP(service_last_state_change), service_retain_current, service_ack_current, server_id, service_handled  from services svc where service_id=%d"
 
 
 
@@ -1009,6 +1009,7 @@ int GetServiceById(int service_id, struct service * svc, char * config) {
       		row=mysql_fetch_row(res);
       		svc->service_id=atol(row[0]);
       		svc->server_id=atol(row[33]);
+      		svc->handled=atoi(row[34]);
       		svc->last_state=atoi(row[2]);
       		svc->current_state=atoi(row[2]);
       		
@@ -1274,6 +1275,7 @@ int UpdateService(struct service * svc, char *config) {
   svc->fires_events,
   svc->enabled_triggers,
   svc->snmp_info.textmatch,
+  svc->handled,
 	svc->service_id
 	
 	
@@ -1798,7 +1800,7 @@ int doUpdate(struct service * svc, char * config) {
 	service_mysql_safe(svc);
 	
 	
-	asprintf(&sqlupd, SERVICE_UPDATE_TEXT, svc->last_check, svc->new_server_text, svc->current_state, svc->last_notify_send, svc->last_state_change, svc->service_ack_current,svc->service_retain_current, svc->service_id);
+	asprintf(&sqlupd, SERVICE_UPDATE_TEXT, svc->last_check, svc->new_server_text, svc->current_state, svc->last_notify_send, svc->last_state_change, svc->service_ack_current,svc->service_retain_current,svc->handled,  svc->service_id);
 	
 	
 	mysql_query(mysql, sqlupd);
@@ -1986,6 +1988,7 @@ int GetServiceMap(struct service * svcs, char * config) {
       			
       			svcs[i].service_id=atol(row[0]);
       			svcs[i].server_id=atol(row[33]);
+      			svcs[i].handled=atoi(row[34]);
       			svcs[i].last_state=atoi(row[2]);
       			svcs[i].current_state=atoi(row[2]);
       			svcs[i].servicegroup_counter=0;
