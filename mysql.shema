@@ -43,7 +43,7 @@ CREATE TABLE `services` (
   `service_plugin` varchar(2048) NOT NULL default '',
   `service_name` varchar(255) NOT NULL default '',
   `service_state` int(12) NOT NULL default '0',
-  `service_text` varchar(255) NOT NULL default '',
+  `service_text` varchar(4100) NOT NULL default '',
   `service_args` varchar(255) NOT NULL default '',
   `service_last_check` datetime NOT NULL default '0000-00-00 00:00:00',
   `service_notify` int(2) NOT NULL default '0',
