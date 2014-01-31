@@ -426,7 +426,13 @@ int bartlby_populate_shm(char * cfgfile) {
 
 int bartlby_go(char * cfgfile) {
 	int exi_code=0;
-	
+	/*
+	do_reload = 0 NO
+	do_reload = 1 YES
+	do_reload = 2 SCHEDULE DB IMPORT
+	do_reload = 3 DB IMPORT PREPARED
+
+	*/
 	while(exi_code != 1) {
 		
 		
@@ -434,14 +440,23 @@ int bartlby_go(char * cfgfile) {
 		_log("Scheduler ended with: %d", exi_code);
 		
 		
-		
-		
+
 		
 		//Destroy SHM
 		bartlby_ext_shutdown(exi_code);
 		//write back all services 
 		sched_write_back_all(cfgfile, gBartlby_address, gSOHandle);
 		
+
+		if(gshm_hdr->do_reload == 2) {
+			_log("Waiting to receive DB config");
+			//sleep(3);
+			gshm_hdr->do_reload=3; 
+			while(gshm_hdr->do_reload != 0) {
+				//_log("STILL WAITING TO CONTINUE");
+				sleep(1);
+			}	
+		}
 				
 		if(shmdt(gBartlby_address) < 0) {
 			_log("shmdt() failed '%s`", strerror(errno));	
@@ -461,6 +476,8 @@ int bartlby_go(char * cfgfile) {
 				exit(1);
 			}
 		}
+		
+
 		
 		
 	}

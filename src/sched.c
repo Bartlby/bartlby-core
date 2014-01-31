@@ -1160,7 +1160,7 @@ int schedule_loop(char * cfgfile, void * shm_addr, void * SOHandle) {
 	
 	while(1) {
 		
-		if(gshm_hdr->do_reload == 1) {
+		if(gshm_hdr->do_reload == 1 || gshm_hdr->do_reload == 2) {
 			_log("queuing Reload");	
 			sched_wait_open(1, 0);
 			signal(SIGCHLD, SIG_IGN);
@@ -1202,7 +1202,7 @@ int schedule_loop(char * cfgfile, void * shm_addr, void * SOHandle) {
 		for(x=0; x<gshm_hdr->svccount; x++) {
 			
 			
-			if(do_shutdown == 1 || gshm_hdr->do_reload == 1) {
+			if(do_shutdown == 1 || gshm_hdr->do_reload == 1 || gshm_hdr->do_reload == 2) {
 				break;	
 			}
 			
