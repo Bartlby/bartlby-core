@@ -244,6 +244,24 @@ int main(int argc, char ** argv) {
 			printf("Reload Scheduled\n");
 			exit(1);
 		} 
+		else if ( strcmp(argv[2], "lock_for_db") == 0 ) {
+			bartlby_address=shmat(shm_id,NULL,0);
+			shm_hdr=bartlby_SHM_GetHDR(bartlby_address);
+			shm_hdr->do_reload=2;
+			while(shm_hdr->do_reload != 3) {
+				sleep(1);
+			}
+			printf("DB LOCKED\n");
+			exit(1);
+		}
+		else if ( strcmp(argv[2], "unlock_for_db") == 0 ) {
+			bartlby_address=shmat(shm_id,NULL,0);
+			shm_hdr=bartlby_SHM_GetHDR(bartlby_address);
+			shm_hdr->do_reload=0;
+			
+			printf("DB unlocked\n");
+			exit(1);
+		}
 		printf("Unknown option: status|remove|list");
 		
 		
