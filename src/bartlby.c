@@ -81,7 +81,7 @@ struct shm_header * gshm_hdr;
 
 int gReuseSHM=0;
 int gOnlySHMPop=0;
-
+int gWBSHMToDB=0;
 
 
 
@@ -99,6 +99,7 @@ void dispHelp(void) {
 	printf("	   -d, --debug          Runs bartlby in foreground with stdout logging\n");
 	printf("	   -r, --reuse          if SHM is already here reuse it (could be dangorous, handle with care)\n");
 	printf("	   -s                   popuplate shm\n");
+	printf("	   -w                   WB SHM to DB\n");
 	
 	printf("	\n");
 	printf("	   -h, --help           show this help\n");
@@ -126,7 +127,7 @@ void bartlby_parse_argv(int argc, char ** argv){
 	}
 	
 	for (;;) {
-		c = getopt_long(argc, argv, "hdrsv", longopts, (int *) 0);
+		c = getopt_long(argc, argv, "hdrsvw", longopts, (int *) 0);
 		if (c == -1)
 			break;
 		switch (c) {
@@ -142,6 +143,9 @@ void bartlby_parse_argv(int argc, char ** argv){
 		break;
 		case 's':
 			gOnlySHMPop=1;	
+		break;
+		case 'w':
+			gWBSHMToDB=1;
 		break;
 		case 'v':
 			printf("%s\n", VERSION);
@@ -502,15 +506,31 @@ int main(int argc, char ** argv) {
 	cfg_init_cache();
 	cfg_fill_with_file(gCfgfile);
 	
+
 	
 	//handle -d flag ;) 
 	if(gDebug == 1) {
 		cfg_update_cache("daemon", "false");
 		cfg_update_cache("logfile", "/dev/stdout");
 	}
-	
-	
 	bartlby_init();
+
+	if(gWBSHMToDB == 1) {
+		bartlby_load_shm_stuff(gCfgfile);
+		
+		gshm_id = shmget(ftok(gShmtok, 32), gSHMSize, IPC_EXCL | 0777);
+		
+		gBartlby_address=shmat(gshm_id,NULL,0);
+		gshm_hdr=bartlby_SHM_GetHDR(gBartlby_address);
+		_log("Writing Back SHM STATE to DB");
+		sched_write_back_all(gCfgfile, gBartlby_address, gSOHandle);
+
+
+		exit(1);
+	}
+	
+
+	
 	
 	if(gOnlySHMPop == 1) {
 		bartlby_load_shm_stuff(gCfgfile);
