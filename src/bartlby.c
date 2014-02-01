@@ -534,7 +534,7 @@ int main(int argc, char ** argv) {
 	
 	if(gOnlySHMPop == 1) {
 		bartlby_load_shm_stuff(gCfgfile);
-		bartlby_shm_fits(gCfgfile);
+		//bartlby_shm_fits(gCfgfile);
 	
 		if(bartlby_populate_shm(gCfgfile) < 0) {
 			//in case of zero workers
