@@ -420,7 +420,7 @@ int bartlby_populate_shm(char * cfgfile) {
 		} else {
 			
 			
-			_log("SHM is already exsisting do a `ipcrm shm SHMID' or something like that");
+			_log("SHM is already exsisting do a `ipcrm shm SHMID' or something like that %s", strerror(errno));
 			exit(1);
 		}
 
@@ -534,9 +534,11 @@ int main(int argc, char ** argv) {
 	
 	if(gOnlySHMPop == 1) {
 		bartlby_load_shm_stuff(gCfgfile);
-		//bartlby_shm_fits(gCfgfile);
+		bartlby_shm_fits(gCfgfile);
+
 	
 		if(bartlby_populate_shm(gCfgfile) < 0) {
+
 			//in case of zero workers
 			exit(1);
 		}
