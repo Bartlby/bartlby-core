@@ -81,7 +81,7 @@ void bartlby_check_local(struct service * svc, char * cfgfile) {
 	free(file_request);
 	asprintf(&file_request, "%s/%s %s 2>/dev/null",plugin_dir, svc->plugin, svc->plugin_arguments);
 	
-	
+	//FIXME WORKER MODE -> http://www4.informatik.uni-erlangen.de/DE/Lehre/WS01/V_SP1/Uebung/tsh.c block_signal
 	signal(SIGPIPE,SIG_DFL);
 	signal(SIGCHLD,SIG_DFL);
 		
