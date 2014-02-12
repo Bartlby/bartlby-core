@@ -251,7 +251,7 @@ int bartlby_worker_has_service(struct worker * w, struct service * svc, char * c
 	
 	
 	
-	_log("@TRIG@ visible_servers: %s; visible_services:%s; super_user: %s;", visible_servers, visible_services, is_super_user);
+	//_log("@TRIG@ visible_servers: %s; visible_services:%s; super_user: %s;", visible_servers, visible_services, is_super_user);
 	
 	
 	if(strstr(visible_servers, find_server) == NULL && strcmp(is_super_user, "true") != 0) {
@@ -294,7 +294,7 @@ int bartlby_worker_has_service(struct worker * w, struct service * svc, char * c
 	//compare if service is visible -> if empty string -> yes ->  else check if selected -> yes
 	
 	
-	_log("@TRIG@ return %d for worker '%s' with selected_services '%s'", the_state, w->name, selected_services);	
+	//_log("@TRIG@ return %d for worker '%s' with selected_services '%s'", the_state, w->name, selected_services);	
 
 	free(user_dat);
 	if(visible_servers != NULL)
