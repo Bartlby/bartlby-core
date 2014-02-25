@@ -127,18 +127,25 @@ function start_it_up {
 	
 }
 
-echo "--------------------------------------------------------------";
-echo -n "What type of installation is this: [(i) install or upgrade, (e)xit post-setup][i]:";
-read INST_TYPE;
-case $INST_TYPE in
+if [ "x$BARTLBY_ENV_AUTO_INSTALL" = "x" ];
+then
 
-	u) echo "install upgrade";;
-	e) echo "Dont run post install steps";;
-	*) INST_TYPE="u"; echo "default INSTALL";;
-esac;
+	echo "--------------------------------------------------------------";
+	echo -n "What type of installation is this: [(i) install or upgrade, (e)xit post-setup][i]:";
+	read INST_TYPE;
+	case $INST_TYPE in
 
-echo "--------------------------------------------------------------";
-echo "";
+		u) echo "install upgrade";;
+		e) echo "Dont run post install steps";;
+		*) INST_TYPE="u"; echo "default INSTALL";;
+	esac;
+
+	echo "--------------------------------------------------------------";
+	echo "";
+else
+	echo "ENV_AUTO_INSTALL IS SET!!";
+	INST_TYPE="u";
+fi;
 
 if [ "$INST_TYPE" = "e" ];
 then
@@ -152,26 +159,32 @@ fi;
 
 
 
-
-echo "####################################################";
-echo "####################################################";
-echo "###              Bartlby Setup                   ###";
-echo "####################################################";
-echo "####################################################";
-echo " You are now asked to fill in the username and ";
-echo " password of the 'root' mysql user, or at ";
-echo " least someone who can DROP and CREATE databases";
-echo "####################################################";
-
-echo "--------------------------------------------------------------";
-echo -n "do database create/upgrade [y/n](y):";
-read DO_DB_STUFF;
-echo "--------------------------------------------------------------";
-echo "";
-if [ "x$DO_DB_STUFF" = "x" ];
+if [ "x$BARTLBY_ENV_AUTO_INSTALL" = "x" ];
 then
+	echo "####################################################";
+	echo "####################################################";
+	echo "###              Bartlby Setup                   ###";
+	echo "####################################################";
+	echo "####################################################";
+	echo " You are now asked to fill in the username and ";
+	echo " password of the 'root' mysql user, or at ";
+	echo " least someone who can DROP and CREATE databases";
+	echo "####################################################";
+
+	echo "--------------------------------------------------------------";
+	echo -n "do database create/upgrade [y/n](y):";
+	read DO_DB_STUFF;
+	echo "--------------------------------------------------------------";
+	echo "";
+	if [ "x$DO_DB_STUFF" = "x" ];
+	then
+		DO_DB_STUFF="y";
+	fi;
+else
+	echo "ENV AUTO INSTALL IS SET!!";
 	DO_DB_STUFF="y";
 fi;
+
 
 if [ "$DO_DB_STUFF" = "y" ];
 then
@@ -207,33 +220,42 @@ MYSQL_OK=1;
 while [ $MYSQL_OK = 1 ];
 do
 
-	#ok lets start a php script :-), its easier to manipulate mysql things
-	echo "--------------------------------------------------------------";
-	echo -n "Give username:";
-	read MYSQL_USER;
-	echo "--------------------------------------------------------------";
-	echo "";
-	echo "";
-	echo "--------------------------------------------------------------";
-	echo -n "Give password:";
-	read MYSQL_PASSWORD;
-	echo "--------------------------------------------------------------";
-	echo "";
-	echo "";
-	echo "--------------------------------------------------------------";
-	echo -n "Give host:";
-	read MYSQL_HOST;
-	echo "--------------------------------------------------------------";
-	echo "";
-	echo "";
-	echo "--------------------------------------------------------------";
-	echo -n "Give database name:";
-	read MYSQL_DB;
-	
-	
-	echo "--------------------------------------------------------------";
-	echo "";
-	echo "";
+	if [ "x$BARTLBY_ENV_AUTO_INSTALL" = "x" ];
+	then
+		#ok lets start a php script :-), its easier to manipulate mysql things
+		echo "--------------------------------------------------------------";
+		echo -n "Give username:";
+		read MYSQL_USER;
+		echo "--------------------------------------------------------------";
+		echo "";
+		echo "";
+		echo "--------------------------------------------------------------";
+		echo -n "Give password:";
+		read MYSQL_PASSWORD;
+		echo "--------------------------------------------------------------";
+		echo "";
+		echo "";
+		echo "--------------------------------------------------------------";
+		echo -n "Give host:";
+		read MYSQL_HOST;
+		echo "--------------------------------------------------------------";
+		echo "";
+		echo "";
+		echo "--------------------------------------------------------------";
+		echo -n "Give database name:";
+		read MYSQL_DB;
+		
+		
+		echo "--------------------------------------------------------------";
+		echo "";
+		echo "";
+	else
+		echo "ENV_AUTO_INSTALL is set!!";
+		MYSQL_USER=$BARTLBY_ENV_MYSQL_USER;
+		MYSQL_DB=$BARTLBY_ENV_MYSQL_DB;
+		MYSQL_PASSWORD=$BARTLBY_ENV_MYSQL_PASSWORD;
+		MYSQL_HOST=$BARTLBY_ENV_MYSQL_HOST;
+	fi;
 	
 	MYSQL_COMMAND="$MY_MYSQL -u $MYSQL_USER --password=$MYSQL_PASSWORD -h $MYSQL_HOST";
 cat << MYSQL_SCRIPT | $MYSQL_COMMAND; 
