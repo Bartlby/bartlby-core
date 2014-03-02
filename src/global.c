@@ -370,6 +370,7 @@ int bartlby_tcp_sendall(int s, char *buf, int *len){
         }
 
 
+
 /* receives all data - modelled after sendall() */
 int bartlby_tcp_recvall(int s, char *buf, int *len, int timeout){
 	int total=0;
@@ -420,6 +421,48 @@ int bartlby_agent_tcp_connect(char *host_name,int port,int *sd, struct service *
 	result=bartlby_agent_tcp_my_connect(host_name,port,sd,"tcp", svc);
 
 	return result;
+}
+int bartlby_portier_tcp_my_connect(char *host_name,int port){
+	int result;
+
+
+	struct addrinfo hints, *res, *ressave;
+	char ipvservice[20];
+	int sockfd;
+	
+	sprintf(ipvservice, "%d",port);
+	
+	 memset(&hints, 0, sizeof(struct addrinfo));
+
+   hints.ai_family = AF_UNSPEC;
+   hints.ai_socktype = SOCK_STREAM;
+	
+	 result = getaddrinfo(host_name, ipvservice, &hints, &res);
+	 if(result < 0) {
+	 		return -7;
+	}
+	ressave = res;
+	 
+	sockfd-1;
+	while (res) {
+        sockfd = socket(res->ai_family,
+                        res->ai_socktype,
+                        res->ai_protocol);
+
+        if (!(sockfd < 0)) {
+            if (connect(sockfd, res->ai_addr, res->ai_addrlen) == 0)
+                break;
+
+            close(sockfd);
+            sockfd=-1;
+        }
+    res=res->ai_next;
+  }
+  freeaddrinfo(ressave);
+ 
+	return sockfd;
+	
+	
 }
         
 int bartlby_agent_tcp_my_connect(char *host_name,int port,int *sd,char *proto, struct service * svc){
