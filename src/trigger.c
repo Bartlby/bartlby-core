@@ -29,11 +29,15 @@ $Author$
 
 
 static sig_atomic_t connection_timed_out=0;
+static sig_atomic_t portier_connection_timed_out=0;
 #define CONN_TIMEOUT 15
 
 
 static void trigger_conn_timeout(int signo) {
  	connection_timed_out = 1;
+}
+static void bartlby_portier_conn_timeout(int signo) {
+	portier_connection_timed_out=1;
 }
 
 int bartlby_servicegroup_has_trigger(struct service * svc, char * trigger) {
@@ -316,6 +320,112 @@ int bartlby_worker_has_service(struct worker * w, struct service * svc, char * c
 	return the_state;
 }
 
+
+
+int bartlby_trigger_tcp_upstream(char * passive_host, int passive_port, int passive_cmd, int to_standbys,char * trigger_name, char * execline) {
+	int res;
+	char verstr[2048];
+	char cmdstr[2048];
+	char result[2048];
+	int rc;
+	
+	int client_socket;
+	int client_connect_retval=-1;
+	struct sigaction act1, oact1;
+	
+	
+	portier_connection_timed_out=0;
+	
+
+	
+	
+	
+	act1.sa_handler = bartlby_portier_conn_timeout;
+	sigemptyset(&act1.sa_mask);
+	act1.sa_flags=0;
+	#ifdef SA_INTERRUPT
+	act1.sa_flags |= SA_INTERRUPT;
+	#endif
+	
+	if(sigaction(SIGALRM, &act1, &oact1) < 0) {
+		
+		return -3; //timeout handler
+	
+		
+	}
+	alarm(5);
+	client_socket = bartlby_portier_tcp_my_connect(passive_host, passive_port);
+	alarm(0);
+	if(portier_connection_timed_out == 1 || client_socket == -1) {
+		return -4; //connect
+	} 
+	connection_timed_out=0;
+
+	res=client_socket;
+	if(res > 0) {
+		
+		portier_connection_timed_out=0;
+		alarm(5);
+		if(read(res, verstr, 1024) < 0) {
+			_log("UPSTREAM FAILED1!\n");
+			return -1;
+		}
+		if(verstr[0] != '+') {
+			_log("UPSTREAM: Server said a bad result: '%s'\n", verstr);
+			close(res);
+			return -1;
+		}
+		alarm(0);
+		//printf("Connected to: %s\n", verstr);		
+		sprintf(cmdstr, "%d|%d|%s|%s|\n", passive_cmd, to_standbys, execline, trigger_name);
+		_log("UPSTREAM: sending '%s'", cmdstr);
+		portier_connection_timed_out=0;
+		alarm(5);
+		if(write(res, cmdstr, 1024) < 0) {
+			_log("UPSTREAM: FAILED2");
+			return -1;
+		}
+		alarm(0);
+		portier_connection_timed_out=0;
+		alarm(5);
+		if((rc=read(res, result, 1024)) < 0) {
+			_log("UPSTREAM: FAILED3");
+			return -1;
+		}
+		alarm(0);
+		result[rc-1]='\0'; //cheap trim *fg*
+		close(res);			
+		if(result[0] != '+') {
+			_log("UPSTREAM: FAILED4 - %s", result);
+			return -1;
+		}  else {
+			_log("UPSTREAM DONE: %s\n", result);
+			return 0;
+		}
+		
+	} else {
+		
+		_log("UPSTREAM: FAILED5");
+		return -1;
+	}	
+	return 0;
+}
+
+
+void bartlby_trigger_upstream(int has_local_users, int to_standbys, char * trigger_name, char * cmdl) {
+	//GET CONFIG
+	//UPSTREAM_HOST:
+	//UPSTREAM_PORT:
+
+	if(has_local_users == 1) {
+		_log("UPSTREAM: just send exec line: %s", cmdl);
+		//int bartlby_trigger_tcp_upstream(char * passive_host, int passive_port, int passive_cmd, int to_standbys, char * execline) {
+		bartlby_trigger_tcp_upstream("127.0.0.1", 9031, 6, to_standbys,trigger_name, cmdl);
+	} else {
+		_log("UPSTREAM: send request to call a '%s' on remote workers - with message: '%s'", trigger_name, cmdl);
+		bartlby_trigger_tcp_upstream("127.0.0.1", 9031, 7, to_standbys, trigger_name, cmdl);
+	}
+}
 void bartlby_trigger(struct service * svc, char * cfgfile, void * shm_addr, int do_check, int standby_workers_only) {
 	char * trigger_dir;
 	struct dirent *entry;
@@ -337,7 +447,42 @@ void bartlby_trigger(struct service * svc, char * cfgfile, void * shm_addr, int 
 	struct sigaction act1, oact1;
 	char * cfg_trigger_msg;
 	
+	//UPSTREAM NOTIFICATIONS:
+	char * cfg_upstream_enabled;
+	char * cfg_upstream_has_local_users;
 	
+
+	int upstream_enabled;
+	int upstream_has_local_users;
+	
+
+	cfg_upstream_enabled = getConfigValue("upstream_enabled", cfgfile);
+	cfg_upstream_has_local_users = getConfigValue("upstream_has_local_users", cfgfile);
+	
+
+	
+	if(cfg_upstream_enabled == NULL) {
+		cfg_upstream_enabled=strdup("false");	
+	}
+	if(strcmp(cfg_upstream_enabled, "true") == 0) {
+		upstream_enabled=1;
+	} else {
+		upstream_enabled=0;
+	}
+	if(cfg_upstream_has_local_users == NULL) {
+		cfg_upstream_has_local_users=strdup("false");	
+	}
+	if(strcmp(cfg_upstream_has_local_users, "true") == 0) {
+		upstream_has_local_users=1;
+	} else {
+		upstream_has_local_users=0;
+	}
+	free(cfg_upstream_enabled);
+	free(cfg_upstream_has_local_users);
+	///UPSTEAM NOTIFICATIONS
+
+
+
 	hdr=bartlby_SHM_GetHDR(shm_addr);
 	wrkmap=bartlby_SHM_WorkerMap(shm_addr);
 	
@@ -446,7 +591,14 @@ void bartlby_trigger(struct service * svc, char * cfgfile, void * shm_addr, int 
 		}
 		
 		if(S_ISREG(finfo.st_mode)) {
-			
+			if(upstream_enabled == 1 && upstream_has_local_users == 0) {
+				_log("@UPSTREAM-NOT-TOP@ - TRIGGER: %s  local_users: %d  to-standbys:%d", entry->d_name,  upstream_has_local_users, standby_workers_only);
+				svc->last_notify_send=time(NULL);
+				svc->srv->last_notify_send=time(NULL);
+				//void bartlby_trigger_upstream(int has_local_users, int to_standbys, char * trigger_name, char * cmdl) 
+				bartlby_trigger_upstream(upstream_has_local_users, standby_workers_only, entry->d_name, notify_msg);
+				continue;
+			}
 			for(x=0; x<hdr->wrkcount; x++) {
 				if(service_is_in_time(wrkmap[x].notify_plan) > 0) {
 					if(bartlby_worker_has_service(&wrkmap[x], svc, cfgfile) != 0 || do_check == 0) {
@@ -459,6 +611,19 @@ void bartlby_trigger(struct service * svc, char * cfgfile, void * shm_addr, int 
 							/* if standby escalation message check if worker is in standby mode either skip him/her*/
 							if(standby_workers_only == 1 && wrkmap[x].active != 2) continue;
 							
+							
+							svc->last_notify_send=time(NULL);
+							svc->srv->last_notify_send=time(NULL);
+							wrkmap[x].escalation_time=time(NULL);
+							asprintf(&exec_str, "%s \"%s\" \"%s\" \"%s\" \"%s\"", full_path, wrkmap[x].mail,wrkmap[x].icq,wrkmap[x].name, notify_msg);
+
+							if(upstream_enabled == 1 && upstream_has_local_users == 1) {
+								_log("@UPSTREAM-NOT-USER@ - TRIGGER: %s  local_users: %d  to-standbys:%d cmdline `%s'", entry->d_name,  upstream_has_local_users, standby_workers_only, exec_str);
+								bartlby_trigger_upstream(upstream_has_local_users, standby_workers_only, entry->d_name, exec_str);
+								free(exec_str);
+								continue;
+							}
+
 							en.trigger = entry->d_name;
 							en.svc = svc;
 							en.wrk = &wrkmap[x];
@@ -467,10 +632,7 @@ void bartlby_trigger(struct service * svc, char * cfgfile, void * shm_addr, int 
 							//_log("EXEC trigger: %s", full_path);
 							_log("@NOT@%ld|%d|%d|%s|%s|%s:%d/%s", svc->service_id, svc->last_state ,svc->current_state,entry->d_name,wrkmap[x].name, svc->srv->server_name, svc->srv->client_port, svc->service_name);
 							
-							svc->last_notify_send=time(NULL);
-							svc->srv->last_notify_send=time(NULL);
-							wrkmap[x].escalation_time=time(NULL);
-							asprintf(&exec_str, "%s \"%s\" \"%s\" \"%s\" \"%s\"", full_path, wrkmap[x].mail,wrkmap[x].icq,wrkmap[x].name, notify_msg);
+
 							ptrigger=popen(exec_str, "r");
 							if(ptrigger != NULL) {
 								connection_timed_out=0;

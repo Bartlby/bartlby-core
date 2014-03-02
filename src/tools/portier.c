@@ -31,6 +31,8 @@ static int connection_timed_out=0;
 #define CMD_REPL 3
 #define CMD_SVCLIST 4
 #define CMD_GETSERVERID 5
+#define CMD_EXEC_TRIGGER_LINE 6
+#define CMD_EXEC_TRIGGER 7
 
 #define CONN_TIMEOUT 10
 
@@ -96,11 +98,14 @@ int main(int argc, char ** argv) {
 	
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	int passive_svcid;
+	int standby_workers_only;
 	int passive_serverid;
 	int passive_state;
 	char passive_text[2048];
 	char * passive_beauty;
 	
+	char * trigger_name;
+	char * notify_msg;
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -116,8 +121,16 @@ int main(int argc, char ** argv) {
 	struct shm_header * shm_hdr;
 	struct service * svcmap;
 	struct server * srvmap;
-	
-	
+	struct worker * wrkmap;
+	char * find_trigger;
+	char * exec_str;
+	char * full_path;
+	FILE * ptrigger;
+	char trigger_return[1024];
+
+	char * trigger_dir;
+	struct stat finfo;	
+
 	allowed_ip_list=getConfigValue("allowed_ips", argv[0]);
 	if(allowed_ip_list == NULL) {
         	printf("-No Ip Allowed");
@@ -171,7 +184,8 @@ int main(int argc, char ** argv) {
 		shm_hdr=bartlby_SHM_GetHDR(bartlby_address);
 		svcmap=bartlby_SHM_ServiceMap(bartlby_address);
 		srvmap=bartlby_SHM_ServerMap(bartlby_address);
-		
+		wrkmap=bartlby_SHM_WorkerMap(bartlby_address);
+
 		printf("+SVCC: %ld WRKC: %ld V: %s\n", shm_hdr->svccount, shm_hdr->wrkcount, shm_hdr->version);
 		fflush(stdout);
 		
@@ -258,6 +272,111 @@ int main(int argc, char ** argv) {
 					
 				}
 			break;
+			case CMD_EXEC_TRIGGER_LINE:
+				//second is "standbys"
+				//third is cmd line
+				token=strtok(NULL, "|");
+				if(token != NULL) {
+					passive_svcid=atoi(token); //TO_STANDBYS
+					token=strtok(NULL, "|");
+					if(token != NULL) {
+
+						exec_str=token;
+
+						ptrigger=popen(exec_str, "r");
+						if(ptrigger != NULL) {
+							connection_timed_out=0;
+							alarm(CONN_TIMEOUT);
+							if(fgets(trigger_return, 1024, ptrigger) != NULL) {
+								trigger_return[strlen(trigger_return)-1]='\0';
+	      						connection_timed_out=0;
+								alarm(0);
+							}
+							if(ptrigger != NULL) {
+	      						pclose(ptrigger);
+	      					}
+	      						
+	      				} 
+	      						
+						sprintf(svc_out, "+ EXECTRIGGERCMD: '%s' returned: %s", token, trigger_return);
+
+						//FIXME POPEN
+
+					}
+				}
+
+
+			break;
+			case CMD_EXEC_TRIGGER:
+				//second is "standbys"
+				//third is cmd line
+				token=strtok(NULL, "|");
+				if(token != NULL) {
+					standby_workers_only=atoi(token); //TO_STANDBYS
+					token=strtok(NULL, "|");
+					if(token != NULL) {
+						notify_msg = token;
+						token=strtok(NULL, "|");
+						if(token != NULL) {
+							trigger_name=token;
+						}
+
+					}
+				}
+
+				trigger_dir=getConfigValue("trigger_dir", argv[0]);
+				if(trigger_dir == NULL) {
+					exit(4);
+				}
+				asprintf(&find_trigger, "|%s|" , trigger_name);
+				asprintf(&full_path, "%s/%s", trigger_dir, trigger_name);
+				if(lstat(full_path, &finfo) < 0) {
+					printf("STAT FAILED '%s'", full_path);
+					free(find_trigger);
+					free(full_path);
+					exit(4);
+				}
+			
+				for(x=0; x<shm_hdr->wrkcount; x++) {
+					if(service_is_in_time(wrkmap[x].notify_plan) > 0) {
+						//if(bartlby_worker_has_service(&wrkmap[x], svc, cfgfile) != 0 || do_check == 0) {
+							if(strstr(wrkmap[x].enabled_triggers, find_trigger) != NULL || strlen(wrkmap[x].enabled_triggers) == 0) {
+								
+								
+								//if((bartlby_trigger_escalation(&wrkmap[x], svc, standby_workers_only)) == FL) continue;
+								//if((bartlby_trigger_worker_level(&wrkmap[x], svc)) == FL) continue;
+									
+								/* if standby escalation message check if worker is in standby mode either skip him/her*/
+								if(standby_workers_only == 1 && wrkmap[x].active != 2) continue;
+								wrkmap[x].escalation_time=time(NULL);
+								asprintf(&exec_str, "%s \"%s\" \"%s\" \"%s\" \"%s\"", full_path, wrkmap[x].mail,wrkmap[x].icq,wrkmap[x].name, notify_msg);
+								ptrigger=popen(exec_str, "r");
+								if(ptrigger != NULL) {
+									connection_timed_out=0;
+									alarm(CONN_TIMEOUT);
+									if(fgets(trigger_return, 1024, ptrigger) != NULL) {
+										trigger_return[strlen(trigger_return)-1]='\0';
+	      								connection_timed_out=0;
+										alarm(0);
+									}
+									if(ptrigger != NULL) {
+	      									pclose(ptrigger);
+	      							}
+	      						
+	      						} 
+	      						
+								free(exec_str);
+							
+							
+						//}
+					}
+				}
+			}
+			free(find_trigger);	
+			sprintf(svc_out, "+CALLTRIGGER LOCAL: '%s' msg: '%s' return: %s", trigger_name, notify_msg,trigger_return);
+				
+			break;
+
 			case CMD_PASSIVE:
 				//Second is SVCID
 				//Third is new status
