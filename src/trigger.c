@@ -77,7 +77,7 @@ int bartlby_servergroup_has_trigger(struct server * srv, char * trigger) {
 		return 1;
 }
 
-int bartlby_trigger_worker_level(struct worker * w,  struct service * svc) {
+int bartlby_trigger_worker_level(struct worker * w,  struct service * svc, int node_id) {
 	char * find_level, * last_level;
 	char * blevel;
 	int rt;
@@ -122,7 +122,7 @@ int bartlby_trigger_worker_level(struct worker * w,  struct service * svc) {
 	return rt;
 }
 
-int bartlby_trigger_escalation(struct worker *w, struct service * svc, int standby_workers_only) {
+int bartlby_trigger_escalation(struct worker *w, struct service * svc, int standby_workers_only, int node_id) {
 	if(standby_workers_only == 0 && w->active != 1) {
 		//_log("Worker: %s is inactive", w->mail);
 		return FL;	
@@ -132,7 +132,11 @@ int bartlby_trigger_escalation(struct worker *w, struct service * svc, int stand
 		return TR;	
 	} else {
 		if(w->escalation_count > w->escalation_limit) {
-			_log("@NOT-EXT@%ld|%d|%d|%s||%s:%d/%s|'(escalation %d/%ld)'", svc->service_id, svc->last_state ,svc->current_state,w->name, svc->srv->server_name, svc->srv->client_port, svc->service_name,w->escalation_count, w->escalation_limit);
+			if(node_id <= 0) {
+				_log("@NOT-EXT@%ld|%d|%d|%s||%s:%d/%s|'(escalation %d/%ld)'", svc->service_id, svc->last_state ,svc->current_state,w->name, svc->srv->server_name, svc->srv->client_port, svc->service_name,w->escalation_count, w->escalation_limit);
+			} else {
+				_log("@NOT-EXT@ UPSTREAM Escalation on worker");
+			}
 			return FL;
 		} else {
 			w->escalation_count++;
@@ -196,7 +200,7 @@ int bartlby_trigger_chk(struct service *svc) {
 	
 }
 
-int bartlby_worker_has_service(struct worker * w, struct service * svc, char * cfgfile) {
+int bartlby_worker_has_service(struct worker * w, struct service * svc, char * cfgfile, int node_id) {
 
 // return 0 if worker doesnt have
 // else return 1	
@@ -249,10 +253,13 @@ int bartlby_worker_has_service(struct worker * w, struct service * svc, char * c
 	if(selected_servers == NULL) 
 		selected_servers=strdup("");
 	
-	
-	asprintf(&find_server, ",%ld,", svc->server_id);
-	asprintf(&find_service, ",%ld,", svc->service_id);
-	
+	if(node_id <= 0) {
+		asprintf(&find_server, ",%ld,", svc->server_id);
+		asprintf(&find_service, ",%ld,", svc->service_id);
+	} else {
+		asprintf(&find_server, ",%d-%ld,",node_id, svc->server_id);
+		asprintf(&find_service, ",%d-%ld,",node_id, svc->service_id);
+	}
 	
 	
 	//_log("@TRIG@ visible_servers: %s; visible_services:%s; super_user: %s;", visible_servers, visible_services, is_super_user);
@@ -322,7 +329,7 @@ int bartlby_worker_has_service(struct worker * w, struct service * svc, char * c
 
 
 
-int bartlby_trigger_tcp_upstream(char * passive_host, int passive_port, int passive_cmd, int to_standbys,char * trigger_name, char * execline) {
+int bartlby_trigger_tcp_upstream(char * passive_host, int passive_port, int passive_cmd, int to_standbys,char * trigger_name, char * execline, struct service * svc, int node_id) {
 	int res;
 	char verstr[2048];
 	char cmdstr[2048];
@@ -376,8 +383,14 @@ int bartlby_trigger_tcp_upstream(char * passive_host, int passive_port, int pass
 			return -1;
 		}
 		alarm(0);
-		//printf("Connected to: %s\n", verstr);		
-		sprintf(cmdstr, "%d|%d|%s|%s|\n", passive_cmd, to_standbys, execline, trigger_name);
+		/*
+		svc->service_id
+		svc->server_id
+		svc->notify_last_state
+		svc->current_state
+		svc->recovery_outstanding
+		*/	
+		sprintf(cmdstr, "%d|%d|%s|%s|%d|%d|%d|%d|%d|%d|\n", passive_cmd, to_standbys, execline, trigger_name, svc->service_id, svc->server_id, svc->notify_last_state, svc->current_state, svc->recovery_outstanding, node_id);
 		_log("UPSTREAM: sending '%s'", cmdstr);
 		portier_connection_timed_out=0;
 		alarm(5);
@@ -412,18 +425,54 @@ int bartlby_trigger_tcp_upstream(char * passive_host, int passive_port, int pass
 }
 
 
-void bartlby_trigger_upstream(int has_local_users, int to_standbys, char * trigger_name, char * cmdl) {
+void bartlby_trigger_upstream(char * cfgfile, int has_local_users, int to_standbys, char * trigger_name, char * cmdl, struct service * svc) {
 	//GET CONFIG
 	//UPSTREAM_HOST:
 	//UPSTREAM_PORT:
+	//UPSTREAM_NODE ID
+
+	char * cfg_upstream_host;
+	char * cfg_upstream_port;
+	char * cfg_upstream_my_node_id;
+	int upstream_port;
+	int node_id=0;
+
+	cfg_upstream_host = getConfigValue("upstream_host", cfgfile);
+	cfg_upstream_port = getConfigValue("upstream_port", cfgfile);
+	cfg_upstream_my_node_id = getConfigValue("uptstream_my_node_id", cfgfile);
+	
+	
+	
+	if(cfg_upstream_port == NULL) {
+		//cfg_upstream_port=strdup("false");	
+		upstream_port=9030;
+	} else {
+		upstream_port=atoi(cfg_upstream_port);
+	}
+	if(cfg_upstream_my_node_id == NULL) {
+		//cfg_upstream_port=strdup("false");	
+		node_id=-1;
+	} else {
+		node_id=atoi(cfg_upstream_my_node_id);
+	}
+
+	
+	free(cfg_upstream_port);
+	free(cfg_upstream_host);
+	free(cfg_upstream_my_node_id);
+
+	if(cfg_upstream_host == NULL || node_id < 0) {
+		_log("Misconfigured upstream either host or node id is not set");
+		return;
+	}
 
 	if(has_local_users == 1) {
 		_log("UPSTREAM: just send exec line: %s", cmdl);
 		//int bartlby_trigger_tcp_upstream(char * passive_host, int passive_port, int passive_cmd, int to_standbys, char * execline) {
-		bartlby_trigger_tcp_upstream("127.0.0.1", 9031, 6, to_standbys,trigger_name, cmdl);
+		bartlby_trigger_tcp_upstream(cfg_upstream_host, upstream_port, 6, to_standbys,trigger_name, cmdl, svc, node_id);
 	} else {
 		_log("UPSTREAM: send request to call a '%s' on remote workers - with message: '%s'", trigger_name, cmdl);
-		bartlby_trigger_tcp_upstream("127.0.0.1", 9031, 7, to_standbys, trigger_name, cmdl);
+		bartlby_trigger_tcp_upstream(cfg_upstream_host, upstream_port, 7, to_standbys, trigger_name, cmdl, svc, node_id);
 	}
 }
 void bartlby_trigger(struct service * svc, char * cfgfile, void * shm_addr, int do_check, int standby_workers_only) {
@@ -596,17 +645,17 @@ void bartlby_trigger(struct service * svc, char * cfgfile, void * shm_addr, int 
 				svc->last_notify_send=time(NULL);
 				svc->srv->last_notify_send=time(NULL);
 				//void bartlby_trigger_upstream(int has_local_users, int to_standbys, char * trigger_name, char * cmdl) 
-				bartlby_trigger_upstream(upstream_has_local_users, standby_workers_only, entry->d_name, notify_msg);
+				bartlby_trigger_upstream(cfgfile,upstream_has_local_users, standby_workers_only, entry->d_name, notify_msg, svc);
 				continue;
 			}
 			for(x=0; x<hdr->wrkcount; x++) {
 				if(service_is_in_time(wrkmap[x].notify_plan) > 0) {
-					if(bartlby_worker_has_service(&wrkmap[x], svc, cfgfile) != 0 || do_check == 0) {
+					if(bartlby_worker_has_service(&wrkmap[x], svc, cfgfile, 0) != 0 || do_check == 0) {
 						if(strstr(wrkmap[x].enabled_triggers, find_trigger) != NULL || strlen(wrkmap[x].enabled_triggers) == 0) {
 							
 							
-							if((bartlby_trigger_escalation(&wrkmap[x], svc, standby_workers_only)) == FL) continue;
-							if((bartlby_trigger_worker_level(&wrkmap[x], svc)) == FL) continue;
+							if((bartlby_trigger_escalation(&wrkmap[x], svc, standby_workers_only, 0)) == FL) continue;
+							if((bartlby_trigger_worker_level(&wrkmap[x], svc, 0)) == FL) continue;
 								
 							/* if standby escalation message check if worker is in standby mode either skip him/her*/
 							if(standby_workers_only == 1 && wrkmap[x].active != 2) continue;
@@ -619,7 +668,7 @@ void bartlby_trigger(struct service * svc, char * cfgfile, void * shm_addr, int 
 
 							if(upstream_enabled == 1 && upstream_has_local_users == 1) {
 								_log("@UPSTREAM-NOT-USER@ - TRIGGER: %s  local_users: %d  to-standbys:%d cmdline `%s'", entry->d_name,  upstream_has_local_users, standby_workers_only, exec_str);
-								bartlby_trigger_upstream(upstream_has_local_users, standby_workers_only, entry->d_name, exec_str);
+								bartlby_trigger_upstream(cfgfile, upstream_has_local_users, standby_workers_only, entry->d_name, exec_str, svc);
 								free(exec_str);
 								continue;
 							}

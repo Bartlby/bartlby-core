@@ -36,6 +36,9 @@ static int connection_timed_out=0;
 
 #define CONN_TIMEOUT 10
 
+#define FL 0
+#define TR 1
+
 ssize_t	readn(int fd, void *vptr, size_t n)
 {
 	size_t	nleft;
@@ -130,6 +133,16 @@ int main(int argc, char ** argv) {
 
 	char * trigger_dir;
 	struct stat finfo;	
+
+	int service_id;
+	int server_id;
+	int notify_last_state;
+	int current_state;
+	int recovery_outstanding;
+	int node_id;
+	int trigger_fine;
+
+	struct service local_svc;
 
 	allowed_ip_list=getConfigValue("allowed_ips", argv[0]);
 	if(allowed_ip_list == NULL) {
@@ -310,6 +323,8 @@ int main(int argc, char ** argv) {
 			case CMD_EXEC_TRIGGER:
 				//second is "standbys"
 				//third is cmd line
+
+				trigger_fine=-1;
 				token=strtok(NULL, "|");
 				if(token != NULL) {
 					standby_workers_only=atoi(token); //TO_STANDBYS
@@ -319,62 +334,98 @@ int main(int argc, char ** argv) {
 						token=strtok(NULL, "|");
 						if(token != NULL) {
 							trigger_name=token;
+							token=strtok(NULL, "|");
+							if(token != NULL) {
+								service_id=atoi(token);
+								token=strtok(NULL, "|");
+								if(token != NULL) {
+									server_id=atoi(token);
+									token=strtok(NULL, "|");
+									if(token != NULL) {
+										notify_last_state=atoi(token);
+										token=strtok(NULL, "|");
+										if(token != NULL) {
+											current_state=atoi(token);
+											token=strtok(NULL, "|");
+											if(token != NULL) {
+												recovery_outstanding=atoi(token);
+												token=strtok(NULL, "|");
+												if(token != NULL) {
+													local_svc.server_id=server_id;
+													local_svc.service_id=service_id;
+													local_svc.notify_last_state=notify_last_state;
+													local_svc.recovery_outstanding=recovery_outstanding;
+													local_svc.current_state=current_state;
+													node_id=atoi(token);
+													trigger_fine=1;
+												}
+											}
+										}
+									}
+
+								}
+							}
+
 						}
 
-					}
-				}
 
-				trigger_dir=getConfigValue("trigger_dir", argv[0]);
-				if(trigger_dir == NULL) {
-					exit(4);
-				}
-				asprintf(&find_trigger, "|%s|" , trigger_name);
-				asprintf(&full_path, "%s/%s", trigger_dir, trigger_name);
-				if(lstat(full_path, &finfo) < 0) {
-					printf("STAT FAILED '%s'", full_path);
-					free(find_trigger);
-					free(full_path);
-					exit(4);
-				}
-			
-				for(x=0; x<shm_hdr->wrkcount; x++) {
-					if(service_is_in_time(wrkmap[x].notify_plan) > 0) {
-						//if(bartlby_worker_has_service(&wrkmap[x], svc, cfgfile) != 0 || do_check == 0) {
-							if(strstr(wrkmap[x].enabled_triggers, find_trigger) != NULL || strlen(wrkmap[x].enabled_triggers) == 0) {
-								
-								
-								//if((bartlby_trigger_escalation(&wrkmap[x], svc, standby_workers_only)) == FL) continue;
-								//if((bartlby_trigger_worker_level(&wrkmap[x], svc)) == FL) continue;
-									
-								/* if standby escalation message check if worker is in standby mode either skip him/her*/
-								if(standby_workers_only == 1 && wrkmap[x].active != 2) continue;
-								wrkmap[x].escalation_time=time(NULL);
-								asprintf(&exec_str, "%s \"%s\" \"%s\" \"%s\" \"%s\"", full_path, wrkmap[x].mail,wrkmap[x].icq,wrkmap[x].name, notify_msg);
-								ptrigger=popen(exec_str, "r");
-								if(ptrigger != NULL) {
-									connection_timed_out=0;
-									alarm(CONN_TIMEOUT);
-									if(fgets(trigger_return, 1024, ptrigger) != NULL) {
-										trigger_return[strlen(trigger_return)-1]='\0';
-	      								connection_timed_out=0;
-										alarm(0);
-									}
-									if(ptrigger != NULL) {
-	      									pclose(ptrigger);
-	      							}
-	      						
-	      						} 
-	      						
-								free(exec_str);
-							
-							
-						//}
 					}
 				}
-			}
-			free(find_trigger);	
-			sprintf(svc_out, "+CALLTRIGGER LOCAL: '%s' msg: '%s' return: %s", trigger_name, notify_msg,trigger_return);
+				//MAKE A SERVICE WITH:
+				if(trigger_fine > 0) {
+					trigger_dir=getConfigValue("trigger_dir", argv[0]);
+					if(trigger_dir == NULL) {
+						exit(4);
+					}
+					asprintf(&find_trigger, "|%s|" , trigger_name);
+					asprintf(&full_path, "%s/%s", trigger_dir, trigger_name);
+					if(lstat(full_path, &finfo) < 0) {
+						printf("STAT FAILED '%s'", full_path);
+						free(find_trigger);
+						free(full_path);
+						exit(4);
+					}
 				
+					for(x=0; x<shm_hdr->wrkcount; x++) {
+						if(service_is_in_time(wrkmap[x].notify_plan) > 0) {
+							if(bartlby_worker_has_service(&wrkmap[x], &local_svc, argv[0], node_id) != 0 ) {
+								if(strstr(wrkmap[x].enabled_triggers, find_trigger) != NULL || strlen(wrkmap[x].enabled_triggers) == 0) {
+									
+									
+									if((bartlby_trigger_escalation(&wrkmap[x], &local_svc, standby_workers_only, node_id)) == FL) continue;
+									if((bartlby_trigger_worker_level(&wrkmap[x], &local_svc, node_id)) == FL) continue;
+										
+									/* if standby escalation message check if worker is in standby mode either skip him/her*/
+									if(standby_workers_only == 1 && wrkmap[x].active != 2) continue;
+									wrkmap[x].escalation_time=time(NULL);
+									asprintf(&exec_str, "%s \"%s\" \"%s\" \"%s\" \"%s\"", full_path, wrkmap[x].mail,wrkmap[x].icq,wrkmap[x].name, notify_msg);
+									ptrigger=popen(exec_str, "r");
+									if(ptrigger != NULL) {
+										connection_timed_out=0;
+										alarm(CONN_TIMEOUT);
+										if(fgets(trigger_return, 1024, ptrigger) != NULL) {
+											trigger_return[strlen(trigger_return)-1]='\0';
+		      								connection_timed_out=0;
+											alarm(0);
+										}
+										if(ptrigger != NULL) {
+		      									pclose(ptrigger);
+		      							}
+		      						
+		      						} 
+		      						
+									free(exec_str);
+								
+								
+							}
+						}
+					}
+				}
+				free(find_trigger);	
+				sprintf(svc_out, "+CALLTRIGGER LOCAL: '%s'  return: %s\n", trigger_name, trigger_return);
+			} else {
+				sprintf(svc_out, "-PARAM ERROR\n");
+			}
 			break;
 
 			case CMD_PASSIVE:
