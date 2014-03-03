@@ -24,7 +24,7 @@ $Author$
 
 #include <bartlby.h>
 static int connection_timed_out=0;
-
+extern char config_file[255];
 
 #define CMD_PASSIVE 1
 #define CMD_GET_PLG 2
@@ -141,8 +141,12 @@ int main(int argc, char ** argv) {
 	int recovery_outstanding;
 	int node_id;
 	int trigger_fine;
-
+	char * base_dir;
+	char * portier_passwd;
+	char * in_passwd;
 	struct service local_svc;
+	
+	set_cfg(argv[0]);
 
 	allowed_ip_list=getConfigValue("allowed_ips", argv[0]);
 	if(allowed_ip_list == NULL) {
@@ -150,7 +154,7 @@ int main(int argc, char ** argv) {
         	exit(1);
         	
         }
-	
+	portier_passwd=getConfigValue("portier_password", argv[0]);
 	token=strtok(allowed_ip_list,",");
         
         if (getpeername(0,(struct sockaddr *)&name, &namelen) < 0) {
@@ -295,25 +299,46 @@ int main(int argc, char ** argv) {
 					if(token != NULL) {
 
 						exec_str=token;
+						//SKip a few
+						
+						token=strtok(NULL, "|");
+						token=strtok(NULL, "|");
+						token=strtok(NULL, "|");
+						token=strtok(NULL, "|");
+						token=strtok(NULL, "|");
+						token=strtok(NULL, "|");
+						token=strtok(NULL, "|");
+						token=strtok(NULL, "|");
+						
+						if(token != NULL) {
+							in_passwd=token;
+							if(portier_passwd != NULL && strcmp(in_passwd, portier_passwd) == 0) {
+									
+							
 
-						ptrigger=popen(exec_str, "r");
-						if(ptrigger != NULL) {
-							connection_timed_out=0;
-							alarm(CONN_TIMEOUT);
-							if(fgets(trigger_return, 1024, ptrigger) != NULL) {
-								trigger_return[strlen(trigger_return)-1]='\0';
-	      						connection_timed_out=0;
-								alarm(0);
+
+
+								ptrigger=popen(exec_str, "r");
+								if(ptrigger != NULL) {
+									connection_timed_out=0;
+									alarm(CONN_TIMEOUT);
+									if(fgets(trigger_return, 1024, ptrigger) != NULL) {
+										trigger_return[strlen(trigger_return)-1]='\0';
+			      						connection_timed_out=0;
+										alarm(0);
+									}
+									if(ptrigger != NULL) {
+			      						pclose(ptrigger);
+			      					}
+			      						
+			      				} 
+			      						
+								sprintf(svc_out, "+ EXECTRIGGERCMD: '%s' returned: %s", exec_str, trigger_return);
+							} else {
+								sprintf(svc_out, "- AUTH FAILED");
 							}
-							if(ptrigger != NULL) {
-	      						pclose(ptrigger);
-	      					}
-	      						
-	      				} 
-	      						
-						sprintf(svc_out, "+ EXECTRIGGERCMD: '%s' returned: %s", token, trigger_return);
-
-						//FIXME POPEN
+						}
+							//FIXME POPEN
 
 					}
 				}
@@ -323,6 +348,7 @@ int main(int argc, char ** argv) {
 			case CMD_EXEC_TRIGGER:
 				//second is "standbys"
 				//third is cmd line
+				
 
 				trigger_fine=-1;
 				token=strtok(NULL, "|");
@@ -351,13 +377,22 @@ int main(int argc, char ** argv) {
 												recovery_outstanding=atoi(token);
 												token=strtok(NULL, "|");
 												if(token != NULL) {
-													local_svc.server_id=server_id;
-													local_svc.service_id=service_id;
-													local_svc.notify_last_state=notify_last_state;
-													local_svc.recovery_outstanding=recovery_outstanding;
-													local_svc.current_state=current_state;
 													node_id=atoi(token);
-													trigger_fine=1;
+													token=strtok(NULL, "|");
+													if(token != NULL) {
+														in_passwd=token;
+														local_svc.server_id=server_id;
+														local_svc.service_id=service_id;
+														local_svc.notify_last_state=notify_last_state;
+														local_svc.recovery_outstanding=recovery_outstanding;
+														local_svc.current_state=current_state;
+														
+														if(node_id != 0 && portier_passwd != NULL && strcmp(in_passwd, portier_passwd) == 0) {
+															trigger_fine=1;	
+														}
+														
+													}
+													
 												}
 											}
 										}
@@ -385,6 +420,14 @@ int main(int argc, char ** argv) {
 						free(full_path);
 						exit(4);
 					}
+					base_dir = getConfigValue("basedir", argv[0]);
+					
+					if(base_dir == NULL) {
+						base_dir=strdup("/");
+					}
+					if(setenv("BARTLBY_HOME", base_dir,1) == 0) {
+						//CH
+					}
 				
 					for(x=0; x<shm_hdr->wrkcount; x++) {
 						if(service_is_in_time(wrkmap[x].notify_plan) > 0) {
@@ -398,8 +441,8 @@ int main(int argc, char ** argv) {
 									/* if standby escalation message check if worker is in standby mode either skip him/her*/
 									if(standby_workers_only == 1 && wrkmap[x].active != 2) continue;
 									wrkmap[x].escalation_time=time(NULL);
-									asprintf(&exec_str, "%s \"%s\" \"%s\" \"%s\" \"%s\"", full_path, wrkmap[x].mail,wrkmap[x].icq,wrkmap[x].name, notify_msg);
-									_log("@NOT@%ld|%d|%d|%s|%s|UPSTREAMED", local_svc.service_id, local_svc.notify_last_state ,local_svc.current_state,trigger_name,wrkmap[x].name);
+									asprintf(&exec_str, "%s \"%s\" \"%s\" \"%s\" \"%s\" 2>&1", full_path, wrkmap[x].mail,wrkmap[x].icq,wrkmap[x].name, notify_msg);
+									_log("@NOT@%ld|%d|%d|%s|%s|UPSTREAMED - %s", local_svc.service_id, local_svc.notify_last_state ,local_svc.current_state,trigger_name,wrkmap[x].name, notify_msg);
 									ptrigger=popen(exec_str, "r");
 									if(ptrigger != NULL) {
 										connection_timed_out=0;
@@ -418,12 +461,13 @@ int main(int argc, char ** argv) {
 									free(exec_str);
 								
 								
-							}
+							} 
 						}
 					}
 				}
+				free(base_dir);
 				free(find_trigger);	
-				sprintf(svc_out, "+CALLTRIGGER LOCAL: '%s'  return: %s\n", trigger_name, trigger_return);
+				sprintf(svc_out, "+CALLTRIGGER LOCAL: '%s'  return: '%s'\n", trigger_name, trigger_return);
 			} else {
 				sprintf(svc_out, "-PARAM ERROR\n");
 			}
@@ -541,6 +585,7 @@ int main(int argc, char ** argv) {
 		printf("%s", svc_out);
 			
 	}
+	free(portier_passwd);
 	shmdt(bartlby_address);
 	//bartlby_encode(svc_out, strlen(svc_out));
 	//printf("%s", svc_out);

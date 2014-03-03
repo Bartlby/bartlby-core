@@ -329,7 +329,7 @@ int bartlby_worker_has_service(struct worker * w, struct service * svc, char * c
 
 
 
-int bartlby_trigger_tcp_upstream(char * passive_host, int passive_port, int passive_cmd, int to_standbys,char * trigger_name, char * execline, struct service * svc, int node_id) {
+int bartlby_trigger_tcp_upstream(char * passive_host, int passive_port, int passive_cmd, int to_standbys,char * trigger_name, char * execline, struct service * svc, int node_id, char * portier_passwd) {
 	int res;
 	char verstr[2048];
 	char cmdstr[2048];
@@ -390,12 +390,12 @@ int bartlby_trigger_tcp_upstream(char * passive_host, int passive_port, int pass
 		svc->current_state
 		svc->recovery_outstanding
 		*/	
-		sprintf(cmdstr, "%d|%d|%s|%s|%d|%d|%d|%d|%d|%d|\n", passive_cmd, to_standbys, execline, trigger_name, svc->service_id, svc->server_id, svc->notify_last_state, svc->current_state, svc->recovery_outstanding, node_id);
-		_log("UPSTREAM: sending '%s'", cmdstr);
+		sprintf(cmdstr, "%d|%d|%s|%s|%d|%d|%d|%d|%d|%d|%s|\n", passive_cmd, to_standbys, execline, trigger_name, svc->service_id, svc->server_id, svc->notify_last_state, svc->current_state, svc->recovery_outstanding, node_id, portier_passwd);
+		//_log("UPSTREAM: sending '%s'", cmdstr);
 		portier_connection_timed_out=0;
 		alarm(5);
 		if(write(res, cmdstr, 1024) < 0) {
-			_log("UPSTREAM: FAILED2");
+			//_log("UPSTREAM: FAILED2");
 			return -1;
 		}
 		alarm(0);
@@ -409,15 +409,14 @@ int bartlby_trigger_tcp_upstream(char * passive_host, int passive_port, int pass
 		result[rc-1]='\0'; //cheap trim *fg*
 		close(res);			
 		if(result[0] != '+') {
-			_log("UPSTREAM: FAILED4 - %s", result);
+			_log("UPSTREAM: FAILED4 - '%s'\n", result);
 			return -1;
 		}  else {
-			_log("UPSTREAM DONE: %s\n", result);
+			//_log("UPSTREAM DONE: %s\n", result);
 			return 0;
 		}
 		
 	} else {
-		
 		_log("UPSTREAM: FAILED5");
 		return -1;
 	}	
@@ -433,19 +432,22 @@ void bartlby_trigger_upstream(char * cfgfile, int has_local_users, int to_standb
 
 	char * cfg_upstream_host;
 	char * cfg_upstream_port;
+	char * portier_passwd;
 	char * cfg_upstream_my_node_id;
 	int upstream_port;
 	int node_id=0;
+	int rtc;
 
 	cfg_upstream_host = getConfigValue("upstream_host", cfgfile);
 	cfg_upstream_port = getConfigValue("upstream_port", cfgfile);
-	cfg_upstream_my_node_id = getConfigValue("uptstream_my_node_id", cfgfile);
+	cfg_upstream_my_node_id = getConfigValue("upstream_my_node_id", cfgfile);
 	
+	portier_passwd = getConfigValue("portier_password", cfgfile);
 	
 	
 	if(cfg_upstream_port == NULL) {
 		//cfg_upstream_port=strdup("false");	
-		upstream_port=9030;
+		upstream_port=9031;
 	} else {
 		upstream_port=atoi(cfg_upstream_port);
 	}
@@ -457,23 +459,27 @@ void bartlby_trigger_upstream(char * cfgfile, int has_local_users, int to_standb
 	}
 
 	
-	free(cfg_upstream_port);
-	free(cfg_upstream_host);
-	free(cfg_upstream_my_node_id);
 
-	if(cfg_upstream_host == NULL || node_id < 0) {
-		_log("Misconfigured upstream either host or node id is not set");
+	if(cfg_upstream_host == NULL || node_id < 0 || portier_passwd == NULL) {
+		_log("Misconfigured upstream either upstream_host or upstream_my_node_id or portier_password is not set");
 		return;
 	}
 
 	if(has_local_users == 1) {
-		_log("UPSTREAM: just send exec line: %s", cmdl);
+		//_log("UPSTREAM: just send exec line: %s", cmdl);
 		//int bartlby_trigger_tcp_upstream(char * passive_host, int passive_port, int passive_cmd, int to_standbys, char * execline) {
-		bartlby_trigger_tcp_upstream(cfg_upstream_host, upstream_port, 6, to_standbys,trigger_name, cmdl, svc, node_id);
+		rtc=bartlby_trigger_tcp_upstream(cfg_upstream_host, upstream_port, 6, to_standbys,trigger_name, cmdl, svc, node_id, portier_passwd);
 	} else {
-		_log("UPSTREAM: send request to call a '%s' on remote workers - with message: '%s'", trigger_name, cmdl);
-		bartlby_trigger_tcp_upstream(cfg_upstream_host, upstream_port, 7, to_standbys, trigger_name, cmdl, svc, node_id);
+		//_log("UPSTREAM: send request to  '%s:%d' call a '%s' on remote workers - with message: '%s'",cfg_upstream_host, upstream_port, trigger_name, cmdl);
+		rtc=bartlby_trigger_tcp_upstream(cfg_upstream_host, upstream_port, 7, to_standbys, trigger_name, cmdl, svc, node_id, portier_passwd);
 	}
+	if(rtc < 0 ) {
+		_log("Notification Upstream failed");
+	}
+	free(portier_passwd);
+	free(cfg_upstream_port);
+	free(cfg_upstream_host);
+	free(cfg_upstream_my_node_id);
 }
 void bartlby_trigger(struct service * svc, char * cfgfile, void * shm_addr, int do_check, int standby_workers_only) {
 	char * trigger_dir;
