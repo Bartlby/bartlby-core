@@ -399,6 +399,7 @@ int main(int argc, char ** argv) {
 									if(standby_workers_only == 1 && wrkmap[x].active != 2) continue;
 									wrkmap[x].escalation_time=time(NULL);
 									asprintf(&exec_str, "%s \"%s\" \"%s\" \"%s\" \"%s\"", full_path, wrkmap[x].mail,wrkmap[x].icq,wrkmap[x].name, notify_msg);
+									_log("@NOT@%ld|%d|%d|%s|%s|UPSTREAMED", local_svc.service_id, local_svc.notify_last_state ,local_svc.current_state,trigger_name,wrkmap[x].name);
 									ptrigger=popen(exec_str, "r");
 									if(ptrigger != NULL) {
 										connection_timed_out=0;
