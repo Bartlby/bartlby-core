@@ -647,7 +647,7 @@ void bartlby_trigger(struct service * svc, char * cfgfile, void * shm_addr, int 
 		
 		if(S_ISREG(finfo.st_mode)) {
 			if(upstream_enabled == 1 && upstream_has_local_users == 0) {
-				_log("@UPSTREAM-NOT-TOP@ - TRIGGER: %s  local_users: %d  to-standbys:%d", entry->d_name,  upstream_has_local_users, standby_workers_only);
+				//_log("@UPSTREAM-NOT-TOP@ - TRIGGER: %s  local_users: %d  to-standbys:%d", entry->d_name,  upstream_has_local_users, standby_workers_only);
 				svc->last_notify_send=time(NULL);
 				svc->srv->last_notify_send=time(NULL);
 				//void bartlby_trigger_upstream(int has_local_users, int to_standbys, char * trigger_name, char * cmdl) 
@@ -673,7 +673,7 @@ void bartlby_trigger(struct service * svc, char * cfgfile, void * shm_addr, int 
 							asprintf(&exec_str, "%s \"%s\" \"%s\" \"%s\" \"%s\"", full_path, wrkmap[x].mail,wrkmap[x].icq,wrkmap[x].name, notify_msg);
 
 							if(upstream_enabled == 1 && upstream_has_local_users == 1) {
-								_log("@UPSTREAM-NOT-USER@ - TRIGGER: %s  local_users: %d  to-standbys:%d cmdline `%s'", entry->d_name,  upstream_has_local_users, standby_workers_only, exec_str);
+								//_log("@UPSTREAM-NOT-USER@ - TRIGGER: %s  local_users: %d  to-standbys:%d cmdline `%s'", entry->d_name,  upstream_has_local_users, standby_workers_only, exec_str);
 								bartlby_trigger_upstream(cfgfile, upstream_has_local_users, standby_workers_only, entry->d_name, exec_str, svc);
 								free(exec_str);
 								continue;
