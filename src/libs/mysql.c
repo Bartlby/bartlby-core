@@ -49,7 +49,7 @@
 
 
 #define SERVICE_MAP_SELECTOR "select service_id, service_name, service_state, service_plugin, service_args, UNIX_TIMESTAMP(service_last_check), service_interval, service_text, service_notify, service_type, service_var, service_passive_timeout,service_active, service_check_timeout, service_ack_enabled, service_retain, service_snmp_community, service_snmp_objid, service_snmp_version, service_snmp_warning, service_snmp_critical, service_snmp_type, flap_seconds, service_exec_plan, renotify_interval, escalate_divisor, fires_events, enabled_triggers, service_snmp_textmatch, UNIX_TIMESTAMP(service_last_notify_send), UNIX_TIMESTAMP(service_last_state_change),service_retain_current, service_ack_current, server_id, service_handled   from services svc ORDER BY RAND()"
-#define WORKER_SELECTOR "select worker_mail, worker_icq, enabled_services ,notify_levels, worker_active, worker_name, worker_id, password, enabled_triggers, escalation_limit, escalation_minutes, notify_plan from workers"
+#define WORKER_SELECTOR "select worker_mail, worker_icq, visible_services ,notify_levels, worker_active, worker_name, worker_id, password, enabled_triggers, escalation_limit, escalation_minutes, notify_plan, visible_servers, selected_services, selected_servers from workers"
 #define SERVICE_UPDATE_TEXT "update services set service_last_check=FROM_UNIXTIME(%d), service_text='%s', service_state=%d, service_last_notify_send=FROM_UNIXTIME(%d), service_last_state_change=FROM_UNIXTIME(%d), service_ack_current=%d, service_retain_current=%d, service_handled=%d where service_id=%ld"
 
 
@@ -76,10 +76,10 @@
 
 
 
-#define ADD_WORKER    "INSERT INTO workers(worker_mail, worker_icq, notify_levels, worker_active, worker_name, password,enabled_triggers, escalation_limit, escalation_minutes, notify_plan) VALUES('%s', '%s', '%s', %d, '%s', '%s', '%s', '%ld', '%ld', '%s')"
+#define ADD_WORKER    "INSERT INTO workers(worker_mail, worker_icq, notify_levels, worker_active, worker_name, password,enabled_triggers, escalation_limit, escalation_minutes, notify_plan, visible_services, visible_servers, selected_servers, selected_services) VALUES('%s', '%s', '%s', %d, '%s', '%s', '%s', '%ld', '%ld', '%s', '%s', '%s', '%s', '%s')"
 #define DELETE_WORKER "delete from workers where worker_id=%d"
-#define UPDATE_WORKER "update workers set worker_mail='%s', worker_icq='%s', notify_levels='%s', worker_active=%d, worker_name='%s', password='%s', enabled_triggers='%s', escalation_limit='%ld', escalation_minutes='%ld', notify_plan='%s', enabled_services='%s' WHERE worker_id=%ld"
-#define WORKER_SEL "select worker_mail, worker_icq, enabled_services,notify_levels, worker_active, worker_name, worker_id, password, enabled_triggers, escalation_limit, escalation_minutes, notify_plan from workers where worker_id=%d"
+#define UPDATE_WORKER "update workers set worker_mail='%s', worker_icq='%s', notify_levels='%s', worker_active=%d, worker_name='%s', password='%s', enabled_triggers='%s', escalation_limit='%ld', escalation_minutes='%ld', notify_plan='%s', visible_services='%s', visible_servers='%s', selected_services='%s', selected_servers='%s' WHERE worker_id=%ld"
+#define WORKER_SEL "select worker_mail, worker_icq, visible_services,notify_levels, worker_active, worker_name, worker_id, password, enabled_triggers, escalation_limit, escalation_minutes, notify_plan, visible_servers, selected_servers, selected_services from workers where worker_id=%d"
 #define WORKER_CHANGE_ID "update workers set worker_id=%d where worker_id=%d"
 
 
@@ -752,9 +752,9 @@ int GetWorkerById(int worker_id, struct worker * svc, char * config) {
       			sprintf(svc->icq, "(null)");	
       		}
       		if(row[2] != NULL) {
-      			sprintf(svc->services, "%s", row[2]);	
+      			sprintf(svc->visible_services, "%s", row[2]);	
       		} else {
-      			sprintf(svc->services, "(null)");	
+      			sprintf(svc->visible_services, " ");	
       		}
       		if(row[3] != NULL) {
       			sprintf(svc->notify_levels, "%s", row[3]);	
@@ -803,7 +803,25 @@ int GetWorkerById(int worker_id, struct worker * svc, char * config) {
       		} else {
       			sprintf(svc->notify_plan, " ");	
       		}
-		svc->is_gone=0;
+
+      		if(row[12] != NULL) {
+      			sprintf(svc->visible_servers, "%s", row[12]);	
+      		} else {
+      			sprintf(svc->visible_servers, " ");	
+      		}
+      		if(row[13] != NULL) {
+      			sprintf(svc->selected_servers, "%s", row[13]);	
+      		} else {
+      			sprintf(svc->selected_servers, " ");	
+      		}
+      		if(row[14] != NULL) {
+      			sprintf(svc->selected_services, "%s", row[14]);	
+      		} else {
+      			sprintf(svc->selected_services, " ");	
+      		}
+
+      		
+			svc->is_gone=0;
       		tmprc=0;
       		//printf("limit: %ld, minutes: %ld", svc->escalation_limit, svc->escalation_minutes);
       	} else {
@@ -847,7 +865,7 @@ int UpdateWorker(struct worker * svc, char *config) {
 	
 	
 	
-	asprintf(&sqlupd, UPDATE_WORKER, svc->mail, svc->icq, svc->notify_levels, svc->active, svc->name,svc->password,svc->enabled_triggers,svc->escalation_limit, svc->escalation_minutes, svc->notify_plan,svc->services, svc->worker_id);
+	asprintf(&sqlupd, UPDATE_WORKER, svc->mail, svc->icq, svc->notify_levels, svc->active, svc->name,svc->password,svc->enabled_triggers,svc->escalation_limit, svc->escalation_minutes, svc->notify_plan,svc->visible_services, svc->visible_servers, svc->selected_services, svc->selected_servers, svc->worker_id);
 	
 	
 	
@@ -945,7 +963,7 @@ int AddWorker(struct worker * svc, char *config) {
 	
 	
 	
-	asprintf(&sqlupd, ADD_WORKER, svc->mail, svc->icq, svc->notify_levels, svc->active, svc->name, svc->password, svc->enabled_triggers, svc->escalation_limit, svc->escalation_minutes, svc->notify_plan);
+	asprintf(&sqlupd, ADD_WORKER, svc->mail, svc->icq, svc->notify_levels, svc->active, svc->name, svc->password, svc->enabled_triggers, svc->escalation_limit, svc->escalation_minutes, svc->notify_plan, svc->visible_services, svc->visible_servers, svc->selected_servers, svc->selected_services);
 	
 	
 	
@@ -1864,9 +1882,9 @@ int GetWorkerMap(struct worker * svcs, char * config) {
       			}
 
 			if(row[2] != NULL) {
-                                sprintf(svcs[i].services, "%s", row[2]);
+                                sprintf(svcs[i].visible_services, "%s", row[2]);
                         } else {
-                                sprintf(svcs[i].services, "(null)");
+                                sprintf(svcs[i].visible_services, "(null)");
                         }	
       			
       			if(row[1] != NULL) {
@@ -1927,6 +1945,26 @@ int GetWorkerMap(struct worker * svcs, char * config) {
       			} else {
       				sprintf(svcs[i].notify_plan, " ");	
       			}
+      			if(row[12] != NULL) {
+      				sprintf(svcs[i].visible_servers, "%s", row[12]);
+      					
+      			} else {
+      				sprintf(svcs[i].visible_servers, " ");	
+      			}
+      			if(row[13] != NULL) {
+      				sprintf(svcs[i].selected_services, "%s", row[13]);
+      					
+      			} else {
+      				sprintf(svcs[i].selected_services, " ");	
+      			}
+      			if(row[14] != NULL) {
+      				sprintf(svcs[i].selected_servers, "%s", row[14]);
+      					
+      			} else {
+      				sprintf(svcs[i].selected_servers, " ");	
+      			}
+      			
+
       			//_log("%d escal", svcs[i].escalation_limit);
       			svcs[i].escalation_count=0;
       			svcs[i].escalation_time=time(NULL);

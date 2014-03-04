@@ -230,28 +230,18 @@ int bartlby_worker_has_service(struct worker * w, struct service * svc, char * c
 	
 	//_log("user_right_file: %s", user_dat);
 	
-	visible_servers = getConfigValue_ex("servers", user_dat, 0);
-	visible_services = getConfigValue_ex("services", user_dat, 0);
+	visible_servers = w->visible_servers;
+	visible_services = w->visible_services;
 	is_super_user = getConfigValue_ex("super_user", user_dat, 0);
-	selected_servers = getConfigValue_ex("selected_servers", user_dat, 0);
-	selected_services = getConfigValue_ex("selected_services", user_dat, 0);
+	selected_servers = w->selected_servers;
+	selected_services = w->selected_services;
 	
 	
-	if(visible_servers == NULL) 
-		visible_servers=strdup("");
-	
-	if(visible_services == NULL) 
-		visible_services=strdup("");
 	
 	if(is_super_user == NULL) 
 		is_super_user=strdup("false");
 	
 	
-	if(selected_services == NULL) 
-		selected_services=strdup("");
-		
-	if(selected_servers == NULL) 
-		selected_servers=strdup("");
 	
 	if(node_id <= 0) {
 		asprintf(&find_server, ",%ld,", svc->server_id);
@@ -308,16 +298,9 @@ int bartlby_worker_has_service(struct worker * w, struct service * svc, char * c
 	//_log("@TRIG@ return %d for worker '%s' with selected_services '%s'", the_state, w->name, selected_services);	
 
 	free(user_dat);
-	if(visible_servers != NULL)
-		free(visible_servers);
-	if(visible_services != NULL)
-		free(visible_services);
+	
 	if(is_super_user != NULL)
 		free(is_super_user);
-	if(selected_servers != NULL)
-		free(selected_servers);
-	if(selected_services != NULL)
-		free(selected_services);
 	if(find_server != NULL)
 		free(find_server);
 	if(find_service != NULL)
