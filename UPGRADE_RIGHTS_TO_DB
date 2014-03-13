@@ -1,0 +1,25 @@
+#update table
+alter table workers add ( `visible_services` varchar(2050) NOT NULL default '',
+  `visible_servers` varchar(2050) NOT NULL default '',
+  `selected_services` varchar(2050) NOT NULL default '',
+  `selected_servers` varchar(2050) NOT NULL default '');
+
+  #go into rights dir
+
+  for x in [0-9]*.dat; do 
+  	USER_ID=${x/.dat/}
+  	VISIBLE_SERVERS=$(grep -E "^servers=" $x|uniq|awk -F= '{ print $2 }')
+  	VISIBLE_SERVICES=$(grep -E "^services=" $x|uniq|awk -F= '{ print $2 }')
+
+  	SELECTED_SERVERS=$(grep -E "^selected_services=" $x|uniq|awk -F= '{ print $2 }')
+  	SELECTED_SERVICES=$(grep -E "^selected_services=" $x|uniq|awk -F= '{ print $2 }')
+
+
+  	SQL_TO_UPDATE="UPDATE workers set selected_services='${SELECTED_SERVICES}', selected_servers='${SELECTED_SERVERS}', visible_services='${VISIBLE_SERVICES}', visible_servers='${VISIBLE_SERVERS}' where worker_id=${USER_ID};"
+
+  	echo $SQL_TO_UPDATE;
+
+  done
+
+
+  #exec mysql commands
