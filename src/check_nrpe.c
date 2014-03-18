@@ -181,6 +181,7 @@ void bartlby_check_nrpe(struct service * svc, char * cfgfile, int use_ssl) {
 		return;
 	}
 	if(result != STATE_OK) {
+		sprintf(svc->new_server_text, "%s", "connect failed");
 		svc->current_state=STATE_CRITICAL;
 		return;
 	}
