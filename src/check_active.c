@@ -95,6 +95,7 @@ void bartlby_check_active(struct service * svc, char * cfgfile) {
 		return;
 	}
 	if(result != STATE_OK) {
+		sprintf(svc->new_server_text, "%s", "connect failed");
 		svc->current_state=STATE_CRITICAL;
 		return;
 	}
