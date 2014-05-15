@@ -147,6 +147,7 @@ void bartlby_fin_service(struct service * svc, void * SOHandle, void * shm_addr,
 	char * cfg_instant_wb;
 	
 	struct shm_header * hdr;
+
 	
 	int (*doUpdate)(struct service *,char *);
 	
@@ -208,7 +209,7 @@ void bartlby_fin_service(struct service * svc, void * SOHandle, void * shm_addr,
 	//if ( (svc->service_retain_current >= svc->service_retain) && ( svc->current_state == STATE_CRITICAL )  && ( svc->renotify_interval > 0 ) && ( (time(NULL)-svc->last_notify_send) >= svc->renotify_interval ) ) {
 	if ( (svc->service_retain_current >= svc->service_retain) && ( svc->current_state == STATE_CRITICAL )  && ( svc->renotify_interval > 0 ) && ( svc->service_retain_current % svc->renotify_interval == 0 ) ) {
 		_log("re-notify	 for %s:%d/%s", svc->srv->server_name,svc->srv->client_port, svc->service_name);
-		bartlby_trigger(svc, cfgfile, shm_addr, 1, 0);
+		bartlby_trigger(svc, cfgfile, shm_addr, 1, 2);
 		svc->notify_last_state=svc->current_state;
 		
 	}

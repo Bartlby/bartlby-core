@@ -10,11 +10,11 @@ EXTRA_DIST = src
 
 
 bin_PROGRAMS = bartlby bartlby_shmt bartlby_portier
-nodist_bartlby_SOURCES = src/bartlby.c src/config.c src/global.c src/sched.c src/shm.c src/check.c src/trigger.c src/daemon.c src/replication.c src/perf.c src/downtime.c src/ack.c src/event.c src/check_snmp.c src/ src/ext.c src/check_active_v2.c src/check_active.c src/check_local.c src/check_group.c src/check_nrpe.c src/check_ssh.c
+nodist_bartlby_SOURCES = src/bartlby.c src/config.c src/global.c src/sched.c src/shm.c src/check.c src/trigger.c src/daemon.c src/replication.c src/perf.c src/downtime.c src/ack.c src/event.c src/check_snmp.c src/ src/ext.c src/check_active_v2.c src/check_active.c src/check_local.c src/check_group.c src/check_nrpe.c src/check_ssh.c src/notification_log.c
 
 
 bartlby_LDADD = -ldl $(OPENSSL_FLAG) $(SNMP_FLAG) $(SSH_FLAG)
-bartlby_CFLAGS = $(AM_CFLAGS)  $(NRPE_ADDON) $(OPENSSL_ADDON)  $(SNMP_ADDON) $(SSH_ADDON) $(GIT_VERSION)
+bartlby_CFLAGS = $(AM_CFLAGS)  $(NRPE_ADDON) $(OPENSSL_ADDON)  $(SNMP_ADDON) $(SSH_ADDON) $(GIT_VERSION) -g
 
 
 
@@ -23,7 +23,7 @@ nodist_bartlby_shmt_SOURCES = src/shm.c src/config.c src/global.c src/tools/shmt
 bartlby_shmt_LDADD = -ldl $(OPENSSL_FLAG) $(SNMP_FLAG) $(SSH_FLAG)
 bartlby_shmt_CFLAGS = $(AM_CFLAGS) $(NRPE_ADDON) $(SSL_ADDON)  $(SNMP_ADDON) $(SSH_ADDON) $(GIT_VERSION)
 
-nodist_bartlby_portier_SOURCES =  src/config.c src/global.c src/sched.c src/shm.c src/check.c src/trigger.c src/daemon.c src/replication.c src/perf.c src/downtime.c src/ack.c src/event.c src/check_snmp.c src/ src/ext.c src/check_active_v2.c src/check_active.c src/check_local.c src/check_group.c src/check_nrpe.c src/check_ssh.c src/tools/portier.c
+nodist_bartlby_portier_SOURCES =  src/config.c src/global.c src/sched.c src/shm.c src/check.c src/trigger.c src/daemon.c src/replication.c src/perf.c src/downtime.c src/ack.c src/event.c src/check_snmp.c src/ src/ext.c src/check_active_v2.c src/check_active.c src/check_local.c src/check_group.c src/check_nrpe.c src/check_ssh.c src/tools/portier.c src/notification_log.c
 bartlby_portier_LDADD = -ldl $(OPENSSL_FLAG) $(SNMP_FLAG) $(SSH_FLAG)
 bartlby_portier_CFLAGS = $(AM_CFLAGS) $(NRPE_ADDON) $(SSL_ADDON) $(SNMP_ADDON) $(SSH_ADDON) $(GIT_VERSION)
 

@@ -35,6 +35,7 @@
 #include <sys/prctl.h>
 #include <mysql/mysql.h>
 #include <sys/times.h> 
+#include <semaphore.h>
 
 /* DEBUGGING */
 
@@ -246,6 +247,18 @@ struct sched_worker {
 
 } astt;
 
+struct notification_log_entry {
+	int notification_valid; //-1 invalid == end of list
+	long worker_id; //Worker id
+	long service_id; //Service_id
+	int state; //State
+	int aggregated; //Default -1 > 0 - this notification has already been aggregated
+	char trigger_name[512];
+	int type; // 0 if it was a normal notification, 1 = it was a escalation notification to the standby's
+	time_t time;
+	int aggregation_interval;
+};
+#define NOTIFICATION_LOG_MAX 512
 
 
 struct shm_header {
@@ -268,7 +281,9 @@ struct shm_header {
 	long checks_performed;
 	int checks_performed_time;
 	struct  sched_worker worker_threads[50];
-	
+	struct notification_log_entry notification_log[NOTIFICATION_LOG_MAX];
+	long notification_log_current_top;	
+	time_t notification_log_aggregate_last_run;
 	
 };
 
@@ -445,6 +460,8 @@ struct worker {
 	char  visible_servers[2048];
 	char  selected_services[2048];
 	char  selected_servers[2048];
+	int  notification_aggregation_interval;
+	int is_super_user;
 
 
 }sa;
@@ -615,3 +632,14 @@ int sched_servicegroup_active(struct service * svc);
 
 int bartlby_agent_tcp_my_connect(char *host_name,int port,int *sd,char *proto, struct service * svc);
 int bartlby_agent_tcp_connect(char *host_name,int port,int *sd, struct service * svc);
+
+
+//Notification Log
+int bartlby_notification_log_last_notification_state(struct shm_header * shmhdr, char * cfgfile, long svc_id, long worker_id);
+void * bartlby_notification_log_set_hardcopy(struct shm_header * shmhdr, void * hardcopy, long notification_log_current_top, time_t notification_log_last_run);
+void * bartlby_notification_log_get_hardcopy(struct shm_header * shmhdr);
+void bartlby_notification_log_finish(struct shm_header * shmhdr);
+void bartlby_notification_log_init(struct shm_header * shmhdr);
+void bartlby_notification_log_add(struct shm_header * shmhdr, char * cfgfile, long worker_id, long service_id, int state, int type, int aggregation_interval, char * trigger_name);
+void bartlby_notification_log_aggregate(struct shm_header *shmdr, char * cfgfile);
+void bartlby_notification_log_debug(struct shm_header * shmhdr);

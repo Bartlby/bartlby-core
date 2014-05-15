@@ -100,7 +100,8 @@ CREATE TABLE `workers` (
   `escalation_minutes` int(11) NOT NULL default '2',
   `escalation_limit` int(11) NOT NULL default '50',
   `notify_plan` text default '',
-
+  `is_super_user` int(11) default 0,
+  `notification_aggregation_interval` int(11) default 0,
   PRIMARY KEY  (`worker_id`)
 )  ;
 
@@ -126,6 +127,6 @@ CREATE TABLE `servergroups` (
   PRIMARY KEY  (`servergroup_id`)
 )  ;
 
-insert into workers(worker_name, worker_mail,password) VALUES('admin', 'bartlby-default@januschka.com', '5f4dcc3b5aa765d61d8327deb882cf99');
+insert into workers(worker_name, worker_mail,password, is_super_user) VALUES('admin', 'bartlby-default@januschka.com', '5f4dcc3b5aa765d61d8327deb882cf99', 1);
 
 
