@@ -200,12 +200,20 @@ void bartlby_pre_init(char * cfgfile) {
 void bartlby_end_clean(char *cfgfile) {
 	char * base_dir;
 	char pidfname[1024];
+	char * sem_name;
 	
 	char * pid_def_name;
 	base_dir = getConfigValue("basedir", cfgfile);
 	pid_def_name = getConfigValue("pidfile_dir", cfgfile);
 	
 	bartlby_log_usage();
+	
+
+	sem_name=getConfigValue("notification_log_sem_name", cfgfile);
+	if(sem_name == NULL) {
+		sem_name=strdup("bartlby_notification_log_generic");
+		//_log("notification_log_sem_name unset using default value");
+	}
 	
 	if(base_dir == NULL) {
 		
@@ -223,6 +231,9 @@ void bartlby_end_clean(char *cfgfile) {
 	}
 	free(base_dir);
 	free(pid_def_name);
+
+	sem_unlink(sem_name);
+	free(sem_name);
 	
 	
 }

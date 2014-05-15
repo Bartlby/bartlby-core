@@ -1045,7 +1045,8 @@ int schedule_loop(char * cfgfile, void * shm_addr, void * SOHandle) {
 	double current_load[3];
 	
 	char  * cfg_load_max;
-	
+	char * cfg_notification_aggregation;
+	int notification_aggregate_interval;
 	
 	
 	int ct, expt;
@@ -1068,6 +1069,15 @@ int schedule_loop(char * cfgfile, void * shm_addr, void * SOHandle) {
 	
 	_log("Scheduler working on %ld Services", gshm_hdr->svccount);
 	
+	cfg_notification_aggregation=getConfigValue("notification_aggregation_interval", cfgfile);
+
+	if(cfg_notification_aggregation == NULL) {
+		notification_aggregate_interval=0;
+	} else {
+		notification_aggregate_interval=atoi(cfg_notification_aggregation);
+		free(cfg_notification_aggregation);
+	}
+
 	cfg_mps=getConfigValue("max_concurent_checks", cfgfile);
 	if(cfg_mps == NULL) {
 		_log("<Warn>Defaulting max_concurent_checks to '20'");
@@ -1264,7 +1274,12 @@ int schedule_loop(char * cfgfile, void * shm_addr, void * SOHandle) {
 			usleep((shortest_intervall-1)*1000);
 			
 		}
-		
+
+		if(notification_aggregate_interval > 0 && time(NULL)-gshm_hdr->notification_log_aggregate_last_run >= notification_aggregate_interval) {
+			_log("AGGREGATION RUN");
+			bartlby_notification_log_aggregate(gshm_hdr, cfgfile);
+		} 
+
 		round_start=time(NULL);
 		round_visitors=0;
 		

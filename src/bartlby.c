@@ -437,14 +437,19 @@ int bartlby_go(char * cfgfile) {
 	do_reload = 3 DB IMPORT PREPARED
 
 	*/
+	void * notification_log_hardcopy;
+	int notification_log_last_max;
+	time_t notification_log_last_run;
+
+	bartlby_notification_log_init(gshm_hdr);
 	while(exi_code != 1) {
 		
 		
+		
 		exi_code=schedule_loop(cfgfile, gBartlby_address, gSOHandle);
+		
 		_log("Scheduler ended with: %d", exi_code);
 		
-		
-
 		
 		//Destroy SHM
 		bartlby_ext_shutdown(exi_code);
@@ -461,7 +466,12 @@ int bartlby_go(char * cfgfile) {
 				sleep(1);
 			}	
 		}
-				
+		//Make Notify Log Survivable
+		notification_log_last_run=gshm_hdr->notification_log_aggregate_last_run;
+		notification_log_last_max = gshm_hdr->notification_log_current_top;
+		notification_log_hardcopy =  bartlby_notification_log_get_hardcopy(gshm_hdr);
+
+
 		if(shmdt(gBartlby_address) < 0) {
 			_log("shmdt() failed '%s`", strerror(errno));	
 		}
@@ -474,11 +484,13 @@ int bartlby_go(char * cfgfile) {
 		
 		if(exi_code != 1) {
 			//re populate SHM
+
 			bartlby_shm_fits(gCfgfile);
 			if(bartlby_populate_shm(gCfgfile) < 0) {
 				//in case of zero workers
 				exit(1);
 			}
+			bartlby_notification_log_set_hardcopy(gshm_hdr, notification_log_hardcopy, notification_log_last_max, notification_log_last_run);
 		}
 		
 
@@ -569,17 +581,16 @@ int main(int argc, char ** argv) {
 	} 	
 		
 	bartlby_pre_init(gCfgfile);	
-	//populate shm
+
 	
 	bartlby_load_shm_stuff(gCfgfile);
-	
 	bartlby_shm_fits(gCfgfile);
-	
 	if(bartlby_populate_shm(gCfgfile) < 0) {
 		//in case of zero workers
 		exit(1);
 	}
 	
+
 	//start it
 	if(bartlby_go(gCfgfile) < 0) {
 			_log("bartlby_go() failed");

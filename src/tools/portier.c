@@ -443,6 +443,15 @@ int main(int argc, char ** argv) {
 									wrkmap[x].escalation_time=time(NULL);
 									asprintf(&exec_str, "%s \"%s\" \"%s\" \"%s\" \"%s\" 2>&1", full_path, wrkmap[x].mail,wrkmap[x].icq,wrkmap[x].name, notify_msg);
 									_log("@NOT@%ld|%d|%d|%s|%s|UPSTREAMED - %s", local_svc.service_id, local_svc.notify_last_state ,local_svc.current_state,trigger_name,wrkmap[x].name, notify_msg);
+
+									bartlby_notification_log_add(shm_hdr, argv[0], wrkmap[x].worker_id, local_svc.service_id, local_svc.current_state, standby_workers_only, wrkmap[x].notification_aggregation_interval,  trigger_name);
+									if(wrkmap[x].notification_aggregation_interval > 0) { // 3 == THE AGGREGATION MESSAGE ITSELF
+										//As we aggregate the notifications - skip the execution of the trigger
+										free(exec_str);
+										continue;
+									}
+
+
 									ptrigger=popen(exec_str, "r");
 									if(ptrigger != NULL) {
 										connection_timed_out=0;
