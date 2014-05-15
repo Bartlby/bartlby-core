@@ -226,7 +226,7 @@ struct worker_aggregate * bartlby_notification_log_add_worker(struct worker_aggr
 
 
 
-int bartlby_notification_log_last_notification_state(struct shm_header * shmhdr,char * cfgfile,  long svc_id, long worker_id) {
+int bartlby_notification_log_last_notification_state(struct shm_header * shmhdr,char * cfgfile,  long svc_id, long worker_id, char * trigger_name) {
 	/*
 		input svc_id
 		get last notification sent to svc_id - by walking threw array starting at current_top
@@ -241,8 +241,9 @@ int bartlby_notification_log_last_notification_state(struct shm_header * shmhdr,
 	max_ts=0;
 	max_state=-1;
 	for(x=0; x<NOTIFICATION_LOG_MAX; x++) {
-		if(shmhdr->notification_log[x].notification_valid != -1 && shmhdr->notification_log[x].service_id == svc_id && shmhdr->notification_log[x].worker_id == worker_id && shmhdr->notification_log[x].type == 0) {
+		if(shmhdr->notification_log[x].notification_valid != -1 && shmhdr->notification_log[x].service_id == svc_id && shmhdr->notification_log[x].worker_id == worker_id && shmhdr->notification_log[x].type == 0 && strcmp(shmhdr->notification_log[x].trigger_name, trigger_name) == 0) {
 			if(shmhdr->notification_log[x].time > max_ts) {
+				_log("FOUND x:%d WORKER_ID: %ld SERVICE_ID: %ld - state %d",x, shmhdr->notification_log[x].worker_id, shmhdr->notification_log[x].service_id, shmhdr->notification_log[x].state);
 				max_ts=shmhdr->notification_log[x].time;
 				max_state=shmhdr->notification_log[x].state;
 			}

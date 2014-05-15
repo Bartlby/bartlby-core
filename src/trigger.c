@@ -663,7 +663,7 @@ void bartlby_trigger(struct service * svc, char * cfgfile, void * shm_addr, int 
 							
 							if(standby_workers_only == 0) { //if it is not a renotify, either standby escalation or normal notification
 									//Check what was the last state that got send to THIS user
-									notification_log_last_state=bartlby_notification_log_last_notification_state(hdr,cfgfile,  svc->service_id, wrkmap[x].worker_id);
+									notification_log_last_state=bartlby_notification_log_last_notification_state(hdr,cfgfile,  svc->service_id, wrkmap[x].worker_id, entry->d_name);
 									if(notification_log_last_state != -1) { //If no log entry found be nice and send it out
 										if(notification_log_last_state == svc->current_state) {
 											_log("FIX  FLAPPING BUG - %d - %d (%d) - svc_id: %d", notification_log_last_state, svc->current_state, standby_workers_only, svc->service_id);

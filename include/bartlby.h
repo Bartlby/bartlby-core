@@ -635,7 +635,7 @@ int bartlby_agent_tcp_connect(char *host_name,int port,int *sd, struct service *
 
 
 //Notification Log
-int bartlby_notification_log_last_notification_state(struct shm_header * shmhdr, char * cfgfile, long svc_id, long worker_id);
+int bartlby_notification_log_last_notification_state(struct shm_header * shmhdr, char * cfgfile, long svc_id, long worker_id, char * trigger_name);
 void * bartlby_notification_log_set_hardcopy(struct shm_header * shmhdr, void * hardcopy, long notification_log_current_top, time_t notification_log_last_run);
 void * bartlby_notification_log_get_hardcopy(struct shm_header * shmhdr);
 void bartlby_notification_log_finish(struct shm_header * shmhdr);
