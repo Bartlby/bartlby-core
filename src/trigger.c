@@ -658,6 +658,9 @@ void bartlby_trigger(struct service * svc, char * cfgfile, void * shm_addr, int 
 							if((bartlby_trigger_escalation(&wrkmap[x], svc, standby_workers_only, 0)) == FL) continue;
 							if((bartlby_trigger_worker_level(&wrkmap[x], svc, 0)) == FL) continue;
 								
+							/* if re-notify - and user is not active continue */
+							if(standby_workers_only == 2 && wrkmap[x].active != 1) continue;
+
 							/* if standby escalation message check if worker is in standby mode either skip him/her*/
 							if(standby_workers_only == 1 && wrkmap[x].active != 2) continue;
 							
