@@ -575,13 +575,9 @@ int main(int argc, char ** argv) {
 	if(daemon_mode == NULL) {
 		daemon_mode=strdup("false");	
 	}
-	if(strcmp(daemon_mode,"true") == 0) {	
-		
-		bartlby_get_daemon(gCfgfile);
-	} 	
-		
-	bartlby_pre_init(gCfgfile);	
 
+		
+	
 	
 	bartlby_load_shm_stuff(gCfgfile);
 	bartlby_shm_fits(gCfgfile);
@@ -590,6 +586,13 @@ int main(int argc, char ** argv) {
 		exit(1);
 	}
 	
+	if(strcmp(daemon_mode,"true") == 0) {	
+		
+		bartlby_get_daemon(gCfgfile);
+	} 	
+
+	bartlby_pre_init(gCfgfile);	
+
 
 	//start it
 	if(bartlby_go(gCfgfile) < 0) {
@@ -608,7 +611,7 @@ int main(int argc, char ** argv) {
 	
 	free(daemon_mode);
 
-return 1;	
+	return 0;	
 }
 
 
