@@ -244,7 +244,7 @@ void bartlby_get_daemon(char * cfgfile) {
 		
 	if ((pid = fork ()) != 0) {
 		//_log("Fork failed");
-      		exit(1);
+      		exit(0);
       	}
       	
 	if(setsid() < 0 ) {
