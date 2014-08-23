@@ -43,7 +43,8 @@ void cfg_init_cache(void) {
 		snprintf(ccache[x].key,MAX_CCACHE_KEY,  "%s", "");
 		snprintf(ccache[x].value,MAX_CCACHE_VALUE, "%s", "");
 	}
-	_log("Cache init ready for %d variables to hold", MAX_CCACHE);
+
+	_log(LH_MAIN, B_LOG_INFO, "Cache init ready for %d variables to hold", MAX_CCACHE);
 			
 			
 }
@@ -114,7 +115,7 @@ char * getConfigValue_ex(const char * key, const char * fname, int cache) {
 			printf("config fopen %s failed", fname);
 			exit(0);
 		} else {
-			_log("file: '%s' cant be read", fname);
+			_log(LH_MAIN, B_LOG_CRIT, "file: '%s' cant be read", fname);
 			return NULL;	
 		}
 		
@@ -207,7 +208,7 @@ void cfg_fill_with_file(char * f) {
 	
 	
 	fclose(fp);
-	_log("pre-cached %d kv-pairs", c);
+	_log(LH_MAIN, B_LOG_INFO, "pre-cached %d kv-pairs", c);
 		
 }
 

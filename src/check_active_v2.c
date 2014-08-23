@@ -72,7 +72,7 @@ void bartlby_check_v2(struct service * svc, char * cfgfile, int use_ssl) {
     if((ctx=SSL_CTX_new(SSLv23_client_method()))==NULL){
 			sprintf(svc->new_server_text, "%s", "AgentV2: Error - could not create SSL context.");
        		svc->current_state=STATE_CRITICAL;
-       		_log("%s", ERR_error_string(ERR_get_error(), NULL));
+       		_log(LH_CHECK, B_LOG_CRIT,"SSL Error %s", ERR_error_string(ERR_get_error(), NULL));
 		}
 		/* use only TLSv1 protocol */
 		SSL_CTX_set_options(ctx,SSL_OP_NO_SSLv2 | SSL_OP_NO_SSLv3);
@@ -108,7 +108,7 @@ void bartlby_check_v2(struct service * svc, char * cfgfile, int use_ssl) {
 				
 			if(rc !=1){
 				sprintf(svc->new_server_text, "%s", "AgentV2: Error - Could not complete SSL handshake.");
-					_log("SSL_error: %s", ERR_error_string(ERR_get_error(), NULL));
+					_log(LH_CHECK, B_LOG_CRIT,"SSL_error: %s", ERR_error_string(ERR_get_error(), NULL));
      		         		svc->current_state=STATE_CRITICAL;
      		         		SSL_CTX_free(ctx);
      		         		return;
@@ -116,7 +116,7 @@ void bartlby_check_v2(struct service * svc, char * cfgfile, int use_ssl) {
 		} else {
 			sprintf(svc->new_server_text,"AgentV2: Error - Could not create SSL connection structure."); 
 			svc->current_state=STATE_CRITICAL;
-			_log("%s", ERR_error_string(ERR_get_error(), NULL));
+			_log(LH_CHECK, B_LOG_CRIT,"%s", ERR_error_string(ERR_get_error(), NULL));
 			SSL_CTX_free(ctx);
 			close(sd);
 			return;
@@ -164,7 +164,7 @@ void bartlby_check_v2(struct service * svc, char * cfgfile, int use_ssl) {
 	}
 #endif
 	if(conn_timedout == 1) {
-		_log("V2: timeout ok");
+		_log(LH_CHECK, B_LOG_DEBUG,"V2: timeout ok");
 		sprintf(svc->new_server_text, "%s", "V2 timed out2");
 		svc->current_state=STATE_CRITICAL;	
 		return;
@@ -198,7 +198,7 @@ void bartlby_check_v2(struct service * svc, char * cfgfile, int use_ssl) {
 #endif
 
        if(conn_timedout == 1) {
-		_log("timeout ok");
+		_log(LH_CHECK, B_LOG_DEBUG,"timeout ok");
 		sprintf(svc->new_server_text, "%s", "timed out4");
 		svc->current_state=STATE_CRITICAL;	
 		return;

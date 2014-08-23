@@ -252,7 +252,7 @@ void bartlby_check_nrpe(struct service * svc, char * cfgfile, int use_ssl) {
 			alarm(svc->service_check_timeout);
            	rc=nrpesendall(sd,(char *)&send_packet,&bytes_to_send);
            	if(conn_timedout == 1) {
-					_log("timeout ok");
+					_log(LH_CHECK, B_LOG_DEBUG,"timeout ok");
 					sprintf(svc->new_server_text, "%s", "timed out1");
 					svc->current_state=STATE_CRITICAL;	
 					return;
@@ -265,7 +265,7 @@ void bartlby_check_nrpe(struct service * svc, char * cfgfile, int use_ssl) {
 			
           	rc=SSL_write(ssl,&send_packet,bytes_to_send);
           	if(conn_timedout == 1) {
-					_log("timeout ok");
+					_log(LH_CHECK, B_LOG_DEBUG,"timeout ok");
 					sprintf(svc->new_server_text, "%s", "timed out2");
 					svc->current_state=STATE_CRITICAL;	
 					return;
@@ -289,7 +289,7 @@ void bartlby_check_nrpe(struct service * svc, char * cfgfile, int use_ssl) {
 			rc=nrperecvall(sd,(char *)&receive_packet,&bytes_to_recv,svc->service_check_timeout);
 			
 			if(conn_timedout == 1) {
-					_log("timeout ok");
+					_log(LH_CHECK, B_LOG_DEBUG,"timeout ok");
 					sprintf(svc->new_server_text, "%s", "timed out3");
 					svc->current_state=STATE_CRITICAL;	
 					return;
@@ -301,7 +301,7 @@ void bartlby_check_nrpe(struct service * svc, char * cfgfile, int use_ssl) {
 			alarm(svc->service_check_timeout);
           	rc=SSL_read(ssl,&receive_packet,bytes_to_recv);
           	if(conn_timedout == 1) {
-					_log("timeout ok");
+					_log(LH_CHECK, B_LOG_DEBUG,"timeout ok");
 					sprintf(svc->new_server_text, "%s", "timed out4");
 					svc->current_state=STATE_CRITICAL;	
 					return;
@@ -726,19 +726,19 @@ int nrperecvall(int s, char *buf, int *len, int timeout){
 /* show license */
 void nrpe_display_license(void){
 
-	_log("This program is released under the GPL (see below) with the additional");
-	_log("exemption that compiling, linking, and/or using OpenSSL is allowed.");
-	_log("This program is free software; you can redistribute it and/or modify");
-	_log("it under the terms of the GNU General Public License as published by");
-	_log("the Free Software Foundation; either version 2 of the License, or");
-	_log("(at your option) any later version.");
-	_log("This program is distributed in the hope that it will be useful,");
-	_log("but WITHOUT ANY WARRANTY; without even the implied warranty of");
-	_log("MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the");
-	_log("GNU General Public License for more details.");
-	_log("You should have received a copy of the GNU General Public License");
-	_log("along with this program; if not, write to the Free Software");
-	_log("Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.");
+	_log(LH_CHECK, B_LOG_INFO,"This program is released under the GPL (see below) with the additional");
+	_log(LH_CHECK, B_LOG_INFO,"exemption that compiling, linking, and/or using OpenSSL is allowed.");
+	_log(LH_CHECK, B_LOG_INFO,"This program is free software; you can redistribute it and/or modify");
+	_log(LH_CHECK, B_LOG_INFO,"it under the terms of the GNU General Public License as published by");
+	_log(LH_CHECK, B_LOG_INFO,"the Free Software Foundation; either version 2 of the License, or");
+	_log(LH_CHECK, B_LOG_INFO,"(at your option) any later version.");
+	_log(LH_CHECK, B_LOG_INFO,"This program is distributed in the hope that it will be useful,");
+	_log(LH_CHECK, B_LOG_INFO,"but WITHOUT ANY WARRANTY; without even the implied warranty of");
+	_log(LH_CHECK, B_LOG_INFO,"MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the");
+	_log(LH_CHECK, B_LOG_INFO,"GNU General Public License for more details.");
+	_log(LH_CHECK, B_LOG_INFO,"You should have received a copy of the GNU General Public License");
+	_log(LH_CHECK, B_LOG_INFO,"along with this program; if not, write to the Free Software");
+	_log(LH_CHECK, B_LOG_INFO,"Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.");
 
 	return;
         }     

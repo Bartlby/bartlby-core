@@ -71,7 +71,7 @@ int bartlby_core_perf_track(struct shm_header * hdr, struct service * svc, int t
 		break;
 		
 		
-		default: _log("unknown perf type: %d", type);	
+		default: _log(LH_PERF, B_LOG_CRIT,"unknown perf type: %d", type);	
 	}
 	return -1;	
 }
@@ -121,7 +121,7 @@ void bartlby_perf_track(struct service * svc,char * return_buffer, int return_by
 	if(cfg_perf_dir != NULL) {
 		asprintf(&perf_trigger, "%s/%s", cfg_perf_dir, svc->plugin);
 		if(stat(perf_trigger, &perf_s) < 0) {
-			_log("Performance Trigger: %s not found", perf_trigger);	
+			_log(LH_PERF, B_LOG_CRIT,"Performance Trigger: %s not found", perf_trigger);	
 		} else {
 			free(perf_trigger);
 			asprintf(&perf_trigger, "%s/%s %ld %s 2>&1 > /dev/null", cfg_perf_dir, svc->plugin, svc->service_id, return_buffer);
@@ -136,13 +136,13 @@ void bartlby_perf_track(struct service * svc,char * return_buffer, int return_by
 			if(phandler != NULL) {
 				if(fgets(dummy_buffer, 1024, phandler) == NULL) { 
 					if(!feof(phandler)) {
-						_log("Performance Trigger: %s fgets failed (%s)", perf_trigger, strerror(errno));	
+						_log(LH_PERF, B_LOG_CRIT,"Performance Trigger: %s fgets failed (%s)", perf_trigger, strerror(errno));	
 					}
 				}
 				pclose(phandler);	
 				
 			} else {
-				_log("Performance Trigger: %s failed popen", perf_trigger);	
+				_log(LH_PERF, B_LOG_CRIT,"Performance Trigger: %s failed popen", perf_trigger);	
 			}
 			
 			gettimeofday(&stat_end,NULL);

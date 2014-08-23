@@ -85,7 +85,7 @@ void bartlby_SHM_link_services_servers(void * shm_addr, char * cfgfile, void * S
 				
 		}
 		if(	svcmap[x].srv_place == -1) {
-			_log("Service-ID: %d is orphaned named %s", svcmap[x].service_id, svcmap[x].service_name);
+			_log(LH_SHM, B_LOG_CRIT,"Service-ID: %d is orphaned named %s", svcmap[x].service_id, svcmap[x].service_name);
 			svcmap[x].service_active = 0;
 			if(strcmp(autodelete_orphaned_services,"true") == 0) {	
 				DeleteService(svcmap[x].service_id, cfgfile);
@@ -95,6 +95,7 @@ void bartlby_SHM_link_services_servers(void * shm_addr, char * cfgfile, void * S
 		}
 	}
 	
+	free(autodelete_orphaned_services);
 	
 	for(y=0; y<hdr->srvcount; y++) {
 		marker_found = 0;
@@ -112,7 +113,7 @@ void bartlby_SHM_link_services_servers(void * shm_addr, char * cfgfile, void * S
 		if(marker_found == 0) {
 			
 			if(srvmap[y].server_dead != 0) {
-				_log("Service assigned as a alive-marker not found service_id: %d", srvmap[y].server_dead);	
+				_log(LH_SHM, B_LOG_CRIT,"Service assigned as a alive-marker not found service_id: %d", srvmap[y].server_dead);	
 			}
 		}
 	}
@@ -186,7 +187,7 @@ void bartlby_SHM_link_services_servers(void * shm_addr, char * cfgfile, void * S
 			}
 		}
 		if(marker_found == 0 && svcgrpmap[y].servicegroup_dead != 0) {
-			_log("Service assigned as a alive-marker for service-group  %d not found service_id: %d", svcgrpmap[y].servicegroup_id, svcgrpmap[y].servicegroup_dead);	
+			_log(LH_SHM, B_LOG_CRIT,"Service assigned as a alive-marker for service-group  %d not found service_id: %d", svcgrpmap[y].servicegroup_id, svcgrpmap[y].servicegroup_dead);	
 		}
 		
 	}
@@ -201,7 +202,7 @@ void bartlby_SHM_link_services_servers(void * shm_addr, char * cfgfile, void * S
 			}
 		}
 		if(marker_found == 0 && srvgrpmap[y].servergroup_dead != 0) {
-			_log("Service assigned as a alive-marker for server-group  %d not found service_id: %d", srvgrpmap[y].servergroup_id, srvgrpmap[y].servergroup_dead);	
+			_log(LH_SHM, B_LOG_CRIT,"Service assigned as a alive-marker for server-group  %d not found service_id: %d", srvgrpmap[y].servergroup_id, srvgrpmap[y].servergroup_dead);	
 		}
 		
 	}
@@ -257,7 +258,7 @@ void bartlby_SHM_link_services_servers(void * shm_addr, char * cfgfile, void * S
 		}
 	}
 	
-	_log("linked services with servers!");
+	_log(LH_SHM, B_LOG_DEBUG,"linked services with servers!");
 	
 }
 

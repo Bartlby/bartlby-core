@@ -61,7 +61,7 @@ void catch_signal(int signum) {
 		if(sig_pid != sched_pid) {
 			
 			if(kill(sched_pid, SIGINT) < 0) {
-				_log("kill() failed in catch_signal() '%s`", strerror(errno));	
+				_log(LH_SCHED, B_LOG_CRIT, "kill() failed in catch_signal() '%s`", strerror(errno));	
 			} //Notify scheduler that someone is trying to kill us
 			
 			
@@ -79,7 +79,7 @@ void catch_signal(int signum) {
                 if(sig_pid != sched_pid) {
                 	
                         if(kill(sched_pid, SIGUSR2) < 0) {
-                        	_log("kill() failed in catch_signal() '%s`", strerror(errno));		
+                        	_log(LH_SCHED, B_LOG_CRIT, "kill() failed in catch_signal() '%s`", strerror(errno));		
                         } //notify scheduler
                         exit(1);
 
@@ -115,10 +115,10 @@ void sched_write_back_all(char * cfgfile, void * shm_addr, void * SOHandle) {
 	
 	for(x=0; x<gshm_hdr->svccount; x++) {
 		if(doUpdate(&services[x], cfgfile) != 1) {
-			_log("doUpdate() failed in sched_writeback_all() '%s` for service id: %d", strerror(errno), services[x].service_id);		
+			_log(LH_SCHED, B_LOG_CRIT, "doUpdate() failed in sched_writeback_all() '%s` for service id: %d", strerror(errno), services[x].service_id);		
 		}
 	}	
-	_log("wrote back %d services!", x);
+	_log(LH_SCHED, B_LOG_DEBUG,"wrote back %d services!", x);
 	
 	/*
 	for(x=0; x<gshm_hdr->srvcount; x++) {
@@ -151,7 +151,7 @@ void sched_reaper(int sig) {
 	int childstatus;
 	int childpid;
 	if (sig != SIGCHLD && sig != SIGCLD) {
-		_log("reaper: bad signal %d\n", sig);
+		_log(LH_SCHED, B_LOG_CRIT,"reaper: bad signal %d\n", sig);
    	} else {
 
 		childpid = waitpid(-1, &childstatus, WNOHANG | WUNTRACED);
@@ -199,23 +199,23 @@ void sched_kill_runaaway(void * shm_addr, struct service *  svc, char * cfg, voi
 		
 		switch(errno) {
 			case EINVAL:
-				_log("Killing runaaway process: %d (Invalid signal)",svc->process.pid); 
+				_log(LH_SCHED, B_LOG_DEBUG,"Killing runaaway process: %d (Invalid signal)",svc->process.pid); 
 			break;
 			case EPERM:
-				_log("Killing runaaway process: %d (permission denied)",svc->process.pid); 
+				_log(LH_SCHED, B_LOG_DEBUG,"Killing runaaway process: %d (permission denied)",svc->process.pid); 
 			break;
 			
 			case ESRCH:
-				_log("Killing runaaway process: %d (no such process)",svc->process.pid); 
+				_log(LH_SCHED, B_LOG_DEBUG, "Killing runaaway process: %d (no such process)",svc->process.pid); 
 			break;	
 			default:
-				_log("Killing runaaway process: %d (unkw return: %d)",svc->process.pid, rtc); 
+				_log(LH_SCHED, B_LOG_DEBUG, "Killing runaaway process: %d (unkw return: %d)",svc->process.pid, rtc); 
 			
 		}
 	} else {
 		
 		
-		_log("@KILL@%ld|%d|%s:%d/%s|Killing process with pid: %d", svc->service_id, svc->current_state, svc->srv->server_name, svc->srv->client_port, svc->service_name, svc->process.pid);
+		_log(LH_SCHED, B_LOG_CRIT, "@KILL@%ld|%d|%s:%d/%s|Killing process with pid: %d", svc->service_id, svc->current_state, svc->srv->server_name, svc->srv->client_port, svc->service_name, svc->process.pid);
 	}
 		
 	//service timed out
@@ -225,7 +225,7 @@ void sched_kill_runaaway(void * shm_addr, struct service *  svc, char * cfg, voi
 	//on failure re-calc a new interval
 	rnd_intv=1+(rand() % 10);
 	svc->check_interval_original += rnd_intv;
-	_log("bumped intervall: %d", rnd_intv);
+	_log(LH_SCHED, B_LOG_DEBUG,"bumped intervall: %d", rnd_intv);
 	
 	//finish service, pulls triggers etc
 	bartlby_fin_service(svc,SOHandle,shm_addr,cfg);		
@@ -367,25 +367,25 @@ int sched_servicegroup_dead(struct service * svc) {
 			svc_to_check->is_server_dead=sched_is_server_dead(svc_to_check);
 			if(svc_to_check->is_server_dead<0) {
 				//Check if dead marker's server is alive
-				_debug("DEBUG-DEAD: svcGRP server of assigned service is dead [group: %s -> marker: %s/%s - svcToCheck: %s/%s]", svc->servicegroups[x]->servicegroup_name, svc_to_check->srv->server_name, svc_to_check->service_name, svc->srv->server_name, svc->service_name);
+				_log(LH_SCHED, B_LOG_DEBUG,"DEBUG-DEAD: svcGRP server of assigned service is dead [group: %s -> marker: %s/%s - svcToCheck: %s/%s]", svc->servicegroups[x]->servicegroup_name, svc_to_check->srv->server_name, svc_to_check->service_name, svc->srv->server_name, svc->service_name);
 				return -1;				
 			}
 			if(sched_servicegroup_active(svc_to_check) == 0) {
-				_debug("DEBUG-DEAD: svcGRP service-group of assigned service is not active [group: %s -> marker: %s/%s - svcToCheck: %s/%s]", svc->servicegroups[x]->servicegroup_name, svc_to_check->srv->server_name, svc_to_check->service_name, svc->srv->server_name, svc->service_name);
+				_log(LH_SCHED, B_LOG_DEBUG,"DEBUG-DEAD: svcGRP service-group of assigned service is not active [group: %s -> marker: %s/%s - svcToCheck: %s/%s]", svc->servicegroups[x]->servicegroup_name, svc_to_check->srv->server_name, svc_to_check->service_name, svc->srv->server_name, svc->service_name);
 				return -1;
 			}
 			if(sched_servergroup_active(svc_to_check->srv) == 0) {
-				_log("DEBUG-DEAD: svcGRP server-group of assigned service is not active [group: %s -> marker: %s/%s - svcToCheck: %s/%s]", svc->servicegroups[x]->servicegroup_name, svc_to_check->srv->server_name, svc_to_check->service_name, svc->srv->server_name, svc->service_name);
+				_log(LH_SCHED, B_LOG_DEBUG,"DEBUG-DEAD: svcGRP server-group of assigned service is not active [group: %s -> marker: %s/%s - svcToCheck: %s/%s]", svc->servicegroups[x]->servicegroup_name, svc_to_check->srv->server_name, svc_to_check->service_name, svc->srv->server_name, svc->service_name);
 				return -1;
 			}		
 			
 			if(svc_to_check->srv->server_enabled == 0) {
-				_debug("DEBUG-DEAD: svcGRP server of assigned service is not active [group: %s -> marker: %s/%s - svcToCheck: %s/%s]", svc->servicegroups[x]->servicegroup_name, svc_to_check->srv->server_name, svc_to_check->service_name, svc->srv->server_name, svc->service_name);
+				_log(LH_SCHED, B_LOG_DEBUG,"DEBUG-DEAD: svcGRP server of assigned service is not active [group: %s -> marker: %s/%s - svcToCheck: %s/%s]", svc->servicegroups[x]->servicegroup_name, svc_to_check->srv->server_name, svc_to_check->service_name, svc->srv->server_name, svc->service_name);
 				return -1;
 			}
 			if(svc_to_check->current_state == STATE_CRITICAL && svc_to_check->service_retain_current >= svc_to_check->service_retain) {
 				//Check if dead marker is alive :)
-				_debug("DEBUG-DEAD: svcGRP assigned indiciator is not alive [group: %s -> marker: %s/%s - svcToCheck: %s/%s]", svc->servicegroups[x]->servicegroup_name, svc_to_check->srv->server_name, svc_to_check->service_name, svc->srv->server_name, svc->service_name);
+				_log(LH_SCHED, B_LOG_DEBUG,"DEBUG-DEAD: svcGRP assigned indiciator is not alive [group: %s -> marker: %s/%s - svcToCheck: %s/%s]", svc->servicegroups[x]->servicegroup_name, svc_to_check->srv->server_name, svc_to_check->service_name, svc->srv->server_name, svc->service_name);
 				return -1;	
 			}
 			
@@ -394,13 +394,13 @@ int sched_servicegroup_dead(struct service * svc) {
 			
 			svc_to_check->is_server_dead=sched_servergroup_dead(svc_to_check->srv, svc_to_check);
 			if(svc_to_check->is_server_dead < 0) {
-				_debug("DEBUG-DEAD: svcGRP server-group of assigned service is dead [group: %s -> marker: %s/%s - svcToCheck: %s/%s]", svc->servicegroups[x]->servicegroup_name, svc_to_check->srv->server_name, svc_to_check->service_name, svc->srv->server_name, svc->service_name);
+				_log(LH_SCHED, B_LOG_DEBUG,"DEBUG-DEAD: svcGRP server-group of assigned service is dead [group: %s -> marker: %s/%s - svcToCheck: %s/%s]", svc->servicegroups[x]->servicegroup_name, svc_to_check->srv->server_name, svc_to_check->service_name, svc->srv->server_name, svc->service_name);
 				return -1;
 			}
 			
 			svc_to_check->is_server_dead=sched_servicegroup_dead(svc_to_check);
 			if(svc_to_check->is_server_dead < 0) {
-					_debug("DEBUG-DEAD: svcGRP service-group of assigned service is dead [group: %s -> marker: %s/%s - svcToCheck: %s/%s]", svc->servicegroups[x]->servicegroup_name, svc_to_check->srv->server_name, svc_to_check->service_name, svc->srv->server_name, svc->service_name);
+					_log(LH_SCHED, B_LOG_DEBUG,"DEBUG-DEAD: svcGRP service-group of assigned service is dead [group: %s -> marker: %s/%s - svcToCheck: %s/%s]", svc->servicegroups[x]->servicegroup_name, svc_to_check->srv->server_name, svc_to_check->service_name, svc->srv->server_name, svc->service_name);
 					return -1;
 			}
 			
@@ -591,7 +591,7 @@ int sched_check_waiting(void * shm_addr, struct service * svc, char * cfg, void 
 	if(sched_pause >= 0) {
 		if(svc->do_force == 1) {
 			svc->do_force=0; //dont force again
-			_log("@FORCE@%ld|%d|%d|||%s:%d/%s|Force check", svc->service_id, svc->last_state ,svc->current_state, svc->srv->server_name, svc->srv->client_port, svc->service_name);
+			_log(LH_SCHED, B_LOG_INFO,"@FORCE@%ld|%d|%d|||%s:%d/%s|Force check", svc->service_id, svc->last_state ,svc->current_state, svc->srv->server_name, svc->srv->client_port, svc->service_name);
 			return 1;	
 		}
 	}
@@ -725,7 +725,7 @@ void sched_kill_all_workers() {
 	int x;
 	if(sched_mode == SCHED_MODE_WORKER) {
 		for(x=0; x<sched_worker_count; x++)  {
-			_log("Quitting Worker: %d", gshm_hdr->worker_threads[x].pid);
+			_log(LH_SCHED, B_LOG_INFO,"Quitting Worker: %d", gshm_hdr->worker_threads[x].pid);
 			kill( gshm_hdr->worker_threads[x].pid, 9);
 		}		
 	}
@@ -866,7 +866,7 @@ int sched_fork_worker() {
 	child_pid=fork();
 	
 	if(child_pid == -1) {
-		_log("FORK Error %s", strerror(errno));
+		_log(LH_SCHED, B_LOG_CRIT,"FORK Error %s", strerror(errno));
 		return;
 	} else if(child_pid == 0) {
 		prctl(PR_SET_DUMPABLE, 0);
@@ -917,7 +917,7 @@ void sched_run_check(struct service * svc, char * cfgfile, void * shm_addr, void
 	child_pid=fork();
 	
 	if(child_pid == -1) {
-		_log("FORK Error %s", strerror(errno));
+		_log(LH_SCHED, B_LOG_DEBUG,"FORK Error %s", strerror(errno));
 		return;
 	} else if(child_pid == 0) {
 		
@@ -1002,7 +1002,7 @@ void sched_check_for_dead_workers() {
 	if(sched_mode == SCHED_MODE_WORKER) {
 		for(x=0; x<sched_worker_count; x++) {
 			if(kill(gshm_hdr->worker_threads[x].pid, 0) != 0) {
-				_log("worker thread %d died", x);
+				_log(LH_SCHED, B_LOG_INFO,"worker thread %d died", x);
 				g_current_worker_idx=x;
 				gshm_hdr->worker_threads[x].pid=sched_fork_worker();
 				gshm_hdr->worker_threads[x].start_time=time(NULL);
@@ -1067,7 +1067,7 @@ int schedule_loop(char * cfgfile, void * shm_addr, void * SOHandle) {
 	ssort  = malloc(sizeof(struct service_sort)*gshm_hdr->svccount);
 	
 	
-	_log("Scheduler working on %ld Services", gshm_hdr->svccount);
+	_log(LH_SCHED, B_LOG_INFO,"Scheduler working on %ld Services", gshm_hdr->svccount);
 	
 	cfg_notification_aggregation=getConfigValue("notification_aggregation_interval", cfgfile);
 
@@ -1080,7 +1080,7 @@ int schedule_loop(char * cfgfile, void * shm_addr, void * SOHandle) {
 
 	cfg_mps=getConfigValue("max_concurent_checks", cfgfile);
 	if(cfg_mps == NULL) {
-		_log("<Warn>Defaulting max_concurent_checks to '20'");
+		_log(LH_SCHED, B_LOG_WARN,"<Warn>Defaulting max_concurent_checks to '20'");
 		cfg_max_parallel=20;
 	} else {
 		cfg_max_parallel=atoi(cfg_mps);
@@ -1111,21 +1111,21 @@ int schedule_loop(char * cfgfile, void * shm_addr, void * SOHandle) {
 	cfg_sched_pause = getConfigValue("sched_round_pause", cfgfile);
 	if(cfg_sched_pause == NULL) {
 		sched_pause=100;	
-		_log("info: sched_pause defaulted to: %d milli-seconds (set sched_round_pause to modify)", sched_pause);
+		_log(LH_SCHED, B_LOG_INFO,"info: sched_pause defaulted to: %d milli-seconds (set sched_round_pause to modify)", sched_pause);
 	} else {
 		sched_pause=atoi(cfg_sched_pause);
 		free(cfg_sched_pause);
 		if(sched_pause <= 0) {
 			sched_pause=1;
-			_log("info: sched_pause really low should'nt be less than 1 milliseconds defaulting to it: %d", sched_pause);
+			_log(LH_SCHED, B_LOG_WARN,"info: sched_pause really low should'nt be less than 1 milliseconds defaulting to it: %d", sched_pause);
 		}
 	}
 	cfg_g_micros_before_after_check = getConfigValue("sched_micros_before_after_check", cfgfile);
 	if(cfg_g_micros_before_after_check == NULL) {
-		_log("HINT: to tune performance see 'sched_micros_before_after_check' defaults to 700");	
+		_log(LH_SCHED, B_LOG_INFO,"HINT: to tune performance see 'sched_micros_before_after_check' defaults to 700");	
 	} else {
 		g_micros_before_after_check=atoi(cfg_g_micros_before_after_check);
-		_log("micros_before_after=%d", g_micros_before_after_check);
+		_log(LH_SCHED, B_LOG_DEBUG,"micros_before_after=%d", g_micros_before_after_check);
 		free(cfg_g_micros_before_after_check);
 	}
 	
@@ -1135,32 +1135,34 @@ int schedule_loop(char * cfgfile, void * shm_addr, void * SOHandle) {
 	}
 	
 	cfg_sched_mode = getConfigValue("sched_mode", cfgfile);
-	cfg_sched_worker_count = getConfigValue("sched_worker_count", cfgfile);
+	
 
 	if(cfg_sched_mode == NULL) {
 		sched_mode=SCHED_MODE_FORK;
-		_log("Defaulting sched mode to SCHED_MODE_FORK");
+		_log(LH_SCHED, B_LOG_DEBUG,"Defaulting sched mode to SCHED_MODE_FORK");
 	} else {
 		sched_mode=atoi(cfg_sched_mode);
-		_log("Set sched_mode to:%d", sched_mode);
+		_log(LH_SCHED, B_LOG_DEBUG,"Set sched_mode to:%d", sched_mode);
 		free(cfg_sched_mode);
 		sched_worker_count=0;
 		if(sched_mode == SCHED_MODE_WORKER) {
+			cfg_sched_worker_count = getConfigValue("sched_worker_count", cfgfile);			
 			if(cfg_sched_worker_count == NULL) {
 				sched_worker_count=5;
-				_log("Defaulting sched_worker_count to 5");
+				_log(LH_SCHED, B_LOG_INFO,"Defaulting sched_worker_count to 5");
 			} else {
 				sched_worker_count=atoi(cfg_sched_worker_count);
-				_log("Using %d workers", sched_worker_count);
+				_log(LH_SCHED, B_LOG_INFO,"Using %d workers", sched_worker_count);
 				free(cfg_sched_worker_count);
 			}
-			_log("USING WORKER MODE");
+			_log(LH_SCHED, B_LOG_DEBUG,"USING WORKER MODE");
 		}
 		if(sched_mode == SCHED_MODE_FORK) {
-			_log("using FORK MODE");
+			_log(LH_SCHED, B_LOG_DEBUG,"using FORK MODE");
 		}
 
 	}
+
 
 	
 
@@ -1171,14 +1173,14 @@ int schedule_loop(char * cfgfile, void * shm_addr, void * SOHandle) {
 	while(1) {
 		
 		if(gshm_hdr->do_reload == 1 || gshm_hdr->do_reload == 2) {
-			_log("queuing Reload");	
+			_log(LH_SCHED, B_LOG_INFO,"queuing Reload");	
 			sched_wait_open(1, 0);
 			signal(SIGCHLD, SIG_IGN);
 			free(ssort);
 			return -2;
 		}
 		if(do_shutdown == 1) {
-			_log("Exit recieved");	
+			_log(LH_SCHED, B_LOG_INFO,"Exit recieved");	
 			sched_wait_open(1,0);
 			signal(SIGCHLD, SIG_IGN);
 			free(ssort);
@@ -1260,7 +1262,7 @@ int schedule_loop(char * cfgfile, void * shm_addr, void * SOHandle) {
 		
 		
 		if(time(NULL)-round_start > sched_pause*3 && sched_pause > 0) {
-			_log("Done %d Services in %ld Seconds", round_visitors, time(NULL)-round_start);				
+			_log(LH_SCHED, B_LOG_INFO,"Done %d Services in %ld Seconds", round_visitors, time(NULL)-round_start);				
 		}
 		
 		//Log Round End
@@ -1276,7 +1278,7 @@ int schedule_loop(char * cfgfile, void * shm_addr, void * SOHandle) {
 		}
 
 		if(notification_aggregate_interval > 0 && time(NULL)-gshm_hdr->notification_log_aggregate_last_run >= notification_aggregate_interval) {
-			_log("AGGREGATION RUN");
+			_log(LH_SCHED, B_LOG_DEBUG,"AGGREGATION RUN");
 			bartlby_notification_log_aggregate(gshm_hdr, cfgfile);
 		} 
 
@@ -1290,5 +1292,6 @@ int schedule_loop(char * cfgfile, void * shm_addr, void * SOHandle) {
 	
 	
 }
+
 
 

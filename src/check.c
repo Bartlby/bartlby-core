@@ -84,7 +84,7 @@ void bartlby_check_eventhandler(struct service * svc, char * cfgfile) {
 	}
 	if(eventhandler_called == 1) {
 		
-		_log("@EV-HANDLER@%ld|%d|%s:%d/%s|%s|(%s)-%s", svc->service_id, svc->current_state, svc->srv->server_name, svc->srv->client_port, svc->service_name, state_level, event_service.plugin, event_service.new_server_text);
+		_log(LH_CHECK, B_LOG_CRIT,"@EV-HANDLER@%ld|%d|%s:%d/%s|%s|(%s)-%s", svc->service_id, svc->current_state, svc->srv->server_name, svc->srv->client_port, svc->service_name, state_level, event_service.plugin, event_service.new_server_text);
 		//
 	}
 	
@@ -160,7 +160,7 @@ void bartlby_fin_service(struct service * svc, void * SOHandle, void * shm_addr,
 		svc->service_retain_current=0;
 		svc->last_state=svc->current_state;
 		svc->last_state_change=time(NULL);
-		_log("@LOG@%ld|%d|%s:%d/%s|%s", svc->service_id, svc->current_state, svc->srv->server_name, svc->srv->client_port, svc->service_name, svc->new_server_text);
+		_log(LH_CHECK, B_LOG_CRIT,"@LOG@%ld|%d|%s:%d/%s|%s", svc->service_id, svc->current_state, svc->srv->server_name, svc->srv->client_port, svc->service_name, svc->new_server_text);
 		//bartlby_push_event(EVENT_STATUS_CHANGED, "Service-Changed;%d;%s:%d/%s;%d;%s", svc->service_id, svc->srv->server_name, svc->srv->client_port, svc->service_name, svc->current_state, svc->new_server_text);
 		bartlby_push_event(EVENT_STATUS_CHANGED, "{\"type\":\"Service-Changed\",\"service_id\":%d,\"server_and_service_name\":\"%s:%d/%s\",\"current_state\":%d,\"current_output\":\"%s\"}",svc->service_id, svc->srv->server_name, svc->srv->client_port, svc->service_name, svc->current_state, svc->new_server_text);
 		bartlby_callback(EXTENSION_CALLBACK_STATE_CHANGED, svc);
@@ -208,7 +208,7 @@ void bartlby_fin_service(struct service * svc, void * SOHandle, void * shm_addr,
 	
 	//if ( (svc->service_retain_current >= svc->service_retain) && ( svc->current_state == STATE_CRITICAL )  && ( svc->renotify_interval > 0 ) && ( (time(NULL)-svc->last_notify_send) >= svc->renotify_interval ) ) {
 	if ( (svc->service_retain_current >= svc->service_retain) && ( svc->current_state == STATE_CRITICAL )  && ( svc->renotify_interval > 0 ) && ( svc->service_retain_current % svc->renotify_interval == 0 ) ) {
-		_log("re-notify	 for %s:%d/%s", svc->srv->server_name,svc->srv->client_port, svc->service_name);
+		_log(LH_CHECK, B_LOG_CRIT,"re-notify	 for %s:%d/%s", svc->srv->server_name,svc->srv->client_port, svc->service_name);
 		bartlby_trigger(svc, cfgfile, shm_addr, 1, 2);
 		svc->notify_last_state=svc->current_state;
 		
@@ -219,7 +219,7 @@ void bartlby_fin_service(struct service * svc, void * SOHandle, void * shm_addr,
 	/* retain_current >= escalate_value */ 
 	
 	if ( (svc->service_retain_current >= svc->service_retain) && ( svc->current_state == STATE_CRITICAL )  && ( svc->escalate_divisor > 0 ) && ( svc->service_retain_current % svc->escalate_divisor == 0 ) ) {
-		_log("escalate to standby workers	 for %s:%d/%s", svc->srv->server_name,svc->srv->client_port, svc->service_name);
+		_log(LH_CHECK, B_LOG_CRIT,"escalate to standby workers	 for %s:%d/%s", svc->srv->server_name,svc->srv->client_port, svc->service_name);
 		bartlby_trigger(svc, cfgfile, shm_addr, 1, 1);
 		
 		
@@ -344,7 +344,7 @@ void bartlby_check_service(struct service * svc, void * shm_addr, void * SOHandl
 		bartlby_fin_service(svc,SOHandle,shm_addr,cfgfile);
 		return;
 	} else {
-		_log("Undefined service check type: %d", svc->service_type);
+		_log(LH_CHECK, B_LOG_CRIT,"Undefined service check type: %d", svc->service_type);
 		sprintf(svc->new_server_text, "undefined service type (%d)", svc->service_type);
 		svc->current_state=STATE_CRITICAL;
 	}

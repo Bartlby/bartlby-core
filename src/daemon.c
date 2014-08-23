@@ -34,28 +34,28 @@ void bartlby_log_usage(void) {
 	struct rusage ru;
 	
 	if(getrusage(RUSAGE_CHILDREN, &ru) == -1 ) {
-		_log("getrusage() error...(%s)", strerror(errno));	
+		_log(LH_DAEMON, B_LOG_CRIT,"getrusage() error...(%s)", strerror(errno));	
 		return;
 	}
-	_log("*********** dumping usage of bartlby process...*****************");
-	_log("user time used (secs/usecs): %ld/%ld", ru.ru_utime.tv_sec, ru.ru_utime.tv_usec);
-	_log("system time used (secs/usecs): %ld/%ld", ru.ru_stime.tv_sec, ru.ru_stime.tv_usec);
-	_log("%-10ld\t%s", ru.ru_maxrss, " maximum resident size"); 
-	_log("%-10ld\t%s", ru.ru_ixrss, " integral shared memory size"); 
-	_log("%-10ld\t%s", ru.ru_idrss, " integral unshared memory size"); 
-	_log("%-10ld\t%s", ru.ru_isrss, " integral unshared data stack size"); 
-	_log("%-10ld\t%s", ru.ru_minflt, " page reclaims"); 
-	_log("%-10ld\t%s", ru.ru_majflt, " page faults"); 
-	_log("%-10ld\t%s", ru.ru_nswap, " swaps"); 
+	_log(LH_DAEMON, B_LOG_DEBUG,"*********** dumping usage of bartlby process...*****************");
+	_log(LH_DAEMON, B_LOG_DEBUG,"user time used (secs/usecs): %ld/%ld", ru.ru_utime.tv_sec, ru.ru_utime.tv_usec);
+	_log(LH_DAEMON, B_LOG_DEBUG,"system time used (secs/usecs): %ld/%ld", ru.ru_stime.tv_sec, ru.ru_stime.tv_usec);
+	_log(LH_DAEMON, B_LOG_DEBUG,"%-10ld\t%s", ru.ru_maxrss, " maximum resident size"); 
+	_log(LH_DAEMON, B_LOG_DEBUG,"%-10ld\t%s", ru.ru_ixrss, " integral shared memory size"); 
+	_log(LH_DAEMON, B_LOG_DEBUG,"%-10ld\t%s", ru.ru_idrss, " integral unshared memory size"); 
+	_log(LH_DAEMON, B_LOG_DEBUG,"%-10ld\t%s", ru.ru_isrss, " integral unshared data stack size"); 
+	_log(LH_DAEMON, B_LOG_DEBUG,"%-10ld\t%s", ru.ru_minflt, " page reclaims"); 
+	_log(LH_DAEMON, B_LOG_DEBUG,"%-10ld\t%s", ru.ru_majflt, " page faults"); 
+	_log(LH_DAEMON, B_LOG_DEBUG,"%-10ld\t%s", ru.ru_nswap, " swaps"); 
 	
-	_log("%-10ld\t%s", ru.ru_inblock, " block input operations"); 
-	_log("%-10ld\t%s", ru.ru_oublock, " block output operations"); 
-	_log("%-10ld\t%s", ru.ru_msgsnd, " messages sent"); 
-	_log("%-10ld\t%s", ru.ru_msgrcv, " messages received"); 
-	_log("%-10ld\t%s", ru.ru_nsignals, " signals received"); 
-	_log("%-10ld\t%s", ru.ru_nvcsw, " voluntary context switches"); 
-	_log("%-10ld\t%s", ru.ru_nivcsw, " involuntary context switches"); 
-	_log("******************* DONE ***************************************");
+	_log(LH_DAEMON, B_LOG_DEBUG,"%-10ld\t%s", ru.ru_inblock, " block input operations"); 
+	_log(LH_DAEMON, B_LOG_DEBUG,"%-10ld\t%s", ru.ru_oublock, " block output operations"); 
+	_log(LH_DAEMON, B_LOG_DEBUG,"%-10ld\t%s", ru.ru_msgsnd, " messages sent"); 
+	_log(LH_DAEMON, B_LOG_DEBUG,"%-10ld\t%s", ru.ru_msgrcv, " messages received"); 
+	_log(LH_DAEMON, B_LOG_DEBUG,"%-10ld\t%s", ru.ru_nsignals, " signals received"); 
+	_log(LH_DAEMON, B_LOG_DEBUG,"%-10ld\t%s", ru.ru_nvcsw, " voluntary context switches"); 
+	_log(LH_DAEMON, B_LOG_DEBUG,"%-10ld\t%s", ru.ru_nivcsw, " involuntary context switches"); 
+	_log(LH_DAEMON, B_LOG_DEBUG,"******************* DONE ***************************************");
 	
 	
 }
@@ -67,30 +67,30 @@ void bartlby_read_limit(int resource, char *name)
 
    	
 	if(getrlimit(resource, &limit) == -1)	{
-		_log("getrlimit error...\n");
+		_log(LH_DAEMON, B_LOG_DEBUG,"getrlimit error...\n");
 		return;
 	}
 	limit.rlim_cur=RLIM_INFINITY;
 	if(setrlimit(resource, &limit) == -1) {
-		_log("setrlimit error...%s (%s)",name, strerror(errno));
+		_log(LH_DAEMON, B_LOG_DEBUG,"setrlimit error...%s (%s)",name, strerror(errno));
 	}
 	
 	if(getrlimit(resource, &limit) == -1)	{
-		_log("getrlimit error...\n");
+		_log(LH_DAEMON, B_LOG_DEBUG,"getrlimit error...\n");
 		return;
 	}
 
 	if(limit.rlim_cur == RLIM_INFINITY) {
-		_log("%15s | Soft-Limit : unlimited",name);
+		_log(LH_DAEMON, B_LOG_DEBUG,"%15s | Soft-Limit : unlimited",name);
 	} else {
-		_log("%15s | Soft-Limit : %12ld",name, limit.rlim_cur);
+		_log(LH_DAEMON, B_LOG_DEBUG,"%15s | Soft-Limit : %12ld",name, limit.rlim_cur);
 		
 	}
 	
 	if(limit.rlim_max == RLIM_INFINITY) {
-		_log("%15s | Hard-Limit : unlimited",name);
+		_log(LH_DAEMON, B_LOG_DEBUG,"%15s | Hard-Limit : unlimited",name);
 	} else {
-		_log("%15s | Hard-Limit : %12ld",name, limit.rlim_cur);
+		_log(LH_DAEMON, B_LOG_DEBUG,"%15s | Hard-Limit : %12ld",name, limit.rlim_cur);
 		
 	}
 
@@ -116,12 +116,9 @@ void bartlby_set_limits(void) {
      
 }
 void bartlby_log_banner(void) {
-	_log("*****************Welcome to Bartlby*********************");	
-	_log("*        Next generation of system monitoring          *");
-	_log("*                                                      *");
-	_log("*       License: GPLv2                                 *");
-	_log("*                                                      *");
-	_log("********************************************************");
+	_log(LH_DAEMON, B_LOG_INFO,"*****************Welcome to Bartlby*********************");	
+	_log(LH_DAEMON, B_LOG_INFO,"*        Next generation of system monitoring          *");
+	_log(LH_DAEMON, B_LOG_INFO,"********************************************************");
 }
 
 
@@ -153,10 +150,10 @@ void bartlby_pre_init(char * cfgfile) {
   	
   	
 	if(chdir(base_dir) < 0) {		
-		_log("basedir setting failed :%s (%s)", base_dir,strerror(errno));
+		_log(LH_DAEMON, B_LOG_CRIT,"basedir setting failed :%s (%s)", base_dir,strerror(errno));
 		exit(1);	
 	} else {
-		_log("basedir set to:%s", base_dir);	
+		_log(LH_DAEMON, B_LOG_INFO,"basedir set to:%s", base_dir);	
 	}
 	
 	/* out of manpage: This system call always succeeds and the previous value of the mask is returned.*/
@@ -166,26 +163,26 @@ void bartlby_pre_init(char * cfgfile) {
 	sprintf(pidfname, "%s/bartlby.pid", pid_def_name);
 	pidfile=fopen(pidfname, "w");
 	if(pidfile == NULL) {
-		_log("Pid file  failed '%s'", pidfname);
+		_log(LH_DAEMON, B_LOG_CRIT,"Pid file  failed '%s'", pidfname);
 		
 	} else {
 		sprintf(pidstr, "%d", getpid());
 		if(fwrite(pidstr, sizeof(char), strlen(pidstr), pidfile) <= 0) {
-			_log("pidfile creation failed");
+			_log(LH_DAEMON, B_LOG_CRIT,"pidfile creation failed");
 		} else {
 			if(fclose(pidfile) == EOF) {
-				_log("fclose() failed for pidfile!!");
+				_log(LH_DAEMON, B_LOG_CRIT,"fclose() failed for pidfile!!");
 				exit(1);
 			}
-			_log("pidfile is at: '%s'", pidfname);
+			_log(LH_DAEMON, B_LOG_INFO,"pidfile is at: '%s'", pidfname);
 		}
 		
 	}
 	
 	if(setenv("BARTLBY_HOME", base_dir,1) == 0) {
-		_log("$BARTLBY_HOME='%s'", base_dir);
+		_log(LH_DAEMON, B_LOG_INFO,"$BARTLBY_HOME='%s'", base_dir);
 	} else {
-		_log("setenv $BARTLBY_HOME='%s' failed", base_dir);	
+		_log(LH_DAEMON, B_LOG_CRIT,"setenv $BARTLBY_HOME='%s' failed", base_dir);	
 	}
 	//freopen("/dev/null", "a", stderr);
 	//freopen("/dev/null", "a", stdout);
@@ -225,9 +222,9 @@ void bartlby_end_clean(char *cfgfile) {
 	sprintf(pidfname, "%s/bartlby.pid", pid_def_name);
 	
 	if(unlink(pidfname) == 0) {	
-		_log("%s Pid file removed", pidfname);
+		_log(LH_DAEMON, B_LOG_INFO,"%s Pid file removed", pidfname);
 	} else {
-		_log("%s Pid file remove failed", pidfname);
+		_log(LH_DAEMON, B_LOG_CRIT,"%s Pid file remove failed", pidfname);
 	}
 	free(base_dir);
 	free(pid_def_name);
@@ -248,7 +245,7 @@ void bartlby_get_daemon(char * cfgfile) {
       	}
       	
 	if(setsid() < 0 ) {
-		_log("Cannot setsid()");	
+		_log(LH_DAEMON, B_LOG_CRIT,"Cannot setsid()");	
 	}
 	
 	

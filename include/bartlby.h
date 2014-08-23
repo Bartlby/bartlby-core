@@ -37,10 +37,35 @@
 #include <sys/times.h> 
 #include <semaphore.h>
 
+/* Log Handles */
+#define LH_DEBUG 0
+#define LH_TRIGGER 1
+#define LH_SCHED 2
+#define LH_CHECK 3
+#define LH_MAIN 4
+#define LH_SHM 5
+#define LH_DAEMON 6
+#define LH_PERF 7
+#define LH_ACK 8
+#define LH_EVNT 9
+#define LH_EXT 10
+#define LH_NOTIFYLOG 11
+#define LH_LIB 12
+#define LH_PORTIER 13
+#define LH_MOD 14
+
+	
+#define B_LOG_DEBUG 0
+#define B_LOG_INFO 1
+#define B_LOG_WARN 2
+#define B_LOG_CRIT 3
+
+
 /* DEBUGGING */
 
+
 #define HAVE_DEBUG 1
-#define _debug(...) if(HAVE_DEBUG==1) { _log(__VA_ARGS__); }
+#define _debug(...) if(HAVE_DEBUG==1) { _log(LH_DEBUG, B_LOG_DEBUG, __VA_ARGS__); }
 
 
 
@@ -198,7 +223,7 @@
 
 #define LOAD_SYMBOL(x,y,z) 	x=dlsym(y, z); \
     	if((dlmsg=dlerror()) != NULL) { \
-        	_log("-Error: %s", dlmsg); \
+        	_log(LH_MAIN, B_LOG_CRIT,"-Error: %s", dlmsg); \
         	exit(1); \
     	}
 
@@ -574,7 +599,7 @@ long bartlby_milli_timediff(struct timeval end, struct timeval start);
 
 void bartlby_trigger(struct service * svc, char * cfgfile, void * shm_addr, int do_check, int standby_workers_only);
 //Global :-)
-int _log(const char * str,  ...);
+int _log(int handle, int severity, const char * str,  ...);
 
 void bartlby_decode(char * msg, int length);
 void bartlby_encode(char * msg, int length);
@@ -643,3 +668,4 @@ void bartlby_notification_log_init(struct shm_header * shmhdr);
 void bartlby_notification_log_add(struct shm_header * shmhdr, char * cfgfile, long worker_id, long service_id, int state, int type, int aggregation_interval, char * trigger_name);
 void bartlby_notification_log_aggregate(struct shm_header *shmdr, char * cfgfile);
 void bartlby_notification_log_debug(struct shm_header * shmhdr);
+
