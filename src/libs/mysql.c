@@ -20,22 +20,22 @@
 #define CHK_ERR(x) \
 		if (x != NULL) {\
 			if(mysql_errno(x) != 0) {\
-		 		_log("mysql error: %s", mysql_error(x)); \
+		 		_log(LH_LIB, B_LOG_CRIT,"mysql error: %s", mysql_error(x)); \
       		 		return -1; \
       			}\
       		} else {\
-      			_log("Mysql Error %s:%d", __FILE__, __LINE__); \
+      			_log(LH_LIB, B_LOG_CRIT,"Mysql Error %s:%d", __FILE__, __LINE__); \
       			return -1; \
       		}
 
 #define CHK_ERR_NULL(x) \
 		if (x != NULL) {\
 			if(mysql_errno(x) != 0) {\
-		 		_log("mysql error: %s", mysql_error(x)); \
+		 		_log(LH_LIB, B_LOG_CRIT,"mysql error: %s", mysql_error(x)); \
       		 		return NULL; \
       			}\
       		} else {\
-      			_log("Mysql Error %s:%d", __FILE__, __LINE__); \
+      			_log(LH_LIB, B_LOG_CRIT,"Mysql Error %s:%d", __FILE__, __LINE__); \
       			return NULL; \
       		}      		
 
@@ -674,19 +674,26 @@ int GetDowntimeMap(struct downtime * svcs, char * config) {
       			i++;
       		}
       		
-      		mysql_free_result(res);
-      		mysql_close(mysql);
-      		free(mysql_host);
-		free(mysql_user);
-		free(mysql_pw);
-		free(mysql_db);
+    
+		    mysql_close(mysql);
+			mysql_free_result(res);
+			
+			free(mysql_host);
+			free(mysql_user);
+			free(mysql_pw);
+			free(mysql_db);
+			
+
+      		
+      		
       		return i;
       	} else { 
-      		_log( "no Downtimes found!");	
+      		_log(LH_LIB, B_LOG_INFO, "no Downtimes found!");	
       	}
 	
 	
-	
+	mysql_close(mysql);
+	mysql_free_result(res);
 	
 	free(mysql_host);
 	free(mysql_user);
@@ -1987,7 +1994,7 @@ int GetWorkerMap(struct worker * svcs, char * config) {
 		free(mysql_db);
       		return i;
       	} else { 
-      		_log( "no worker found!");	
+      		_log(LH_LIB, B_LOG_INFO, "no worker found!");	
       	}
 	
 	
@@ -2143,7 +2150,7 @@ int GetServiceMap(struct service * svcs, char * config) {
 		free(mysql_db);
       		return i;
       	} else { 
-      		_log("no services found!");	
+      		_log(LH_LIB, B_LOG_INFO, "no services found!");	
       	}
     	
     	free(mysql_host);
@@ -2287,7 +2294,7 @@ int GetServerMap(struct server * srv, char * config) {
 		free(mysql_db);
       		return i;
       	} else { 
-      		_log("no servers found!");	
+      		_log(LH_LIB, B_LOG_INFO,"no servers found!");	
       	}
     	
     	free(mysql_host);
@@ -2431,7 +2438,7 @@ int GetServerGroupMap(struct servergroup * svcs, char * config) {
 		free(mysql_db);
       		return i;
       	} else { 
-      		_log( "no Servergroups found!");	
+      		_log(LH_LIB, B_LOG_INFO, "no Servergroups found!");	
       	}
 	
 	
@@ -2716,7 +2723,7 @@ int GetServiceGroupMap(struct servicegroup * svcs, char * config) {
 		free(mysql_db);
       		return i;
       	} else { 
-      		_log( "no Servicegroups found!");	
+      		_log(LH_LIB, B_LOG_INFO, "no Servicegroups found!");	
       	}
 	
 	

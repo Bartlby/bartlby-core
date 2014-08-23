@@ -243,7 +243,7 @@ int bartlby_notification_log_last_notification_state(struct shm_header * shmhdr,
 	for(x=0; x<NOTIFICATION_LOG_MAX; x++) {
 		if(shmhdr->notification_log[x].notification_valid != -1 && shmhdr->notification_log[x].service_id == svc_id && shmhdr->notification_log[x].worker_id == worker_id && shmhdr->notification_log[x].type == 0 && strcmp(shmhdr->notification_log[x].trigger_name, trigger_name) == 0) {
 			if(shmhdr->notification_log[x].time > max_ts) {
-				_log("FOUND x:%d WORKER_ID: %ld SERVICE_ID: %ld - state %d",x, shmhdr->notification_log[x].worker_id, shmhdr->notification_log[x].service_id, shmhdr->notification_log[x].state);
+				_log(LH_NOTIFYLOG, B_LOG_DEBUG,"FOUND x:%d WORKER_ID: %ld SERVICE_ID: %ld - state %d",x, shmhdr->notification_log[x].worker_id, shmhdr->notification_log[x].service_id, shmhdr->notification_log[x].state);
 				max_ts=shmhdr->notification_log[x].time;
 				max_state=shmhdr->notification_log[x].state;
 			}
@@ -265,7 +265,7 @@ void * bartlby_notification_log_set_hardcopy(struct shm_header * shmhdr, void * 
 
 
 	notification_log_size=sizeof(struct notification_log_entry)*NOTIFICATION_LOG_MAX;
-	_log("NOTIFICATION_LOG: SET HARDCOPY: %d", notification_log_size);
+	_log(LH_NOTIFYLOG, B_LOG_DEBUG,"NOTIFICATION_LOG: SET HARDCOPY: %d", notification_log_size);
 	memcpy(shmhdr->notification_log, hardcopy, notification_log_size);
 	free(hardcopy);
 	shmhdr->notification_log_current_top=notification_log_current_top;
@@ -286,7 +286,7 @@ void * bartlby_notification_log_get_hardcopy(struct shm_header * shmhdr) {
 
 
 	notification_log_size=sizeof(struct notification_log_entry)*NOTIFICATION_LOG_MAX;
-	_log("NOTIFICATION_LOG: GET HARDCOPY: %d", notification_log_size);
+	_log(LH_NOTIFYLOG, B_LOG_DEBUG,"NOTIFICATION_LOG: GET HARDCOPY: %d", notification_log_size);
 	return_hardcopy  = malloc(notification_log_size);
 	memcpy(return_hardcopy, shmhdr->notification_log, notification_log_size);
 
@@ -301,7 +301,7 @@ void bartlby_notification_log_finish(struct shm_header * shmhdr) {
 	for(x=0; x<NOTIFICATION_LOG_MAX; x++) {
 		shmhdr->notification_log[x].notification_valid=-1;
 	}
-	_log("Notification Log Finished!!");
+	_log(LH_NOTIFYLOG, B_LOG_DEBUG,"Notification Log Finished!!");
 
 }
 void bartlby_notification_log_init(struct shm_header * shmhdr) {
@@ -311,7 +311,7 @@ void bartlby_notification_log_init(struct shm_header * shmhdr) {
 	for(x=0; x<NOTIFICATION_LOG_MAX; x++) {
 		shmhdr->notification_log[x].notification_valid=-1;
 	}
-	_log("Initialized Empty Notification Log");
+	_log(LH_NOTIFYLOG, B_LOG_INFO,"Initialized Empty Notification Log");
 }
 
 void bartlby_notification_log_add(struct shm_header * shmhdr,char * cfgfile,  long worker_id, long service_id, int state, int type, int aggregation_interval, char * trigger_name) {
@@ -349,7 +349,7 @@ void bartlby_notification_log_add(struct shm_header * shmhdr,char * cfgfile,  lo
 	shmhdr->notification_log[x].time = time(NULL);
 	shmhdr->notification_log[x].type=type;
 	shmhdr->notification_log[x].aggregation_interval=aggregation_interval;
-	//bartlby_notification_log_debug(shmhdr);
+	//bartlby_notification_B_LOG_DEBUG(shmhdr);
 	
 
 	if(shmhdr->notification_log_current_top+1 == NOTIFICATION_LOG_MAX) {
@@ -593,10 +593,10 @@ void bartlby_notification_log_aggregate(struct shm_header *shmhdr, char * cfgfil
 						asprintf(&exec_str, "%s/%s \"%s\" \"%s\" \"%s\" \"%s\"", trigger_dir, t->trigger_name, wrkmap->mail,wrkmap->icq,wrkmap->name, notify_msg);
 
 
-						_log("@NOT-AGGREGATE@: %s for Worker '%s' Notifications original: %d - %s",t->trigger_name,  wrkmap->name, t->notification_count, notify_msg);
+						_log(LH_NOTIFYLOG, B_LOG_CRIT,"@NOT-AGGREGATE@: %s for Worker '%s' Notifications original: %d - %s",t->trigger_name,  wrkmap->name, t->notification_count, notify_msg);
 						
 						if(upstream_enabled == 1) {
-							_log("@AGG-UPSTREAM-NOT-USER@ - TRIGGER: %s  local_users: %d  to-standbys:%d cmdline `%s'", t->trigger_name,  1, 0, exec_str);
+							_log(LH_NOTIFYLOG, B_LOG_CRIT,"@AGG-UPSTREAM-NOT-USER@ - TRIGGER: %s  local_users: %d  to-standbys:%d cmdline `%s'", t->trigger_name,  1, 0, exec_str);
 							bartlby_trigger_upstream(cfgfile, 1, 0, t->trigger_name, exec_str, NULL);
 							free(exec_str);
 							t=t->next;
@@ -657,7 +657,7 @@ void bartlby_notification_log_aggregate(struct shm_header *shmhdr, char * cfgfil
 
 
 }
-void bartlby_notification_log_debug(struct shm_header * shmhdr) {
+void bartlby_notification_B_LOG_DEBUG(struct shm_header * shmhdr) {
 	//Print out a list
 	//Possible Loop:
 	int done=0;
@@ -665,7 +665,7 @@ void bartlby_notification_log_debug(struct shm_header * shmhdr) {
 	//First get current - to limit
 	for(x=0; x<NOTIFICATION_LOG_MAX; x++) {
 		if(shmhdr->notification_log[x].notification_valid >= 0) {
-			_log("NOTIFICATION_LOG[%d] / %d - %d", x, shmhdr->notification_log_current_top, time(NULL)-shmhdr->notification_log[x].time);
+			_log(LH_NOTIFYLOG, B_LOG_DEBUG,"NOTIFICATION_LOG[%d] / %d - %d", x, shmhdr->notification_log_current_top, time(NULL)-shmhdr->notification_log[x].time);
 		}					
 
 	}

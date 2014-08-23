@@ -211,7 +211,7 @@ void bartlby_encode(char * msg, int length) {
 	
 }
 
-int _log(const char * str,  ...) {
+int _log(int handle, int severity, const char * str,  ...) {
 //	printf("LOG: %s\n", str);
 	
 	
@@ -251,7 +251,7 @@ int _log(const char * str,  ...) {
 	if(strcmp(logfile, "/dev/stdout") == 0) {
 		printf("%02d.%02d.%02d %02d:%02d:%02d;[%d];", tmnow->tm_mday,tmnow->tm_mon + 1,tmnow->tm_year + 1900, tmnow->tm_hour, tmnow->tm_min, tmnow->tm_sec, getpid());
 		vprintf(str, argzeiger);
-		printf(";\n");
+		printf(";%d/%d\n",handle, severity);
 	} else {
 		fp=fopen(logfile, "a");   	
 		if(fp == NULL) {

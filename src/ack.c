@@ -38,7 +38,7 @@ void bartlby_check_sirene(char * configfile, void * bartlby_address) {
 	
 	cfg_sirene_wait=getConfigValue("sirene_interval", configfile);
 	if(cfg_sirene_wait == NULL) {
-		_log("'sirene_interval' not set defaulting to 600 seconds re-notify");
+		_log(LH_ACK, B_LOG_INFO,"'sirene_interval' not set defaulting to 600 seconds re-notify");
 		sirene_retry=600;
 	} else {
 		sirene_retry=atoi(cfg_sirene_wait);
@@ -58,7 +58,7 @@ void bartlby_check_sirene(char * configfile, void * bartlby_address) {
 	
 	svc.srv=malloc(sizeof(struct server));
 	if(svc.srv == NULL) {
-		_log("malloc failed in bartlby_check_sirene()");
+		_log(LH_ACK, B_LOG_CRIT,"malloc failed in bartlby_check_sirene()");
 		return;	
 	}
 	
@@ -72,7 +72,7 @@ void bartlby_check_sirene(char * configfile, void * bartlby_address) {
 	//svc.client_port=0;
 	svc.last_state=STATE_SIRENE;
 	
-	_log("!!! System is in sirene Mode !!!!");
+	_log(LH_PERF, B_LOG_CRIT,"!!! System is in sirene Mode !!!!");
 	bartlby_trigger(&svc,configfile, bartlby_address, 0, 0);
 	
 	

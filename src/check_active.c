@@ -147,7 +147,7 @@ void bartlby_check_active(struct service * svc, char * cfgfile) {
 		if(connection_timed_out == 1) {
 			sprintf(svc->new_server_text, "%s", TIMEOUT_ERROR);
 		} else if(sum_rmessage <= 0) {
-			_log("%d recv error() '%s'", return_bytes, rmessage);
+			_log(LH_CHECK, B_LOG_CRIT, "%d recv error() '%s'", return_bytes, rmessage);
 			sprintf(svc->new_server_text, "%s %d", RECV_ERROR, return_bytes);
 		} 
 		svc->current_state=STATE_CRITICAL;

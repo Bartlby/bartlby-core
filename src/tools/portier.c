@@ -161,7 +161,7 @@ int main(int argc, char ** argv) {
    		//syslog(LOG_ERR, "getpeername: %m");
    		exit(1);
    	} else {
-   		//syslog(LOG_INFO, "Connection from %s",	inet_ntoa(name.sin_addr));
+   		//syslog(B_LOG_INFO, "Connection from %s",	inet_ntoa(name.sin_addr));
    	}
    	 error = getnameinfo((struct sockaddr *)&name, namelen,
                     namebuf, sizeof(namebuf),
@@ -189,7 +189,7 @@ int main(int argc, char ** argv) {
 	shmtok = getConfigValue("shm_key", argv[0]);
 	
 	if(shmtok == NULL) {
-		_log("Unset variable `shm_key'");
+		_log(LH_PORTIER, B_LOG_CRIT,"Unset variable `shm_key'");
 		fflush(stdout);
 		exit(1);
 	}
@@ -442,7 +442,7 @@ int main(int argc, char ** argv) {
 									if(standby_workers_only == 1 && wrkmap[x].active != 2) continue;
 									wrkmap[x].escalation_time=time(NULL);
 									asprintf(&exec_str, "%s \"%s\" \"%s\" \"%s\" \"%s\" 2>&1", full_path, wrkmap[x].mail,wrkmap[x].icq,wrkmap[x].name, notify_msg);
-									_log("@NOT@%ld|%d|%d|%s|%s|UPSTREAMED - %s", local_svc.service_id, local_svc.notify_last_state ,local_svc.current_state,trigger_name,wrkmap[x].name, notify_msg);
+									_log(LH_PORTIER, B_LOG_CRIT, "@NOT@%ld|%d|%d|%s|%s|UPSTREAMED - %s", local_svc.service_id, local_svc.notify_last_state ,local_svc.current_state,trigger_name,wrkmap[x].name, notify_msg);
 
 									bartlby_notification_log_add(shm_hdr, argv[0], wrkmap[x].worker_id, local_svc.service_id, local_svc.current_state, standby_workers_only, wrkmap[x].notification_aggregation_interval,  trigger_name);
 									if(wrkmap[x].notification_aggregation_interval > 0) { // 3 == THE AGGREGATION MESSAGE ITSELF

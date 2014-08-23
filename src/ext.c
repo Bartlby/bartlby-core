@@ -78,7 +78,7 @@ void bartlby_ext_shutdown(int sched_exit_code) {
 		if(dl_objects[x].is_ok == EXTENSION_OK) {
 			mod_shutdown=dlsym(dl_objects[x].soHandle, "bartlby_extension_shutdown");
     			if((dlmsg=dlerror()) != NULL) {
-        			_log("%s skipping extension shutdown error: %s", dl_objects[x].dlname, dlmsg);
+        			_log(LH_EXT, B_LOG_CRIT,"%s skipping extension shutdown error: %s", dl_objects[x].dlname, dlmsg);
         			continue;
         		}
         		mod_shutdown(sched_exit_code);
@@ -101,12 +101,12 @@ void bartlby_ext_load(char * mod) {
 	char * (*gGetVersion)();
 	char * (*gGetName)();
 	
-	_log("Module: %s", mod);	
+	_log(LH_EXT, B_LOG_INFO,"Loading Module: %s", mod);	
 	
 	dl_objects[module_count].soHandle=dlopen(mod, RTLD_LAZY);
 		
     	if((dlmsg=dlerror()) != NULL) {
-        	_log("%s skipping extension Error: %s", mod, dlmsg);
+        	_log(LH_EXT, B_LOG_CRIT,"%s skipping extension Error: %s", mod, dlmsg);
         	return;
     	} else {
     		//CALL init function
@@ -116,12 +116,12 @@ void bartlby_ext_load(char * mod) {
     		gGetVersion=dlsym(dl_objects[module_count].soHandle, "GetVersion");
     		gGetName=dlsym(dl_objects[module_count].soHandle, "GetName");
     		if((dlmsg=dlerror()) != NULL) {
-    			_log("%s skipping extension Error: %s", mod, dlmsg);
+    			_log(LH_EXT, B_LOG_CRIT,"%s skipping extension Error: %s", mod, dlmsg);
         	return;
     		}
     		if(ExpectVersion() > EXPECTCORE || EXPECTCORE < ExpectVersion() || EXPECTCORE != ExpectVersion()) {
-    			_log("*****Version check failed Module(%s) is compiled for version '%ld' of %s requiring '%d'",mod, ExpectVersion(), PROGNAME, EXPECTCORE);	
-    			_log("Skipping module: %s", mod);
+    			_log(LH_EXT, B_LOG_CRIT,"*****Version check failed Module(%s) is compiled for version '%ld' of %s requiring '%d'",mod, ExpectVersion(), PROGNAME, EXPECTCORE);	
+    			_log(LH_EXT, B_LOG_CRIT,"Skipping module: %s", mod);
     			return;
     		}
     		
@@ -130,11 +130,11 @@ void bartlby_ext_load(char * mod) {
     		gGetVersionStr=gGetVersion();
     		gGetNameStr=gGetName();
     		
-    		_log("Extension (%s) by: '%s' Version: %s", gGetNameStr, gGetAutorStr, gGetVersionStr);
+    		_log(LH_EXT, B_LOG_INFO,"Extension (%s) by: '%s' Version: %s", gGetNameStr, gGetAutorStr, gGetVersionStr);
     		
     		free(gGetAutorStr);
-				free(gGetVersionStr);
-				free(gGetNameStr);
+			free(gGetVersionStr);
+			free(gGetNameStr);
     		
     		snprintf(dl_objects[module_count].dlname,1000, "%s", mod);
     		mod_startup=dlsym(dl_objects[module_count].soHandle, "bartlby_extension_startup");
@@ -142,18 +142,18 @@ void bartlby_ext_load(char * mod) {
     		
     		
     		if((dlmsg=dlerror()) != NULL) {
-        		_log("%s skipping extension Error: %s", mod, dlmsg);
+        		_log(LH_EXT, B_LOG_CRIT,"%s skipping extension Error: %s", mod, dlmsg);
         		return;
         	}
         	dlLoadOK=mod_startup(gSHMAddr, gDataLoader, gCFG);
         	if(dlLoadOK != EXTENSION_OK) {
-        		_log("%s skipping extension because of init error", mod);
+        		_log(LH_EXT, B_LOG_CRIT,"%s skipping extension because of init error", mod);
         		dlclose(dl_objects[module_count].soHandle);
         		return;	
         	}
         	dl_objects[module_count].dispatcher=dlsym(dl_objects[module_count].soHandle, "bartlby_extension_dispatcher");
     		if((dlmsg=dlerror()) != NULL) {
-        		_log("%s skipping extension Error: %s", mod, dlmsg);
+        		_log(LH_EXT, B_LOG_CRIT,"%s skipping extension Error: %s", mod, dlmsg);
         		return;
         	}
         	
@@ -178,7 +178,7 @@ void bartlby_ext_loadall(void) {
 	sext_count = getConfigValue("extension_count", gCFG);
 	if(sext_count != NULL) {
 		ext_count=atoi(sext_count);
-		_log("Loading extensions: %d", ext_count);
+		_log(LH_EXT, B_LOG_INFO,"Loading extensions: %d", ext_count);
 		for(x=1; x<=ext_count; x++) {
 			snprintf(find_str, 1023, "extension[%d]", x);
 			loadstr = getConfigValue(find_str, gCFG);
@@ -186,7 +186,7 @@ void bartlby_ext_loadall(void) {
 				bartlby_ext_load(loadstr);	
 				free(loadstr);	
 			} else {
-				_log("extension[%d] not defined...skipping", x);	
+				_log(LH_EXT, B_LOG_CRIT,"extension[%d] not defined...skipping", x);	
 			}
 			
 		}
@@ -194,7 +194,7 @@ void bartlby_ext_loadall(void) {
 		
 		free(sext_count);
 	} else {
-		_log("no EXTENSION will be loaded");	
+		_log(LH_EXT, B_LOG_INFO,"no EXTENSION will be loaded");	
 	}
 }
 

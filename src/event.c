@@ -41,7 +41,7 @@ void bartlby_event_init(void * bartlby_address) {
 		evs[x].evnt_time=time(NULL);
 		sprintf(evs[x].evnt_message, "(null)");
 	}
-	_log("Init event queue done %d messages available", x);
+	_log(LH_EVNT, B_LOG_INFO,"Init event queue done %d messages available", x);
 }
 
 int bartlby_push_event(int event_id, const char * str,  ...) {
