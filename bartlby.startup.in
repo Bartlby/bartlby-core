@@ -1,187 +1,157 @@
-#!/bin/bash
-#
-# poor man's bartlby startup script
-#
+#! /bin/bash
 
-
-BTL_DIR=${BARTLBY_HOME:-'@prefix@'}
-BIN_DIR="bin/"
-ETC_DIR="etc/"
+### BEGIN INIT INFO
+# Provides:          bartlby
+# Required-Start:    $local_fs $remote_fs $network
+# Required-Stop:     $local_fs $remote_fs $network
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Start Bartlby Monitoring Core
+# Description:       This Script starts the Bartlby-Core monitoring Process
+#                    
+### END INIT INFO
 
 ulimit -c 1000
 export MALLOC_CHECK_=2
 
 
+
+# Source function library
+. /lib/lsb/init-functions
+
+
+BARTLBY_HOME=@prefix@
+ETC_DIR="etc/"
+BIN_DIR="bin/"
+
+NAME=bartlby
+DESC="Bartlby-Core"
+PATH=/sbin:/bin:/usr/sbin:/usr/bin:$BARTLBY_HOME/bin/:$BARTLBY_HOME/sbin/
+DAEMON=$BARTLBY_HOME/bin/bartlby
+
+
+#PIDDIR=`getConfigValue "pidfile_dir"|tr -d [:cntrl:]`;
+PIDDIR=$BARTLBY_HOME/var/
+PIDFILE=$PIDDIR/bartlby.pid
+
+test -x $DAEMON || exit 0
+
+# Include varnish defaults if available
+if [ -f /etc/default/bartlby ] ; then
+        . /etc/default/bartlby
+fi
+
 function getConfigValue {
-	if [ ! -f $BTL_DIR/${ETC_DIR}bartlby.cfg ];
-	then
-		raiseErr "Config $BTL_DIR/${ETC_DIR}bartlby.cfg doesnt look like a file"  3
-		
-	fi;
-	
-	r=`cat $BTL_DIR/${ETC_DIR}bartlby.cfg |grep "^${1}"|awk -F"=" '{print \$2}'`
-	echo $r;
+    if [ ! -f $BARTLBY_HOME/${ETC_DIR}bartlby.cfg ];
+    then
+        log_failure_msg "Config $BARTLBY_HOME/${ETC_DIR}bartlby.cfg doesnt look like a file"  
+        log_end_msg 1
+        exit;
+    fi;
+    
+    r=`cat $BARTLBY_HOME/${ETC_DIR}bartlby.cfg |grep "^${1}"|awk -F"=" '{print \$2}'`
+    echo $r;
 
 }
 
 function bartlby_status {
-	if [ -f $1 ]; then
-		echo "PID file:                 [exists ]";
-	else
-		echo "PID file:                 [missing]";
-		exit;
-	fi;
-	OUTP=$(${BTL_DIR}/${BIN_DIR}bartlby_shmt $BTL_DIR/${ETC_DIR}bartlby.cfg status)
-	if [ $? = 2 ];
-	then
-		echo "Cannot find SHM segment, remove the pid file and starup bartlby again";
-	else
-		echo $OUTP|awk '{print "SHMID: " $1; print "Service # " $2; print "Worker # " $3; print "downtime # " $4; print "running: " $5}';
-		echo "run as $USER";
-	fi;
-	MYPID=$(cat $1);
-	if [ ! -f /proc/$MYPID/cmdline ];
-	then
-		echo ">>>>>>>> Found a pid file and a shm segment";
-		echo ">>>>>>>> but the processs doesnt look to run";
-		echo ">>>>>>>> Remove pidfile and './bartlby.startup remove'";
-	fi;
-	
+    OUTP=$(${BARTLBY_HOME}/${BIN_DIR}bartlby_shmt $BARTLBY_HOME/${ETC_DIR}bartlby.cfg status)
+    STATUS_EX=$?;
+    if [ $STATUS_EX = 2 ];
+    then
+        log_failure_msg "Cannot find SHM segment - bartlby does not seem to run";
+    else
+        status_of_proc -p "${PIDFILE}" "${DAEMON}" "${NAME}"
+        PROC_FOUND=$?; #0 == OK RUNNING
+        
+    fi;    
+    
+    
 }
 
 
-function remove_bartlby {
-	OUTP=$(${BTL_DIR}/${BIN_DIR}bartlby_shmt $BTL_DIR/${ETC_DIR}bartlby.cfg status)
-	SHMID=$(echo $OUTP|awk '{print $1}');
-	ipcrm shm $SHMID;
-	echo "Removed: $SHMID";
-	rm -f $1;
-}
 
-function start_bartlby  {
-	
-	OUTP=$(${BTL_DIR}/${BIN_DIR}bartlby_shmt $BTL_DIR/${ETC_DIR}bartlby.cfg status)
-	SEXCODE=$?;
-	
-	if [ -f $1 ]; then
-		if [ $SEXCODE = 2 ];
-		then
-			#SHM is broken or not here so well remove pid file
-			rm $1;
-		else	
-		
-			echo "PIDFILE: $1 exists (remove it and rerun start)";
-			echo "SHM found: $OUTP";
-			exit 3;
-		fi;
-	fi;
-	
-	echo "starting bartlby";
-	if [ $SEXCODE = 1 ];
-	then
-		echo "SHM already existing you should remove it";
-		echo "run ./bartlby.startup remove";
-		exit 2;
-	fi;
-	
-	LOGDIR=`getConfigValue "logfile"|tr -d [:cntrl:]`;
-	RUSER=`getConfigValue "user"|tr -d [:cntrl:]`;
-	#Check if LogPermission is OK
-	PRECMD="";
-	POSTCMD="";
-	
-	if [ "$USER" != "$RUSER" ];
-	then
-		su -c "${BTL_DIR}/${BIN_DIR}bartlby $BTL_DIR/${ETC_DIR}bartlby.cfg" - $RUSER
-	else
-		${BTL_DIR}/${BIN_DIR}bartlby $BTL_DIR/${ETC_DIR}bartlby.cfg
-	fi;
-	
-	
+DAEMON_OPTS=${DAEMON_OPTS:-$BARTLBY_HOME/${ETC_DIR}bartlby.cfg}
+case "$1" in
+    start)
+        RUSER=`getConfigValue "user"|tr -d [:cntrl:]`;
 
-}
-function reload_bartlby {
-        echo "reloading bartlby";
-        if [ ! -f $1 ];  then
-                if [ "${2}x" = "x" ];
+        output=$(/bin/tempfile -s.bartlby)
+        log_daemon_msg "Starting $DESC" 
+            
+        if start-stop-daemon \
+           --start --quiet --pidfile ${PIDFILE} -a ${DAEMON} -u $RUSER -- \
+                   ${DAEMON_OPTS} > ${output} 2>&1; then
+
+            log_end_msg 0
+        else
+            if [ $? = 1 ];
+            then
+                status="0"
+                pidofproc -p $PIDFILE  >/dev/null || status="$?"
+                
+                if [ $status = 1 ];
                 then
-                        echo "PIDFILE $1 does not exists";
-                        exit 4;
+                    #log_failure_msg " already running";
+                    log_failure_msg  "not Running but SHM Segment already exists run 'remove' or 'restart' "
+                else
+                    log_failure_msg " already running"
                 fi;
-        fi;
-        BART_PID=`cat $1`;
-        kill -USR2 $BART_PID
-
-}
-
-
-function stop_bartlby {
-	echo "stopping bartlby";
-	if [ ! -f $1 ];  then
-		if [ "${2}x" = "x" ];
-		then
-			echo "PIDFILE $1 does not exists";
-			exit 4;
-		fi;
-	fi;
-	BART_PID=`cat $1`;
-	kill -USR1 $BART_PID
-	
-}
-
-
-function raiseErr {
-	echo $1;
-	exit $2;
-}
-
-if [ ! -d $BTL_DIR ]; then
-	raiseErr "Dir $BTL_DIR does not exist" 2
-	
-fi;
-
-cd $BTL_DIR;
-PIDDIR=`getConfigValue "pidfile_dir"|tr -d [:cntrl:]`;
-
-PIDNAME=$PIDDIR/bartlby.pid
+            
+            fi;
+            
+        fi
+        rm $output
+        ;;
+    stop)
+        log_daemon_msg "Stopping $DESC"
+        
+        log_progress_msg $NAME
+        if start-stop-daemon \
+           --stop  --quiet --pidfile $PIDFILE --retry 10; then
+            log_end_msg 0
+        else
+            log_end_msg 1
+        fi
+            ;;
+    status)
+        bartlby_status;
+        ;;
+    remove)
+        log_daemon_msg "Removing Shared Memory Segment."
 
 
+        OUTP=$(${BARTLBY_HOME}/${BIN_DIR}bartlby_shmt $BARTLBY_HOME/${ETC_DIR}bartlby.cfg status)
+        SHMID=$(echo $OUTP|awk '{print $1}');
+            ipcrm shm $SHMID 2>&1 >> /dev/null;
+            rm -f $1 2>&1 >> /dev/null;
 
 
-case $1 in
-	start)
-		
-		start_bartlby $PIDNAME;;
-	startwithout)
-		start_bartlby $PIDNAME no;;
-	reload)
-		reload_bartlby $PIDNAME;;
-	stop)
-		
-		stop_bartlby $PIDNAME;;
-	restart)
-		stop_bartlby $PIDNAME;
-		sleep 5;
-		remove_bartlby $PIDNAME;
-		sleep 5;
-		start_bartlby $PIDNAME;;
-	restartwithout)
-		stop_bartlby $PIDNAME no;
-		sleep 5;
-		remove_bartlby $PIDNAME;
-		sleep 5;
-		start_bartlby $PIDNAME no;;	
-	status) 
-		bartlby_status $PIDNAME;;
-	remove)
-		remove_bartlby $PIDNAME;;
-	*)
-		echo "bartlby.startup [stop|start|restart|status]"
-		
+        log_progress_msg "removed"
+        log_end_msg 0
+        
+        
+        ;;
+    reload)
+        PIDT=$(cat $PIDFILE 2>/dev/null);
+        log_daemon_msg "Scheduling Reload"
+        echo kill -USR2 $PIDT 2>&1 >> /dev/null;
+        log_progress_msg "done"
+        log_end_msg 0
 
+    ;;
+    restart)
+        $0 stop
+        $0 remove
+        $0 start
+            ;;
+    *)
+            log_success_msg "Usage: $0 {start|stop|restart}"
+            exit 1
+        ;;
 esac
 
-
+exit 0;
 
 
 
