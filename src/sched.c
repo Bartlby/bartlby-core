@@ -899,7 +899,11 @@ void sched_run_check(struct service * svc, char * cfgfile, void * shm_addr, void
     int child_pid;
     struct sigaction sa;
      
-     
+    if(sched_mode == SCHED_MODE_PROFILE) {
+    	sched_do_now(svc, cfgfile, shm_addr, SOHandle); //do not fork or anything
+    	return;
+    }
+    
     if(sched_mode == SCHED_MODE_WORKER) {
     	gshm_hdr->worker_threads[worker_slot].svc=svc;
     	kill(gshm_hdr->worker_threads[worker_slot].pid, SIGCONT);
@@ -1159,6 +1163,9 @@ int schedule_loop(char * cfgfile, void * shm_addr, void * SOHandle) {
 		}
 		if(sched_mode == SCHED_MODE_FORK) {
 			_log(LH_SCHED, B_LOG_DEBUG,"using FORK MODE");
+		}
+		if(sched_mode == SCHED_MODE_PROFILE) {
+			_log(LH_SCHED, B_LOG_DEBUG, "using profile mode");
 		}
 
 	}
