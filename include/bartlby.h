@@ -59,7 +59,11 @@
 #define B_LOG_INFO 1
 #define B_LOG_WARN 2
 #define B_LOG_CRIT 3
+#define B_LOG_HASTO 4
 
+
+static char * log_handles[] = {"DEBUG", "TRIGGER", "SCHED", "CHECK", "MAIN", "SHM", "DAEMON", "PERF", "ACK", "EVNT", "EXT", "NOTIFYLOG", "LIB", "PORTIER", "MOD"};
+static char * log_levels[] = {"DEBUG", "INFO", "WARN", "CRIT", "HASTO"};
 
 /* DEBUGGING */
 
@@ -115,7 +119,7 @@
 
 
 #define PROGNAME "bartlby"
-#define REL_NAME_INT "fusion"
+#define REL_NAME_INT "Insomnia"
 #define REL_NAME REL_NAME_INT " - rev:" __GIT_VERSION
 //#define VERSION  "1.4.0"
 #define EXPECTCORE 1600004

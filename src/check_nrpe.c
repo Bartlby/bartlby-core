@@ -175,6 +175,13 @@ void bartlby_check_nrpe(struct service * svc, char * cfgfile, int use_ssl) {
 	conn_timedout=0;
 	alarm(svc->service_check_timeout);
 	result = bartlby_agent_tcp_connect(svc->srv->client_ip,svc->srv->client_port,&sd, svc);
+
+#ifdef HAVE_SSL
+	if(use_ssl == TRUE) {
+		SSL_CTX_free(ctx);		
+	}
+#endif
+
 	if(conn_timedout == 1) {
 		sprintf(svc->new_server_text, "%s", "timed out");
 		svc->current_state=STATE_CRITICAL;	
@@ -201,6 +208,10 @@ void bartlby_check_nrpe(struct service * svc, char * cfgfile, int use_ssl) {
 					
 					sprintf(svc->new_server_text, "%s", "timed out!!");
 					svc->current_state=STATE_CRITICAL;	
+
+					 SSL_shutdown(ssl);
+		        	 SSL_free(ssl);
+		        	 SSL_CTX_free(ctx);
 					return;
 				}
 				block_socket(sd);
@@ -210,14 +221,19 @@ void bartlby_check_nrpe(struct service * svc, char * cfgfile, int use_ssl) {
      	          if(rc !=1){
      	          	sprintf(svc->new_server_text, "%s", "CHECK_NRPE: Error - Could not complete SSL handshake.\n");
      	          	svc->current_state=STATE_CRITICAL;
-     	          	SSL_CTX_free(ctx);
+     	          	 SSL_shutdown(ssl);
+		        	 SSL_free(ssl);
+		        	 SSL_CTX_free(ctx);
                         	
      	          	return;
      	          }
 			} else {
 				sprintf(svc->new_server_text,"CHECK_NRPE: Error - Could not create SSL connection structure.\n"); 
 				svc->current_state=STATE_CRITICAL;
-				SSL_CTX_free(ctx);
+					SSL_shutdown(ssl);
+		        	SSL_free(ssl);
+		        	SSL_CTX_free(ctx);
+
                     close(sd);
                     return;
 			}
@@ -255,6 +271,9 @@ void bartlby_check_nrpe(struct service * svc, char * cfgfile, int use_ssl) {
 					_log(LH_CHECK, B_LOG_DEBUG,"timeout ok");
 					sprintf(svc->new_server_text, "%s", "timed out1");
 					svc->current_state=STATE_CRITICAL;	
+
+
+
 					return;
 			}
           }
@@ -268,6 +287,9 @@ void bartlby_check_nrpe(struct service * svc, char * cfgfile, int use_ssl) {
 					_log(LH_CHECK, B_LOG_DEBUG,"timeout ok");
 					sprintf(svc->new_server_text, "%s", "timed out2");
 					svc->current_state=STATE_CRITICAL;	
+					SSL_shutdown(ssl);
+		        	 SSL_free(ssl);
+		        	 SSL_CTX_free(ctx);
 					return;
 			}
                if(rc<0)
@@ -304,6 +326,9 @@ void bartlby_check_nrpe(struct service * svc, char * cfgfile, int use_ssl) {
 					_log(LH_CHECK, B_LOG_DEBUG,"timeout ok");
 					sprintf(svc->new_server_text, "%s", "timed out4");
 					svc->current_state=STATE_CRITICAL;	
+					SSL_shutdown(ssl);
+		        	 SSL_free(ssl);
+		        	 SSL_CTX_free(ctx);
 					return;
 			}
           }
@@ -858,6 +883,7 @@ static int block_socket(int soc)
 }    
 #endif  
 #endif
+
 
 
 

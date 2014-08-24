@@ -593,10 +593,10 @@ void bartlby_notification_log_aggregate(struct shm_header *shmhdr, char * cfgfil
 						asprintf(&exec_str, "%s/%s \"%s\" \"%s\" \"%s\" \"%s\"", trigger_dir, t->trigger_name, wrkmap->mail,wrkmap->icq,wrkmap->name, notify_msg);
 
 
-						_log(LH_NOTIFYLOG, B_LOG_CRIT,"@NOT-AGGREGATE@: %s for Worker '%s' Notifications original: %d - %s",t->trigger_name,  wrkmap->name, t->notification_count, notify_msg);
+						_log(LH_NOTIFYLOG, B_LOG_DEBUG,"@NOT-AGGREGATE@: %s for Worker '%s' Notifications original: %d - %s",t->trigger_name,  wrkmap->name, t->notification_count, notify_msg);
 						
 						if(upstream_enabled == 1) {
-							_log(LH_NOTIFYLOG, B_LOG_CRIT,"@AGG-UPSTREAM-NOT-USER@ - TRIGGER: %s  local_users: %d  to-standbys:%d cmdline `%s'", t->trigger_name,  1, 0, exec_str);
+							_log(LH_NOTIFYLOG, B_LOG_DEBUG,"@AGG-UPSTREAM-NOT-USER@ - TRIGGER: %s  local_users: %d  to-standbys:%d cmdline `%s'", t->trigger_name,  1, 0, exec_str);
 							bartlby_trigger_upstream(cfgfile, 1, 0, t->trigger_name, exec_str, NULL);
 							free(exec_str);
 							t=t->next;

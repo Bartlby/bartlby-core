@@ -110,6 +110,8 @@ void bartlby_check_v2(struct service * svc, char * cfgfile, int use_ssl) {
 				sprintf(svc->new_server_text, "%s", "AgentV2: Error - Could not complete SSL handshake.");
 					_log(LH_CHECK, B_LOG_CRIT,"SSL_error: %s", ERR_error_string(ERR_get_error(), NULL));
      		         		svc->current_state=STATE_CRITICAL;
+     		         		SSL_shutdown(ssl);
+							SSL_free(ssl);
      		         		SSL_CTX_free(ctx);
      		         		return;
 			}
@@ -117,6 +119,8 @@ void bartlby_check_v2(struct service * svc, char * cfgfile, int use_ssl) {
 			sprintf(svc->new_server_text,"AgentV2: Error - Could not create SSL connection structure."); 
 			svc->current_state=STATE_CRITICAL;
 			_log(LH_CHECK, B_LOG_CRIT,"%s", ERR_error_string(ERR_get_error(), NULL));
+			SSL_shutdown(ssl);
+			SSL_free(ssl);
 			SSL_CTX_free(ctx);
 			close(sd);
 			return;
