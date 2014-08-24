@@ -137,9 +137,9 @@ int bartlby_trigger_escalation(struct worker *w, struct service * svc, int stand
 	} else {
 		if(w->escalation_count > w->escalation_limit) {
 			if(node_id <= 0) {
-				_log(LH_TRIGGER, B_LOG_CRIT,"@NOT-EXT@%ld|%d|%d|%s||%s:%d/%s|'(escalation %d/%ld)'", svc->service_id, svc->last_state ,svc->current_state,w->name, svc->srv->server_name, svc->srv->client_port, svc->service_name,w->escalation_count, w->escalation_limit);
+				_log(LH_TRIGGER, B_LOG_DEBUG,"@NOT-EXT@%ld|%d|%d|%s||%s:%d/%s|'(escalation %d/%ld)'", svc->service_id, svc->last_state ,svc->current_state,w->name, svc->srv->server_name, svc->srv->client_port, svc->service_name,w->escalation_count, w->escalation_limit);
 			} else {
-				_log(LH_TRIGGER, B_LOG_CRIT,"@NOT-EXT@ UPSTREAM Escalation on worker");
+				_log(LH_TRIGGER, B_LOG_DEBUG,"@NOT-EXT@ UPSTREAM Escalation on worker");
 			}
 			return FL;
 		} else {
@@ -152,30 +152,30 @@ int bartlby_trigger_escalation(struct worker *w, struct service * svc, int stand
 int bartlby_trigger_chk(struct service *svc) {
 	
 	if(sched_servergroup_notify(svc->srv) == 0) {
-		_log(LH_TRIGGER, B_LOG_CRIT,"@NOT-EXT@%ld|%d|%d|||%s:%d/%s|'(Notifications disabled on this servergroup)'", svc->service_id, svc->last_state ,svc->current_state, svc->srv->server_name, svc->srv->client_port, svc->service_name);
+		_log(LH_TRIGGER, B_LOG_DEBUG,"@NOT-EXT@%ld|%d|%d|||%s:%d/%s|'(Notifications disabled on this servergroup)'", svc->service_id, svc->last_state ,svc->current_state, svc->srv->server_name, svc->srv->client_port, svc->service_name);
 		return FL;
 	}
 	if(sched_servicegroup_notify(svc) == 0) {
-		_log(LH_TRIGGER, B_LOG_CRIT,"@NOT-EXT@%ld|%d|%d|||%s:%d/%s|'(Notifications disabled on this servicegroup)'", svc->service_id, svc->last_state ,svc->current_state, svc->srv->server_name, svc->srv->client_port, svc->service_name);
+		_log(LH_TRIGGER, B_LOG_DEBUG,"@NOT-EXT@%ld|%d|%d|||%s:%d/%s|'(Notifications disabled on this servicegroup)'", svc->service_id, svc->last_state ,svc->current_state, svc->srv->server_name, svc->srv->client_port, svc->service_name);
 		return FL;
 	}
 	
 	
 	
 	if(svc->srv->server_notify == 0) {
-		_log(LH_TRIGGER, B_LOG_CRIT,"@NOT-EXT@%ld|%d|%d|||%s:%d/%s|'(Notifications disabled on this server)'", svc->service_id, svc->last_state ,svc->current_state, svc->srv->server_name, svc->srv->client_port, svc->service_name);
+		_log(LH_TRIGGER, B_LOG_DEBUG,"@NOT-EXT@%ld|%d|%d|||%s:%d/%s|'(Notifications disabled on this server)'", svc->service_id, svc->last_state ,svc->current_state, svc->srv->server_name, svc->srv->client_port, svc->service_name);
 		return FL;
 	}
 	if(svc->notify_enabled == 0) {
 		//_log("Suppressed notify: Notifications disabled %s:%d/%s",svc->client_ip, svc->srv->client_port, svc->service_name);
-		_log(LH_TRIGGER, B_LOG_CRIT,"@NOT-EXT@%ld|%d|%d|||%s:%d/%s|'(Notifications disabled)'", svc->service_id, svc->last_state ,svc->current_state, svc->srv->server_name, svc->srv->client_port, svc->service_name);
+		_log(LH_TRIGGER, B_LOG_DEBUG,"@NOT-EXT@%ld|%d|%d|||%s:%d/%s|'(Notifications disabled)'", svc->service_id, svc->last_state ,svc->current_state, svc->srv->server_name, svc->srv->client_port, svc->service_name);
 		return FL;
 	} else {
 		if((time(NULL) - svc->srv->last_notify_send) > svc->srv->server_flap_seconds) {
 			svc->srv->flap_count=0;	
 		} else {
 			if(svc->srv->flap_count > 2) {
-				_log(LH_TRIGGER, B_LOG_CRIT,"@NOT-EXT@%ld|%d|%d|||%s:%d/%s|'(Server lazy %ld)'", svc->service_id, svc->last_state ,svc->current_state, svc->srv->server_name, svc->srv->client_port, svc->service_name, svc->flap_count);
+				_log(LH_TRIGGER, B_LOG_DEBUG,"@NOT-EXT@%ld|%d|%d|||%s:%d/%s|'(Server lazy %ld)'", svc->service_id, svc->last_state ,svc->current_state, svc->srv->server_name, svc->srv->client_port, svc->service_name, svc->flap_count);
 				return FL;
 			} else {
 				svc->srv->flap_count++;	
@@ -188,7 +188,7 @@ int bartlby_trigger_chk(struct service *svc) {
 		} else {
 			
 			if(svc->flap_count > 2) {
-				_log(LH_TRIGGER, B_LOG_CRIT,"@NOT-EXT@%ld|%d|%d|||%s:%d/%s|'(Service flapping %ld)'", svc->service_id, svc->last_state ,svc->current_state, svc->srv->server_name, svc->srv->client_port, svc->service_name, svc->flap_count);
+				_log(LH_TRIGGER, B_LOG_DEBUG,"@NOT-EXT@%ld|%d|%d|||%s:%d/%s|'(Service flapping %ld)'", svc->service_id, svc->last_state ,svc->current_state, svc->srv->server_name, svc->srv->client_port, svc->service_name, svc->flap_count);
 				return FL;
 			} else {
 				//Log("trigger", "Service %s:%d/%s Sent", svc->client_ip, svc->srv->client_port, svc->service_name);	
@@ -582,6 +582,10 @@ void bartlby_trigger(struct service * svc, char * cfgfile, void * shm_addr, int 
 		
 		asprintf(&find_trigger, "|%s|" , entry->d_name);
 		asprintf(&full_path, "%s/%s", trigger_dir, entry->d_name);
+
+		
+
+
 		if(lstat(full_path, &finfo) < 0) {
 			free(find_trigger);
 			free(full_path);
@@ -665,7 +669,7 @@ void bartlby_trigger(struct service * svc, char * cfgfile, void * shm_addr, int 
 							asprintf(&exec_str, "%s \"%s\" \"%s\" \"%s\" \"%s\"", full_path, wrkmap[x].mail,wrkmap[x].icq,wrkmap[x].name, notify_msg);
 
 							//_log("EXEC trigger: %s", full_path);
-							_log(LH_TRIGGER, B_LOG_CRIT,"@NOT@%ld|%d|%d|%s|%s|%s:%d/%s (%d)", svc->service_id, svc->last_state ,svc->current_state,entry->d_name,wrkmap[x].name, svc->srv->server_name, svc->srv->client_port, svc->service_name, wrkmap[x].notification_aggregation_interval);
+							_log(LH_TRIGGER, B_LOG_HASTO,"@NOT@%ld|%d|%d|%s|%s|%s:%d/%s (%d)", svc->service_id, svc->last_state ,svc->current_state,entry->d_name,wrkmap[x].name, svc->srv->server_name, svc->srv->client_port, svc->service_name, wrkmap[x].notification_aggregation_interval);
 							
 
 							bartlby_notification_log_add(hdr, cfgfile, wrkmap[x].worker_id, svc->service_id, svc->current_state, standby_workers_only, wrkmap[x].notification_aggregation_interval,  entry->d_name);
@@ -677,7 +681,7 @@ void bartlby_trigger(struct service * svc, char * cfgfile, void * shm_addr, int 
 
 
 							if(upstream_enabled == 1 && upstream_has_local_users == 1) {
-								_log(LH_TRIGGER, B_LOG_CRIT,"@UPSTREAM-NOT-USER@ - TRIGGER: %s  local_users: %d  to-standbys:%d cmdline `%s'", entry->d_name,  upstream_has_local_users, standby_workers_only, exec_str);
+								_log(LH_TRIGGER, B_LOG_HASTO,"@UPSTREAM-NOT-USER@ - TRIGGER: %s  local_users: %d  to-standbys:%d cmdline `%s'", entry->d_name,  upstream_has_local_users, standby_workers_only, exec_str);
 								bartlby_trigger_upstream(cfgfile, upstream_has_local_users, standby_workers_only, entry->d_name, exec_str, svc);
 								free(exec_str);
 								continue;
@@ -696,14 +700,14 @@ void bartlby_trigger(struct service * svc, char * cfgfile, void * shm_addr, int 
 								alarm(CONN_TIMEOUT);
 								if(fgets(trigger_return, 1024, ptrigger) != NULL) {
 									trigger_return[strlen(trigger_return)-1]='\0';
-									_log(LH_TRIGGER, B_LOG_CRIT,"@NOT-EXT@%ld|%d|%d|%s|%s|%s:%d/%s|'%s'", svc->service_id, svc->last_state ,svc->current_state,entry->d_name,wrkmap[x].name, svc->srv->server_name, svc->srv->client_port, svc->service_name, trigger_return);
+									_log(LH_TRIGGER, B_LOG_DEBUG,"@NOT-EXT@%ld|%d|%d|%s|%s|%s:%d/%s|'%s'", svc->service_id, svc->last_state ,svc->current_state,entry->d_name,wrkmap[x].name, svc->srv->server_name, svc->srv->client_port, svc->service_name, trigger_return);
 									
       								} else {
-      									_log(LH_TRIGGER, B_LOG_CRIT,"@NOT-EXT@%ld|%d|%d|%s|%s|%s:%d/%s|'(empty output)'", svc->service_id, svc->last_state ,svc->current_state,entry->d_name,wrkmap[x].name, svc->srv->server_name, svc->srv->client_port, svc->service_name);
+      									_log(LH_TRIGGER, B_LOG_DEBUG,"@NOT-EXT@%ld|%d|%d|%s|%s|%s:%d/%s|'(empty output)'", svc->service_id, svc->last_state ,svc->current_state,entry->d_name,wrkmap[x].name, svc->srv->server_name, svc->srv->client_port, svc->service_name);
       								}
       								
       								if(connection_timed_out == 1) {
-      									_log(LH_TRIGGER, B_LOG_CRIT,"@NOT-EXT@%ld|%d|%d|%s|%s|%s:%d/%s|'(timed out)'", svc->service_id, svc->last_state ,svc->current_state,entry->d_name,wrkmap[x].name, svc->srv->server_name, svc->srv->client_port, svc->service_name);
+      									_log(LH_TRIGGER, B_LOG_DEBUG,"@NOT-EXT@%ld|%d|%d|%s|%s|%s:%d/%s|'(timed out)'", svc->service_id, svc->last_state ,svc->current_state,entry->d_name,wrkmap[x].name, svc->srv->server_name, svc->srv->client_port, svc->service_name);
       								}
       								connection_timed_out=0;
 								alarm(0);
@@ -711,7 +715,7 @@ void bartlby_trigger(struct service * svc, char * cfgfile, void * shm_addr, int 
       									pclose(ptrigger);
       								}
       							} else {
-      								_log(LH_TRIGGER, B_LOG_CRIT,"@NOT-EXT@%ld|%d|%d|%s|%s|%s:%d/%s|'(failed %s)'", svc->service_id, svc->last_state ,svc->current_state,entry->d_name,wrkmap[x].name, svc->srv->server_name, svc->srv->client_port, svc->service_name, full_path);	
+      								_log(LH_TRIGGER, B_LOG_DEBUG,"@NOT-EXT@%ld|%d|%d|%s|%s|%s:%d/%s|'(failed %s)'", svc->service_id, svc->last_state ,svc->current_state,entry->d_name,wrkmap[x].name, svc->srv->server_name, svc->srv->client_port, svc->service_name, full_path);	
       							}
 							free(exec_str);
 						} else {
@@ -729,6 +733,7 @@ void bartlby_trigger(struct service * svc, char * cfgfile, void * shm_addr, int 
 		free(find_trigger);
 	}
 	
+	free(trigger_dir);
 	free(find_str);
 	
 	

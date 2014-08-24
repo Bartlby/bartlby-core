@@ -49,7 +49,7 @@ int service_is_in_time(const char * time_plan) {
 	char * ttok;
 	time_t tnow;
 	struct tm *tmnow;
-	struct tm fromcheck, tocheck;       
+	struct tm fromcheck, tocheck = {0};       
 	int fromts, tots;
 	char in_or_out;
 	
@@ -95,6 +95,7 @@ int service_is_in_time(const char * time_plan) {
 					fromcheck.tm_mon = tmnow->tm_mon;
 					fromcheck.tm_year = tmnow->tm_year;
 					fromcheck.tm_wday = tmnow->tm_wday;
+					fromcheck.tm_isdst = -1;
 					fromts = mktime(&fromcheck);
 					
 					tocheck.tm_sec = 0;
@@ -104,6 +105,7 @@ int service_is_in_time(const char * time_plan) {
 					tocheck.tm_mon = tmnow->tm_mon;
 					tocheck.tm_year = tmnow->tm_year;
 					tocheck.tm_wday = tmnow->tm_wday;
+					tocheck.tm_isdst = -1;
 					tots = mktime(&tocheck);
 					
 					
@@ -214,7 +216,7 @@ void bartlby_encode(char * msg, int length) {
 int _log(int handle, int severity, const char * str,  ...) {
 //	printf("LOG: %s\n", str);
 	
-	
+	//if(severity != B_LOG_HASTO) return;
 	va_list argzeiger;
 	time_t tnow;
 	struct tm *tmnow;
@@ -249,9 +251,9 @@ int _log(int handle, int severity, const char * str,  ...) {
 	
  	va_start(argzeiger,str);
 	if(strcmp(logfile, "/dev/stdout") == 0) {
-		printf("%02d.%02d.%02d %02d:%02d:%02d;[%d];", tmnow->tm_mday,tmnow->tm_mon + 1,tmnow->tm_year + 1900, tmnow->tm_hour, tmnow->tm_min, tmnow->tm_sec, getpid());
-		vprintf(str, argzeiger);
-		printf(";%d/%d\n",handle, severity);
+		fprintf(stderr, "%02d.%02d.%02d %02d:%02d:%02d;[%d];", tmnow->tm_mday,tmnow->tm_mon + 1,tmnow->tm_year + 1900, tmnow->tm_hour, tmnow->tm_min, tmnow->tm_sec, getpid());
+		vfprintf(stderr, str, argzeiger);
+		fprintf(stderr, ";%s/%s\n",log_handles[handle], log_levels[severity]);
 	} else {
 		fp=fopen(logfile, "a");   	
 		if(fp == NULL) {
@@ -270,6 +272,53 @@ int _log(int handle, int severity, const char * str,  ...) {
    	free(logfile);
    	free(logfile_dd);
 	return 1;   
+}
+
+static char * _strrepl(const char *orig, const char *find, const char *replace)
+{
+    const char *loc;
+    char *newstr, *temp, *tempstr;
+    unsigned int olen, flen, rlen, i;
+
+    if (!orig || !find || !replace )
+        return NULL;  /* oops */
+
+    olen = strlen(orig);
+    flen = strlen(find);
+    rlen = strlen(replace);
+
+    temp = strstr(orig,find);
+    if (!temp)
+        return NULL;
+     /* count up any instances of the string we can find */
+    i = 0;
+    while (temp)
+    { /* advance past current instance and get a count */
+         temp += flen;
+         i++;
+         temp = strstr(temp,find);
+     }
+
+    /* allocate a buffer for the new string */
+    newstr = (char *) malloc((olen + ((rlen - flen) * i) + 1) * sizeof(char));
+    tempstr = newstr;
+    loc = orig;
+
+    while((temp = strstr(loc,find))!=NULL)
+    { /* copy pieces into the new buffer */
+        memcpy(tempstr,loc,(int)(temp - loc));
+        tempstr += (int)(temp - loc);
+
+        memcpy(tempstr,replace,rlen);
+        tempstr += rlen;
+
+       loc = temp + flen;
+    }
+
+    strcpy(tempstr,loc);  /* copy the last piece */
+
+
+    return newstr;
 }
 
 
@@ -534,4 +583,5 @@ int bartlby_agent_tcp_my_connect(char *host_name,int port,int *sd,char *proto, s
 
 	return STATE_OK;
 }
+
 

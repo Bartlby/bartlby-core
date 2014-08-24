@@ -215,7 +215,7 @@ void sched_kill_runaaway(void * shm_addr, struct service *  svc, char * cfg, voi
 	} else {
 		
 		
-		_log(LH_SCHED, B_LOG_CRIT, "@KILL@%ld|%d|%s:%d/%s|Killing process with pid: %d", svc->service_id, svc->current_state, svc->srv->server_name, svc->srv->client_port, svc->service_name, svc->process.pid);
+		_log(LH_SCHED, B_LOG_DEBUG, "@KILL@%ld|%d|%s:%d/%s|Killing process with pid: %d", svc->service_id, svc->current_state, svc->srv->server_name, svc->srv->client_port, svc->service_name, svc->process.pid);
 	}
 		
 	//service timed out

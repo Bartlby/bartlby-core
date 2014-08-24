@@ -252,7 +252,8 @@ int bartlby_action_handle_reply_line(struct service * svc, char * line, char * c
      if(return_token != NULL) {
       	//Verfiy result code to be 0-2 :-) 
       	if(return_token[0] != '0' && return_token[0] != '1' && return_token[0] != '2' && return_token[0] != '4' && return_token[0] != '3') {
-       		svc->current_state=STATE_UNKOWN;	
+       		svc->current_state=STATE_UNKOWN;
+       		free(line_dup);	
        		return 0;
        	} else {
        		svc->current_state=atoi(return_token);
@@ -277,7 +278,7 @@ int bartlby_action_handle_reply_line(struct service * svc, char * line, char * c
         free(line_dup);
         return 1;
        } else {
-       	
+       	free(line_dup);
        	sprintf(svc->new_server_text, PROTOCOL_ERROR);
        	svc->current_state=STATE_CRITICAL;
      	return 1;
