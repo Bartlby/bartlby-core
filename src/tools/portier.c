@@ -323,7 +323,9 @@ int main(int argc, char ** argv) {
 	char * shmtok;
 	int shm_id;
 	void * bartlby_address;
-	
+
+	char * token;
+	int error;
 
 	//buffers:
 	char textbuffer1[2048],textbuffer2[2048],textbuffer3[2048];
@@ -331,7 +333,7 @@ int main(int argc, char ** argv) {
 	int intbuffer1, intbuffer2, intbuffer3,intbuffer4,intbuffer5,intbuffer6,intbuffer7;
 
 	
-#define CMD_L_D
+//#define CMD_L_D
 
 #ifndef CMD_L_D
 	#define ARGV_IDX 0
