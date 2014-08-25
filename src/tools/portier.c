@@ -26,6 +26,13 @@ $Author$
 static int connection_timed_out=0;
 extern char config_file[255];
 
+
+static struct shm_header * shm_hdr;
+static struct service * svcmap;
+static struct server * srvmap;
+static struct worker * wrkmap;
+
+
 #define CMD_PASSIVE 1
 #define CMD_GET_PLG 2
 #define CMD_REPL 3
@@ -39,123 +46,303 @@ extern char config_file[255];
 #define FL 0
 #define TR 1
 
-ssize_t	readn(int fd, void *vptr, size_t n)
-{
-	size_t	nleft;
-	ssize_t	nread;
-	char	*ptr;
+#define PORTIER_CLEANUP shmdt(bartlby_address);
+						
 
-	ptr = vptr;
-	nleft = n;
-	while (nleft > 0) {
-		if ( (nread = read(fd, ptr, nleft)) < 0) {
-			if (errno == EINTR)
-				nread = 0;		/* and call read() again */
-			else
-				return(-1);
-		} else if (nread == 0)
-			break;				/* EOF */
 
-		nleft -= nread;
-		ptr   += nread;
+//function defs
+void bartlby_portier_submit_passive_result(long service_id, int status, char * message);
+void bartlby_portier_find_server_id(char * server_name);
+void bartlby_portier_find_services(long server_id);
+void bartlby_portier_get_plugin_info(long service_id);
+void bartlby_portier_exec_trigger(char * cfgfile, int standby_workers_only, char * execline, char * trigger_name, int service_id, int server_id, int notify_last_state, int current_state, int recovery_outstanding, int node_id, char * passwd);
+void bartlby_portier_exec_trigger_line(char * cfgfile, int standby_workers_only, char * execline, char * trigger_name, int service_id, int server_id, int notify_last_state, int current_state, int recovery_outstanding, int node_id, char * passwd);
+
+
+
+
+
+
+
+void bartlby_portier_exec_trigger_line(char * cfgfile, int standby_workers_only, char * execline, char * trigger_name, int service_id, int server_id, int notify_last_state, int current_state, int recovery_outstanding, int node_id, char * passwd) {
+
+	char * portier_passwd;
+	char * exec_str;
+	int x;
+	FILE * ptrigger;
+	char trigger_return[1024];
+
+	portier_passwd=getConfigValue("portier_password", cfgfile);
+	if(portier_passwd == NULL) {
+		printf("-2222 portier_passwd unset");
+		return;
 	}
-	return(n - nleft);		/* return >= 0 */
-}
-/* end readn */
 
-ssize_t Readn(int fd, void *ptr, size_t nbytes)
-{
-	ssize_t		n;
+	if(portier_passwd != NULL && strcmp(passwd, portier_passwd) == 0) {
+		ptrigger=popen(exec_str, "r");
+		if(ptrigger != NULL) {
+			connection_timed_out=0;
+			alarm(CONN_TIMEOUT);
+			if(fgets(trigger_return, 1024, ptrigger) != NULL) {
+				trigger_return[strlen(trigger_return)-1]='\0';
+				connection_timed_out=0;
+				alarm(0);
+			}
+			if(ptrigger != NULL) {
+				pclose(ptrigger);
+			}
+			      						
+		} 
+			      						
+		printf("+ EXECTRIGGERCMD: '%s' returned: %s", exec_str, trigger_return);
+	} else {
+		printf("- AUTH FAILED");
+	}
+	free(portier_passwd);
+	return;
 
-	if ( (n = readn(fd, ptr, nbytes)) < 0)
-		return -1;
-		
-	return(n);
+
 }
+
+void bartlby_portier_exec_trigger(char * cfgfile, int standby_workers_only, char * execline, char * trigger_name, int service_id, int server_id, int notify_last_state, int current_state, int recovery_outstanding, int node_id, char * passwd) {
+
+	struct service local_svc;
+	int trigger_fine = 0;
+	char * portier_passwd;
+	char * find_trigger, * full_path, * trigger_dir;
+	struct stat finfo;
+	char * base_dir, *exec_str;
+	int x;
+	FILE * ptrigger;
+	char trigger_return[1024];
+
+	portier_passwd=getConfigValue("portier_password", cfgfile);
+	if(portier_passwd == NULL) {
+		printf("-2222 portier_passwd unset");
+		return;
+	}
+
+
+	local_svc.server_id=server_id;
+	local_svc.service_id=service_id;
+	local_svc.notify_last_state=notify_last_state;
+	local_svc.recovery_outstanding=recovery_outstanding;
+	local_svc.current_state=current_state;
+	
+	if(node_id != 0 && portier_passwd != NULL && strcmp(passwd, portier_passwd) == 0) {
+		trigger_fine=1;	
+	}
+	free(portier_passwd);
+
+	if(trigger_fine != 1) {
+		printf("-1 PARAM ERROR");
+		return;
+	}
+
+	trigger_dir=getConfigValue("trigger_dir", cfgfile);
+	if(trigger_dir == NULL) {
+			printf("TRIGGER DIR UNSET IN CFG");
+			return;
+	}
+	asprintf(&find_trigger, "|%s|" , trigger_name);
+	asprintf(&full_path, "%s/%s", trigger_dir, trigger_name);
+	if(lstat(full_path, &finfo) < 0) {
+		printf("STAT FAILED '%s'", full_path);
+		free(find_trigger);
+		free(full_path);
+		return;
+	}
+	base_dir = getConfigValue("basedir", cfgfile);
+	if(base_dir == NULL) {
+		base_dir=strdup("/");
+	}
+	if(setenv("BARTLBY_HOME", base_dir,1) == 0) {
+	}
+				
+	for(x=0; x<shm_hdr->wrkcount; x++) {
+		if(service_is_in_time(wrkmap[x].notify_plan) > 0) {
+			if(bartlby_worker_has_service(&wrkmap[x], &local_svc, cfgfile, node_id) != 0 ) {
+				if(strstr(wrkmap[x].enabled_triggers, find_trigger) != NULL || strlen(wrkmap[x].enabled_triggers) == 0) {
+					if((bartlby_trigger_escalation(&wrkmap[x], &local_svc, standby_workers_only, node_id)) == FL) continue;
+					if((bartlby_trigger_worker_level(&wrkmap[x], &local_svc, node_id)) == FL) continue;
+					
+					/* if standby escalation message check if worker is in standby mode either skip him/her*/
+					if(standby_workers_only == 1 && wrkmap[x].active != 2) continue;
+					//FIXME
+						wrkmap[x].escalation_time=time(NULL);
+						asprintf(&exec_str, "%s \"%s\" \"%s\" \"%s\" \"%s\" 2>&1", full_path, wrkmap[x].mail,wrkmap[x].icq,wrkmap[x].name, execline);
+						_log(LH_PORTIER, B_LOG_HASTO, "@NOT@%ld|%d|%d|%s|%s|UPSTREAMED - %s", local_svc.service_id, local_svc.notify_last_state ,local_svc.current_state,trigger_name,wrkmap[x].name, execline);
+						bartlby_notification_log_add(shm_hdr, cfgfile, wrkmap[x].worker_id, local_svc.service_id, local_svc.current_state, standby_workers_only, wrkmap[x].notification_aggregation_interval,  trigger_name);
+						if(wrkmap[x].notification_aggregation_interval > 0) { // 3 == THE AGGREGATION MESSAGE ITSELF
+							//As we aggregate the notifications - skip the execution of the trigger
+							free(exec_str);
+							continue;
+						}
+
+						ptrigger=popen(exec_str, "r");
+						if(ptrigger != NULL) {
+							connection_timed_out=0;
+							alarm(CONN_TIMEOUT);
+							if(fgets(trigger_return, 1024, ptrigger) != NULL) {
+								trigger_return[strlen(trigger_return)-1]='\0';
+   								connection_timed_out=0;
+								alarm(0);
+							}
+							if(ptrigger != NULL) {
+								pclose(ptrigger);
+							}
+	    						
+						} 
+		      						
+						free(exec_str);
+								
+								
+					} 
+				}
+		}
+	}
+	free(base_dir);
+	free(find_trigger);	
+	printf("+CALLTRIGGER LOCAL: '%s'  return: '%s'\n", trigger_name, trigger_return);
+			
+
+
+
+	
+
+
+}
+void bartlby_portier_get_plugin_info(long service_id) {
+	int svc_found=0;
+	int x;
+
+	for(x=0; x<shm_hdr->svccount; x++) {
+		if(svcmap[x].service_id == service_id) {
+			svc_found = 1;
+			break;
+		}
+	}
+	if(svc_found == 1) {
+		if(svcmap[x].service_type == SVC_TYPE_PASSIVE) {
+			printf("+PLG|%s %s|\n", svcmap[x].plugin,svcmap[x].plugin_arguments);
+		} else {
+			printf("-3 Service is not of type 'PASSIVE'");	
+		}
+	} else {
+		printf("-4 Service not found\n");	
+	}
+}
+
+
+void bartlby_portier_find_services(long server_id) {
+	int x;
+	
+	for(x=0; x<shm_hdr->svccount; x++) {
+		if(svcmap[x].server_id == server_id && svcmap[x].service_type == SVC_TYPE_PASSIVE && svcmap[x].service_passive_timeout > 0) {
+			if(service_is_in_time(svcmap[x].service_exec_plan)) {
+				printf("%ld", svcmap[x].service_id);
+				printf(" ");	
+			}
+		}
+	}
+	printf("\n");
+	fflush(stdout);
+}
+void bartlby_portier_find_server_id(char * server_name) {
+	int x;
+	int found=0;
+	for(x=0; x<shm_hdr->svccount; x++) {
+		if(strcmp(srvmap[svcmap[x].srv_place].server_name, server_name) == 0) {
+			found=1;
+			printf("%ld\n", svcmap[x].server_id);
+			break;
+					
+		}
+	}
+	if(found == 0) {
+		printf("-1 server name not found");
+	}
+
+}
+void bartlby_portier_submit_passive_result(long service_id, int status, char * message) {
+	
+	int svc_found, x;
+	char * passive_beauty;
+	
+	svc_found=0;
+	for(x=0; x<shm_hdr->svccount; x++) {
+		if(svcmap[x].service_id == service_id) {
+			svc_found = 1;
+			break;
+		}
+	}
+	if(svc_found == 1) {
+		if(svcmap[x].service_type == SVC_TYPE_PASSIVE) {
+			svcmap[x].last_state=svcmap[x].current_state;
+			svcmap[x].current_state=status;
+			sprintf(svcmap[x].new_server_text, "%s", message);
+			svcmap[x].last_check=time(NULL);
+			passive_beauty=bartlby_beauty_state(svcmap[x].current_state);
+			printf("+PASSIVOK (%d) %ld : %s (%s)\n", x, svcmap[x].service_id, passive_beauty, svcmap[x].new_server_text);
+			free(passive_beauty);
+			return;
+		} else {
+			printf("-3 Service is not of type 'PASSIVE'");	
+			return;
+		}
+	} else {
+		printf("-4 Service not found\n");	
+		return;
+	}
+
+
+	
+}
+
+
+
 
 static void agent_conn_timeout(int signo) {
  	connection_timed_out = 1;
 }
 int main(int argc, char ** argv) {
 	struct sigaction act1, oact1;
-	char svc_in[2048];
-	char svc_out[2048];
-	char * in_server_name;
+	
+	char inputbuffer[2048];
+	
 	
 	char * allowed_ip_list;
 	int ip_ok=-1;
 	struct sockaddr_storage name;
    	unsigned int namelen = sizeof(name);
 	
-	char * token;
-	
-	
-	int command;
-	int svc_found=0;
-	
-	int error;
 	char namebuf[50];
 	char portbuf[50];
 	
-	
-	
-	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	int passive_svcid;
-	int standby_workers_only;
-	int passive_serverid;
-	int passive_state;
-	char passive_text[2048];
-	char * passive_beauty;
-	
-	char * trigger_name;
-	char * notify_msg;
-	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	
-	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	//SHM
+		
 	char * shmtok;
 	int shm_id;
-	//int * shm_elements;
 	void * bartlby_address;
 	
-	int x;
-	
-	
-	struct shm_header * shm_hdr;
-	struct service * svcmap;
-	struct server * srvmap;
-	struct worker * wrkmap;
-	char * find_trigger;
-	char * exec_str;
-	char * full_path;
-	FILE * ptrigger;
-	char trigger_return[1024];
 
-	char * trigger_dir;
-	struct stat finfo;	
+	//buffers:
+	char textbuffer1[2048],textbuffer2[2048],textbuffer3[2048];
+	long longbuffer1, longbuffer2;
+	int intbuffer1, intbuffer2, intbuffer3,intbuffer4,intbuffer5,intbuffer6,intbuffer7;
 
-	int service_id;
-	int server_id;
-	int notify_last_state;
-	int current_state;
-	int recovery_outstanding;
-	int node_id;
-	int trigger_fine;
-	char * base_dir;
-	char * portier_passwd;
-	char * in_passwd;
-	struct service local_svc;
 	
-	set_cfg(argv[0]);
+#define CMD_L_D
 
-	allowed_ip_list=getConfigValue("allowed_ips", argv[0]);
+#ifndef CMD_L_D
+	#define ARGV_IDX 0
+	set_cfg(argv[ARGV_IDX]);
+	allowed_ip_list=getConfigValue("allowed_ips", argv[ARGV_IDX]);
 	if(allowed_ip_list == NULL) {
         	printf("-No Ip Allowed");
         	exit(1);
         	
         }
-	portier_passwd=getConfigValue("portier_password", argv[0]);
-	token=strtok(allowed_ip_list,",");
+		token=strtok(allowed_ip_list,",");
         
         if (getpeername(0,(struct sockaddr *)&name, &namelen) < 0) {
    		//syslog(LOG_ERR, "getpeername: %m");
@@ -185,8 +372,11 @@ int main(int argc, char ** argv) {
         	printf("-IP Blocked %s\n", namebuf);
 		exit(1);
         }	
+#else
+#define ARGV_IDX 1        
+#endif
 	
-	shmtok = getConfigValue("shm_key", argv[0]);
+	shmtok = getConfigValue("shm_key", argv[ARGV_IDX]);
 	
 	if(shmtok == NULL) {
 		_log(LH_PORTIER, B_LOG_CRIT,"Unset variable `shm_key'");
@@ -205,6 +395,7 @@ int main(int argc, char ** argv) {
 
 		printf("+SVCC: %ld WRKC: %ld V: %s\n", shm_hdr->svccount, shm_hdr->wrkcount, shm_hdr->version);
 		fflush(stdout);
+		free(shmtok);
 		
 	} else {
 		printf("-1 Bartlby down!!!\n");	
@@ -215,10 +406,7 @@ int main(int argc, char ** argv) {
 	
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	
-	if(argc == 0) {
-		printf("CONFIG FILE MISSING\n");
-		exit(1);	
-	}
+	
 	act1.sa_handler = agent_conn_timeout;
 	sigemptyset(&act1.sa_mask);
 	act1.sa_flags=0;
@@ -237,7 +425,7 @@ int main(int argc, char ** argv) {
 	connection_timed_out=0;
 	alarm(CONN_TIMEOUT);
 	//ipmlg]ajgai]Amoowlkecvg~"/j"nmacnjmqv~
-	if(read(fileno(stdin), svc_in, 2000) < 0) {
+	if(read(fileno(stdin), inputbuffer, 2000) < 0) {
 		printf("-2 read-error on portier side\n");
 		exit(1);
 	}
@@ -247,359 +435,53 @@ int main(int argc, char ** argv) {
 		printf("Timed out!!!\n");
 		exit(1);	
 	}
-	passive_svcid=-1;
-	passive_state=-1;
-	sprintf(passive_text, "failed");
-	sprintf(svc_out, "-20");
-	token=strtok(svc_in, "|");
-	if(token != NULL) {
-		command=atoi(token);
-		switch(command) {
-			
-			case CMD_GET_PLG:
-				token=strtok(NULL, "|");
-				if(token != NULL) {
-					passive_svcid=atoi(token);
-					
-					svc_found=0;
-					for(x=0; x<shm_hdr->svccount; x++) {
-						
-						if(svcmap[x].service_id == passive_svcid) {
-							svc_found = 1;
-							break;
-						}
-					}
-					if(svc_found == 1) {
-						//1|413395|2|dasdsadsadsadas|
-						if(svcmap[x].service_type == SVC_TYPE_PASSIVE) {
-							
-							sprintf(svc_out, "+PLG|%s %s|\n", svcmap[x].plugin,svcmap[x].plugin_arguments);
-							
-						} else {
-							sprintf(svc_out, "-3 Service is not of type 'PASSIVE'");	
-						}
-					} else {
-						sprintf(svc_out, "-4 Service not found\n");	
-					}
-					
-					
-					
-				} else {
-					sprintf(svc_out, "-5 SVCID missing\n");	
-					
-				}
-			break;
-			case CMD_EXEC_TRIGGER_LINE:
-				//second is "standbys"
-				//third is cmd line
-				token=strtok(NULL, "|");
-				if(token != NULL) {
-					passive_svcid=atoi(token); //TO_STANDBYS
-					token=strtok(NULL, "|");
-					if(token != NULL) {
-
-						exec_str=token;
-						//SKip a few
-						
-						token=strtok(NULL, "|");
-						token=strtok(NULL, "|");
-						token=strtok(NULL, "|");
-						token=strtok(NULL, "|");
-						token=strtok(NULL, "|");
-						token=strtok(NULL, "|");
-						token=strtok(NULL, "|");
-						token=strtok(NULL, "|");
-						
-						if(token != NULL) {
-							in_passwd=token;
-							if(portier_passwd != NULL && strcmp(in_passwd, portier_passwd) == 0) {
-									
-							
-
-
-
-								ptrigger=popen(exec_str, "r");
-								if(ptrigger != NULL) {
-									connection_timed_out=0;
-									alarm(CONN_TIMEOUT);
-									if(fgets(trigger_return, 1024, ptrigger) != NULL) {
-										trigger_return[strlen(trigger_return)-1]='\0';
-			      						connection_timed_out=0;
-										alarm(0);
-									}
-									if(ptrigger != NULL) {
-			      						pclose(ptrigger);
-			      					}
-			      						
-			      				} 
-			      						
-								sprintf(svc_out, "+ EXECTRIGGERCMD: '%s' returned: %s", exec_str, trigger_return);
-							} else {
-								sprintf(svc_out, "- AUTH FAILED");
-							}
-						}
-							//FIXME POPEN
-
-					}
-				}
-
-
-			break;
-			case CMD_EXEC_TRIGGER:
-				//second is "standbys"
-				//third is cmd line
-				
-
-				trigger_fine=-1;
-				token=strtok(NULL, "|");
-				if(token != NULL) {
-					standby_workers_only=atoi(token); //TO_STANDBYS
-					token=strtok(NULL, "|");
-					if(token != NULL) {
-						notify_msg = token;
-						token=strtok(NULL, "|");
-						if(token != NULL) {
-							trigger_name=token;
-							token=strtok(NULL, "|");
-							if(token != NULL) {
-								service_id=atoi(token);
-								token=strtok(NULL, "|");
-								if(token != NULL) {
-									server_id=atoi(token);
-									token=strtok(NULL, "|");
-									if(token != NULL) {
-										notify_last_state=atoi(token);
-										token=strtok(NULL, "|");
-										if(token != NULL) {
-											current_state=atoi(token);
-											token=strtok(NULL, "|");
-											if(token != NULL) {
-												recovery_outstanding=atoi(token);
-												token=strtok(NULL, "|");
-												if(token != NULL) {
-													node_id=atoi(token);
-													token=strtok(NULL, "|");
-													if(token != NULL) {
-														in_passwd=token;
-														local_svc.server_id=server_id;
-														local_svc.service_id=service_id;
-														local_svc.notify_last_state=notify_last_state;
-														local_svc.recovery_outstanding=recovery_outstanding;
-														local_svc.current_state=current_state;
-														
-														if(node_id != 0 && portier_passwd != NULL && strcmp(in_passwd, portier_passwd) == 0) {
-															trigger_fine=1;	
-														}
-														
-													}
-													
-												}
-											}
-										}
-									}
-
-								}
-							}
-
-						}
-
-
-					}
-				}
-				//MAKE A SERVICE WITH:
-				if(trigger_fine > 0) {
-					trigger_dir=getConfigValue("trigger_dir", argv[0]);
-					if(trigger_dir == NULL) {
-						exit(4);
-					}
-					asprintf(&find_trigger, "|%s|" , trigger_name);
-					asprintf(&full_path, "%s/%s", trigger_dir, trigger_name);
-					if(lstat(full_path, &finfo) < 0) {
-						printf("STAT FAILED '%s'", full_path);
-						free(find_trigger);
-						free(full_path);
-						exit(4);
-					}
-					base_dir = getConfigValue("basedir", argv[0]);
-					
-					if(base_dir == NULL) {
-						base_dir=strdup("/");
-					}
-					if(setenv("BARTLBY_HOME", base_dir,1) == 0) {
-						//CH
-					}
-				
-					for(x=0; x<shm_hdr->wrkcount; x++) {
-						if(service_is_in_time(wrkmap[x].notify_plan) > 0) {
-							if(bartlby_worker_has_service(&wrkmap[x], &local_svc, argv[0], node_id) != 0 ) {
-								if(strstr(wrkmap[x].enabled_triggers, find_trigger) != NULL || strlen(wrkmap[x].enabled_triggers) == 0) {
-									
-									
-									if((bartlby_trigger_escalation(&wrkmap[x], &local_svc, standby_workers_only, node_id)) == FL) continue;
-									if((bartlby_trigger_worker_level(&wrkmap[x], &local_svc, node_id)) == FL) continue;
-										
-									/* if standby escalation message check if worker is in standby mode either skip him/her*/
-									if(standby_workers_only == 1 && wrkmap[x].active != 2) continue;
-									wrkmap[x].escalation_time=time(NULL);
-									asprintf(&exec_str, "%s \"%s\" \"%s\" \"%s\" \"%s\" 2>&1", full_path, wrkmap[x].mail,wrkmap[x].icq,wrkmap[x].name, notify_msg);
-									_log(LH_PORTIER, B_LOG_HASTO, "@NOT@%ld|%d|%d|%s|%s|UPSTREAMED - %s", local_svc.service_id, local_svc.notify_last_state ,local_svc.current_state,trigger_name,wrkmap[x].name, notify_msg);
-
-									bartlby_notification_log_add(shm_hdr, argv[0], wrkmap[x].worker_id, local_svc.service_id, local_svc.current_state, standby_workers_only, wrkmap[x].notification_aggregation_interval,  trigger_name);
-									if(wrkmap[x].notification_aggregation_interval > 0) { // 3 == THE AGGREGATION MESSAGE ITSELF
-										//As we aggregate the notifications - skip the execution of the trigger
-										free(exec_str);
-										continue;
-									}
-
-
-									ptrigger=popen(exec_str, "r");
-									if(ptrigger != NULL) {
-										connection_timed_out=0;
-										alarm(CONN_TIMEOUT);
-										if(fgets(trigger_return, 1024, ptrigger) != NULL) {
-											trigger_return[strlen(trigger_return)-1]='\0';
-		      								connection_timed_out=0;
-											alarm(0);
-										}
-										if(ptrigger != NULL) {
-		      									pclose(ptrigger);
-		      							}
-		      						
-		      						} 
-		      						
-									free(exec_str);
-								
-								
-							} 
-						}
-					}
-				}
-				free(base_dir);
-				free(find_trigger);	
-				sprintf(svc_out, "+CALLTRIGGER LOCAL: '%s'  return: '%s'\n", trigger_name, trigger_return);
-			} else {
-				sprintf(svc_out, "-PARAM ERROR\n");
-			}
-			break;
-
-			case CMD_PASSIVE:
-				//Second is SVCID
-				//Third is new status
-				//Fourth is new service_text
-				token=strtok(NULL, "|");
-				if(token != NULL) {
-					passive_svcid=atoi(token);
-					
-					token=strtok(NULL, "|");
-					if(token != NULL) {
-						
-						passive_state=atoi(token);
-						token=strtok(NULL, "|");
-						if(token != NULL) {
-							
-							sprintf(passive_text, "%s", token);
-							
-							token = strtok(NULL, "|");
-							if(token != NULL) {
-								strcat(passive_text, " - |");
-								strcat(passive_text, token);
-							}
-							
-						} else {
-							sprintf(passive_text," ");
-									
-						}
-						
-					
-						
-					
-						svc_found=0;
-						for(x=0; x<shm_hdr->svccount; x++) {
-							
-							if(svcmap[x].service_id == passive_svcid) {
-								svc_found = 1;
-								break;
-							}
-						}
-						if(svc_found == 1) {
-							//2|413395
-							if(svcmap[x].service_type == SVC_TYPE_PASSIVE) {
-								svcmap[x].last_state=svcmap[x].current_state;
-								svcmap[x].current_state=passive_state;
-								sprintf(svcmap[x].new_server_text, "%s", passive_text);
-								svcmap[x].last_check=time(NULL);
-								
-								
-								passive_beauty=bartlby_beauty_state(svcmap[x].current_state);
-								sprintf(svc_out, "+PASSIVOK (%d) %ld : %s (%s)\n", x, svcmap[x].service_id, passive_beauty, svcmap[x].new_server_text);
-								free(passive_beauty);
-							} else {
-								sprintf(svc_out, "-3 Service is not of type 'PASSIVE'");	
-							}
-						} else {
-							sprintf(svc_out, "-4 Service not found\n");	
-						}
-						
-					} else {
-						sprintf(svc_out, "New state missing\n");		
-					}
-					
-				} else {
-					sprintf(svc_out, "SVCID missing\n");	
-					
-				}
-			break;
-			case CMD_GETSERVERID:
-				token=strtok(NULL, "|");
-				if(token != NULL) {
-					in_server_name=strdup(token);
-					sprintf(svc_out, " ");
-					
-					for(x=0; x<shm_hdr->svccount; x++) {
-						if(strcmp(srvmap[svcmap[x].srv_place].server_name, in_server_name) == 0) {
-							printf("%ld", svcmap[x].server_id);
-								
-						}
-					}
-					printf("\n");
-					fflush(stdout);
-				} else {
-					sprintf(svc_out, "-5 server_name missing");	
-				}
-			break;
-			case CMD_SVCLIST:
-				token=strtok(NULL, "|");
-				if(token != NULL) {
-					passive_serverid=atoi(token);
-					sprintf(svc_out, " ");
-					for(x=0; x<shm_hdr->svccount; x++) {
-						if(svcmap[x].server_id == passive_serverid && svcmap[x].service_type == SVC_TYPE_PASSIVE && svcmap[x].service_passive_timeout > 0) {
-							if(service_is_in_time(svcmap[x].service_exec_plan)) {
-								printf("%ld", svcmap[x].service_id);
-								printf(" ");	
-							}
-						}
-					}
-					printf("\n");
-					fflush(stdout);
-				} else {
-					sprintf(svc_out, "-5 server_id missing");	
-				}
-			break;
-			default:
-				printf("-2 cmd not found\n");
-				exit(1);				
-		}
-		
-		printf("%s", svc_out);
-			
+	
+	if(sscanf(inputbuffer, "1|%ld|%d|%2047[^\n]s", &longbuffer1, &intbuffer1, &textbuffer1) == 3) {
+		//1|svc_id|state|passive_text CMD_PASSIVE
+		textbuffer1[strlen(textbuffer1)-1]=0;
+		bartlby_portier_submit_passive_result(longbuffer1, intbuffer1, textbuffer1);
+		PORTIER_CLEANUP
+		exit(1);
 	}
-	free(portier_passwd);
-	shmdt(bartlby_address);
-	//bartlby_encode(svc_out, strlen(svc_out));
-	//printf("%s", svc_out);
-	//bartlby_decode(svc_out, strlen(svc_out));
-	
-	
-	return 1;
+	if(sscanf(inputbuffer, "5|%2047[^\n]s|", &textbuffer1) == 1) {
+		//5|server_name| -> GET SERVER ID
+		textbuffer1[strlen(textbuffer1)-1]=0;
+		bartlby_portier_find_server_id(textbuffer1);
+		PORTIER_CLEANUP
+		exit(1);
+	}
+	if(sscanf(inputbuffer, "4|%ld|", &longbuffer1) == 1) {
+		//4|server_id|
+		bartlby_portier_find_services(longbuffer1);
+		PORTIER_CLEANUP
+		exit(1);
+	}
+	if(sscanf(inputbuffer, "2|%ld|", &longbuffer1) == 1) {
+		//4|server_id|
+		bartlby_portier_get_plugin_info(longbuffer1);
+		PORTIER_CLEANUP
+		exit(1);
+	}
+	if(sscanf(inputbuffer, "7|%d|%2047[^\n]s|%2047[^\n]s|%d|%d|%d|%d|%d|%d|%2047[^\n]s|", &intbuffer1, &textbuffer1, &textbuffer2, &intbuffer2, &intbuffer3, &intbuffer4, &intbuffer5, &intbuffer6, &intbuffer7, &textbuffer3) == 1) {
+		//4|server_id|
+		
+		//sprintf(cmdstr, "%d|%d|%s|%s|%d|%d|%d|%d|%d|%d|%s|\n", passive_cmd, to_standbys, execline, trigger_name, svc->service_id, svc->server_id, svc->notify_last_state, svc->current_state, svc->recovery_outstanding, node_id, portier_passwd);
+		bartlby_portier_exec_trigger(argv[ARGV_IDX], intbuffer1, textbuffer1, textbuffer2, intbuffer2, intbuffer3, intbuffer4, intbuffer5, intbuffer6, intbuffer7, textbuffer3);
+		PORTIER_CLEANUP
+		exit(1);
+	}
+	if(sscanf(inputbuffer, "6|%d|%2047[^\n]s|%2047[^\n]s|%d|%d|%d|%d|%d|%d|%2047[^\n]s|", &intbuffer1, &textbuffer1, &textbuffer2, &intbuffer2, &intbuffer3, &intbuffer4, &intbuffer5, &intbuffer6, &intbuffer7, &textbuffer3) == 1) {
+		//4|server_id|
+		
+		//sprintf(cmdstr, "%d|%d|%s|%s|%d|%d|%d|%d|%d|%d|%s|\n", passive_cmd, to_standbys, execline, trigger_name, svc->service_id, svc->server_id, svc->notify_last_state, svc->current_state, svc->recovery_outstanding, node_id, portier_passwd);
+		bartlby_portier_exec_trigger_line(argv[ARGV_IDX], intbuffer1, textbuffer1, textbuffer2, intbuffer2, intbuffer3, intbuffer4, intbuffer5, intbuffer6, intbuffer7, textbuffer3);
+		PORTIER_CLEANUP
+		exit(1);
+	}
+	//%d|%d|%s|%s|%d|%d|%d|%d|%d|%d|%s|\n
+
+	exit(1);
+
+
+
 }
