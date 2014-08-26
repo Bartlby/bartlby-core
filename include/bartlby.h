@@ -344,7 +344,7 @@ struct server {
 	
 	char enabled_triggers[512];
 	int default_service_type;
-	
+	int orch_id;
 } xxyz;
 
 
@@ -430,7 +430,7 @@ struct service {
 	char enabled_triggers[512];
 
 	int handled;
-	
+	int orch_id;
 };
 
 struct servicegroup {
@@ -444,7 +444,7 @@ struct servicegroup {
 	struct service * dead_marker;
 	
 	char enabled_triggers[512];
-	
+	int orch_id;
 };
 
 struct servergroup {
@@ -456,6 +456,7 @@ struct servergroup {
 	int servergroup_dead;
 	struct service * dead_marker;
 	char enabled_triggers[512];
+	int orch_id;
 };
 
 
@@ -494,7 +495,7 @@ struct worker {
 	int  notification_aggregation_interval;
 	int is_super_user;
 
-
+	int orch_id;
 }sa;
 
 
@@ -507,6 +508,9 @@ struct downtime {
 	int service_id;
 	
 	int is_gone;
+
+	int orch_id;
+	
 }sb;
 
 struct btl_event {

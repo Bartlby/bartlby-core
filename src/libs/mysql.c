@@ -17,6 +17,10 @@
 
 #include <bartlby.h>
 
+
+static int db_is_connected=0;
+static MYSQL * mysql_conn;
+
 #define CHK_ERR(x) \
 		if (x != NULL) {\
 			if(mysql_errno(x) != 0) {\
@@ -45,19 +49,19 @@
 #define NAME "MYSQL Connector"
 #define DLVERSION  "1.5.0"
 
-#define SERVER_MAP_SELECTOR "select server_id, server_ip, server_name, server_ico, server_enabled, server_port, server_dead, server_flap_seconds, server_notify, server_ssh_keyfile, server_ssh_passphrase, server_ssh_username, enabled_triggers, default_service_type from servers"
+#define SERVER_MAP_SELECTOR "select server_id, server_ip, server_name, server_ico, server_enabled, server_port, server_dead, server_flap_seconds, server_notify, server_ssh_keyfile, server_ssh_passphrase, server_ssh_username, enabled_triggers, default_service_type, orch_id from servers"
 
 
-#define SERVICE_MAP_SELECTOR "select service_id, service_name, service_state, service_plugin, service_args, UNIX_TIMESTAMP(service_last_check), service_interval, service_text, service_notify, service_type, service_var, service_passive_timeout,service_active, service_check_timeout, service_ack_enabled, service_retain, service_snmp_community, service_snmp_objid, service_snmp_version, service_snmp_warning, service_snmp_critical, service_snmp_type, flap_seconds, service_exec_plan, renotify_interval, escalate_divisor, fires_events, enabled_triggers, service_snmp_textmatch, UNIX_TIMESTAMP(service_last_notify_send), UNIX_TIMESTAMP(service_last_state_change),service_retain_current, service_ack_current, server_id, service_handled   from services svc ORDER BY RAND()"
-#define WORKER_SELECTOR "select worker_mail, worker_icq, visible_services ,notify_levels, worker_active, worker_name, worker_id, password, enabled_triggers, escalation_limit, escalation_minutes, notify_plan, visible_servers, selected_services, selected_servers, is_super_user, notification_aggregation_interval from workers"
+#define SERVICE_MAP_SELECTOR "select service_id, service_name, service_state, service_plugin, service_args, UNIX_TIMESTAMP(service_last_check), service_interval, service_text, service_notify, service_type, service_var, service_passive_timeout,service_active, service_check_timeout, service_ack_enabled, service_retain, service_snmp_community, service_snmp_objid, service_snmp_version, service_snmp_warning, service_snmp_critical, service_snmp_type, flap_seconds, service_exec_plan, renotify_interval, escalate_divisor, fires_events, enabled_triggers, service_snmp_textmatch, UNIX_TIMESTAMP(service_last_notify_send), UNIX_TIMESTAMP(service_last_state_change),service_retain_current, service_ack_current, server_id, service_handled, orch_id   from services svc ORDER BY RAND()"
+#define WORKER_SELECTOR "select worker_mail, worker_icq, visible_services ,notify_levels, worker_active, worker_name, worker_id, password, enabled_triggers, escalation_limit, escalation_minutes, notify_plan, visible_servers, selected_services, selected_servers, is_super_user, notification_aggregation_interval, orch_id from workers"
 #define SERVICE_UPDATE_TEXT "update services set service_last_check=FROM_UNIXTIME(%d), service_text='%s', service_state=%d, service_last_notify_send=FROM_UNIXTIME(%d), service_last_state_change=FROM_UNIXTIME(%d), service_ack_current=%d, service_retain_current=%d, service_handled=%d where service_id=%ld"
 
 
 
-#define ADD_SERVER "insert into servers (server_name,server_ip,server_port, server_ico, server_enabled, server_notify, server_flap_seconds, server_dead, server_ssh_keyfile, server_ssh_passphrase, server_ssh_username, enabled_triggers, default_service_type) VALUES('%s','%s', '%d', '%s', '%d', '%d', '%ld', '%d', '%s','%s', '%s', '%s', '%d')"
+#define ADD_SERVER "insert into servers (server_name,server_ip,server_port, server_ico, server_enabled, server_notify, server_flap_seconds, server_dead, server_ssh_keyfile, server_ssh_passphrase, server_ssh_username, enabled_triggers, default_service_type, orch_id) VALUES('%s','%s', '%d', '%s', '%d', '%d', '%ld', '%d', '%s','%s', '%s', '%s', '%d', '%d')"
 #define DELETE_SERVER "delete from servers where server_id=%d"
-#define UPDATE_SERVER "update servers set server_name='%s',server_ip='%s',server_port=%d, server_ico='%s', server_enabled='%d', server_notify='%d', server_flap_seconds='%ld', server_dead='%d', server_ssh_keyfile='%s', server_ssh_passphrase='%s', server_ssh_username='%s', enabled_triggers='%s', default_service_type='%d' where server_id=%ld"
-#define SERVER_SELECTOR "select server_name, server_ip, server_port, server_ico, server_enabled, server_notify, server_flap_seconds, server_dead, server_ssh_keyfile, server_ssh_passphrase, server_ssh_username, enabled_triggers, default_service_type from servers where server_id=%d"
+#define UPDATE_SERVER "update servers set server_name='%s',server_ip='%s',server_port=%d, server_ico='%s', server_enabled='%d', server_notify='%d', server_flap_seconds='%ld', server_dead='%d', server_ssh_keyfile='%s', server_ssh_passphrase='%s', server_ssh_username='%s', enabled_triggers='%s', default_service_type='%d', orch_id='%d' where server_id=%ld"
+#define SERVER_SELECTOR "select server_name, server_ip, server_port, server_ico, server_enabled, server_notify, server_flap_seconds, server_dead, server_ssh_keyfile, server_ssh_passphrase, server_ssh_username, enabled_triggers, default_service_type, orch_id from servers where server_id=%d"
 #define SERVER_CHANGE_ID "update servers set server_id=%d where server_id=%d"
 #define SERVER_CHANGE_SERVICES "update services set server_id=%d where server_id=%d"
 
@@ -65,43 +69,43 @@
 
 #define DELETE_SERVICE_BY_SERVER "delete from services where server_id=%d"
 
-#define ADD_SERVICE "insert into services(server_id, service_plugin, service_name, service_state,service_text, service_args,service_notify, service_active, service_interval, service_type,service_var,service_passive_timeout,service_check_timeout, service_ack_enabled, service_retain, service_snmp_community, service_snmp_objid, service_snmp_version, service_snmp_warning, service_snmp_critical, service_snmp_type, flap_seconds, service_exec_plan,renotify_interval, escalate_divisor, fires_events, enabled_triggers, service_snmp_textmatch) values(%ld,'%s','%s',4, 'Newly created', '%s',%d,%d,%ld,%d,'%s',%ld, %ld, %d, %ld, '%s', '%s', %d, %ld, %ld, %ld, %ld, '%s',%ld,%ld, %ld, '%s', '%s')"
+#define ADD_SERVICE "insert into services(server_id, service_plugin, service_name, service_state,service_text, service_args,service_notify, service_active, service_interval, service_type,service_var,service_passive_timeout,service_check_timeout, service_ack_enabled, service_retain, service_snmp_community, service_snmp_objid, service_snmp_version, service_snmp_warning, service_snmp_critical, service_snmp_type, flap_seconds, service_exec_plan,renotify_interval, escalate_divisor, fires_events, enabled_triggers, service_snmp_textmatch, orch_id) values(%ld,'%s','%s',4, 'Newly created', '%s',%d,%d,%ld,%d,'%s',%ld, %ld, %d, %ld, '%s', '%s', %d, %ld, %ld, %ld, %ld, '%s',%ld,%ld, %ld, '%s', '%s', '%d')"
 #define DELETE_SERVICE "delete from services where service_id=%d"
 #define SERVICE_CHANGE_ID "update services set service_id=%d where service_id=%d"
 
-#define UPDATE_SERVICE "update services set service_type=%d,service_name='%s',server_id=%ld,service_interval = %ld, service_plugin='%s',service_args='%s',service_passive_timeout=%ld, service_var='%s',service_check_timeout=%ld, service_ack_enabled='%d', service_retain='%ld', service_snmp_community='%s', service_snmp_objid='%s', service_snmp_version='%d', service_snmp_warning='%ld', service_snmp_critical='%ld', service_snmp_type='%ld', service_notify='%d', service_active='%d', flap_seconds='%ld', service_exec_plan='%s',renotify_interval=%ld, escalate_divisor=%ld, fires_events=%ld, enabled_triggers='%s', service_snmp_textmatch='%s', service_handled=%d  where service_id=%ld"
+#define UPDATE_SERVICE "update services set service_type=%d,service_name='%s',server_id=%ld,service_interval = %ld, service_plugin='%s',service_args='%s',service_passive_timeout=%ld, service_var='%s',service_check_timeout=%ld, service_ack_enabled='%d', service_retain='%ld', service_snmp_community='%s', service_snmp_objid='%s', service_snmp_version='%d', service_snmp_warning='%ld', service_snmp_critical='%ld', service_snmp_type='%ld', service_notify='%d', service_active='%d', flap_seconds='%ld', service_exec_plan='%s',renotify_interval=%ld, escalate_divisor=%ld, fires_events=%ld, enabled_triggers='%s', service_snmp_textmatch='%s', service_handled=%d, orch_id=%d  where service_id=%ld"
 
-#define SERVICE_SELECTOR "select service_id, service_name, service_state, service_plugin, service_args, UNIX_TIMESTAMP(service_last_check), service_interval, service_text, service_notify, service_type, service_var, service_passive_timeout, service_active,service_check_timeout, service_ack_enabled, service_retain, service_snmp_community, service_snmp_objid, service_snmp_version, service_snmp_warning, service_snmp_critical, service_snmp_type, flap_seconds, service_exec_plan, renotify_interval, escalate_divisor, fires_events,  enabled_triggers,  service_snmp_textmatch, UNIX_TIMESTAMP(service_last_notify_send), UNIX_TIMESTAMP(service_last_state_change), service_retain_current, service_ack_current, server_id, service_handled  from services svc where service_id=%d"
-
-
+#define SERVICE_SELECTOR "select service_id, service_name, service_state, service_plugin, service_args, UNIX_TIMESTAMP(service_last_check), service_interval, service_text, service_notify, service_type, service_var, service_passive_timeout, service_active,service_check_timeout, service_ack_enabled, service_retain, service_snmp_community, service_snmp_objid, service_snmp_version, service_snmp_warning, service_snmp_critical, service_snmp_type, flap_seconds, service_exec_plan, renotify_interval, escalate_divisor, fires_events,  enabled_triggers,  service_snmp_textmatch, UNIX_TIMESTAMP(service_last_notify_send), UNIX_TIMESTAMP(service_last_state_change), service_retain_current, service_ack_current, server_id, service_handled, orch_id  from services svc where service_id=%d"
 
 
-#define ADD_WORKER    "INSERT INTO workers(worker_mail, worker_icq, notify_levels, worker_active, worker_name, password,enabled_triggers, escalation_limit, escalation_minutes, notify_plan, visible_services, visible_servers, selected_servers, selected_services, is_super_user, notification_aggregation_interval) VALUES('%s', '%s', '%s', %d, '%s', '%s', '%s', '%ld', '%ld', '%s', '%s', '%s', '%s', '%s', %d, %d)"
+
+
+#define ADD_WORKER    "INSERT INTO workers(worker_mail, worker_icq, notify_levels, worker_active, worker_name, password,enabled_triggers, escalation_limit, escalation_minutes, notify_plan, visible_services, visible_servers, selected_servers, selected_services, is_super_user, notification_aggregation_interval, orch_id) VALUES('%s', '%s', '%s', %d, '%s', '%s', '%s', '%ld', '%ld', '%s', '%s', '%s', '%s', '%s', %d, %d, %d)"
 #define DELETE_WORKER "delete from workers where worker_id=%d"
-#define UPDATE_WORKER "update workers set worker_mail='%s', worker_icq='%s', notify_levels='%s', worker_active=%d, worker_name='%s', password='%s', enabled_triggers='%s', escalation_limit='%ld', escalation_minutes='%ld', notify_plan='%s', visible_services='%s', visible_servers='%s', selected_services='%s', selected_servers='%s', is_super_user=%d, notification_aggregation_interval=%d WHERE worker_id=%ld"
-#define WORKER_SEL "select worker_mail, worker_icq, visible_services,notify_levels, worker_active, worker_name, worker_id, password, enabled_triggers, escalation_limit, escalation_minutes, notify_plan, visible_servers, selected_servers, selected_services, is_super_user, notification_aggregation_interval from workers where worker_id=%d"
+#define UPDATE_WORKER "update workers set worker_mail='%s', worker_icq='%s', notify_levels='%s', worker_active=%d, worker_name='%s', password='%s', enabled_triggers='%s', escalation_limit='%ld', escalation_minutes='%ld', notify_plan='%s', visible_services='%s', visible_servers='%s', selected_services='%s', selected_servers='%s', is_super_user=%d, notification_aggregation_interval=%d, orch_id=%d WHERE worker_id=%ld"
+#define WORKER_SEL "select worker_mail, worker_icq, visible_services,notify_levels, worker_active, worker_name, worker_id, password, enabled_triggers, escalation_limit, escalation_minutes, notify_plan, visible_servers, selected_servers, selected_services, is_super_user, notification_aggregation_interval,orch_id from workers where worker_id=%d"
 #define WORKER_CHANGE_ID "update workers set worker_id=%d where worker_id=%d"
 
 
-#define UPDATE_DOWNTIME "update downtime set downtime_notice='%s', downtime_from=%d,downtime_to=%d, service_id=%d, downtime_type=%d where downtime_id=%ld"
+#define UPDATE_DOWNTIME "update downtime set downtime_notice='%s', downtime_from=%d,downtime_to=%d, service_id=%d, downtime_type=%d, orch_id=%d where downtime_id=%ld"
 #define DEL_DOWNTIME "delete from downtime where downtime_id=%d"
-#define ADD_DOWNTIME "INSERT INTO downtime(downtime_type, downtime_from,downtime_to,service_id, downtime_notice) VALUES(%d,%d,%d,%d, '%s')"
-#define DOWNTIME_SEL "select downtime_id, downtime_type, downtime_from, downtime_to, downtime_notice, service_id from downtime"
+#define ADD_DOWNTIME "INSERT INTO downtime(downtime_type, downtime_from,downtime_to,service_id, downtime_notice,orch_id) VALUES(%d,%d,%d,%d, '%s', '%d')"
+#define DOWNTIME_SEL "select downtime_id, downtime_type, downtime_from, downtime_to, downtime_notice, service_id, orch_id from downtime"
 #define DOWNTIME_CHANGE_ID "update downtime set downtime_id=%d where downtime_id=%d"
 
 
 
-#define UPDATE_SERVERGROUP "update servergroups set servergroup_name='%s', servergroup_notify=%d,servergroup_active=%d, servergroup_members='%s', servergroup_dead=%d, enabled_triggers='%s' where servergroup_id=%ld"
+#define UPDATE_SERVERGROUP "update servergroups set servergroup_name='%s', servergroup_notify=%d,servergroup_active=%d, servergroup_members='%s', servergroup_dead=%d, enabled_triggers='%s', orch_id=%d where servergroup_id=%ld"
 #define DEL_SERVERGROUP "delete from servergroups where servergroup_id=%d"
-#define ADD_SERVERGROUP "INSERT INTO servergroups(servergroup_name, servergroup_notify,servergroup_active,servergroup_members, servergroup_dead, enabled_triggers) VALUES('%s', %d,%d,'%s', %d, '%s')"
-#define SERVERGROUP_SEL "select servergroup_id, servergroup_name, servergroup_notify, servergroup_active, servergroup_members, servergroup_dead, enabled_triggers from servergroups"
+#define ADD_SERVERGROUP "INSERT INTO servergroups(servergroup_name, servergroup_notify,servergroup_active,servergroup_members, servergroup_dead, enabled_triggers, orch_id) VALUES('%s', %d,%d,'%s', %d, '%s', '%d')"
+#define SERVERGROUP_SEL "select servergroup_id, servergroup_name, servergroup_notify, servergroup_active, servergroup_members, servergroup_dead, enabled_triggers, orch_id from servergroups"
 #define SERVERGROUP_CHANGE_ID "update servergroups set servergroup_id=%d where servergroup_id=%d"
 
 
-#define UPDATE_SERVICEGROUP "update servicegroups set servicegroup_name='%s', servicegroup_notify=%d,servicegroup_active=%d, servicegroup_members='%s', servicegroup_dead=%d, enabled_triggers='%s' where servicegroup_id=%ld"
+#define UPDATE_SERVICEGROUP "update servicegroups set servicegroup_name='%s', servicegroup_notify=%d,servicegroup_active=%d, servicegroup_members='%s', servicegroup_dead=%d, enabled_triggers='%s', orch_id=%d where servicegroup_id=%ld"
 #define DEL_SERVICEGROUP "delete from servicegroups where servicegroup_id=%d"
-#define ADD_SERVICEGROUP "INSERT INTO servicegroups(servicegroup_name, servicegroup_notify,servicegroup_active,servicegroup_members, servicegroup_dead, enabled_triggers) VALUES('%s', %d,%d,'%s', %d, '%s')"
-#define SERVICEGROUP_SEL "select servicegroup_id, servicegroup_name, servicegroup_notify, servicegroup_active, servicegroup_members, servicegroup_dead, enabled_triggers from servicegroups"
+#define ADD_SERVICEGROUP "INSERT INTO servicegroups(servicegroup_name, servicegroup_notify,servicegroup_active,servicegroup_members, servicegroup_dead, enabled_triggers,orch_id) VALUES('%s', %d,%d,'%s', %d, '%s', '%d')"
+#define SERVICEGROUP_SEL "select servicegroup_id, servicegroup_name, servicegroup_notify, servicegroup_active, servicegroup_members, servicegroup_dead, enabled_triggers,orch_id from servicegroups"
 #define SERVICEGROUP_CHANGE_ID "update servicegroups set servicegroup_id=%d where servicegroup_id=%d"
 
 
@@ -127,6 +131,49 @@ struct shm_counter {
 }
 
 */
+
+MYSQL * getDBConn(char * config) {
+	//ping mysql_conn;
+	//if gone
+	if(db_is_connected == 0) {
+		//CONNECT
+		/*
+
+			char * mysql_host = getConfigValue("mysql_host", config);
+			char * mysql_user = getConfigValue("mysql_user", config);
+			char * mysql_pw = getConfigValue("mysql_pw", config);
+			char * mysql_db = getConfigValue("mysql_db", config);
+		
+		
+		
+
+
+			mysql=mysql_init(NULL);
+			CHK_ERR_NULL(mysql);
+			mysql=mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
+			CHK_ERR_NULL(mysql);
+	     	mysql_select_db(mysql, mysql_db);
+	     	CHK_ERR_NULL(mysql);
+
+     */
+
+		//mysql_options(&mysql, MYSQL_OPT_RECONNECT, 1); -> set auto reconnect
+		//MYSQL * mysql_conn
+	} else {
+		//orig_thraad_id mysql_thread_id();
+		//mysql_ping()  < 0 - reconnect		
+		//new_thread_id  mysql_thread_id();
+
+		//if(thread_id's changed reconnect happend)
+
+		//MYSQL * mysql_conn
+	}
+	//return mysql_conn
+}
+
+void DataLibInit(char * cfgfile,int do_debug) {
+	db_is_connected=0;
+}
 
 struct shm_counter * GetCounter(char * config) {
 	MYSQL *mysql;
@@ -319,7 +366,7 @@ int UpdateDowntime(struct downtime * svc, char *config) {
 	
 	
 	
-	asprintf(&sqlupd, UPDATE_DOWNTIME, svc->downtime_notice, svc->downtime_from, svc->downtime_to, svc->service_id, svc->downtime_type, svc->downtime_id);
+	asprintf(&sqlupd, UPDATE_DOWNTIME, svc->downtime_notice, svc->downtime_from, svc->downtime_to, svc->service_id, svc->downtime_type,svc->orch_id, svc->downtime_id);
 	
 	
 	
@@ -576,7 +623,7 @@ int AddDowntime(struct downtime * svc, char *config) {
 	
 	
 	
-	asprintf(&sqlupd, ADD_DOWNTIME, svc->downtime_type, svc->downtime_from, svc->downtime_to, svc->service_id, svc->downtime_notice);
+	asprintf(&sqlupd, ADD_DOWNTIME, svc->downtime_type, svc->downtime_from, svc->downtime_to, svc->service_id, svc->orch_id, svc->downtime_notice);
 	
 	
 	
@@ -668,6 +715,7 @@ int GetDowntimeMap(struct downtime * svcs, char * config) {
       			} else {
       				svcs[i].service_id = -1;    				
       			}
+      			svcs[i].orch_id=atoi(row[6]);
       			
 			svcs[i].is_gone=0;		
       			
@@ -828,7 +876,7 @@ int GetWorkerById(int worker_id, struct worker * svc, char * config) {
       		}
       		svc->is_super_user=atoi(row[15]);
       		svc->notification_aggregation_interval=atoi(row[16]);
-      		
+      		svc->orch_id=atoi(row[17]);
 			svc->is_gone=0;
       		tmprc=0;
       		//printf("limit: %ld, minutes: %ld", svc->escalation_limit, svc->escalation_minutes);
@@ -873,7 +921,7 @@ int UpdateWorker(struct worker * svc, char *config) {
 	
 	
 	
-	asprintf(&sqlupd, UPDATE_WORKER, svc->mail, svc->icq, svc->notify_levels, svc->active, svc->name,svc->password,svc->enabled_triggers,svc->escalation_limit, svc->escalation_minutes, svc->notify_plan,svc->visible_services, svc->visible_servers, svc->selected_services, svc->selected_servers, svc->is_super_user, svc->notification_aggregation_interval,  svc->worker_id);
+	asprintf(&sqlupd, UPDATE_WORKER, svc->mail, svc->icq, svc->notify_levels, svc->active, svc->name,svc->password,svc->enabled_triggers,svc->escalation_limit, svc->escalation_minutes, svc->notify_plan,svc->visible_services, svc->visible_servers, svc->selected_services, svc->selected_servers, svc->is_super_user, svc->notification_aggregation_interval, svc->orch_id, svc->worker_id);
 	
 	
 	
@@ -971,7 +1019,7 @@ int AddWorker(struct worker * svc, char *config) {
 	
 	
 	
-	asprintf(&sqlupd, ADD_WORKER, svc->mail, svc->icq, svc->notify_levels, svc->active, svc->name, svc->password, svc->enabled_triggers, svc->escalation_limit, svc->escalation_minutes, svc->notify_plan, svc->visible_services, svc->visible_servers, svc->selected_servers, svc->selected_services, svc->is_super_user, svc->notification_aggregation_interval);
+	asprintf(&sqlupd, ADD_WORKER, svc->mail, svc->icq, svc->notify_levels, svc->active, svc->name, svc->password, svc->enabled_triggers, svc->escalation_limit, svc->escalation_minutes, svc->notify_plan, svc->visible_services, svc->visible_servers, svc->selected_servers, svc->selected_services, svc->is_super_user, svc->notification_aggregation_interval, svc->orch_id);
 	
 	
 	
@@ -1036,6 +1084,7 @@ int GetServiceById(int service_id, struct service * svc, char * config) {
       		svc->service_id=atol(row[0]);
       		svc->server_id=atol(row[33]);
       		svc->handled=atoi(row[34]);
+      		svc->orch_id=atoi(row[35]);
       		svc->last_state=atoi(row[2]);
       		svc->current_state=atoi(row[2]);
       		
@@ -1302,6 +1351,7 @@ int UpdateService(struct service * svc, char *config) {
   svc->enabled_triggers,
   svc->snmp_info.textmatch,
   svc->handled,
+  svc->orch_id,
 	svc->service_id
 	
 	
@@ -1460,7 +1510,8 @@ int AddService(struct service * svc, char *config) {
   svc->escalate_divisor,
   svc->fires_events,
   svc->enabled_triggers,
-  svc->snmp_info.textmatch
+  svc->snmp_info.textmatch,
+  svc->orch_id
 	);
 	
 	//Log("dbg", sqlupd);
@@ -1548,6 +1599,7 @@ int GetServerById(int server_id, struct server * svc, char * config) {
       		svc->server_flap_seconds=atol(row[6]);
       		svc->server_dead=atoi(row[7]);
       		svc->default_service_type=atoi(row[12]);
+      		svc->orch_id=atoi(row[13]);
       		if(row[8] != NULL) {
       			sprintf(svc->server_ssh_keyfile, "%s", row[8]);
       		} else {
@@ -1620,7 +1672,7 @@ int ModifyServer(struct server * svc, char *config) {
       		CHK_ERR(mysql);
 	
 	
-	asprintf(&sqlupd, UPDATE_SERVER, svc->server_name, svc->client_ip, svc->client_port,svc->server_icon,svc->server_enabled, svc->server_notify, svc->server_flap_seconds,svc->server_dead,svc->server_ssh_keyfile, svc->server_ssh_passphrase, svc->server_ssh_username,svc->enabled_triggers, svc->default_service_type, svc->server_id);
+	asprintf(&sqlupd, UPDATE_SERVER, svc->server_name, svc->client_ip, svc->client_port,svc->server_icon,svc->server_enabled, svc->server_notify, svc->server_flap_seconds,svc->server_dead,svc->server_ssh_keyfile, svc->server_ssh_passphrase, svc->server_ssh_username,svc->enabled_triggers, svc->default_service_type,svc->orch_id, svc->server_id);
 	
 	//Log("dbg", sqlupd);
 	
@@ -1723,7 +1775,7 @@ int AddServer(struct server * svc, char *config) {
       		CHK_ERR(mysql);
 	
 	
-	asprintf(&sqlupd, ADD_SERVER, svc->server_name, svc->client_ip, svc->client_port, svc->server_icon, svc->server_enabled, svc->server_notify, svc->server_flap_seconds, svc->server_dead, svc->server_ssh_keyfile, svc->server_ssh_passphrase, svc->server_ssh_username, svc->enabled_triggers, svc->default_service_type);
+	asprintf(&sqlupd, ADD_SERVER, svc->server_name, svc->client_ip, svc->client_port, svc->server_icon, svc->server_enabled, svc->server_notify, svc->server_flap_seconds, svc->server_dead, svc->server_ssh_keyfile, svc->server_ssh_passphrase, svc->server_ssh_username, svc->enabled_triggers, svc->default_service_type, svc->orch_id);
 	
 	//Log("dbg", sqlupd);
 	
@@ -1768,8 +1820,7 @@ int doUpdateServer(struct server * svc, char * config) {
 
         char * sqlupd;
 
-
-
+        
         char * mysql_host = getConfigValue("mysql_host", config);
         char * mysql_user = getConfigValue("mysql_user", config);
         char * mysql_pw = getConfigValue("mysql_pw", config);
@@ -1782,8 +1833,7 @@ int doUpdateServer(struct server * svc, char * config) {
         mysql_select_db(mysql, mysql_db);
                 CHK_ERR(mysql);
 
-
-	
+        
 
         asprintf(&sqlupd, SERVER_UPDATE_TEXT, svc->server_enabled, svc->server_notify, svc->server_id);
 
@@ -1809,6 +1859,9 @@ int doUpdate(struct service * svc, char * config) {
 	
 	char * sqlupd;
 	
+	if(db_is_connected == 1) {
+        	//_debug("ALREADY CONNECTED");
+    }
 
 
 	char * mysql_host = getConfigValue("mysql_host", config);
@@ -1823,6 +1876,7 @@ int doUpdate(struct service * svc, char * config) {
 	mysql_select_db(mysql, mysql_db);
       		CHK_ERR(mysql);
 	
+	db_is_connected=1;	
 	
 	service_mysql_safe(svc);
 	
@@ -1974,6 +2028,7 @@ int GetWorkerMap(struct worker * svcs, char * config) {
       			
       			svcs[i].is_super_user=atoi(row[15]);
       			svcs[i].notification_aggregation_interval=atoi(row[16]);
+				svcs[i].orch_id=atoi(row[17]);
 
 
 
@@ -2042,6 +2097,7 @@ int GetServiceMap(struct service * svcs, char * config) {
       			svcs[i].service_id=atol(row[0]);
       			svcs[i].server_id=atol(row[33]);
       			svcs[i].handled=atoi(row[34]);
+      			svcs[i].orch_id=atoi(row[35]);
       			svcs[i].last_state=atoi(row[2]);
       			svcs[i].current_state=atoi(row[2]);
       			svcs[i].servicegroup_counter=0;
@@ -2280,8 +2336,9 @@ int GetServerMap(struct server * srv, char * config) {
       				//svcs[i].service_name=NULL;     				
       				srv[i].default_service_type=1;
       			}
-      			
- 			srv[i].is_gone=0;     			
+
+      			srv[i].orch_id=atoi(row[14]);
+      			srv[i].is_gone=0;     			
       			i++;
       		}
       		
@@ -2426,7 +2483,7 @@ int GetServerGroupMap(struct servergroup * svcs, char * config) {
       				sprintf(svcs[i].enabled_triggers, "%s", "");     				
       			}
       			
-		
+				svcs[i].orch_id=atoi(row[7]);
       			i++;
       		}
       		
@@ -2476,7 +2533,7 @@ int AddServerGroup(struct servergroup * svc, char *config) {
       		CHK_ERR(mysql);
 	
 	
-	asprintf(&sqlupd, ADD_SERVERGROUP, svc->servergroup_name, svc->servergroup_notify, svc->servergroup_active, svc->servergroup_members, svc->servergroup_dead, svc->enabled_triggers);
+	asprintf(&sqlupd, ADD_SERVERGROUP, svc->servergroup_name, svc->servergroup_notify, svc->servergroup_active, svc->servergroup_members, svc->servergroup_dead, svc->enabled_triggers, svc->orch_id);
 	
 	
 	
@@ -2566,7 +2623,7 @@ int UpdateServerGroup(struct servergroup * svc, char *config) {
 	
 	
 	
-	asprintf(&sqlupd, UPDATE_SERVERGROUP, svc->servergroup_name, svc->servergroup_notify, svc->servergroup_active, svc->servergroup_members,svc->servergroup_dead,svc->enabled_triggers, svc->servergroup_id);
+	asprintf(&sqlupd, UPDATE_SERVERGROUP, svc->servergroup_name, svc->servergroup_notify, svc->servergroup_active, svc->servergroup_members,svc->servergroup_dead,svc->enabled_triggers,svc->orch_id, svc->servergroup_id);
 	
 	
 	
@@ -2711,6 +2768,7 @@ int GetServiceGroupMap(struct servicegroup * svcs, char * config) {
       				sprintf(svcs[i].enabled_triggers, " ");
       			}
       			
+      			svcs[i].orch_id=atoi(row[7]);
 		
       			i++;
       		}
@@ -2761,7 +2819,7 @@ int AddServiceGroup(struct servicegroup * svc, char *config) {
       		CHK_ERR(mysql);
 	
 	
-	asprintf(&sqlupd, ADD_SERVICEGROUP, svc->servicegroup_name, svc->servicegroup_notify, svc->servicegroup_active, svc->servicegroup_members, svc->servicegroup_dead, svc->enabled_triggers);
+	asprintf(&sqlupd, ADD_SERVICEGROUP, svc->servicegroup_name, svc->servicegroup_notify, svc->servicegroup_active, svc->servicegroup_members, svc->servicegroup_dead, svc->enabled_triggers, svc->orch_id);
 	
 	
 	
@@ -2851,7 +2909,7 @@ int UpdateServiceGroup(struct servicegroup * svc, char *config) {
 	
 	
 	
-	asprintf(&sqlupd, UPDATE_SERVICEGROUP, svc->servicegroup_name, svc->servicegroup_notify, svc->servicegroup_active, svc->servicegroup_members,svc->servicegroup_dead,svc->enabled_triggers, svc->servicegroup_id);
+	asprintf(&sqlupd, UPDATE_SERVICEGROUP, svc->servicegroup_name, svc->servicegroup_notify, svc->servicegroup_active, svc->servicegroup_members,svc->servicegroup_dead,svc->enabled_triggers,svc->orch_id, svc->servicegroup_id);
 	
 	
 	
