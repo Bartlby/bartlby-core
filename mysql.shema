@@ -32,6 +32,7 @@ CREATE TABLE `servers` (
   `server_ssh_username` varchar(512) NOT NULL default '',
   `enabled_triggers` varchar(512) NOT NULL default '',
   `default_service_type` int(11) NOT NULL default '1',
+  `orch_id` int(11) NOT NULL default '0',
   PRIMARY KEY  (`server_id`),
   UNIQUE KEY `server_id` (`server_id`)
 )  ;
@@ -76,6 +77,7 @@ CREATE TABLE `services` (
   `service_last_state_change` datetime NOT NULL default '0000-00-00 00:00:00',
   `service_retain_current` int(11) NOT NULL default '0',
   `service_handled` int(11) NOT NULL default '0',
+  `orch_id` int(11) NOT NULL default '0',
   PRIMARY KEY  (`service_id`),
   KEY `service_id` (`service_id`),
   KEY `service_id_2` (`service_id`,`server_id`)
@@ -102,6 +104,7 @@ CREATE TABLE `workers` (
   `notify_plan` text default '',
   `is_super_user` int(11) default 0,
   `notification_aggregation_interval` int(11) default 0,
+  `orch_id` int(11) NOT NULL default '0',
   PRIMARY KEY  (`worker_id`)
 )  ;
 
@@ -114,6 +117,7 @@ CREATE TABLE `servicegroups` (
   `servicegroup_members` text NOT NULL default '',
   `servicegroup_dead` int(11) NOT NULL default '0',
   `enabled_triggers` varchar(512) NOT NULL default '',
+  `orch_id` int(11) NOT NULL default '0',
   PRIMARY KEY  (`servicegroup_id`)
 )  ;
 CREATE TABLE `servergroups` (
@@ -124,6 +128,7 @@ CREATE TABLE `servergroups` (
   `servergroup_members` text NOT NULL default '',
   `servergroup_dead` int(11) NOT NULL default '0',
   `enabled_triggers` varchar(512) NOT NULL default '',
+  `orch_id` int(11) NOT NULL default '0',
   PRIMARY KEY  (`servergroup_id`)
 )  ;
 

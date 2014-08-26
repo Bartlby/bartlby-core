@@ -49,6 +49,8 @@ int (*gGetDowntimeMap)(struct downtime *, char *);
 int (*gGetServerGroupMap)(struct servergroup *, char *);
 int (*gGetServiceGroupMap)(struct servicegroup *, char *);
 
+void (*gDataLibInit)(char *, int);
+
 
 struct  shm_counter  * (*gGetCounter)(char *);
 char * gShmtok;
@@ -179,6 +181,7 @@ void bartlby_load_shm_stuff(char * cfgfile) {
         	_log(LH_MAIN, B_LOG_CRIT,"Error: %s", dlmsg);
         	exit(1);
     	}
+    	LOAD_SYMBOL(gDataLibInit, gSOHandle, "DataLibInit");
     	LOAD_SYMBOL(gGetAutor,gSOHandle, "GetAutor");
     	LOAD_SYMBOL(gGetVersion,gSOHandle, "GetVersion");
     	LOAD_SYMBOL(gGetServiceMap,gSOHandle, "GetServiceMap");
@@ -196,6 +199,7 @@ void bartlby_load_shm_stuff(char * cfgfile) {
     	LOAD_SYMBOL(gGetCounter,gSOHandle, "GetCounter");
     	    	
     	
+    	gDataLibInit(cfgfile,gDebug);
     	    	
     	gGetAutorStr=gGetAutor();
     	gGetVersionStr=gGetVersion();

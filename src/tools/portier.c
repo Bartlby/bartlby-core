@@ -464,7 +464,7 @@ int main(int argc, char ** argv) {
 		PORTIER_CLEANUP
 		exit(1);
 	}
-	if(sscanf(inputbuffer, "7|%d|%2047[^\n]s|%2047[^\n]s|%d|%d|%d|%d|%d|%d|%2047[^\n]s|", &intbuffer1, &textbuffer1, &textbuffer2, &intbuffer2, &intbuffer3, &intbuffer4, &intbuffer5, &intbuffer6, &intbuffer7, &textbuffer3) == 1) {
+	if(sscanf(inputbuffer, "7|%d|%2047[^\n]s|%2047[^\n]s|%d|%d|%d|%d|%d|%d|%2047[^\n]s|", &intbuffer1, &textbuffer1, &textbuffer2, &intbuffer2, &intbuffer3, &intbuffer4, &intbuffer5, &intbuffer6, &intbuffer7, &textbuffer3) == 10) {
 		//4|server_id|
 		
 		//sprintf(cmdstr, "%d|%d|%s|%s|%d|%d|%d|%d|%d|%d|%s|\n", passive_cmd, to_standbys, execline, trigger_name, svc->service_id, svc->server_id, svc->notify_last_state, svc->current_state, svc->recovery_outstanding, node_id, portier_passwd);
@@ -472,7 +472,7 @@ int main(int argc, char ** argv) {
 		PORTIER_CLEANUP
 		exit(1);
 	}
-	if(sscanf(inputbuffer, "6|%d|%2047[^\n]s|%2047[^\n]s|%d|%d|%d|%d|%d|%d|%2047[^\n]s|", &intbuffer1, &textbuffer1, &textbuffer2, &intbuffer2, &intbuffer3, &intbuffer4, &intbuffer5, &intbuffer6, &intbuffer7, &textbuffer3) == 1) {
+	if(sscanf(inputbuffer, "6|%d|%2047[^\n]s|%2047[^\n]s|%d|%d|%d|%d|%d|%d|%2047[^\n]s|", &intbuffer1, &textbuffer1, &textbuffer2, &intbuffer2, &intbuffer3, &intbuffer4, &intbuffer5, &intbuffer6, &intbuffer7, &textbuffer3) == 10) {
 		//4|server_id|
 		
 		//sprintf(cmdstr, "%d|%d|%s|%s|%d|%d|%d|%d|%d|%d|%s|\n", passive_cmd, to_standbys, execline, trigger_name, svc->service_id, svc->server_id, svc->notify_last_state, svc->current_state, svc->recovery_outstanding, node_id, portier_passwd);
