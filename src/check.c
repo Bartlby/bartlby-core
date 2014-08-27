@@ -248,6 +248,8 @@ void bartlby_fin_service(struct service * svc, void * SOHandle, void * shm_addr,
 		doUpdate(svc,cfgfile);
 	}
 	
+	bartlby_orchestra_send_svc(cfgfile,svc); 
+
 	free(cfg_instant_wb);
 	
 	

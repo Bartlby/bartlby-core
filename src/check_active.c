@@ -91,12 +91,14 @@ void bartlby_check_active(struct service * svc, char * cfgfile) {
 	
 	if(connection_timed_out == 1) {
 		sprintf(svc->new_server_text, "%s", "timed out");
-		svc->current_state=STATE_CRITICAL;	
+		svc->current_state=STATE_CRITICAL;
+		close(client_socket);	
 		return;
 	}
 	if(result != STATE_OK) {
 		sprintf(svc->new_server_text, "%s", "connect failed");
 		svc->current_state=STATE_CRITICAL;
+		close(client_socket);
 		return;
 	}
 	/*
@@ -108,14 +110,15 @@ void bartlby_check_active(struct service * svc, char * cfgfile) {
 	
 	//Send it
 	alarm(svc->service_check_timeout);
-	send(client_socket, client_request, (strlen(svc->plugin)+strlen(svc->plugin_arguments)+3),0);
+	result=send(client_socket, client_request, (strlen(svc->plugin)+strlen(svc->plugin_arguments)+3),0);
 	//Check it
-	if(connection_timed_out == 1) {
+	if(connection_timed_out == 1 || result < 0) {
 		
 		
 		sprintf(svc->new_server_text, "%s", CONN_ERROR);
 		svc->current_state=STATE_CRITICAL;
 		free(client_request);
+		close(client_socket);
 		return;
 	}
 	
@@ -152,6 +155,7 @@ void bartlby_check_active(struct service * svc, char * cfgfile) {
 		} 
 		svc->current_state=STATE_CRITICAL;
 		free(rmessage);
+		close(client_socket);
 		return;
 	}
 	
@@ -266,8 +270,12 @@ int bartlby_action_handle_reply_line(struct service * svc, char * line, char * c
        		return_token = strtok(NULL, "|");
        		if(return_token != NULL) {
        				//append the nagiosperfdata after the normal output 
-       				strcat(svc->new_server_text, " - |");
-       				strcat(svc->new_server_text, return_token);
+       				if(strlen(svc->new_server_text) + strlen(return_token) + 5 <= 1023) {
+       					strcat(svc->new_server_text, " - |");
+       					strcat(svc->new_server_text, return_token);
+       				} else {
+       					_debug("Buffer overflow!!! strcat");
+       				}
        		}
        		
        	} else {

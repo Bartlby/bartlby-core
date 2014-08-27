@@ -295,6 +295,36 @@ dnl Check for ssh library.
   	
   fi
 
+
+dnl Check for jsonc library.
+
+  AC_MSG_CHECKING(for libjson0 support)
+    AC_MSG_RESULT(yes)
+    AC_CHECK_LIB(json, json_tokener_parse,json_lib_found=yes,json_lib_found=no)
+    AC_CHECK_HEADER(json/json.h,json_lib_found=yes,json_lib_found=no)
+    
+    if test "$json_lib_found" == "yes"; then
+    
+      JSON_ADDON="-DJSON_ADDON -I/usr/include/json/"
+      JSON_FLAG="-ljson "
+      JSON_LIBDIR="-L$JSON_DIR/include"
+      JSON_INCDIR=""
+      AC_SUBST(JSON_LIBDIR)
+      AC_SUBST(JSON_INCDIR)
+      AC_SUBST(JSON_ADDON)
+      AC_SUBST(JSON_FLAG)
+
+      dnl Check if libjson is too old
+      AC_CHECK_LIB(json, json_object_object_get_ex,aaa=1,AC_DEFINE([NEEDS_JSON_GET_EX], [], [set if lilbjson is too old and a few wrappers will be built]))
+      AC_CHECK_LIB(json, json_object_new_int64,aaa=1,AC_DEFINE([NEEDS_JSON_INT64], [], [set if lilbjson is too old and a few wrappers will be built]))
+
+
+  else 
+        AC_MSG_ERROR([Unable to locate -ljson JSON support is required please install the libjson0-dev package])
+  fi;
+      
+ 
+
 dnl Check for ssl library.
   enable_ssl=yes
   

@@ -5,7 +5,7 @@ ACLOCAL_AMFLAGS = ${ACLOCAL_FLAGS}
 
 noinst_HEADERS = include/bartlby.h
 
-CORE_SOURCES=src/config.c src/global.c src/sched.c src/shm.c src/check.c src/trigger.c src/daemon.c src/replication.c src/perf.c src/downtime.c src/ack.c src/event.c src/check_snmp.c src/ src/ext.c src/check_active_v2.c src/check_active.c src/check_local.c src/check_group.c src/check_nrpe.c src/check_ssh.c src/notification_log.c
+CORE_SOURCES=src/config.c src/global.c src/sched.c src/shm.c src/check.c src/trigger.c src/daemon.c src/replication.c src/perf.c src/downtime.c src/ack.c src/event.c src/check_snmp.c src/ src/ext.c src/orchestra.c src/check_active_v2.c src/check_active.c src/check_local.c src/check_group.c src/check_nrpe.c src/check_ssh.c src/notification_log.c src/portier_base.c src/compat.c
 
 
 
@@ -15,35 +15,35 @@ EXTRA_DIST = src
 
 noinst_LIBRARIES = libbartlby.a
 libbartlby_a_SOURCES =  $(CORE_SOURCES)
-libbartlby_a_CFLAGS = $(AM_CFLAGS)  $(NRPE_ADDON) $(OPENSSL_ADDON)  $(SNMP_ADDON) $(SSH_ADDON) $(GIT_VERSION) -g -fPIC
+libbartlby_a_CFLAGS = $(AM_CFLAGS)  $(NRPE_ADDON) $(OPENSSL_ADDON)  $(SNMP_ADDON) $(SSH_ADDON) $(GIT_VERSION) $(JSON_ADDON) -g -fPIC
 
 
 bin_PROGRAMS = bartlby bartlby_shmt bartlby_portier
 nodist_bartlby_SOURCES = src/bartlby.c
 
 
-bartlby_LDADD = -ldl  libbartlby.a  $(OPENSSL_FLAG) $(SNMP_FLAG) $(SSH_FLAG) 
+bartlby_LDADD = -ldl  libbartlby.a  $(OPENSSL_FLAG) $(SNMP_FLAG) $(SSH_FLAG) $(JSON_FLAG)
 bartlby_LDFLAGS = -pthread
-bartlby_CFLAGS = $(AM_CFLAGS)  $(NRPE_ADDON) $(OPENSSL_ADDON)  $(SNMP_ADDON) $(SSH_ADDON) $(GIT_VERSION) -g
+bartlby_CFLAGS = $(AM_CFLAGS)  $(NRPE_ADDON) $(OPENSSL_ADDON)  $(SNMP_ADDON) $(SSH_ADDON) $(JSON_ADDON) $(GIT_VERSION) -g
 
 
 
 
 nodist_bartlby_shmt_SOURCES = src/tools/shmt.c
-bartlby_shmt_LDADD = -ldl libbartlby.a $(OPENSSL_FLAG) $(SNMP_FLAG) $(SSH_FLAG) 
-bartlby_shmt_CFLAGS = $(AM_CFLAGS) $(NRPE_ADDON) $(SSL_ADDON)  $(SNMP_ADDON) $(SSH_ADDON) $(GIT_VERSION)
+bartlby_shmt_LDADD = -ldl libbartlby.a $(OPENSSL_FLAG) $(SNMP_FLAG) $(SSH_FLAG) $(JSON_FLAG)
+bartlby_shmt_CFLAGS = $(AM_CFLAGS) $(NRPE_ADDON) $(SSL_ADDON)  $(SNMP_ADDON) $(SSH_ADDON) $(JSON_ADDON) $(GIT_VERSION)
 bartlby_shmt_LDFLAGS =  -Wl,--no-as-needed
 
 nodist_bartlby_portier_SOURCES =  src/tools/portier.c
-bartlby_portier_LDADD = -ldl libbartlby.a $(OPENSSL_FLAG) $(SNMP_FLAG) $(SSH_FLAG) 
+bartlby_portier_LDADD = -ldl libbartlby.a $(OPENSSL_FLAG) $(SNMP_FLAG) $(SSH_FLAG) $(JSON_FLAG)
 bartlby_portier_LDFLAGS = -pthread -Wl,--no-as-needed
-bartlby_portier_CFLAGS = $(AM_CFLAGS) $(NRPE_ADDON) $(SSL_ADDON) $(SNMP_ADDON) $(SSH_ADDON) $(GIT_VERSION)
+bartlby_portier_CFLAGS = $(AM_CFLAGS) $(NRPE_ADDON) $(SSL_ADDON) $(SNMP_ADDON) $(SSH_ADDON) $(JSON_ADDON) $(GIT_VERSION)
 
 lib_LTLIBRARIES = mysql.la
 nodist_mysql_la_SOURCES =  src/libs/mysql.c 
 mysql_la_LIBADD = $(LIB_MYSQL)  
-mysql_la_LDFLAGS = -avoid-version -module -Wl,--export-dynamic  -Wl,--whole-archive,libbartlby.a,--no-whole-archive
-
+mysql_la_LDFLAGS = -avoid-version -module -Wl,--export-dynamic  -Wl,--whole-archive,libbartlby.a,--no-whole-archive  
+mysql_la_CFLAGS = $(AM_CFLAGS)  $(NRPE_ADDON) $(OPENSSL_ADDON)  $(SNMP_ADDON) $(SSH_ADDON) $(JSON_ADDON) $(GIT_VERSION) -g
 
 #perfhandler
 perfhandlerdir=$(prefix)/perf

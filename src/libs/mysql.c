@@ -21,25 +21,37 @@
 static int db_is_connected=0;
 static MYSQL * mysql_conn;
 
-#define CHK_ERR(x) \
+#define CHK_FREE_CRED if(mysql_user != NULL) { free(mysql_user); } \
+					   if(mysql_pw != NULL) { free(mysql_pw); } \
+					   if(mysql_host != NULL) { free(mysql_host); } \
+					   if(mysql_db != NULL) { free(mysql_db); }
+
+#define CHK_ERR(x, y) \
 		if (x != NULL) {\
 			if(mysql_errno(x) != 0) {\
-		 		_log(LH_LIB, B_LOG_CRIT,"mysql error: %s", mysql_error(x)); \
+		 		_log(LH_LIB, B_LOG_CRIT,"mysql error: %s - %s:%d", mysql_error(x),  __FILE__, __LINE__); \
+		 			CHK_FREE_CRED; \
+          if(y != NULL) { free(y); } \
       		 		return -1; \
       			}\
       		} else {\
       			_log(LH_LIB, B_LOG_CRIT,"Mysql Error %s:%d", __FILE__, __LINE__); \
+      			CHK_FREE_CRED; \
       			return -1; \
       		}
 
-#define CHK_ERR_NULL(x) \
+#define CHK_ERR_NULL(x,y) \
 		if (x != NULL) {\
 			if(mysql_errno(x) != 0) {\
-		 		_log(LH_LIB, B_LOG_CRIT,"mysql error: %s", mysql_error(x)); \
+		 		_log(LH_LIB, B_LOG_CRIT,"mysql error: %s - %s:%d", mysql_error(x), __FILE__, __LINE__); \
+		 			CHK_FREE_CRED; \
+          if(y != NULL) { free(y); } \
       		 		return NULL; \
       			}\
       		} else {\
       			_log(LH_LIB, B_LOG_CRIT,"Mysql Error %s:%d", __FILE__, __LINE__); \
+      			CHK_FREE_CRED; \
+            if(y != NULL) { free(y); } \
       			return NULL; \
       		}      		
 
@@ -49,11 +61,11 @@ static MYSQL * mysql_conn;
 #define NAME "MYSQL Connector"
 #define DLVERSION  "1.5.0"
 
-#define SERVER_MAP_SELECTOR "select server_id, server_ip, server_name, server_ico, server_enabled, server_port, server_dead, server_flap_seconds, server_notify, server_ssh_keyfile, server_ssh_passphrase, server_ssh_username, enabled_triggers, default_service_type, orch_id from servers"
+#define SERVER_MAP_SELECTOR "select server_id, server_ip, server_name, server_ico, server_enabled, server_port, server_dead, server_flap_seconds, server_notify, server_ssh_keyfile, server_ssh_passphrase, server_ssh_username, enabled_triggers, default_service_type, orch_id from servers  %s"
 
 
-#define SERVICE_MAP_SELECTOR "select service_id, service_name, service_state, service_plugin, service_args, UNIX_TIMESTAMP(service_last_check), service_interval, service_text, service_notify, service_type, service_var, service_passive_timeout,service_active, service_check_timeout, service_ack_enabled, service_retain, service_snmp_community, service_snmp_objid, service_snmp_version, service_snmp_warning, service_snmp_critical, service_snmp_type, flap_seconds, service_exec_plan, renotify_interval, escalate_divisor, fires_events, enabled_triggers, service_snmp_textmatch, UNIX_TIMESTAMP(service_last_notify_send), UNIX_TIMESTAMP(service_last_state_change),service_retain_current, service_ack_current, server_id, service_handled, orch_id   from services svc ORDER BY RAND()"
-#define WORKER_SELECTOR "select worker_mail, worker_icq, visible_services ,notify_levels, worker_active, worker_name, worker_id, password, enabled_triggers, escalation_limit, escalation_minutes, notify_plan, visible_servers, selected_services, selected_servers, is_super_user, notification_aggregation_interval, orch_id from workers"
+#define SERVICE_MAP_SELECTOR "select service_id, service_name, service_state, service_plugin, service_args, UNIX_TIMESTAMP(service_last_check), service_interval, service_text, service_notify, service_type, service_var, service_passive_timeout,service_active, service_check_timeout, service_ack_enabled, service_retain, service_snmp_community, service_snmp_objid, service_snmp_version, service_snmp_warning, service_snmp_critical, service_snmp_type, flap_seconds, service_exec_plan, renotify_interval, escalate_divisor, fires_events, enabled_triggers, service_snmp_textmatch, UNIX_TIMESTAMP(service_last_notify_send), UNIX_TIMESTAMP(service_last_state_change),service_retain_current, service_ack_current, server_id, service_handled, orch_id   from services svc %s ORDER BY RAND()"
+#define WORKER_SELECTOR "select worker_mail, worker_icq, visible_services ,notify_levels, worker_active, worker_name, worker_id, password, enabled_triggers, escalation_limit, escalation_minutes, notify_plan, visible_servers, selected_services, selected_servers, is_super_user, notification_aggregation_interval, orch_id from workers  %s"
 #define SERVICE_UPDATE_TEXT "update services set service_last_check=FROM_UNIXTIME(%d), service_text='%s', service_state=%d, service_last_notify_send=FROM_UNIXTIME(%d), service_last_state_change=FROM_UNIXTIME(%d), service_ack_current=%d, service_retain_current=%d, service_handled=%d where service_id=%ld"
 
 
@@ -64,6 +76,8 @@ static MYSQL * mysql_conn;
 #define SERVER_SELECTOR "select server_name, server_ip, server_port, server_ico, server_enabled, server_notify, server_flap_seconds, server_dead, server_ssh_keyfile, server_ssh_passphrase, server_ssh_username, enabled_triggers, default_service_type, orch_id from servers where server_id=%d"
 #define SERVER_CHANGE_ID "update servers set server_id=%d where server_id=%d"
 #define SERVER_CHANGE_SERVICES "update services set server_id=%d where server_id=%d"
+#define SERVER_CHANGE_SERVICES_ORCH_ID "update services set orch_id=%d where server_id=%d"
+
 
 #define SERVER_UPDATE_TEXT "update servers set server_enabled='%d', server_notify='%d' where server_id=%ld"
 
@@ -90,7 +104,7 @@ static MYSQL * mysql_conn;
 #define UPDATE_DOWNTIME "update downtime set downtime_notice='%s', downtime_from=%d,downtime_to=%d, service_id=%d, downtime_type=%d, orch_id=%d where downtime_id=%ld"
 #define DEL_DOWNTIME "delete from downtime where downtime_id=%d"
 #define ADD_DOWNTIME "INSERT INTO downtime(downtime_type, downtime_from,downtime_to,service_id, downtime_notice,orch_id) VALUES(%d,%d,%d,%d, '%s', '%d')"
-#define DOWNTIME_SEL "select downtime_id, downtime_type, downtime_from, downtime_to, downtime_notice, service_id, orch_id from downtime"
+#define DOWNTIME_SEL "select downtime_id, downtime_type, downtime_from, downtime_to, downtime_notice, service_id, orch_id from downtime %s"
 #define DOWNTIME_CHANGE_ID "update downtime set downtime_id=%d where downtime_id=%d"
 
 
@@ -98,14 +112,14 @@ static MYSQL * mysql_conn;
 #define UPDATE_SERVERGROUP "update servergroups set servergroup_name='%s', servergroup_notify=%d,servergroup_active=%d, servergroup_members='%s', servergroup_dead=%d, enabled_triggers='%s', orch_id=%d where servergroup_id=%ld"
 #define DEL_SERVERGROUP "delete from servergroups where servergroup_id=%d"
 #define ADD_SERVERGROUP "INSERT INTO servergroups(servergroup_name, servergroup_notify,servergroup_active,servergroup_members, servergroup_dead, enabled_triggers, orch_id) VALUES('%s', %d,%d,'%s', %d, '%s', '%d')"
-#define SERVERGROUP_SEL "select servergroup_id, servergroup_name, servergroup_notify, servergroup_active, servergroup_members, servergroup_dead, enabled_triggers, orch_id from servergroups"
+#define SERVERGROUP_SEL "select servergroup_id, servergroup_name, servergroup_notify, servergroup_active, servergroup_members, servergroup_dead, enabled_triggers, orch_id from servergroups %s"
 #define SERVERGROUP_CHANGE_ID "update servergroups set servergroup_id=%d where servergroup_id=%d"
 
 
 #define UPDATE_SERVICEGROUP "update servicegroups set servicegroup_name='%s', servicegroup_notify=%d,servicegroup_active=%d, servicegroup_members='%s', servicegroup_dead=%d, enabled_triggers='%s', orch_id=%d where servicegroup_id=%ld"
 #define DEL_SERVICEGROUP "delete from servicegroups where servicegroup_id=%d"
 #define ADD_SERVICEGROUP "INSERT INTO servicegroups(servicegroup_name, servicegroup_notify,servicegroup_active,servicegroup_members, servicegroup_dead, enabled_triggers,orch_id) VALUES('%s', %d,%d,'%s', %d, '%s', '%d')"
-#define SERVICEGROUP_SEL "select servicegroup_id, servicegroup_name, servicegroup_notify, servicegroup_active, servicegroup_members, servicegroup_dead, enabled_triggers,orch_id from servicegroups"
+#define SERVICEGROUP_SEL "select servicegroup_id, servicegroup_name, servicegroup_notify, servicegroup_active, servicegroup_members, servicegroup_dead, enabled_triggers,orch_id from servicegroups %s"
 #define SERVICEGROUP_CHANGE_ID "update servicegroups set servicegroup_id=%d where servicegroup_id=%d"
 
 
@@ -149,11 +163,11 @@ MYSQL * getDBConn(char * config) {
 
 
 			mysql=mysql_init(NULL);
-			CHK_ERR_NULL(mysql);
+			CHK_ERR_NULL(mysql,NULL);
 			mysql=mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
-			CHK_ERR_NULL(mysql);
+			CHK_ERR_NULL(mysql,NULL);
 	     	mysql_select_db(mysql, mysql_db);
-	     	CHK_ERR_NULL(mysql);
+	     	CHK_ERR_NULL(mysql,NULL);
 
      */
 
@@ -169,6 +183,7 @@ MYSQL * getDBConn(char * config) {
 		//MYSQL * mysql_conn
 	}
 	//return mysql_conn
+  return NULL;
 }
 
 void DataLibInit(char * cfgfile,int do_debug) {
@@ -195,17 +210,17 @@ struct shm_counter * GetCounter(char * config) {
 
 
 	mysql=mysql_init(NULL);
-	CHK_ERR_NULL(mysql);
+	CHK_ERR_NULL(mysql,shmc);
 	mysql=mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
-	CHK_ERR_NULL(mysql);
+	CHK_ERR_NULL(mysql,shmc);
      mysql_select_db(mysql, mysql_db);
-     CHK_ERR_NULL(mysql);
+     CHK_ERR_NULL(mysql,shmc);
 	
 	
 	mysql_query(mysql, COUNT_SERVICES);
-	CHK_ERR_NULL(mysql);
+	CHK_ERR_NULL(mysql,shmc);
      res = mysql_store_result(mysql);
-     CHK_ERR_NULL(mysql);
+     CHK_ERR_NULL(mysql,shmc);
      
      
      if(mysql_num_rows(res) > 0) {
@@ -223,9 +238,9 @@ struct shm_counter * GetCounter(char * config) {
      mysql_free_result(res);
      
      mysql_query(mysql, COUNT_WORKERS);
-	CHK_ERR_NULL(mysql);
+	CHK_ERR_NULL(mysql,shmc);
      res = mysql_store_result(mysql);
-     CHK_ERR_NULL(mysql);
+     CHK_ERR_NULL(mysql,shmc);
      
      
      if(mysql_num_rows(res) > 0) {
@@ -243,9 +258,9 @@ struct shm_counter * GetCounter(char * config) {
      mysql_free_result(res);
      
      mysql_query(mysql, COUNT_DOWNTIMES);
-	CHK_ERR_NULL(mysql);
+	CHK_ERR_NULL(mysql,shmc);
      res = mysql_store_result(mysql);
-     CHK_ERR_NULL(mysql);
+     CHK_ERR_NULL(mysql,shmc);
      
      
      if(mysql_num_rows(res) > 0) {
@@ -263,9 +278,9 @@ struct shm_counter * GetCounter(char * config) {
      mysql_free_result(res);
      //COUNT_SERVERS
      mysql_query(mysql, COUNT_SERVERS);
-	CHK_ERR_NULL(mysql);
+	CHK_ERR_NULL(mysql,shmc);
      res = mysql_store_result(mysql);
-     CHK_ERR_NULL(mysql);
+     CHK_ERR_NULL(mysql,shmc);
      
      
      if(mysql_num_rows(res) > 0) {
@@ -286,9 +301,9 @@ struct shm_counter * GetCounter(char * config) {
      
      //COUNT_SERVICEGROUPS
      mysql_query(mysql, COUNT_SERVICEGROUPS);
-	CHK_ERR_NULL(mysql);
+	CHK_ERR_NULL(mysql,shmc);
      res = mysql_store_result(mysql);
-     CHK_ERR_NULL(mysql);
+     CHK_ERR_NULL(mysql,shmc);
      
      
      if(mysql_num_rows(res) > 0) {
@@ -309,9 +324,9 @@ struct shm_counter * GetCounter(char * config) {
      
      //COUNT_SERVERGROUPS
      mysql_query(mysql, COUNT_SERVERGROUPS);
-	CHK_ERR_NULL(mysql);
+	CHK_ERR_NULL(mysql,shmc);
      res = mysql_store_result(mysql);
-     CHK_ERR_NULL(mysql);
+     CHK_ERR_NULL(mysql,shmc);
      
      
      if(mysql_num_rows(res) > 0) {
@@ -358,11 +373,11 @@ int UpdateDowntime(struct downtime * svc, char *config) {
 	char * mysql_db = getConfigValue("mysql_db", config);
 
 	mysql=mysql_init(NULL);
-		CHK_ERR(mysql);
+		CHK_ERR(mysql,NULL);
 	mysql=mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
-		CHK_ERR(mysql);
+		CHK_ERR(mysql,NULL);
 	mysql_select_db(mysql, mysql_db);
-      		CHK_ERR(mysql);
+      		CHK_ERR(mysql,NULL);
 	
 	
 	
@@ -371,7 +386,7 @@ int UpdateDowntime(struct downtime * svc, char *config) {
 	
 	
 	mysql_query(mysql, sqlupd);
-		CHK_ERR(mysql);
+		CHK_ERR(mysql,NULL);
 	
 	
 	free(sqlupd);
@@ -401,11 +416,11 @@ int DeleteDowntime(int downtime_id, char * config) {
 	char * mysql_db = getConfigValue("mysql_db", config);
 
 	mysql=mysql_init(NULL);
-		CHK_ERR(mysql);
+		CHK_ERR(mysql,NULL);
 	mysql=mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
-		CHK_ERR(mysql);
+		CHK_ERR(mysql,NULL);
 	mysql_select_db(mysql, mysql_db);
-      		CHK_ERR(mysql);
+      		CHK_ERR(mysql,NULL);
 	
 	
 	
@@ -414,7 +429,7 @@ int DeleteDowntime(int downtime_id, char * config) {
 	//Log("dbg", sqlupd);
 	
 	mysql_query(mysql, sqlupd);
-		CHK_ERR(mysql);
+		CHK_ERR(mysql,NULL);
 	
 	
 	free(sqlupd);
@@ -445,11 +460,11 @@ int DowntimeChangeId(int from, int to, char * config) {
 	char * mysql_db = getConfigValue("mysql_db", config);
 
 	mysql=mysql_init(NULL);
-		CHK_ERR(mysql);
+		CHK_ERR(mysql,NULL);
 	mysql=mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
-		CHK_ERR(mysql);
+		CHK_ERR(mysql,NULL);
 	mysql_select_db(mysql, mysql_db);
-      		CHK_ERR(mysql);
+      		CHK_ERR(mysql,NULL);
 	
 	
 	
@@ -458,7 +473,7 @@ int DowntimeChangeId(int from, int to, char * config) {
 	
 	
 	mysql_query(mysql, sqlupd);
-		CHK_ERR(mysql);
+		CHK_ERR(mysql,NULL);
 			
 	free(sqlupd);
 		
@@ -485,11 +500,11 @@ int WorkerChangeId(int from, int to, char * config) {
 	char * mysql_db = getConfigValue("mysql_db", config);
 
 	mysql=mysql_init(NULL);
-		CHK_ERR(mysql);
+		CHK_ERR(mysql,NULL);
 	mysql=mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
-		CHK_ERR(mysql);
+		CHK_ERR(mysql,NULL);
 	mysql_select_db(mysql, mysql_db);
-      		CHK_ERR(mysql);
+      		CHK_ERR(mysql,NULL);
 	
 	
 	
@@ -498,7 +513,7 @@ int WorkerChangeId(int from, int to, char * config) {
 	
 	
 	mysql_query(mysql, sqlupd);
-		CHK_ERR(mysql);
+		CHK_ERR(mysql,NULL);
 			
 	free(sqlupd);
 		
@@ -525,11 +540,11 @@ int ServiceChangeId(int from, int to, char * config) {
 	char * mysql_db = getConfigValue("mysql_db", config);
 
 	mysql=mysql_init(NULL);
-		CHK_ERR(mysql);
+		CHK_ERR(mysql,NULL);
 	mysql=mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
-		CHK_ERR(mysql);
+		CHK_ERR(mysql,NULL);
 	mysql_select_db(mysql, mysql_db);
-      		CHK_ERR(mysql);
+      		CHK_ERR(mysql,NULL);
 	
 	
 	
@@ -538,7 +553,7 @@ int ServiceChangeId(int from, int to, char * config) {
 	
 	
 	mysql_query(mysql, sqlupd);
-		CHK_ERR(mysql);
+		CHK_ERR(mysql,NULL);
 			
 	free(sqlupd);
 		
@@ -565,11 +580,11 @@ int ServerChangeId(int from, int to, int sr, char * config) {
 	char * mysql_db = getConfigValue("mysql_db", config);
 
 	mysql=mysql_init(NULL);
-		CHK_ERR(mysql);
+		CHK_ERR(mysql,NULL);
 	mysql=mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
-		CHK_ERR(mysql);
+		CHK_ERR(mysql,NULL);
 	mysql_select_db(mysql, mysql_db);
-      		CHK_ERR(mysql);
+      		CHK_ERR(mysql,NULL);
 	
 	
 	
@@ -578,7 +593,7 @@ int ServerChangeId(int from, int to, int sr, char * config) {
 	
 	
 	mysql_query(mysql, sqlupd);
-		CHK_ERR(mysql);
+		CHK_ERR(mysql,NULL);
 			
 	free(sqlupd);
 	
@@ -587,7 +602,7 @@ int ServerChangeId(int from, int to, int sr, char * config) {
 		
 		asprintf(&sqlupd, SERVER_CHANGE_SERVICES, to,from);
 		mysql_query(mysql, sqlupd);
-			CHK_ERR(mysql);
+			CHK_ERR(mysql,NULL);
 		free(sqlupd);	
 			
 	}
@@ -615,11 +630,11 @@ int AddDowntime(struct downtime * svc, char *config) {
 	char * mysql_db = getConfigValue("mysql_db", config);
 
 	mysql=mysql_init(NULL);
-		CHK_ERR(mysql);
+		CHK_ERR(mysql,NULL);
 	mysql=mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
-		CHK_ERR(mysql);
+		CHK_ERR(mysql,NULL);
 	mysql_select_db(mysql, mysql_db);
-      		CHK_ERR(mysql);
+      		CHK_ERR(mysql,NULL);
 	
 	
 	
@@ -628,7 +643,7 @@ int AddDowntime(struct downtime * svc, char *config) {
 	
 	
 	mysql_query(mysql, sqlupd);
-		CHK_ERR(mysql);
+		CHK_ERR(mysql,NULL);
 	
 	
 	free(sqlupd);
@@ -643,7 +658,7 @@ int AddDowntime(struct downtime * svc, char *config) {
 	return rtc;	
 }	
 
-int GetDowntimeMap(struct downtime * svcs, char * config) {
+int GetDowntimeMap(struct downtime * svcs, char * config, int orch_id) {
 	
 	MYSQL *mysql;
 	MYSQL_ROW  row;
@@ -656,21 +671,34 @@ int GetDowntimeMap(struct downtime * svcs, char * config) {
 	char * mysql_db = getConfigValue("mysql_db", config);
 	int i=0;
 	
-	
+	char * sql, *where;
 
 
+	set_cfg(config);
 	mysql=mysql_init(NULL);
-		CHK_ERR(mysql);
+		CHK_ERR(mysql,NULL);
 	mysql=mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
-		CHK_ERR(mysql);
+		CHK_ERR(mysql,NULL);
       	mysql_select_db(mysql, mysql_db);
-      		CHK_ERR(mysql);
-	
-	
-	mysql_query(mysql, DOWNTIME_SEL);
-		CHK_ERR(mysql);
+      		CHK_ERR(mysql,NULL);
+      		
+
+      	if(orch_id > 0) {
+      		asprintf(&where, " where orch_id=%d", orch_id);
+      	} else {
+      		asprintf(&where, " ");
+      	}
+      	asprintf(&sql, DOWNTIME_SEL, where);
+
+      	mysql_query(mysql, sql);
+		CHK_ERR(mysql,NULL);
+
+		
+		free(where);
+		free(sql);
+
       	res = mysql_store_result(mysql);
-      		CHK_ERR(mysql);
+      		CHK_ERR(mysql,NULL);
       	
       	
       	if(mysql_num_rows(res) > 0) {
@@ -777,20 +805,20 @@ int GetWorkerById(int worker_id, struct worker * svc, char * config) {
 	
 	
 	mysql=mysql_init(NULL);
-		CHK_ERR(mysql);
+		CHK_ERR(mysql,NULL);
 	mysql=mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
-		CHK_ERR(mysql);
+		CHK_ERR(mysql,NULL);
       	mysql_select_db(mysql, mysql_db);
-      		CHK_ERR(mysql);
+      		CHK_ERR(mysql,NULL);
 	
 	
 	asprintf(&sqlupd, WORKER_SEL, worker_id);
 	
 	
 	mysql_query(mysql, sqlupd);
-		CHK_ERR(mysql);
+		CHK_ERR(mysql,NULL);
       	res = mysql_store_result(mysql);
-      		CHK_ERR(mysql);
+      		CHK_ERR(mysql,NULL);
       	
       	
       	if(mysql_num_rows(res) == 1 ) {
@@ -913,11 +941,11 @@ int UpdateWorker(struct worker * svc, char *config) {
 	char * mysql_db = getConfigValue("mysql_db", config);
 
 	mysql=mysql_init(NULL);
-		CHK_ERR(mysql);
+		CHK_ERR(mysql,NULL);
 	mysql=mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
-		CHK_ERR(mysql);
+		CHK_ERR(mysql,NULL);
 	mysql_select_db(mysql, mysql_db);
-      		CHK_ERR(mysql);
+      		CHK_ERR(mysql,NULL);
 	
 	
 	
@@ -926,7 +954,7 @@ int UpdateWorker(struct worker * svc, char *config) {
 	
 	
 	mysql_query(mysql, sqlupd);
-		CHK_ERR(mysql);
+		CHK_ERR(mysql,NULL);
 	
 	
 	free(sqlupd);
@@ -961,11 +989,11 @@ int DeleteWorker(int worker_id, char * config) {
 	char * mysql_db = getConfigValue("mysql_db", config);
 
 	mysql=mysql_init(NULL);
-		CHK_ERR(mysql);
+		CHK_ERR(mysql,NULL);
 	mysql=mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
-		CHK_ERR(mysql);
+		CHK_ERR(mysql,NULL);
 	mysql_select_db(mysql, mysql_db);
-      		CHK_ERR(mysql);
+      		CHK_ERR(mysql,NULL);
 	
 	
 	
@@ -974,7 +1002,7 @@ int DeleteWorker(int worker_id, char * config) {
 	//Log("dbg", sqlupd);
 	
 	mysql_query(mysql, sqlupd);
-		CHK_ERR(mysql);
+		CHK_ERR(mysql,NULL);
 	
 	
 	free(sqlupd);
@@ -1011,11 +1039,11 @@ int AddWorker(struct worker * svc, char *config) {
 	char * mysql_db = getConfigValue("mysql_db", config);
 
 	mysql=mysql_init(NULL);
-		CHK_ERR(mysql);
+		CHK_ERR(mysql,NULL);
 	mysql=mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
-		CHK_ERR(mysql);
+		CHK_ERR(mysql,NULL);
 	mysql_select_db(mysql, mysql_db);
-      		CHK_ERR(mysql);
+      		CHK_ERR(mysql,NULL);
 	
 	
 	
@@ -1024,7 +1052,7 @@ int AddWorker(struct worker * svc, char *config) {
 	
 	
 	mysql_query(mysql, sqlupd);
-		CHK_ERR(mysql);
+		CHK_ERR(mysql,NULL);
 	
 	
 	free(sqlupd);
@@ -1063,20 +1091,20 @@ int GetServiceById(int service_id, struct service * svc, char * config) {
 	
 	
 	mysql=mysql_init(NULL);
-		CHK_ERR(mysql);
+		CHK_ERR(mysql,NULL);
 	mysql=mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
-		CHK_ERR(mysql);
+		CHK_ERR(mysql,NULL);
       	mysql_select_db(mysql, mysql_db);
-      		CHK_ERR(mysql);
+      		CHK_ERR(mysql,NULL);
 	
 	
 	asprintf(&sqlupd, SERVICE_SELECTOR, service_id);
 	
 	
 	mysql_query(mysql, sqlupd);
-		CHK_ERR(mysql);
+		CHK_ERR(mysql,NULL);
       	res = mysql_store_result(mysql);
-      		CHK_ERR(mysql);
+      		CHK_ERR(mysql,NULL);
       	
       	
       	if(mysql_num_rows(res) == 1 ) {
@@ -1250,11 +1278,11 @@ int UpdateServiceInterval(struct service * svc, char * config) {
 	char * mysql_db = getConfigValue("mysql_db", config);
 
 	mysql=mysql_init(NULL);
-		CHK_ERR(mysql);
+		CHK_ERR(mysql,NULL);
 	mysql=mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
-		CHK_ERR(mysql);
+		CHK_ERR(mysql,NULL);
 	mysql_select_db(mysql, mysql_db);
-      		CHK_ERR(mysql);
+      		CHK_ERR(mysql,NULL);
       		
   
   asprintf(&sqlupd, UPDATE_SERVICE_INTERVAL, 	svc->check_interval, 	svc->service_id);
@@ -1262,7 +1290,7 @@ int UpdateServiceInterval(struct service * svc, char * config) {
 	//Log("dbg", sqlupd);
 
 	mysql_query(mysql, sqlupd);
-		CHK_ERR(mysql);
+		CHK_ERR(mysql,NULL);
 	
 	
 	free(sqlupd);
@@ -1298,11 +1326,11 @@ int UpdateService(struct service * svc, char *config) {
 	char * mysql_db = getConfigValue("mysql_db", config);
 
 	mysql=mysql_init(NULL);
-		CHK_ERR(mysql);
+		CHK_ERR(mysql,NULL);
 	mysql=mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
-		CHK_ERR(mysql);
+		CHK_ERR(mysql,NULL);
 	mysql_select_db(mysql, mysql_db);
-      		CHK_ERR(mysql);
+      		CHK_ERR(mysql,NULL);
 	
 	
 	/*
@@ -1360,7 +1388,7 @@ int UpdateService(struct service * svc, char *config) {
 	//Log("dbg", sqlupd);
 
 	mysql_query(mysql, sqlupd);
-		CHK_ERR(mysql);
+		CHK_ERR(mysql,NULL);
 	
 	
 	free(sqlupd);
@@ -1395,11 +1423,11 @@ int DeleteService(int service_id, char * config) {
 	char * mysql_db = getConfigValue("mysql_db", config);
 
 	mysql=mysql_init(NULL);
-		CHK_ERR(mysql);
+		CHK_ERR(mysql,NULL);
 	mysql=mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
-		CHK_ERR(mysql);
+		CHK_ERR(mysql,NULL);
 	mysql_select_db(mysql, mysql_db);
-      		CHK_ERR(mysql);
+      		CHK_ERR(mysql,NULL);
 	
 	
 	
@@ -1408,7 +1436,7 @@ int DeleteService(int service_id, char * config) {
 	//Log("dbg", sqlupd);
 	
 	mysql_query(mysql, sqlupd);
-		CHK_ERR(mysql);
+		CHK_ERR(mysql,NULL);
 	
 	
 	free(sqlupd);
@@ -1449,11 +1477,11 @@ int AddService(struct service * svc, char *config) {
 	
 	
 	mysql=mysql_init(NULL);
-		CHK_ERR(mysql);
+		CHK_ERR(mysql,NULL);
 	mysql=mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
-		CHK_ERR(mysql);
+		CHK_ERR(mysql,NULL);
 	mysql_select_db(mysql, mysql_db);
-      		CHK_ERR(mysql);
+      		CHK_ERR(mysql,NULL);
 	
 	
 	/*
@@ -1519,7 +1547,7 @@ int AddService(struct service * svc, char *config) {
 	
 	
 	mysql_query(mysql, sqlupd);
-		CHK_ERR(mysql);
+		CHK_ERR(mysql,NULL);
 	
 	
 	free(sqlupd);
@@ -1555,19 +1583,19 @@ int GetServerById(int server_id, struct server * svc, char * config) {
 	
 	
 	mysql=mysql_init(NULL);
-		CHK_ERR(mysql);
+		CHK_ERR(mysql,NULL);
 	mysql=mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
-		CHK_ERR(mysql);
+		CHK_ERR(mysql,NULL);
       	mysql_select_db(mysql, mysql_db);
-      		CHK_ERR(mysql);
+      		CHK_ERR(mysql,NULL);
 	
 	asprintf(&sqlupd, SERVER_SELECTOR, server_id);
 	
 	
 	mysql_query(mysql, sqlupd);
-		CHK_ERR(mysql);
+		CHK_ERR(mysql,NULL);
       	res = mysql_store_result(mysql);
-      		CHK_ERR(mysql);
+      		CHK_ERR(mysql,NULL);
       	
       	
       	if(mysql_num_rows(res) == 1 ) {
@@ -1665,11 +1693,11 @@ int ModifyServer(struct server * svc, char *config) {
 	//service_mysql_safe(svc);
 
 	mysql=mysql_init(NULL);
-		CHK_ERR(mysql);
+		CHK_ERR(mysql,NULL);
 	mysql=mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
-		CHK_ERR(mysql);
+		CHK_ERR(mysql,NULL);
 	mysql_select_db(mysql, mysql_db);
-      		CHK_ERR(mysql);
+      		CHK_ERR(mysql,NULL);
 	
 	
 	asprintf(&sqlupd, UPDATE_SERVER, svc->server_name, svc->client_ip, svc->client_port,svc->server_icon,svc->server_enabled, svc->server_notify, svc->server_flap_seconds,svc->server_dead,svc->server_ssh_keyfile, svc->server_ssh_passphrase, svc->server_ssh_username,svc->enabled_triggers, svc->default_service_type,svc->orch_id, svc->server_id);
@@ -1677,10 +1705,21 @@ int ModifyServer(struct server * svc, char *config) {
 	//Log("dbg", sqlupd);
 	
 	mysql_query(mysql, sqlupd);
-		CHK_ERR(mysql);
+		CHK_ERR(mysql,NULL);
 	
 	
 	free(sqlupd);
+
+
+	//update services - if orch_id changed
+
+	asprintf(&sqlupd, SERVER_CHANGE_SERVICES_ORCH_ID,svc->orch_id, svc->server_id);	
+
+	mysql_query(mysql, sqlupd);
+	CHK_ERR(mysql,NULL);
+	free(sqlupd);
+	
+
 	rtc=1;
 	mysql_close(mysql);
 		
@@ -1711,11 +1750,11 @@ int DeleteServer(int server_id, char * config) {
 	char * mysql_db = getConfigValue("mysql_db", config);
 
 	mysql=mysql_init(NULL);
-		CHK_ERR(mysql);
+		CHK_ERR(mysql,NULL);
 	mysql=mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
-		CHK_ERR(mysql);
+		CHK_ERR(mysql,NULL);
 	mysql_select_db(mysql, mysql_db);
-      		CHK_ERR(mysql);
+      		CHK_ERR(mysql,NULL);
 	
 	
 	asprintf(&sqlupd, DELETE_SERVER, server_id);
@@ -1723,7 +1762,7 @@ int DeleteServer(int server_id, char * config) {
 	//Log("dbg", sqlupd);
 	
 	mysql_query(mysql, sqlupd);
-		CHK_ERR(mysql);
+		CHK_ERR(mysql,NULL);
 	
 	
 	free(sqlupd);
@@ -1732,7 +1771,7 @@ int DeleteServer(int server_id, char * config) {
 	//DELETE_SERVICE_BY_SERVER
 	asprintf(&sqlupd, DELETE_SERVICE_BY_SERVER, server_id);
 	mysql_query(mysql, sqlupd);
-		CHK_ERR(mysql);
+		CHK_ERR(mysql,NULL);
 	
 	
 	free(sqlupd);
@@ -1768,19 +1807,20 @@ int AddServer(struct server * svc, char *config) {
 	char * mysql_db = getConfigValue("mysql_db", config);
 
 	mysql=mysql_init(NULL);
-		CHK_ERR(mysql);
+		CHK_ERR(mysql,NULL);
 	mysql=mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
-		CHK_ERR(mysql);
+		CHK_ERR(mysql,NULL);
 	mysql_select_db(mysql, mysql_db);
-      		CHK_ERR(mysql);
+      		CHK_ERR(mysql,NULL);
 	
 	
 	asprintf(&sqlupd, ADD_SERVER, svc->server_name, svc->client_ip, svc->client_port, svc->server_icon, svc->server_enabled, svc->server_notify, svc->server_flap_seconds, svc->server_dead, svc->server_ssh_keyfile, svc->server_ssh_passphrase, svc->server_ssh_username, svc->enabled_triggers, svc->default_service_type, svc->orch_id);
 	
+
 	//Log("dbg", sqlupd);
 	
 	mysql_query(mysql, sqlupd);
-		CHK_ERR(mysql);
+		CHK_ERR(mysql,NULL);
 	
 	
 	free(sqlupd);
@@ -1827,11 +1867,11 @@ int doUpdateServer(struct server * svc, char * config) {
         char * mysql_db = getConfigValue("mysql_db", config);
 
         mysql=mysql_init(NULL);
-                CHK_ERR(mysql);
+                CHK_ERR(mysql,NULL);
         mysql=mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
-                CHK_ERR(mysql);
+                CHK_ERR(mysql,NULL);
         mysql_select_db(mysql, mysql_db);
-                CHK_ERR(mysql);
+                CHK_ERR(mysql,NULL);
 
         
 
@@ -1839,7 +1879,7 @@ int doUpdateServer(struct server * svc, char * config) {
 
 
         mysql_query(mysql, sqlupd);
-                CHK_ERR(mysql);
+                CHK_ERR(mysql,NULL);
 
 
         free(sqlupd);
@@ -1870,11 +1910,11 @@ int doUpdate(struct service * svc, char * config) {
 	char * mysql_db = getConfigValue("mysql_db", config);
 
 	mysql=mysql_init(NULL);
-		CHK_ERR(mysql);
+		CHK_ERR(mysql,NULL);
 	mysql=mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
-		CHK_ERR(mysql);
+		CHK_ERR(mysql,NULL);
 	mysql_select_db(mysql, mysql_db);
-      		CHK_ERR(mysql);
+      		CHK_ERR(mysql,NULL);
 	
 	db_is_connected=1;	
 	
@@ -1885,7 +1925,7 @@ int doUpdate(struct service * svc, char * config) {
 	
 	
 	mysql_query(mysql, sqlupd);
-		CHK_ERR(mysql);
+		CHK_ERR(mysql,NULL);
 	
 	
 	free(sqlupd);
@@ -1899,7 +1939,7 @@ int doUpdate(struct service * svc, char * config) {
 	return 1;
 }
 
-int GetWorkerMap(struct worker * svcs, char * config) {
+int GetWorkerMap(struct worker * svcs, char * config, int orch_id) {
 	
 	MYSQL *mysql;
 	MYSQL_ROW  row;
@@ -1912,21 +1952,35 @@ int GetWorkerMap(struct worker * svcs, char * config) {
 	char * mysql_db = getConfigValue("mysql_db", config);
 	int i=0;
 	
-	
+char * sql, *where;
 
 
+	set_cfg(config);
 	mysql=mysql_init(NULL);
-		CHK_ERR(mysql);
+		CHK_ERR(mysql,NULL);
 	mysql=mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
-		CHK_ERR(mysql);
+		CHK_ERR(mysql,NULL);
       	mysql_select_db(mysql, mysql_db);
-      		CHK_ERR(mysql);
+      		CHK_ERR(mysql,NULL);
+      		
+
+      	if(orch_id > 0) {
+      		asprintf(&where, " where orch_id=%d", orch_id);
+      	} else {
+      		asprintf(&where, " ");
+      	}
+      	asprintf(&sql, WORKER_SELECTOR, where);
+
+      	mysql_query(mysql, sql);
+		CHK_ERR(mysql,NULL);
+
+		
+		free(where);
+		free(sql);
 	
-	
-	mysql_query(mysql, WORKER_SELECTOR);
-		CHK_ERR(mysql);
+
       	res = mysql_store_result(mysql);
-      		CHK_ERR(mysql);
+      		CHK_ERR(mysql,NULL);
       	
       	
       	if(mysql_num_rows(res) > 0) {
@@ -2044,27 +2098,29 @@ int GetWorkerMap(struct worker * svcs, char * config) {
       		mysql_free_result(res);
       		mysql_close(mysql);
       		free(mysql_host);
-		free(mysql_user);
-		free(mysql_pw);
-		free(mysql_db);
+		      free(mysql_user);
+		      free(mysql_pw);
+		      free(mysql_db);
       		return i;
       	} else { 
       		_log(LH_LIB, B_LOG_INFO, "no worker found!");	
+          free(mysql_host);
+          free(mysql_user);
+          free(mysql_pw);
+          free(mysql_db);
+      		return 0;
       	}
 	
 	
 	
 	
-	free(mysql_host);
-	free(mysql_user);
-	free(mysql_pw);
-	free(mysql_db);
+	
 	
 	return -1;
 	
 	
 }
-int GetServiceMap(struct service * svcs, char * config) {
+int GetServiceMap(struct service * svcs, char * config, int orch_id) {
 	
 	MYSQL *mysql;
 	MYSQL_ROW  row;
@@ -2075,18 +2131,35 @@ int GetServiceMap(struct service * svcs, char * config) {
 	char * mysql_pw = getConfigValue("mysql_pw", config);
 	char * mysql_db = getConfigValue("mysql_db", config);
 	int i=0;
+
+	char * sql, *where;
+
+
 	set_cfg(config);
 	mysql=mysql_init(NULL);
-		CHK_ERR(mysql);
+		CHK_ERR(mysql,NULL);
 	mysql=mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
-		CHK_ERR(mysql);
+		CHK_ERR(mysql,NULL);
       	mysql_select_db(mysql, mysql_db);
-      		CHK_ERR(mysql);
+      		CHK_ERR(mysql,NULL);
       		
-      	mysql_query(mysql, SERVICE_MAP_SELECTOR);
-		CHK_ERR(mysql);
+
+      	if(orch_id > 0) {
+      		asprintf(&where, " where orch_id=%d", orch_id);
+      	} else {
+      		asprintf(&where, " ");
+      	}
+      	asprintf(&sql, SERVICE_MAP_SELECTOR, where);
+
+      	mysql_query(mysql, sql);
+		CHK_ERR(mysql,NULL);
+
+		
+		free(where);
+		free(sql);
+
       	res = mysql_store_result(mysql);
-      		CHK_ERR(mysql);
+      		CHK_ERR(mysql,NULL);
       		
       		
       		
@@ -2231,7 +2304,7 @@ int GetServiceMap(struct service * svcs, char * config) {
 8 =  server_notify
 
 */
-int GetServerMap(struct server * srv, char * config) {
+int GetServerMap(struct server * srv, char * config, int orch_id) {
 	
 	MYSQL *mysql;
 	MYSQL_ROW  row;
@@ -2242,18 +2315,35 @@ int GetServerMap(struct server * srv, char * config) {
 	char * mysql_pw = getConfigValue("mysql_pw", config);
 	char * mysql_db = getConfigValue("mysql_db", config);
 	int i=0;
+	
+	char * sql, *where;
+
+
 	set_cfg(config);
 	mysql=mysql_init(NULL);
-		CHK_ERR(mysql);
+		CHK_ERR(mysql,NULL);
 	mysql=mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
-		CHK_ERR(mysql);
+		CHK_ERR(mysql,NULL);
       	mysql_select_db(mysql, mysql_db);
-      		CHK_ERR(mysql);
+      		CHK_ERR(mysql,NULL);
       		
-      	mysql_query(mysql, SERVER_MAP_SELECTOR);
-		CHK_ERR(mysql);
-      	res = mysql_store_result(mysql);
-      		CHK_ERR(mysql);
+
+      	if(orch_id > 0) {
+      		asprintf(&where, " where orch_id=%d", orch_id);
+      	} else {
+      		asprintf(&where, " ");
+      	}
+      	asprintf(&sql, SERVER_MAP_SELECTOR, where);
+
+      	mysql_query(mysql, sql);
+		CHK_ERR(mysql,NULL);
+
+		
+		free(where);
+		free(sql);
+
+	res = mysql_store_result(mysql);
+      		CHK_ERR(mysql,NULL);
       		
       		
 	if(mysql_num_rows(res) > 0) {
@@ -2377,11 +2467,11 @@ int ServerGroupChangeId(int from, int to, char * config) {
 	char * mysql_db = getConfigValue("mysql_db", config);
 
 	mysql=mysql_init(NULL);
-		CHK_ERR(mysql);
+		CHK_ERR(mysql,NULL);
 	mysql=mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
-		CHK_ERR(mysql);
+		CHK_ERR(mysql,NULL);
 	mysql_select_db(mysql, mysql_db);
-      		CHK_ERR(mysql);
+      		CHK_ERR(mysql,NULL);
 	
 	
 	asprintf(&sqlupd, SERVERGROUP_CHANGE_ID, to, from);
@@ -2389,7 +2479,7 @@ int ServerGroupChangeId(int from, int to, char * config) {
 	
 	
 	mysql_query(mysql, sqlupd);
-		CHK_ERR(mysql);
+		CHK_ERR(mysql,NULL);
 			
 	free(sqlupd);
 		
@@ -2402,7 +2492,7 @@ int ServerGroupChangeId(int from, int to, char * config) {
 	return to;	
 }
 
-int GetServerGroupMap(struct servergroup * svcs, char * config) {
+int GetServerGroupMap(struct servergroup * svcs, char * config, int orch_id) {
 	
 	MYSQL *mysql;
 	MYSQL_ROW  row;
@@ -2415,22 +2505,36 @@ int GetServerGroupMap(struct servergroup * svcs, char * config) {
 	char * mysql_db = getConfigValue("mysql_db", config);
 	int i=0;
 	
-	
+		char * sql, *where;
 
 
+	set_cfg(config);
 	mysql=mysql_init(NULL);
-		CHK_ERR(mysql);
+		CHK_ERR(mysql,NULL);
 	mysql=mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
-		CHK_ERR(mysql);
+		CHK_ERR(mysql,NULL);
       	mysql_select_db(mysql, mysql_db);
-      		CHK_ERR(mysql);
+      		CHK_ERR(mysql,NULL);
+      		
+
+      	if(orch_id > 0) {
+      		asprintf(&where, " where orch_id=%d", orch_id);
+      	} else {
+      		asprintf(&where, " ");
+      	}
+      	asprintf(&sql, SERVERGROUP_SEL, where);
+
+      	mysql_query(mysql, sql);
+		CHK_ERR(mysql,NULL);
+
+		
+		free(where);
+		free(sql);
+
+
 	
-	
-	mysql_query(mysql, SERVERGROUP_SEL);
-	
-		CHK_ERR(mysql);
       	res = mysql_store_result(mysql);
-      		CHK_ERR(mysql);
+      		CHK_ERR(mysql,NULL);
       	
       	
       	if(mysql_num_rows(res) > 0) {
@@ -2526,11 +2630,11 @@ int AddServerGroup(struct servergroup * svc, char *config) {
 	char * mysql_db = getConfigValue("mysql_db", config);
 
 	mysql=mysql_init(NULL);
-		CHK_ERR(mysql);
+		CHK_ERR(mysql,NULL);
 	mysql=mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
-		CHK_ERR(mysql);
+		CHK_ERR(mysql,NULL);
 	mysql_select_db(mysql, mysql_db);
-      		CHK_ERR(mysql);
+      		CHK_ERR(mysql,NULL);
 	
 	
 	asprintf(&sqlupd, ADD_SERVERGROUP, svc->servergroup_name, svc->servergroup_notify, svc->servergroup_active, svc->servergroup_members, svc->servergroup_dead, svc->enabled_triggers, svc->orch_id);
@@ -2538,7 +2642,7 @@ int AddServerGroup(struct servergroup * svc, char *config) {
 	
 	
 	mysql_query(mysql, sqlupd);
-		CHK_ERR(mysql);
+		CHK_ERR(mysql,NULL);
 	
 	
 	free(sqlupd);
@@ -2569,11 +2673,11 @@ int DeleteServerGroup(int servergroup_id, char * config) {
 	char * mysql_db = getConfigValue("mysql_db", config);
 
 	mysql=mysql_init(NULL);
-		CHK_ERR(mysql);
+		CHK_ERR(mysql,NULL);
 	mysql=mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
-		CHK_ERR(mysql);
+		CHK_ERR(mysql,NULL);
 	mysql_select_db(mysql, mysql_db);
-      		CHK_ERR(mysql);
+      		CHK_ERR(mysql,NULL);
 	
 	
 	asprintf(&sqlupd, DEL_SERVERGROUP, servergroup_id);
@@ -2581,7 +2685,7 @@ int DeleteServerGroup(int servergroup_id, char * config) {
 	//Log("dbg", sqlupd);
 	
 	mysql_query(mysql, sqlupd);
-		CHK_ERR(mysql);
+		CHK_ERR(mysql,NULL);
 	
 	
 	free(sqlupd);
@@ -2615,11 +2719,11 @@ int UpdateServerGroup(struct servergroup * svc, char *config) {
 	char * mysql_db = getConfigValue("mysql_db", config);
 
 	mysql=mysql_init(NULL);
-		CHK_ERR(mysql);
+		CHK_ERR(mysql,NULL);
 	mysql=mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
-		CHK_ERR(mysql);
+		CHK_ERR(mysql,NULL);
 	mysql_select_db(mysql, mysql_db);
-      		CHK_ERR(mysql);
+      		CHK_ERR(mysql,NULL);
 	
 	
 	
@@ -2628,7 +2732,7 @@ int UpdateServerGroup(struct servergroup * svc, char *config) {
 	
 	
 	mysql_query(mysql, sqlupd);
-		CHK_ERR(mysql);
+		CHK_ERR(mysql,NULL);
 	
 	
 	free(sqlupd);
@@ -2659,11 +2763,11 @@ int ServiceGroupChangeId(int from, int to, char * config) {
 	char * mysql_db = getConfigValue("mysql_db", config);
 
 	mysql=mysql_init(NULL);
-		CHK_ERR(mysql);
+		CHK_ERR(mysql,NULL);
 	mysql=mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
-		CHK_ERR(mysql);
+		CHK_ERR(mysql,NULL);
 	mysql_select_db(mysql, mysql_db);
-      		CHK_ERR(mysql);
+      		CHK_ERR(mysql,NULL);
 	
 	
 	asprintf(&sqlupd, SERVICEGROUP_CHANGE_ID, to, from);
@@ -2671,7 +2775,7 @@ int ServiceGroupChangeId(int from, int to, char * config) {
 	
 	
 	mysql_query(mysql, sqlupd);
-		CHK_ERR(mysql);
+		CHK_ERR(mysql,NULL);
 			
 	free(sqlupd);
 		
@@ -2684,7 +2788,7 @@ int ServiceGroupChangeId(int from, int to, char * config) {
 	return to;	
 }
 
-int GetServiceGroupMap(struct servicegroup * svcs, char * config) {
+int GetServiceGroupMap(struct servicegroup * svcs, char * config, int orch_id) {
 	
 	MYSQL *mysql;
 	MYSQL_ROW  row;
@@ -2697,22 +2801,35 @@ int GetServiceGroupMap(struct servicegroup * svcs, char * config) {
 	char * mysql_db = getConfigValue("mysql_db", config);
 	int i=0;
 	
-	
+	char * sql, *where;
 
 
+	set_cfg(config);
 	mysql=mysql_init(NULL);
-		CHK_ERR(mysql);
+		CHK_ERR(mysql,NULL);
 	mysql=mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
-		CHK_ERR(mysql);
+		CHK_ERR(mysql,NULL);
       	mysql_select_db(mysql, mysql_db);
-      		CHK_ERR(mysql);
-	
-	
-	mysql_query(mysql, SERVICEGROUP_SEL);
-	
-		CHK_ERR(mysql);
-      	res = mysql_store_result(mysql);
-      		CHK_ERR(mysql);
+      		CHK_ERR(mysql,NULL);
+      		
+
+      	if(orch_id > 0) {
+      		asprintf(&where, " where orch_id=%d", orch_id);
+      	} else {
+      		asprintf(&where, " ");
+      	}
+      	asprintf(&sql, SERVICEGROUP_SEL, where);
+
+      	mysql_query(mysql, sql);
+		CHK_ERR(mysql,NULL);
+
+		
+		free(where);
+		free(sql);
+
+
+	res = mysql_store_result(mysql);
+      		CHK_ERR(mysql,NULL);
       	
       	
       	if(mysql_num_rows(res) > 0) {
@@ -2812,11 +2929,11 @@ int AddServiceGroup(struct servicegroup * svc, char *config) {
 	char * mysql_db = getConfigValue("mysql_db", config);
 
 	mysql=mysql_init(NULL);
-		CHK_ERR(mysql);
+		CHK_ERR(mysql,NULL);
 	mysql=mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
-		CHK_ERR(mysql);
+		CHK_ERR(mysql,NULL);
 	mysql_select_db(mysql, mysql_db);
-      		CHK_ERR(mysql);
+      		CHK_ERR(mysql,NULL);
 	
 	
 	asprintf(&sqlupd, ADD_SERVICEGROUP, svc->servicegroup_name, svc->servicegroup_notify, svc->servicegroup_active, svc->servicegroup_members, svc->servicegroup_dead, svc->enabled_triggers, svc->orch_id);
@@ -2824,7 +2941,7 @@ int AddServiceGroup(struct servicegroup * svc, char *config) {
 	
 	
 	mysql_query(mysql, sqlupd);
-		CHK_ERR(mysql);
+		CHK_ERR(mysql,NULL);
 	
 	
 	free(sqlupd);
@@ -2855,11 +2972,11 @@ int DeleteServiceGroup(int servicegroup_id, char * config) {
 	char * mysql_db = getConfigValue("mysql_db", config);
 
 	mysql=mysql_init(NULL);
-		CHK_ERR(mysql);
+		CHK_ERR(mysql,NULL);
 	mysql=mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
-		CHK_ERR(mysql);
+		CHK_ERR(mysql,NULL);
 	mysql_select_db(mysql, mysql_db);
-      		CHK_ERR(mysql);
+      		CHK_ERR(mysql,NULL);
 	
 	
 	asprintf(&sqlupd, DEL_SERVICEGROUP, servicegroup_id);
@@ -2867,7 +2984,7 @@ int DeleteServiceGroup(int servicegroup_id, char * config) {
 	//Log("dbg", sqlupd);
 	
 	mysql_query(mysql, sqlupd);
-		CHK_ERR(mysql);
+		CHK_ERR(mysql,NULL);
 	
 	
 	free(sqlupd);
@@ -2901,11 +3018,11 @@ int UpdateServiceGroup(struct servicegroup * svc, char *config) {
 	char * mysql_db = getConfigValue("mysql_db", config);
 
 	mysql=mysql_init(NULL);
-		CHK_ERR(mysql);
+		CHK_ERR(mysql,NULL);
 	mysql=mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
-		CHK_ERR(mysql);
+		CHK_ERR(mysql,NULL);
 	mysql_select_db(mysql, mysql_db);
-      		CHK_ERR(mysql);
+      		CHK_ERR(mysql,NULL);
 	
 	
 	
@@ -2914,7 +3031,7 @@ int UpdateServiceGroup(struct servicegroup * svc, char *config) {
 	
 	
 	mysql_query(mysql, sqlupd);
-		CHK_ERR(mysql);
+		CHK_ERR(mysql,NULL);
 	
 	
 	free(sqlupd);

@@ -8,6 +8,7 @@ CREATE TABLE `downtime` (
   `downtime_to` int(24) default NULL,
   `downtime_notice` varchar(255) NOT NULL default '',
   `service_id` int(12) NOT NULL default '0',
+  `orch_id` int(11) NOT NULL default '0',
   PRIMARY KEY  (`downtime_id`)
 )  ;
 

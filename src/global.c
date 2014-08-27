@@ -330,7 +330,7 @@ void str_replace(char *str, const char *from, const char *to, int maxlen)
   
   while (*pstr != '\0' && pstr - str < maxlen) {
     if (strncmp(pstr, from, fromlen) != 0) {
-      *pstr++;
+      pstr++;
       continue;
     }
     memmove(pstr + tolen, pstr + fromlen, maxlen - ((pstr + tolen) - str) - 1);
@@ -471,49 +471,7 @@ int bartlby_agent_tcp_connect(char *host_name,int port,int *sd, struct service *
 
 	return result;
 }
-int bartlby_portier_tcp_my_connect(char *host_name,int port){
-	int result;
-
-
-	struct addrinfo hints, *res, *ressave;
-	char ipvservice[20];
-	int sockfd;
-	
-	sprintf(ipvservice, "%d",port);
-	
-	 memset(&hints, 0, sizeof(struct addrinfo));
-
-   hints.ai_family = AF_UNSPEC;
-   hints.ai_socktype = SOCK_STREAM;
-	
-	 result = getaddrinfo(host_name, ipvservice, &hints, &res);
-	 if(result < 0) {
-	 		return -7;
-	}
-	ressave = res;
-	 
-	sockfd-1;
-	while (res) {
-        sockfd = socket(res->ai_family,
-                        res->ai_socktype,
-                        res->ai_protocol);
-
-        if (!(sockfd < 0)) {
-            if (connect(sockfd, res->ai_addr, res->ai_addrlen) == 0)
-                break;
-
-            close(sockfd);
-            sockfd=-1;
-        }
-    res=res->ai_next;
-  }
-  freeaddrinfo(ressave);
- 
-	return sockfd;
-	
-	
-}
-        
+  
 int bartlby_agent_tcp_my_connect(char *host_name,int port,int *sd,char *proto, struct service * svc){
 	int result;
 
@@ -537,7 +495,7 @@ int bartlby_agent_tcp_my_connect(char *host_name,int port,int *sd,char *proto, s
 	}
 	ressave = res;
 	 
-	sockfd-1;
+	sockfd=-1;
 	while (res) {
         sockfd = socket(res->ai_family,
                         res->ai_socktype,

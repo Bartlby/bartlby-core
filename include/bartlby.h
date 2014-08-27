@@ -36,6 +36,7 @@
 #include <mysql/mysql.h>
 #include <sys/times.h> 
 #include <semaphore.h>
+#include <json.h>
 
 /* Log Handles */
 #define LH_DEBUG 0
@@ -53,6 +54,7 @@
 #define LH_LIB 12
 #define LH_PORTIER 13
 #define LH_MOD 14
+#define LH_ORCH 15
 
 	
 #define B_LOG_DEBUG 0
@@ -62,7 +64,7 @@
 #define B_LOG_HASTO 4
 
 
-static char * log_handles[] = {"DEBUG", "TRIGGER", "SCHED", "CHECK", "MAIN", "SHM", "DAEMON", "PERF", "ACK", "EVNT", "EXT", "NOTIFYLOG", "LIB", "PORTIER", "MOD"};
+static char * log_handles[] = {"DEBUG", "TRIGGER", "SCHED", "CHECK", "MAIN", "SHM", "DAEMON", "PERF", "ACK", "EVNT", "EXT", "NOTIFYLOG", "LIB", "PORTIER", "MOD", "ORCH"};
 static char * log_levels[] = {"DEBUG", "INFO", "WARN", "CRIT", "HASTO"};
 
 /* DEBUGGING */
@@ -591,7 +593,7 @@ int replication_go(char *, void *, void *);
 
 //SHM
 
-int GetDowntimeMap(struct downtime * svcs, char * config);
+int GetDowntimeMap(struct downtime * svcs, char * config, int orch_id);
 struct service * bartlby_SHM_ServiceMap(void *);
 struct sched_threads * bartlby_SHM_ThreadMap(void * shm_addr);
 struct downtime * bartlby_SHM_DowntimeMap(void * shm_addr);
@@ -669,6 +671,14 @@ int bartlby_agent_tcp_my_connect(char *host_name,int port,int *sd,char *proto, s
 int bartlby_agent_tcp_connect(char *host_name,int port,int *sd, struct service * svc);
 
 
+
+//Orchestra
+int bartlby_orchestra_get_id(char * cfgfile);
+void bartlby_orchestra_init(struct shm_header * shmhdr);
+int bartlby_orchestra_belongs_to_orch(struct service * svc, char * cfgfile);
+void bartlby_orchestra_check_timeouts(struct service * svcmap,struct shm_header * hdr, char * cfgfile);
+void bartlby_orchestra_send_svc(char * cfg, struct service * svc);
+
 //Notification Log
 int bartlby_notification_log_last_notification_state(struct shm_header * shmhdr, char * cfgfile, long svc_id, long worker_id, char * trigger_name);
 void * bartlby_notification_log_set_hardcopy(struct shm_header * shmhdr, void * hardcopy, long notification_log_current_top, time_t notification_log_last_run);
@@ -678,4 +688,17 @@ void bartlby_notification_log_init(struct shm_header * shmhdr);
 void bartlby_notification_log_add(struct shm_header * shmhdr, char * cfgfile, long worker_id, long service_id, int state, int type, int aggregation_interval, char * trigger_name);
 void bartlby_notification_log_aggregate(struct shm_header *shmdr, char * cfgfile);
 void bartlby_notification_log_debug(struct shm_header * shmhdr);
+
+
+
+//COMPAT
+#ifdef NEEDS_JSON_GET_EX
+int json_object_object_get_ex(struct json_object* jso, const char *key, struct json_object **value);
+#endif
+
+#ifdef NEEDS_JSON_INT64
+struct json_object* json_object_new_int64(int64_t i);
+int32_t json_object_get_int64(struct json_object *obj);
+
+#endif
 

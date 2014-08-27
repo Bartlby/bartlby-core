@@ -86,11 +86,13 @@ void bartlby_check_v2(struct service * svc, char * cfgfile, int use_ssl) {
 	if(conn_timedout == 1) {
 		sprintf(svc->new_server_text, "%s", "timed out");
 		svc->current_state=STATE_CRITICAL;	
+		close(sd);
 		return;
 	}
 	if(result != STATE_OK) {
 		sprintf(svc->new_server_text, "%s", "connect failed");	
 		svc->current_state=STATE_CRITICAL;
+		close(sd);
 		return;
 	}
 	
@@ -113,6 +115,7 @@ void bartlby_check_v2(struct service * svc, char * cfgfile, int use_ssl) {
      		         		SSL_shutdown(ssl);
 							SSL_free(ssl);
      		         		SSL_CTX_free(ctx);
+     		         		close(sd);
      		         		return;
 			}
 		} else {
@@ -171,6 +174,7 @@ void bartlby_check_v2(struct service * svc, char * cfgfile, int use_ssl) {
 		_log(LH_CHECK, B_LOG_DEBUG,"V2: timeout ok");
 		sprintf(svc->new_server_text, "%s", "V2 timed out2");
 		svc->current_state=STATE_CRITICAL;	
+		close(sd);
 		return;
 	}
        if(rc<0)
@@ -205,6 +209,7 @@ void bartlby_check_v2(struct service * svc, char * cfgfile, int use_ssl) {
 		_log(LH_CHECK, B_LOG_DEBUG,"timeout ok");
 		sprintf(svc->new_server_text, "%s", "timed out4");
 		svc->current_state=STATE_CRITICAL;	
+		close(sd);
 		return;
 	}
 	/* reset timeout */
@@ -240,7 +245,7 @@ void bartlby_check_v2(struct service * svc, char * cfgfile, int use_ssl) {
 	if(packet_crc32!=calculated_crc32){
 		sprintf(svc->new_server_text,"%s", "AgentV2: Response packet had invalid CRC32.");
 		svc->current_state=STATE_CRITICAL;
-		close(sd);
+		
 		return;
 	}
 	
@@ -250,7 +255,6 @@ void bartlby_check_v2(struct service * svc, char * cfgfile, int use_ssl) {
 	/* check packet type */
 	if(ntohs(receive_packet.packet_type)!=AGENT_V2_RETURN_PACKET){
 		sprintf(svc->new_server_text,"%s","AgentV2: Invalid packet type received from server.");
-		close(sd);
 		svc->current_state=STATE_CRITICAL;
 		return;
 	}

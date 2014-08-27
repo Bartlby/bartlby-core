@@ -56,6 +56,7 @@ int dumpMem(const char *start, const char *stop, const char *programName, char *
 		{
 			fprintf(stderr, "%s: Error writing to standard output: %s\n",
 					programName, strerror(errno));
+			fclose(fp);
 			return -2;
 		}
 		else
@@ -70,6 +71,7 @@ int dumpMem(const char *start, const char *stop, const char *programName, char *
 		{
 			fprintf(stderr, "%s: Error writing to standard output: %s\n",
 					programName, strerror(errno));
+			fclose(fp);
 			return -2;
 		}
 		else
@@ -127,7 +129,7 @@ int replay_shm(char * k, char * f, long size) {
 	void * gBartlby_address;
 	long gSHMSize = size;
 	FILE * fp;
-	char ch;
+	int ch;
 	char * shm_char;
 	int x;
 		
@@ -148,7 +150,7 @@ int replay_shm(char * k, char * f, long size) {
 				 x++; 
 		}
 		fclose(fp);
-		
+		return 0;
 }
 
 int dumpSHMToFile(char * keystr, char * file) {

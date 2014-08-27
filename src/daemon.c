@@ -169,6 +169,7 @@ void bartlby_pre_init(char * cfgfile) {
 		sprintf(pidstr, "%d", getpid());
 		if(fwrite(pidstr, sizeof(char), strlen(pidstr), pidfile) <= 0) {
 			_log(LH_DAEMON, B_LOG_CRIT,"pidfile creation failed");
+			fclose(pidfile);
 		} else {
 			if(fclose(pidfile) == EOF) {
 				_log(LH_DAEMON, B_LOG_CRIT,"fclose() failed for pidfile!!");
@@ -196,7 +197,7 @@ void bartlby_pre_init(char * cfgfile) {
 
 void bartlby_end_clean(char *cfgfile) {
 	char * base_dir;
-	char pidfname[1024];
+	char *pidfname;
 	char * sem_name;
 	
 	char * pid_def_name;
@@ -219,13 +220,15 @@ void bartlby_end_clean(char *cfgfile) {
 	if(pid_def_name == NULL) {
 		pid_def_name=strdup(base_dir);
 	}
-	sprintf(pidfname, "%s/bartlby.pid", pid_def_name);
+	asprintf(&pidfname, "%s/bartlby.pid", pid_def_name);
 	
 	if(unlink(pidfname) == 0) {	
 		_log(LH_DAEMON, B_LOG_INFO,"%s Pid file removed", pidfname);
 	} else {
 		_log(LH_DAEMON, B_LOG_CRIT,"%s Pid file remove failed", pidfname);
 	}
+	
+	free(pidfname);
 	free(base_dir);
 	free(pid_def_name);
 
