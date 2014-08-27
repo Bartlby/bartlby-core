@@ -98,16 +98,28 @@ char * getConfigValue_ex(const char * key, const char * fname, int cache) {
 	char * val;
 
 	char * tok;
-	
 	char * cache_value;
-	
+	char * env_name, *env_value;
+
+
 	if(cache == 1) {
 		cache_value=cfg_cache_find(key);
 		if(cache_value != NULL) {
 			return cache_value;	
 		}
 	}
+	//see if env is set :)
 	
+	asprintf(&env_name, "BARTLBY_%s", key);
+	env_value=getenv(env_name);
+	free(env_name);
+	if(env_value != NULL) {
+		_log(LH_MAIN, B_LOG_INFO, "using env variable '%s' for config value '%s' value='%s'", env_name, key, env_value);
+		cfg_add_to_cache(key, env_value);
+		return strdup(env_value);
+	}
+
+
 	fp=fopen(fname, "r");
 	if(!fp)  {
 		if(cache == 1) {
