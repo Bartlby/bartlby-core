@@ -27,20 +27,11 @@ $Author$
 #define FL 0
 #define TR 1
 
-
-static sig_atomic_t connection_timed_out=0;
-static sig_atomic_t portier_connection_timed_out=0;
 #define CONN_TIMEOUT 15
 
 
-static void trigger_conn_timeout(int signo) {
- 	connection_timed_out = 1;
-}
-static void bartlby_portier_conn_timeout(int signo) {
-	portier_connection_timed_out=1;
-}
 
-
+static sig_atomic_t connection_timed_out=0;
 
 
 
@@ -286,10 +277,8 @@ int bartlby_worker_has_service(struct worker * w, struct service * svc, char * c
 	
 	
 	
-	if(find_server != NULL)
-		free(find_server);
-	if(find_service != NULL)
-		free(find_service);
+	free(find_server);
+	free(find_service);
 		
 
 	return the_state;
@@ -297,104 +286,7 @@ int bartlby_worker_has_service(struct worker * w, struct service * svc, char * c
 
 
 
-int bartlby_trigger_tcp_upstream(char * passive_host, int passive_port, int passive_cmd, int to_standbys,char * trigger_name, char * execline, struct service * svc, int node_id, char * portier_passwd) {
-	int res;
-	char verstr[2048];
-	char cmdstr[2048];
-	char result[2048];
-	int rc;
-	
-	int client_socket;
-	int client_connect_retval=-1;
-	struct sigaction act1, oact1;
-	
-	
-	portier_connection_timed_out=0;
-	
 
-	
-	
-	
-	act1.sa_handler = bartlby_portier_conn_timeout;
-	sigemptyset(&act1.sa_mask);
-	act1.sa_flags=0;
-	#ifdef SA_INTERRUPT
-	act1.sa_flags |= SA_INTERRUPT;
-	#endif
-	
-	if(sigaction(SIGALRM, &act1, &oact1) < 0) {
-		
-		return -3; //timeout handler
-	
-		
-	}
-	//_log("UPSTREAM START");
-	alarm(5);
-	client_socket = bartlby_portier_tcp_my_connect(passive_host, passive_port);
-	alarm(0);
-	if(portier_connection_timed_out == 1 || client_socket == -1) {
-		return -4; //connect
-	} 
-	connection_timed_out=0;
-
-	res=client_socket;
-	if(res > 0) {
-		
-		portier_connection_timed_out=0;
-		alarm(5);
-		if(read(res, verstr, 1024) < 0) {
-			_log(LH_TRIGGER, B_LOG_CRIT, "UPSTREAM FAILED1!\n");
-			return -1;
-		}
-		if(verstr[0] != '+') {
-			_log(LH_TRIGGER, B_LOG_CRIT,"UPSTREAM: Server said a bad result: '%s'\n", verstr);
-			close(res);
-			return -1;
-		}
-		alarm(0);
-		/*
-		svc->service_id
-		svc->server_id
-		svc->notify_last_state
-		svc->current_state
-		svc->recovery_outstanding
-		*/	
-		if(svc != NULL) {
-			sprintf(cmdstr, "%d|%d|%s|%s|%d|%d|%d|%d|%d|%d|%s|\n", passive_cmd, to_standbys, execline, trigger_name, svc->service_id, svc->server_id, svc->notify_last_state, svc->current_state, svc->recovery_outstanding, node_id, portier_passwd);
-		} else {
-			sprintf(cmdstr, "%d|%d|%s|%s|%d|%d|%d|%d|%d|%d|%s|\n", passive_cmd, to_standbys, execline, trigger_name, 0, 0, 0, 0, 0, node_id, portier_passwd);
-		}
-		//_log("UPSTREAM: sending '%s'", cmdstr);
-		portier_connection_timed_out=0;
-		alarm(5);
-		if(write(res, cmdstr, 1024) < 0) {
-			//_log("UPSTREAM: FAILED2");
-			return -1;
-		}
-		alarm(0);
-		portier_connection_timed_out=0;
-		alarm(5);
-		if((rc=read(res, result, 1024)) < 0) {
-			_log(LH_TRIGGER, B_LOG_DEBUG,"UPSTREAM: FAILED3");
-			return -1;
-		}
-		alarm(0);
-		result[rc-1]='\0'; //cheap trim *fg*
-		close(res);			
-		if(result[0] != '+') {
-			_log(LH_TRIGGER, B_LOG_DEBUG,"UPSTREAM: FAILED4 - '%s'\n", result);
-			return -1;
-		}  else {
-			//_log("UPSTREAM DONE: %s\n", result);
-			return 0;
-		}
-		
-	} else {
-		_log(LH_TRIGGER, B_LOG_DEBUG,"UPSTREAM: FAILED5");
-		return -1;
-	}	
-	return 0;
-}
 
 
 void bartlby_trigger_upstream(char * cfgfile, int has_local_users, int to_standbys, char * trigger_name, char * cmdl, struct service * svc) {
@@ -435,16 +327,22 @@ void bartlby_trigger_upstream(char * cfgfile, int has_local_users, int to_standb
 
 	if(cfg_upstream_host == NULL || node_id < 0 || portier_passwd == NULL) {
 		_log(LH_TRIGGER, B_LOG_CRIT,"Misconfigured upstream either upstream_host or upstream_my_node_id or portier_password is not set");
+
+		if(portier_passwd != NULL) free(portier_passwd);
+		if(cfg_upstream_host != NULL) free(cfg_upstream_host);
+		if(cfg_upstream_port != NULL) free(cfg_upstream_port);
+		if(cfg_upstream_my_node_id != NULL) free(cfg_upstream_my_node_id);
+
 		return;
 	}
 
 	if(has_local_users == 1) {
 		//_log("UPSTREAM: just send exec line: %s", cmdl);
 		//int bartlby_trigger_tcp_upstream(char * passive_host, int passive_port, int passive_cmd, int to_standbys, char * execline) {
-		rtc=bartlby_trigger_tcp_upstream(cfg_upstream_host, upstream_port, 6, to_standbys,trigger_name, cmdl, svc, node_id, portier_passwd);
+		rtc=bartlby_portier_send_trigger(cfg_upstream_host, upstream_port, to_standbys,trigger_name, cmdl, NULL, node_id, portier_passwd);
 	} else {
 		//_log("UPSTREAM: send request to  '%s:%d' call a '%s' on remote workers - with message: '%s'",cfg_upstream_host, upstream_port, trigger_name, cmdl);
-		rtc=bartlby_trigger_tcp_upstream(cfg_upstream_host, upstream_port, 7, to_standbys, trigger_name, cmdl, svc, node_id, portier_passwd);
+		rtc=bartlby_portier_send_trigger(cfg_upstream_host, upstream_port, to_standbys, trigger_name, cmdl, svc, node_id, portier_passwd);
 	}
 	if(rtc < 0 ) {
 		_log(LH_TRIGGER, B_LOG_CRIT,"Notification Upstream failed");
@@ -453,6 +351,10 @@ void bartlby_trigger_upstream(char * cfgfile, int has_local_users, int to_standb
 	free(cfg_upstream_port);
 	free(cfg_upstream_host);
 	free(cfg_upstream_my_node_id);
+}
+
+static void trigger_conn_timeout(int signo) { //TIMEOUT HANDLER FOR trigger.sh
+ 	connection_timed_out = 1;
 }
 void bartlby_trigger(struct service * svc, char * cfgfile, void * shm_addr, int do_check, int standby_workers_only) {
 	char * trigger_dir;
@@ -569,11 +471,14 @@ void bartlby_trigger(struct service * svc, char * cfgfile, void * shm_addr, int 
 	trigger_dir=getConfigValue("trigger_dir", cfgfile);
 	if(trigger_dir == NULL) {
 		_log(LH_TRIGGER, B_LOG_CRIT,"bartlby_trigger() failed");
+		free(notify_msg);
 		return;	
 	}
 	dtrigger = opendir(trigger_dir);
 	if(!dtrigger) {
 		_log(LH_TRIGGER, B_LOG_CRIT,"opendir %s failed", trigger_dir);
+		free(trigger_dir);
+		free(notify_msg);
 		return;	
 	}
 	while((entry = readdir(dtrigger)) != NULL) {
@@ -587,9 +492,11 @@ void bartlby_trigger(struct service * svc, char * cfgfile, void * shm_addr, int 
 
 
 		if(lstat(full_path, &finfo) < 0) {
+			_log(LH_TRIGGER, B_LOG_CRIT,"lstat() %s failed", full_path);
 			free(find_trigger);
 			free(full_path);
-			_log(LH_TRIGGER, B_LOG_CRIT,"lstat() %s failed", full_path);
+			closedir(dtrigger);
+			free(notify_msg);
 			return;	
 		}
 

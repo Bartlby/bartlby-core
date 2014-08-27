@@ -86,8 +86,8 @@ static unsigned long crc32_table[256];
 #define MAX_PACKETBUFFER_LENGTH 1024
 #define OK		0
 #define DEFAULT_SOCKET_TIMEOUT  10
-#define TRUE            1
-#define FALSE           0
+//#define TRUE            1
+//#define FALSE           0
 #define MAX_INPUT_BUFFER        2048
 #define DEFAULT_SERVER_PORT 5666
 #define DEFAULT_NRPE_COMMAND    "_NRPE_CHECK"  /* check version of NRPE daemon */
@@ -98,8 +98,8 @@ static unsigned long crc32_table[256];
 #define OK		0
 #define ERROR		-1
 
-#define TRUE		1
-#define FALSE		0
+//#define TRUE		1
+//#define FALSE		0
 
 
 typedef struct packet_struct{
@@ -185,11 +185,13 @@ void bartlby_check_nrpe(struct service * svc, char * cfgfile, int use_ssl) {
 	if(conn_timedout == 1) {
 		sprintf(svc->new_server_text, "%s", "timed out");
 		svc->current_state=STATE_CRITICAL;	
+		close(sd);
 		return;
 	}
 	if(result != STATE_OK) {
 		sprintf(svc->new_server_text, "%s", "connect failed");
 		svc->current_state=STATE_CRITICAL;
+		close(sd);
 		return;
 	}
 	if(result == STATE_OK) {
@@ -212,6 +214,7 @@ void bartlby_check_nrpe(struct service * svc, char * cfgfile, int use_ssl) {
 					 SSL_shutdown(ssl);
 		        	 SSL_free(ssl);
 		        	 SSL_CTX_free(ctx);
+		        	 close(sd);
 					return;
 				}
 				block_socket(sd);
@@ -224,7 +227,7 @@ void bartlby_check_nrpe(struct service * svc, char * cfgfile, int use_ssl) {
      	          	 SSL_shutdown(ssl);
 		        	 SSL_free(ssl);
 		        	 SSL_CTX_free(ctx);
-                        	
+                     close(sd);   	
      	          	return;
      	          }
 			} else {
@@ -272,7 +275,7 @@ void bartlby_check_nrpe(struct service * svc, char * cfgfile, int use_ssl) {
 					sprintf(svc->new_server_text, "%s", "timed out1");
 					svc->current_state=STATE_CRITICAL;	
 
-
+					close(sd);
 
 					return;
 			}
@@ -290,6 +293,7 @@ void bartlby_check_nrpe(struct service * svc, char * cfgfile, int use_ssl) {
 					SSL_shutdown(ssl);
 		        	 SSL_free(ssl);
 		        	 SSL_CTX_free(ctx);
+		        	 close(sd);
 					return;
 			}
                if(rc<0)
@@ -314,6 +318,7 @@ void bartlby_check_nrpe(struct service * svc, char * cfgfile, int use_ssl) {
 					_log(LH_CHECK, B_LOG_DEBUG,"timeout ok");
 					sprintf(svc->new_server_text, "%s", "timed out3");
 					svc->current_state=STATE_CRITICAL;	
+					close(sd);
 					return;
 			}
 		}
@@ -329,6 +334,7 @@ void bartlby_check_nrpe(struct service * svc, char * cfgfile, int use_ssl) {
 					SSL_shutdown(ssl);
 		        	 SSL_free(ssl);
 		        	 SSL_CTX_free(ctx);
+		        	 close(sd);
 					return;
 			}
           }
@@ -364,14 +370,12 @@ void bartlby_check_nrpe(struct service * svc, char * cfgfile, int use_ssl) {
 	if(packet_crc32!=calculated_crc32){
 	        sprintf(svc->new_server_text,"%s", "CHECK_NRPE: Response packet had invalid CRC32.\n");
 	        svc->current_state=STATE_CRITICAL;
-	        close(sd);
 	        return;
 	        }
 	
 	/* check packet version */
 	if(ntohs(receive_packet.packet_version)!=NRPE_PACKET_VERSION_2){
 	        sprintf(svc->new_server_text,"%s","CHECK_NRPE: Invalid packet version received from server.\n");
-	        close(sd);
 	        svc->current_state=STATE_CRITICAL;
 	        return;
 	        }
@@ -379,7 +383,6 @@ void bartlby_check_nrpe(struct service * svc, char * cfgfile, int use_ssl) {
 	/* check packet type */
 	if(ntohs(receive_packet.packet_type)!=RESPONSE_PACKET){
 	        sprintf(svc->new_server_text,"%s","CHECK_NRPE: Invalid packet type received from server.\n");
-	        close(sd);
 	        svc->current_state=STATE_CRITICAL;
 	        return;
 	        }

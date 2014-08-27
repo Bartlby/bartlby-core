@@ -33,7 +33,7 @@ static void bartlby_conn_timeout(int signo) {
 void bartlby_check_local(struct service * svc, char * cfgfile) {
 	struct sigaction act1, oact1;
 	char * file_request;
-	char c;
+	int c;
 	char * plugin_dir;
 	FILE * fp;
 	int plugin_rtc;

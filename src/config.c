@@ -99,7 +99,9 @@ char * getConfigValue_ex(const char * key, const char * fname, int cache) {
 
 	char * tok;
 	char * cache_value;
-	char * env_name, *env_value;
+	char * env_name;
+	const char *env_value;
+	char * env_return;
 
 
 	if(cache == 1) {
@@ -112,13 +114,15 @@ char * getConfigValue_ex(const char * key, const char * fname, int cache) {
 	
 	asprintf(&env_name, "BARTLBY_%s", key);
 	env_value=getenv(env_name);
-	free(env_name);
+	
 	if(env_value != NULL) {
 		_log(LH_MAIN, B_LOG_INFO, "using env variable '%s' for config value '%s' value='%s'", env_name, key, env_value);
-		cfg_add_to_cache(key, env_value);
-		return strdup(env_value);
+		free(env_name);
+		env_return=strndup(env_value, 1024);
+		cfg_add_to_cache(key, env_return);
+		return env_return;
 	}
-
+	free(env_name);
 
 	fp=fopen(fname, "r");
 	if(!fp)  {
@@ -143,6 +147,7 @@ char * getConfigValue_ex(const char * key, const char * fname, int cache) {
 						
 						tok=strtok(NULL, "=");
 						if(tok == NULL) {
+								fclose(fp);
 								return NULL;
 						}
 						if(tok[strlen(tok)-1] == '\r') {
@@ -198,6 +203,8 @@ void cfg_fill_with_file(char * f) {
 					
 			tok=strtok(NULL, "=");
 			if(tok == NULL) {
+					fclose(fp);
+					free(key);
 					return;
 			}
 			if(tok[strlen(tok)-1] == '\r') {

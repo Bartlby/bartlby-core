@@ -40,14 +40,12 @@ char * (*gGetAutor)();
 char * (*gGetVersion)();
 char * (*gGetName)();
 long   (*gExpectVersion)();
-int (*gGetServiceMap)(struct service *, char *);
-int (*gGetServerMap)(struct server *, char *);
-int (*gGetWorkerMap)(struct worker *,char *);
-
-int (*gGetDowntimeMap)(struct downtime *, char *);
-
-int (*gGetServerGroupMap)(struct servergroup *, char *);
-int (*gGetServiceGroupMap)(struct servicegroup *, char *);
+int (*gGetServiceMap)(struct service *, char *, int);
+int (*gGetServerMap)(struct server *, char *, int);
+int (*gGetWorkerMap)(struct worker *,char *,int);
+int (*gGetDowntimeMap)(struct downtime *, char *,int);
+int (*gGetServerGroupMap)(struct servergroup *, char *,int);
+int (*gGetServiceGroupMap)(struct servicegroup *, char *,int);
 
 void (*gDataLibInit)(char *, int);
 
@@ -253,6 +251,9 @@ void bartlby_init(void) {
 	_log(LH_MAIN, B_LOG_INFO,"DEBUGING ENABLED");
 	_debug("TEST DEBUG MESSAGE");
 	#endif
+	bartlby_orchestra_init(gshm_hdr);
+
+
 	
 }
 void bartlby_setuid(void) {
@@ -326,8 +327,9 @@ void bartlby_shm_fits(char * cfgfile) {
 int bartlby_populate_shm(char * cfgfile) {
 		int shm_got_reused=0;
 
-		gshm_id = shmget(ftok(gShmtok, 32), gSHMSize,IPC_CREAT | IPC_EXCL | 0777);
+		int orch_id;
 		
+		gshm_id = shmget(ftok(gShmtok, 32), gSHMSize,IPC_CREAT | IPC_EXCL | 0777);
 		if(gshm_id < 0 && gReuseSHM == 1) {
 			_log(LH_MAIN, B_LOG_INFO,"trying to reuse SHM");
 			gshm_id = shmget(ftok(gShmtok, 32), gSHMSize,IPC_CREAT | 0777);
@@ -336,26 +338,29 @@ int bartlby_populate_shm(char * cfgfile) {
 		
 		
 		if(gshm_id != -1) {
+
+			orch_id=bartlby_orchestra_get_id(cfgfile);
+
 			gBartlby_address=shmat(gshm_id,NULL,0);
 			
 			gshm_hdr=bartlby_SHM_GetHDR(gBartlby_address);
 			
 			
 			gsvcmap=bartlby_SHM_ServiceMap(gBartlby_address);
-			gshm_svc_cnt=gGetServiceMap(gsvcmap, cfgfile);
+			gshm_svc_cnt=gGetServiceMap(gsvcmap, cfgfile, orch_id);
 			gshm_hdr->svccount=gshm_svc_cnt;
 			
 			
 			gwrkmap = bartlby_SHM_WorkerMap(gBartlby_address);
-			gshm_wrk_cnt=gGetWorkerMap(gwrkmap, cfgfile);
+			gshm_wrk_cnt=gGetWorkerMap(gwrkmap, cfgfile,orch_id);
 			gshm_hdr->wrkcount=gshm_wrk_cnt;
 			
 			gdtmap=bartlby_SHM_DowntimeMap(gBartlby_address);
-			gshm_dt_cnt=gGetDowntimeMap(gdtmap, cfgfile);
+			gshm_dt_cnt=gGetDowntimeMap(gdtmap, cfgfile,orch_id);
 			gshm_hdr->dtcount=gshm_dt_cnt;
 				
 			gsrvmap=bartlby_SHM_ServerMap(gBartlby_address);
-			gshm_srv_cnt=gGetServerMap(gsrvmap, cfgfile);
+			gshm_srv_cnt=gGetServerMap(gsrvmap, cfgfile, orch_id);
 			
 			gshm_hdr->srvcount=gshm_srv_cnt;
 				
@@ -366,13 +371,13 @@ int bartlby_populate_shm(char * cfgfile) {
 			
 			//AddServerGroups
 			gsrvgrpmap = bartlby_SHM_ServerGroupMap(gBartlby_address);
-			gshm_srvgrp_cnt = gGetServerGroupMap(gsrvgrpmap, cfgfile);
+			gshm_srvgrp_cnt = gGetServerGroupMap(gsrvgrpmap, cfgfile, orch_id);
 			gshm_hdr->srvgroupcount=gshm_srvgrp_cnt;
 			
 						
 			//AddServicegroups
 			gsvcgrpmap = bartlby_SHM_ServiceGroupMap(gBartlby_address);
-			gshm_svcgrp_cnt = gGetServiceGroupMap(gsvcgrpmap, cfgfile);
+			gshm_svcgrp_cnt = gGetServiceGroupMap(gsvcgrpmap, cfgfile, orch_id);
 			gshm_hdr->svcgroupcount=gshm_svcgrp_cnt;
 			
 			
@@ -402,7 +407,7 @@ int bartlby_populate_shm(char * cfgfile) {
 			
 			
 			
-			if(gshm_hdr->wrkcount <= 0) {
+			if(gshm_hdr->wrkcount <= 0 && orch_id == 0) {
 				_log(LH_MAIN, B_LOG_CRIT,"Found workers are below zero (%ld) maybe your datalib config isnt OK or you havent completed the setup", gshm_hdr->wrkcount);
 				
 				if(shmdt(gBartlby_address) < 0) {
@@ -447,6 +452,8 @@ int bartlby_go(char * cfgfile) {
 	time_t notification_log_last_run;
 
 	bartlby_notification_log_init(gshm_hdr);
+	
+	
 	while(exi_code != 1) {
 		
 		
@@ -502,7 +509,7 @@ int bartlby_go(char * cfgfile) {
 		
 		
 	}
-
+	if(notification_log_hardcopy != NULL) free(notification_log_hardcopy);
 	return 1;
 }
 

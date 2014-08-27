@@ -87,6 +87,7 @@ void bartlby_SHM_link_services_servers(void * shm_addr, char * cfgfile, void * S
 		if(	svcmap[x].srv_place == -1) {
 			_log(LH_SHM, B_LOG_CRIT,"Service-ID: %d is orphaned named %s", svcmap[x].service_id, svcmap[x].service_name);
 			svcmap[x].service_active = 0;
+			svcmap[x].is_gone=2; //MARK AS DELETED SO UI HIDES EM - happens e.g. if you assign services to an ORCH but you forgot to move the server
 			if(strcmp(autodelete_orphaned_services,"true") == 0) {	
 				DeleteService(svcmap[x].service_id, cfgfile);
 				hdr->do_reload=1;
