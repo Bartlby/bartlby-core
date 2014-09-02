@@ -286,7 +286,102 @@ int bartlby_worker_has_service(struct worker * w, struct service * svc, char * c
 
 
 
+int bartlby_trigger_per_worker(char * cfgfile, char * trigger_name, struct shm_header *hdr, struct worker * wrk, struct server * srvmap, int do_check, struct service * svc, char * find_trigger, int standby_workers_only, char * full_path, int upstream_enabled, int upstream_has_local_users, char * notify_msg) {
+			int notification_log_last_state;
+			char * exec_str;
+			struct ext_notify en;
+			FILE * ptrigger;
+			char trigger_return[1024];
 
+			//RETURN -2 -> NEXT WORKER
+			if(service_is_in_time(wrk->notify_plan) > 0) {
+					if(bartlby_worker_has_service(wrk, svc, cfgfile, 0) != 0 || do_check == 0) {
+						if(strstr(wrk->enabled_triggers, find_trigger) != NULL || strlen(wrk->enabled_triggers) == 0) {
+							
+							
+							if((bartlby_trigger_escalation(wrk, svc, standby_workers_only, 0)) == FL) return -2;
+							if((bartlby_trigger_worker_level(wrk, svc, 0)) == FL) return -2;
+								
+							/* if re-notify - and user is not active continue */
+							if(standby_workers_only == 2 && wrk->active != 1) return -2;
+
+							/* if standby escalation message check if worker is in standby mode either skip him/her*/
+							if(standby_workers_only == 1 && wrk->active != 2) return -2;
+							
+							if(standby_workers_only == 0) { //if it is not a renotify, either standby escalation or normal notification
+									//Check what was the last state that got send to THIS user
+									notification_log_last_state=bartlby_notification_log_last_notification_state(hdr,cfgfile,  svc->service_id, wrk->worker_id, trigger_name);
+									if(notification_log_last_state != -1) { //If no log entry found be nice and send it out
+										if(notification_log_last_state == svc->current_state) {
+											_log(LH_TRIGGER, B_LOG_DEBUG,"FIX  FLAPPING BUG - %d - %d (%d) - svc_id: %d", notification_log_last_state, svc->current_state, standby_workers_only, svc->service_id);
+											return -2;
+										}
+									}
+									
+							}
+							svc->last_notify_send=time(NULL);
+							srvmap[svc->srv_place].last_notify_send=time(NULL);
+							wrk->escalation_time=time(NULL);
+							CHECKED_ASPRINTF(&exec_str, "%s \"%s\" \"%s\" \"%s\" \"%s\"", full_path, wrk->mail,wrk->icq,wrk->name, notify_msg);
+
+							//_log("EXEC trigger: %s", full_path);
+							_log(LH_TRIGGER, B_LOG_HASTO,"@NOT@%ld|%d|%d|%s|%s|%s:%d/%s (%d)", svc->service_id, svc->last_state ,svc->current_state,trigger_name,wrk->name, srvmap[svc->srv_place].server_name, srvmap[svc->srv_place].client_port, svc->service_name, wrk->notification_aggregation_interval);
+							
+
+							bartlby_notification_log_add(hdr, cfgfile, wrk->worker_id, svc->service_id, svc->current_state, standby_workers_only, wrk->notification_aggregation_interval,  trigger_name);
+							if(wrk->notification_aggregation_interval > 0) { // 3 == THE AGGREGATION MESSAGE ITSELF
+								//As we aggregate the notifications - skip the execution of the trigger
+								free(exec_str);
+								return -2;
+							}
+
+
+							if(upstream_enabled == 1 && upstream_has_local_users == 1) {
+								_log(LH_TRIGGER, B_LOG_HASTO,"@UPSTREAM-NOT-USER@ - TRIGGER: %s  local_users: %d  to-standbys:%d cmdline `%s'", trigger_name,  upstream_has_local_users, standby_workers_only, exec_str);
+								bartlby_trigger_upstream(cfgfile, upstream_has_local_users, standby_workers_only, trigger_name, exec_str, svc);
+								free(exec_str);
+								return -2;
+							}
+
+							en.trigger = trigger_name;
+							en.svc = svc;
+							en.wrk = wrk;
+							bartlby_callback(EXTENSION_CALLBACK_TRIGGER_FIRED, &en);
+							
+							
+
+							ptrigger=popen(exec_str, "r");
+							if(ptrigger != NULL) {
+								connection_timed_out=0;
+								alarm(CONN_TIMEOUT);
+								if(fgets(trigger_return, 1024, ptrigger) != NULL) {
+									trigger_return[strlen(trigger_return)-1]='\0';
+									_log(LH_TRIGGER, B_LOG_DEBUG,"@NOT-EXT@%ld|%d|%d|%s|%s|%s:%d/%s|'%s'", svc->service_id, svc->last_state ,svc->current_state,trigger_name,wrk->name, srvmap[svc->srv_place].server_name, srvmap[svc->srv_place].client_port, svc->service_name, trigger_return);
+									
+      								} else {
+      									_log(LH_TRIGGER, B_LOG_DEBUG,"@NOT-EXT@%ld|%d|%d|%s|%s|%s:%d/%s|'(empty output)'", svc->service_id, svc->last_state ,svc->current_state,trigger_name,wrk->name, srvmap[svc->srv_place].server_name, srvmap[svc->srv_place].client_port, svc->service_name);
+      								}
+      								
+      								if(connection_timed_out == 1) {
+      									_log(LH_TRIGGER, B_LOG_DEBUG,"@NOT-EXT@%ld|%d|%d|%s|%s|%s:%d/%s|'(timed out)'", svc->service_id, svc->last_state ,svc->current_state,trigger_name,wrk->name, srvmap[svc->srv_place].server_name, srvmap[svc->srv_place].client_port, svc->service_name);
+      								}
+      								connection_timed_out=0;
+								alarm(0);
+								if(ptrigger != NULL) {
+      									pclose(ptrigger);
+      								}
+      							} else {
+      								_log(LH_TRIGGER, B_LOG_DEBUG,"@NOT-EXT@%ld|%d|%d|%s|%s|%s:%d/%s|'(failed %s)'", svc->service_id, svc->last_state ,svc->current_state,trigger_name,wrk->name, srvmap[svc->srv_place].server_name, srvmap[svc->srv_place].client_port, svc->service_name, full_path);	
+      							}
+							free(exec_str);
+						} else {
+							//_log("Worker: %s does not have trigger: %s", wrk->name, entry->d_name);
+						}
+						
+					}
+				}
+	return 0;
+}
 
 
 void bartlby_trigger_upstream(char * cfgfile, int has_local_users, int to_standbys, char * trigger_name, char * cmdl, struct service * svc) {
@@ -364,16 +459,16 @@ void bartlby_trigger(struct service * svc, char * cfgfile, void * shm_addr, int 
 	struct stat finfo;	
 	int x;
 	
-	struct ext_notify en;
-	
+
 	char * notify_msg;
 	char * find_str;
 	struct worker * wrkmap;
+	struct server * srvmap;
 	struct shm_header * hdr;
 	char * exec_str;
-	FILE * ptrigger;
+
 	char * find_trigger;
-	char trigger_return[1024];
+	
 	struct sigaction act1, oact1;
 	char * cfg_trigger_msg;
 	
@@ -396,7 +491,7 @@ void bartlby_trigger(struct service * svc, char * cfgfile, void * shm_addr, int 
 		cfg_upstream_enabled=strdup("false");	
 	}
 	if(strcmp(cfg_upstream_enabled, "true") == 0) {
-		upstream_enabled=1;
+		upstream_enabled=1; 
 	} else {
 		upstream_enabled=0;
 	}
@@ -416,6 +511,7 @@ void bartlby_trigger(struct service * svc, char * cfgfile, void * shm_addr, int 
 
 	hdr=bartlby_SHM_GetHDR(shm_addr);
 	wrkmap=bartlby_SHM_WorkerMap(shm_addr);
+	srvmap=bartlby_SHM_ServerMap(shm_addr);
 	
 	if(do_check == 1) {
 		if(bartlby_trigger_chk(svc) == FL) {
@@ -546,92 +642,7 @@ void bartlby_trigger(struct service * svc, char * cfgfile, void * shm_addr, int 
 				continue;
 			}
 			for(x=0; x<hdr->wrkcount; x++) {
-				if(service_is_in_time(wrkmap[x].notify_plan) > 0) {
-					if(bartlby_worker_has_service(&wrkmap[x], svc, cfgfile, 0) != 0 || do_check == 0) {
-						if(strstr(wrkmap[x].enabled_triggers, find_trigger) != NULL || strlen(wrkmap[x].enabled_triggers) == 0) {
-							
-							
-							if((bartlby_trigger_escalation(&wrkmap[x], svc, standby_workers_only, 0)) == FL) continue;
-							if((bartlby_trigger_worker_level(&wrkmap[x], svc, 0)) == FL) continue;
-								
-							/* if re-notify - and user is not active continue */
-							if(standby_workers_only == 2 && wrkmap[x].active != 1) continue;
-
-							/* if standby escalation message check if worker is in standby mode either skip him/her*/
-							if(standby_workers_only == 1 && wrkmap[x].active != 2) continue;
-							
-							if(standby_workers_only == 0) { //if it is not a renotify, either standby escalation or normal notification
-									//Check what was the last state that got send to THIS user
-									notification_log_last_state=bartlby_notification_log_last_notification_state(hdr,cfgfile,  svc->service_id, wrkmap[x].worker_id, entry->d_name);
-									if(notification_log_last_state != -1) { //If no log entry found be nice and send it out
-										if(notification_log_last_state == svc->current_state) {
-											_log(LH_TRIGGER, B_LOG_DEBUG,"FIX  FLAPPING BUG - %d - %d (%d) - svc_id: %d", notification_log_last_state, svc->current_state, standby_workers_only, svc->service_id);
-											continue; //THIS SOLVES FLAPPING BUG
-										}
-									}
-									
-							}
-							svc->last_notify_send=time(NULL);
-							svc->srv->last_notify_send=time(NULL);
-							wrkmap[x].escalation_time=time(NULL);
-							CHECKED_ASPRINTF(&exec_str, "%s \"%s\" \"%s\" \"%s\" \"%s\"", full_path, wrkmap[x].mail,wrkmap[x].icq,wrkmap[x].name, notify_msg);
-
-							//_log("EXEC trigger: %s", full_path);
-							_log(LH_TRIGGER, B_LOG_HASTO,"@NOT@%ld|%d|%d|%s|%s|%s:%d/%s (%d)", svc->service_id, svc->last_state ,svc->current_state,entry->d_name,wrkmap[x].name, svc->srv->server_name, svc->srv->client_port, svc->service_name, wrkmap[x].notification_aggregation_interval);
-							
-
-							bartlby_notification_log_add(hdr, cfgfile, wrkmap[x].worker_id, svc->service_id, svc->current_state, standby_workers_only, wrkmap[x].notification_aggregation_interval,  entry->d_name);
-							if(wrkmap[x].notification_aggregation_interval > 0) { // 3 == THE AGGREGATION MESSAGE ITSELF
-								//As we aggregate the notifications - skip the execution of the trigger
-								free(exec_str);
-								continue;
-							}
-
-
-							if(upstream_enabled == 1 && upstream_has_local_users == 1) {
-								_log(LH_TRIGGER, B_LOG_HASTO,"@UPSTREAM-NOT-USER@ - TRIGGER: %s  local_users: %d  to-standbys:%d cmdline `%s'", entry->d_name,  upstream_has_local_users, standby_workers_only, exec_str);
-								bartlby_trigger_upstream(cfgfile, upstream_has_local_users, standby_workers_only, entry->d_name, exec_str, svc);
-								free(exec_str);
-								continue;
-							}
-
-							en.trigger = entry->d_name;
-							en.svc = svc;
-							en.wrk = &wrkmap[x];
-							bartlby_callback(EXTENSION_CALLBACK_TRIGGER_FIRED, &en);
-							
-							
-
-							ptrigger=popen(exec_str, "r");
-							if(ptrigger != NULL) {
-								connection_timed_out=0;
-								alarm(CONN_TIMEOUT);
-								if(fgets(trigger_return, 1024, ptrigger) != NULL) {
-									trigger_return[strlen(trigger_return)-1]='\0';
-									_log(LH_TRIGGER, B_LOG_DEBUG,"@NOT-EXT@%ld|%d|%d|%s|%s|%s:%d/%s|'%s'", svc->service_id, svc->last_state ,svc->current_state,entry->d_name,wrkmap[x].name, svc->srv->server_name, svc->srv->client_port, svc->service_name, trigger_return);
-									
-      								} else {
-      									_log(LH_TRIGGER, B_LOG_DEBUG,"@NOT-EXT@%ld|%d|%d|%s|%s|%s:%d/%s|'(empty output)'", svc->service_id, svc->last_state ,svc->current_state,entry->d_name,wrkmap[x].name, svc->srv->server_name, svc->srv->client_port, svc->service_name);
-      								}
-      								
-      								if(connection_timed_out == 1) {
-      									_log(LH_TRIGGER, B_LOG_DEBUG,"@NOT-EXT@%ld|%d|%d|%s|%s|%s:%d/%s|'(timed out)'", svc->service_id, svc->last_state ,svc->current_state,entry->d_name,wrkmap[x].name, svc->srv->server_name, svc->srv->client_port, svc->service_name);
-      								}
-      								connection_timed_out=0;
-								alarm(0);
-								if(ptrigger != NULL) {
-      									pclose(ptrigger);
-      								}
-      							} else {
-      								_log(LH_TRIGGER, B_LOG_DEBUG,"@NOT-EXT@%ld|%d|%d|%s|%s|%s:%d/%s|'(failed %s)'", svc->service_id, svc->last_state ,svc->current_state,entry->d_name,wrkmap[x].name, svc->srv->server_name, svc->srv->client_port, svc->service_name, full_path);	
-      							}
-							free(exec_str);
-						} else {
-							//_log("Worker: %s does not have trigger: %s", wrkmap[x].name, entry->d_name);
-						}
-						
-					}
-				}
+					if(bartlby_trigger_per_worker(cfgfile, entry->d_name, hdr, &wrkmap[x], srvmap, do_check, svc, find_trigger, standby_workers_only, full_path, upstream_enabled, upstream_has_local_users, notify_msg) == -2) continue;
 			}	
 		}
 				

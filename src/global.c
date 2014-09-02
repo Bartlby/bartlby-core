@@ -25,6 +25,9 @@ $Author$
 
 #include <bartlby.h>
 
+
+
+
 char config_file[255];
 
 
@@ -225,6 +228,12 @@ int _log(int handle, int severity, const char * str,  ...) {
 	char * logfile_dd;
 	FILE * fp;
 	
+	char * split_log_files;
+	char * log_handles_excl;
+	char  * log_levels_excl;
+	char * find_severity;
+	char * find_handle;
+
 	time(&tnow);
 	tmnow = localtime(&tnow);
 	
@@ -234,13 +243,48 @@ int _log(int handle, int severity, const char * str,  ...) {
 			printf("Logfile not set");
 			exit(1);	
 		}
+		split_log_files=getConfigValue("split_log_files", config_file);
+		log_handles_excl=getConfigValue("exclude_log_handles", config_file);
+		log_levels_excl=getConfigValue("exclude_log_levels", config_file);
+
+
+		
+		CHECKED_ASPRINTF(&find_severity, ",%s,", log_levels[severity]);
+		CHECKED_ASPRINTF(&find_handle, ",%s,", log_handles[handle]);
+		
+
+		if(severity != B_LOG_HASTO && log_handles_excl != NULL && strstr(log_handles_excl, find_handle) != NULL) {
+			free(log_handles_excl);
+			free(log_levels_excl);
+			free(split_log_files);
+			free(find_handle);
+			free(find_severity);
+			return 0;
+		}
+		if(severity != B_LOG_HASTO && log_levels_excl != NULL && strstr(log_levels_excl, find_severity) != NULL) {
+			free(log_handles_excl);
+			free(log_levels_excl);
+			free(split_log_files);
+			free(find_handle);
+			free(find_severity);
+			return 0;
+		}
+
 		if(strcmp(logfile_dd, "/dev/stdout") != 0) {
-			CHECKED_ASPRINTF(&logfile, "%s.%02d.%02d.%02d", logfile_dd, tmnow->tm_year + 1900,tmnow->tm_mon + 1,tmnow->tm_mday); 	
+			if(severity == B_LOG_HASTO || split_log_files == NULL || atoi(split_log_files) == 0) {
+				CHECKED_ASPRINTF(&logfile, "%s.%02d.%02d.%02d", logfile_dd, tmnow->tm_year + 1900,tmnow->tm_mon + 1,tmnow->tm_mday); 	
+			} else {
+				CHECKED_ASPRINTF(&logfile, "%s.%02d.%02d.%02d.%s", logfile_dd, tmnow->tm_year + 1900,tmnow->tm_mon + 1,tmnow->tm_mday, log_handles[handle]); 	
+			}
 		} else {
 			logfile=strdup("/dev/stdout");	
 		}
 		
-		
+		free(log_handles_excl);
+		free(log_levels_excl);
+		free(split_log_files);
+		free(find_handle);
+		free(find_severity);
 		
 	} else {
 		logfile_dd=strdup("-");	
@@ -262,7 +306,7 @@ int _log(int handle, int severity, const char * str,  ...) {
 		}
 		fprintf(fp, "%02d.%02d.%02d %02d:%02d:%02d;[%d];", tmnow->tm_mday,tmnow->tm_mon + 1,tmnow->tm_year + 1900, tmnow->tm_hour, tmnow->tm_min, tmnow->tm_sec, getpid());
 		vfprintf(fp, str, argzeiger);
-		fprintf(fp, ";\n");
+		fprintf(fp, ";%s/%s\n",log_handles[handle], log_levels[severity]);
 		//vprintf(string,argzeiger);
 		//fflush(pos2_log_file);
 		fclose(fp);
@@ -541,5 +585,6 @@ int bartlby_agent_tcp_my_connect(char *host_name,int port,int *sd,char *proto, s
 
 	return STATE_OK;
 }
+
 
 
