@@ -46,7 +46,7 @@ void bartlby_orchestra_send_svc(char * cfg, struct service * svc) {
 		if(orch_master_ip_cfg != NULL && orch_master_pw_cfg != NULL && orch_master_port_cfg != NULL) {
 			orch_master_port=atoi(orch_master_port_cfg);
 			
-			//rtc=bartlby_portier_send_svc_status(orch_master_ip_cfg, orch_master_port, orch_master_pw_cfg, svc, cfg);	
+			rtc=bartlby_portier_send_svc_status(orch_master_ip_cfg, orch_master_port, orch_master_pw_cfg, svc, cfg);	
 
 			
 
