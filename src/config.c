@@ -112,7 +112,7 @@ char * getConfigValue_ex(const char * key, const char * fname, int cache) {
 	}
 	//see if env is set :)
 	
-	asprintf(&env_name, "BARTLBY_%s", key);
+	CHECKED_ASPRINTF(&env_name, "BARTLBY_%s", key);
 	env_value=getenv(env_name);
 	
 	if(env_value != NULL) {

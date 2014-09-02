@@ -169,12 +169,13 @@ void bartlby_portier_exec_trigger(char * cfgfile, int standby_workers_only, cons
 			bartlby_show_error(-224, "Trigger Dir unset in CFG", is_http);
 			return;
 	}
-	asprintf(&find_trigger, "|%s|" , trigger_name);
-	asprintf(&full_path, "%s/%s", trigger_dir, trigger_name);
+	CHECKED_ASPRINTF(&find_trigger, "|%s|" , trigger_name);
+	CHECKED_ASPRINTF(&full_path, "%s/%s", trigger_dir, trigger_name);
 	if(lstat(full_path, &finfo) < 0) {
 		bartlby_show_error(-225, "Stat failed on trigger dir", is_http);
 		free(find_trigger);
 		free(full_path);
+		free(trigger_dir);
 		return;
 	}
 	base_dir = getConfigValue("basedir", cfgfile);
@@ -208,7 +209,7 @@ void bartlby_portier_exec_trigger(char * cfgfile, int standby_workers_only, cons
 					}
 															
 						wrkmap[x].escalation_time=time(NULL);
-						asprintf(&exec_str, "%s \"%s\" \"%s\" \"%s\" \"%s\" 2>&1", full_path, wrkmap[x].mail,wrkmap[x].icq,wrkmap[x].name, execline);
+						CHECKED_ASPRINTF(&exec_str, "%s \"%s\" \"%s\" \"%s\" \"%s\" 2>&1", full_path, wrkmap[x].mail,wrkmap[x].icq,wrkmap[x].name, execline);
 						_log(LH_PORTIER, B_LOG_HASTO, "@NOT@%ld|%d|%d|%s|%s|UPSTREAMED - %s", local_svc.service_id, local_svc.notify_last_state ,local_svc.current_state,trigger_name,wrkmap[x].name, execline);
 						bartlby_notification_log_add(shm_hdr, cfgfile, wrkmap[x].worker_id, local_svc.service_id, local_svc.current_state, standby_workers_only, wrkmap[x].notification_aggregation_interval,  (char*)trigger_name);
 						if(wrkmap[x].notification_aggregation_interval > 0) { // 3 == THE AGGREGATION MESSAGE ITSELF
@@ -240,6 +241,7 @@ void bartlby_portier_exec_trigger(char * cfgfile, int standby_workers_only, cons
 	}
 	free(base_dir);
 	free(find_trigger);	
+	free(trigger_dir);
 				
 	jso = json_object_new_object();
 	json_object_object_add(jso,"error_code", json_object_new_int(0));

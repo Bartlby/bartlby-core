@@ -220,7 +220,7 @@ void bartlby_end_clean(char *cfgfile) {
 	if(pid_def_name == NULL) {
 		pid_def_name=strdup(base_dir);
 	}
-	asprintf(&pidfname, "%s/bartlby.pid", pid_def_name);
+	CHECKED_ASPRINTF(&pidfname, "%s/bartlby.pid", pid_def_name);
 	
 	if(unlink(pidfname) == 0) {	
 		_log(LH_DAEMON, B_LOG_INFO,"%s Pid file removed", pidfname);

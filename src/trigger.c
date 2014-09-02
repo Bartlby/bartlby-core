@@ -85,8 +85,8 @@ int bartlby_trigger_worker_level(struct worker * w,  struct service * svc, int n
 	
 	blevel=bartlby_beauty_state(level);
 	
-	asprintf(&last_level, "|%d|", last);
-	asprintf(&find_level, "|%d|",level);
+	CHECKED_ASPRINTF(&last_level, "|%d|", last);
+	CHECKED_ASPRINTF(&find_level, "|%d|",level);
 	if(strstr(w->notify_levels, find_level) != NULL || strlen(w->notify_levels) == 0) {
 		if(level < last) {
 			//_log("@debug level:%d < last:%d", level, last);
@@ -228,11 +228,11 @@ int bartlby_worker_has_service(struct worker * w, struct service * svc, char * c
 
 	
 	if(node_id <= 0) {
-		asprintf(&find_server, ",%ld,", svc->server_id);
-		asprintf(&find_service, ",%ld,", svc->service_id);
+		CHECKED_ASPRINTF(&find_server, ",%ld,", svc->server_id);
+		CHECKED_ASPRINTF(&find_service, ",%ld,", svc->service_id);
 	} else {
-		asprintf(&find_server, ",%d-%ld,",node_id, svc->server_id);
-		asprintf(&find_service, ",%d-%ld,",node_id, svc->service_id);
+		CHECKED_ASPRINTF(&find_server, ",%d-%ld,",node_id, svc->server_id);
+		CHECKED_ASPRINTF(&find_service, ",%d-%ld,",node_id, svc->service_id);
 	}
 	
 	
@@ -450,7 +450,7 @@ void bartlby_trigger(struct service * svc, char * cfgfile, void * shm_addr, int 
 	SERVERN SERVICE CUR MSG
 	*/
 	
-	asprintf(&find_str, "|%ld|", svc->service_id);
+	CHECKED_ASPRINTF(&find_str, "|%ld|", svc->service_id);
 	cfg_trigger_msg=getConfigValue("trigger_msg", cfgfile);
 	if(cfg_trigger_msg == NULL) {
 		cfg_trigger_msg=strdup(DEFAULT_NOTIFY_MSG);	
@@ -485,8 +485,8 @@ void bartlby_trigger(struct service * svc, char * cfgfile, void * shm_addr, int 
 		
 		if(entry->d_name[0] == '.') continue;
 		
-		asprintf(&find_trigger, "|%s|" , entry->d_name);
-		asprintf(&full_path, "%s/%s", trigger_dir, entry->d_name);
+		CHECKED_ASPRINTF(&find_trigger, "|%s|" , entry->d_name);
+		CHECKED_ASPRINTF(&full_path, "%s/%s", trigger_dir, entry->d_name);
 
 		
 
@@ -497,6 +497,7 @@ void bartlby_trigger(struct service * svc, char * cfgfile, void * shm_addr, int 
 			free(full_path);
 			closedir(dtrigger);
 			free(notify_msg);
+			if(trigger_dir != NULL) free(trigger_dir);
 			return;	
 		}
 
@@ -573,7 +574,7 @@ void bartlby_trigger(struct service * svc, char * cfgfile, void * shm_addr, int 
 							svc->last_notify_send=time(NULL);
 							svc->srv->last_notify_send=time(NULL);
 							wrkmap[x].escalation_time=time(NULL);
-							asprintf(&exec_str, "%s \"%s\" \"%s\" \"%s\" \"%s\"", full_path, wrkmap[x].mail,wrkmap[x].icq,wrkmap[x].name, notify_msg);
+							CHECKED_ASPRINTF(&exec_str, "%s \"%s\" \"%s\" \"%s\" \"%s\"", full_path, wrkmap[x].mail,wrkmap[x].icq,wrkmap[x].name, notify_msg);
 
 							//_log("EXEC trigger: %s", full_path);
 							_log(LH_TRIGGER, B_LOG_HASTO,"@NOT@%ld|%d|%d|%s|%s|%s:%d/%s (%d)", svc->service_id, svc->last_state ,svc->current_state,entry->d_name,wrkmap[x].name, svc->srv->server_name, svc->srv->client_port, svc->service_name, wrkmap[x].notification_aggregation_interval);

@@ -129,7 +129,7 @@ void bartlby_SHM_link_services_servers(void * shm_addr, char * cfgfile, void * S
 		}
 		for(x=0; x<hdr->srvcount; x++) {
 			
-			asprintf(&group_has_server, "|%ld|", srvmap[x].server_id);
+			CHECKED_ASPRINTF(&group_has_server, "|%ld|", srvmap[x].server_id);
 			
 			if(strstr(srvgrpmap[y].servergroup_members, group_has_server) != NULL) {
 				
@@ -161,7 +161,7 @@ void bartlby_SHM_link_services_servers(void * shm_addr, char * cfgfile, void * S
 		}
 		for(x=0; x<hdr->svccount; x++) {
 			
-			asprintf(&group_has_service, "|%ld|", svcmap[x].service_id);
+			CHECKED_ASPRINTF(&group_has_service, "|%ld|", svcmap[x].service_id);
 			
 			if(strstr(svcgrpmap[y].servicegroup_members, group_has_service) != NULL) {
 				
@@ -215,7 +215,7 @@ void bartlby_SHM_link_services_servers(void * shm_addr, char * cfgfile, void * S
 		for(x=0; x<hdr->srvcount; x++) {
 							
 					if(srvmap[x].servergroup_counter == 0) {
-						asprintf(&group_has_server, "|%ld|", srvmap[x].server_id);
+						CHECKED_ASPRINTF(&group_has_server, "|%ld|", srvmap[x].server_id);
 						
 						srvmap[x].servergroups[srvmap[x].servergroup_counter] = &srvgrpmap[default_server_group_index];
 						srvmap[x].servergroup_place[srvmap[x].servergroup_counter]=default_server_group_index;
@@ -241,7 +241,7 @@ void bartlby_SHM_link_services_servers(void * shm_addr, char * cfgfile, void * S
 				if(svcmap[x].servicegroup_counter == 0) {
 					
 					
-					asprintf(&group_has_service, "|%ld|", svcmap[x].service_id);
+					CHECKED_ASPRINTF(&group_has_service, "|%ld|", svcmap[x].service_id);
 				
 					
 					svcmap[x].servicegroups[svcmap[x].servicegroup_counter] = &svcgrpmap[default_service_group_index];

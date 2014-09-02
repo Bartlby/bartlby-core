@@ -67,6 +67,12 @@
 #define B_LOG_HASTO 4
 
 
+
+#define CHECKED_ASPRINTF(...)                                       \
+    if (asprintf( __VA_ARGS__ ) == -1) {                             \
+       _debug("ASPRINTF FAILED");\
+    }
+
 static char * log_handles[] = {"DEBUG", "TRIGGER", "SCHED", "CHECK", "MAIN", "SHM", "DAEMON", "PERF", "ACK", "EVNT", "EXT", "NOTIFYLOG", "LIB", "PORTIER", "MOD", "ORCH"};
 static char * log_levels[] = {"DEBUG", "INFO", "WARN", "CRIT", "HASTO"};
 
