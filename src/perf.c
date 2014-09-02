@@ -119,12 +119,12 @@ void bartlby_perf_track(struct service * svc,char * return_buffer, int return_by
 	
 	cfg_perf_dir=getConfigValue("performance_dir", cfgfile);
 	if(cfg_perf_dir != NULL) {
-		asprintf(&perf_trigger, "%s/%s", cfg_perf_dir, svc->plugin);
+		CHECKED_ASPRINTF(&perf_trigger, "%s/%s", cfg_perf_dir, svc->plugin);
 		if(stat(perf_trigger, &perf_s) < 0) {
 			_log(LH_PERF, B_LOG_CRIT,"Performance Trigger: %s not found", perf_trigger);	
 		} else {
 			free(perf_trigger);
-			asprintf(&perf_trigger, "%s/%s %ld %s 2>&1 > /dev/null", cfg_perf_dir, svc->plugin, svc->service_id, return_buffer);
+			CHECKED_ASPRINTF(&perf_trigger, "%s/%s %ld %s 2>&1 > /dev/null", cfg_perf_dir, svc->plugin, svc->service_id, return_buffer);
 
 			//FIXME WORKER MODE -> http://www4.informatik.uni-erlangen.de/DE/Lehre/WS01/V_SP1/Uebung/tsh.c block_signal
 			signal(SIGPIPE,SIG_DFL);

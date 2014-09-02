@@ -555,7 +555,7 @@ void bartlby_notification_log_aggregate(struct shm_header *shmhdr, char * cfgfil
 							}
 							s=s->next;					
 						}
-						asprintf(&tmpstr, "%ld OK, %ld Warning, %ld Critical, %ld Other \\n", okcount, warncount, critcount, othercount);
+						CHECKED_ASPRINTF(&tmpstr, "%ld OK, %ld Warning, %ld Critical, %ld Other \\n", okcount, warncount, critcount, othercount);
 						strncat(notify_msg, tmpstr, sizeof(notify_msg) - strlen(notify_msg) - 1);
 
 						free(tmpstr);
@@ -568,7 +568,7 @@ void bartlby_notification_log_aggregate(struct shm_header *shmhdr, char * cfgfil
 								//_log("\t\t Service: State Changes: %d -  id: %d OK: %d WARN: %d CRIT:%d OTHER: %d", s->state_changes, s->service_id, s->states[0], s->states[1], s->states[2], s->states[3]);
 								csvc=bartlby_notification_log_get_service(shmhdr, s->service_id);
 								if(csvc->current_state != 0) {
-									asprintf(&tmpstr, "%s/%s (%d)\\n", csvc->srv->server_name, csvc->service_name, csvc->current_state);
+									CHECKED_ASPRINTF(&tmpstr, "%s/%s (%d)\\n", csvc->srv->server_name, csvc->service_name, csvc->current_state);
 									strncat(notify_msg, tmpstr, sizeof(notify_msg) - strlen(notify_msg) - 1);
 									free(tmpstr);
 									still_broken_count++;
@@ -590,7 +590,7 @@ void bartlby_notification_log_aggregate(struct shm_header *shmhdr, char * cfgfil
 
 
 
-						asprintf(&exec_str, "%s/%s \"%s\" \"%s\" \"%s\" \"%s\"", trigger_dir, t->trigger_name, wrkmap->mail,wrkmap->icq,wrkmap->name, notify_msg);
+						CHECKED_ASPRINTF(&exec_str, "%s/%s \"%s\" \"%s\" \"%s\" \"%s\"", trigger_dir, t->trigger_name, wrkmap->mail,wrkmap->icq,wrkmap->name, notify_msg);
 
 
 						_log(LH_NOTIFYLOG, B_LOG_DEBUG,"@NOT-AGGREGATE@: %s for Worker '%s' Notifications original: %d - %s",t->trigger_name,  wrkmap->name, t->notification_count, notify_msg);

@@ -134,7 +134,7 @@ void bartlby_check_ssh(struct service * svc, char * cfgfile) {
     		   		
         goto failed;
     }
-		asprintf(&cmd_line, "~/bartlby-plugins/%s %s", svc->plugin, svc->plugin_arguments);
+		CHECKED_ASPRINTF(&cmd_line, "~/bartlby-plugins/%s %s", svc->plugin, svc->plugin_arguments);
     rc = channel_request_exec(channel, cmd_line);
     free(cmd_line);
     if (rc < 0) {

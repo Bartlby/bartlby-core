@@ -235,7 +235,7 @@ int _log(int handle, int severity, const char * str,  ...) {
 			exit(1);	
 		}
 		if(strcmp(logfile_dd, "/dev/stdout") != 0) {
-			asprintf(&logfile, "%s.%02d.%02d.%02d", logfile_dd, tmnow->tm_year + 1900,tmnow->tm_mon + 1,tmnow->tm_mday); 	
+			CHECKED_ASPRINTF(&logfile, "%s.%02d.%02d.%02d", logfile_dd, tmnow->tm_year + 1900,tmnow->tm_mon + 1,tmnow->tm_mday); 	
 		} else {
 			logfile=strdup("/dev/stdout");	
 		}
@@ -346,9 +346,9 @@ void bartlby_replace_svc_in_str(char * str, struct service * svc, int max) {
 	
 	
 	
-	asprintf(&last_state_change, "%d", svc->last_state_change);
-	asprintf(&server_id, "%ld", svc->srv->server_id);
-	asprintf(&service_id, "%ld", svc->service_id);
+	CHECKED_ASPRINTF(&last_state_change, "%d", svc->last_state_change);
+	CHECKED_ASPRINTF(&server_id, "%ld", svc->srv->server_id);
+	CHECKED_ASPRINTF(&service_id, "%ld", svc->service_id);
 	
 	human_state=bartlby_beauty_state(svc->current_state);
 	human_state_last=bartlby_beauty_state(svc->last_state);

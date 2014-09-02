@@ -384,7 +384,7 @@ int UpdateDowntime(struct downtime * svc, char *config) {
 	
 	
 	
-	asprintf(&sqlupd, UPDATE_DOWNTIME, svc->downtime_notice, svc->downtime_from, svc->downtime_to, svc->service_id, svc->downtime_type,svc->orch_id, svc->downtime_id);
+	CHECKED_ASPRINTF(&sqlupd, UPDATE_DOWNTIME, svc->downtime_notice, svc->downtime_from, svc->downtime_to, svc->service_id, svc->downtime_type,svc->orch_id, svc->downtime_id);
 	
 	
 	
@@ -427,7 +427,7 @@ int DeleteDowntime(int downtime_id, char * config) {
 	
 	
 	
-	asprintf(&sqlupd, DEL_DOWNTIME, downtime_id);
+	CHECKED_ASPRINTF(&sqlupd, DEL_DOWNTIME, downtime_id);
 	
 	//Log("dbg", sqlupd);
 	
@@ -471,7 +471,7 @@ int DowntimeChangeId(int from, int to, char * config) {
 	
 	
 	
-	asprintf(&sqlupd, DOWNTIME_CHANGE_ID, to, from);
+	CHECKED_ASPRINTF(&sqlupd, DOWNTIME_CHANGE_ID, to, from);
 	
 	
 	
@@ -511,7 +511,7 @@ int WorkerChangeId(int from, int to, char * config) {
 	
 	
 	
-	asprintf(&sqlupd, WORKER_CHANGE_ID, to, from);
+	CHECKED_ASPRINTF(&sqlupd, WORKER_CHANGE_ID, to, from);
 	
 	
 	
@@ -551,7 +551,7 @@ int ServiceChangeId(int from, int to, char * config) {
 	
 	
 	
-	asprintf(&sqlupd, SERVICE_CHANGE_ID, to, from);
+	CHECKED_ASPRINTF(&sqlupd, SERVICE_CHANGE_ID, to, from);
 	
 	
 	
@@ -591,7 +591,7 @@ int ServerChangeId(int from, int to, int sr, char * config) {
 	
 	
 	
-	asprintf(&sqlupd, SERVER_CHANGE_ID, to, from);
+	CHECKED_ASPRINTF(&sqlupd, SERVER_CHANGE_ID, to, from);
 	
 	
 	
@@ -603,7 +603,7 @@ int ServerChangeId(int from, int to, int sr, char * config) {
 	if(sr == 1) {
 		
 		
-		asprintf(&sqlupd, SERVER_CHANGE_SERVICES, to,from);
+		CHECKED_ASPRINTF(&sqlupd, SERVER_CHANGE_SERVICES, to,from);
 		mysql_query(mysql, sqlupd);
 			CHK_ERR(mysql,NULL);
 		free(sqlupd);	
@@ -641,7 +641,7 @@ int AddDowntime(struct downtime * svc, char *config) {
 	
 	
 	
-	asprintf(&sqlupd, ADD_DOWNTIME, svc->downtime_type, svc->downtime_from, svc->downtime_to, svc->service_id,svc->downtime_notice, svc->orch_id);
+	CHECKED_ASPRINTF(&sqlupd, ADD_DOWNTIME, svc->downtime_type, svc->downtime_from, svc->downtime_to, svc->service_id,svc->downtime_notice, svc->orch_id);
 	
 	
 	
@@ -687,11 +687,11 @@ int GetDowntimeMap(struct downtime * svcs, char * config, int orch_id) {
       		
 
       	if(orch_id > 0) {
-      		asprintf(&where, " where orch_id=%d", orch_id);
+      		CHECKED_ASPRINTF(&where, " where orch_id=%d", orch_id);
       	} else {
-      		asprintf(&where, " ");
+      		CHECKED_ASPRINTF(&where, " ");
       	}
-      	asprintf(&sql, DOWNTIME_SEL, where);
+      	CHECKED_ASPRINTF(&sql, DOWNTIME_SEL, where);
 
       	mysql_query(mysql, sql);
 		CHK_ERR(mysql,NULL);
@@ -815,7 +815,7 @@ int GetWorkerById(int worker_id, struct worker * svc, char * config) {
       		CHK_ERR(mysql,NULL);
 	
 	
-	asprintf(&sqlupd, WORKER_SEL, worker_id);
+	CHECKED_ASPRINTF(&sqlupd, WORKER_SEL, worker_id);
 	
 	
 	mysql_query(mysql, sqlupd);
@@ -952,7 +952,7 @@ int UpdateWorker(struct worker * svc, char *config) {
 	
 	
 	
-	asprintf(&sqlupd, UPDATE_WORKER, svc->mail, svc->icq, svc->notify_levels, svc->active, svc->name,svc->password,svc->enabled_triggers,svc->escalation_limit, svc->escalation_minutes, svc->notify_plan,svc->visible_services, svc->visible_servers, svc->selected_services, svc->selected_servers, svc->is_super_user, svc->notification_aggregation_interval, svc->orch_id, svc->worker_id);
+	CHECKED_ASPRINTF(&sqlupd, UPDATE_WORKER, svc->mail, svc->icq, svc->notify_levels, svc->active, svc->name,svc->password,svc->enabled_triggers,svc->escalation_limit, svc->escalation_minutes, svc->notify_plan,svc->visible_services, svc->visible_servers, svc->selected_services, svc->selected_servers, svc->is_super_user, svc->notification_aggregation_interval, svc->orch_id, svc->worker_id);
 	
 	
 	
@@ -1000,7 +1000,7 @@ int DeleteWorker(int worker_id, char * config) {
 	
 	
 	
-	asprintf(&sqlupd, DELETE_WORKER, worker_id);
+	CHECKED_ASPRINTF(&sqlupd, DELETE_WORKER, worker_id);
 	
 	//Log("dbg", sqlupd);
 	
@@ -1050,7 +1050,7 @@ int AddWorker(struct worker * svc, char *config) {
 	
 	
 	
-	asprintf(&sqlupd, ADD_WORKER, svc->mail, svc->icq, svc->notify_levels, svc->active, svc->name, svc->password, svc->enabled_triggers, svc->escalation_limit, svc->escalation_minutes, svc->notify_plan, svc->visible_services, svc->visible_servers, svc->selected_servers, svc->selected_services, svc->is_super_user, svc->notification_aggregation_interval, svc->orch_id);
+	CHECKED_ASPRINTF(&sqlupd, ADD_WORKER, svc->mail, svc->icq, svc->notify_levels, svc->active, svc->name, svc->password, svc->enabled_triggers, svc->escalation_limit, svc->escalation_minutes, svc->notify_plan, svc->visible_services, svc->visible_servers, svc->selected_servers, svc->selected_services, svc->is_super_user, svc->notification_aggregation_interval, svc->orch_id);
 	
 	
 	
@@ -1101,7 +1101,7 @@ int GetServiceById(int service_id, struct service * svc, char * config) {
       		CHK_ERR(mysql,NULL);
 	
 	
-	asprintf(&sqlupd, SERVICE_SELECTOR, service_id);
+	CHECKED_ASPRINTF(&sqlupd, SERVICE_SELECTOR, service_id);
 	
 	
 	mysql_query(mysql, sqlupd);
@@ -1288,7 +1288,7 @@ int UpdateServiceInterval(struct service * svc, char * config) {
       		CHK_ERR(mysql,NULL);
       		
   
-  asprintf(&sqlupd, UPDATE_SERVICE_INTERVAL, 	svc->check_interval, 	svc->service_id);
+  CHECKED_ASPRINTF(&sqlupd, UPDATE_SERVICE_INTERVAL, 	svc->check_interval, 	svc->service_id);
 	
 	//Log("dbg", sqlupd);
 
@@ -1354,7 +1354,7 @@ int UpdateService(struct service * svc, char *config) {
 	
 	 */
 	 
-	asprintf(&sqlupd, UPDATE_SERVICE, 
+	CHECKED_ASPRINTF(&sqlupd, UPDATE_SERVICE, 
 	svc->service_type, 
 	svc->service_name, 
 	svc->server_id,
@@ -1434,7 +1434,7 @@ int DeleteService(int service_id, char * config) {
 	
 	
 	
-	asprintf(&sqlupd, DELETE_SERVICE, service_id);
+	CHECKED_ASPRINTF(&sqlupd, DELETE_SERVICE, service_id);
 	
 	//Log("dbg", sqlupd);
 	
@@ -1515,7 +1515,7 @@ int AddService(struct service * svc, char *config) {
 	
 	
 	
-	asprintf(&sqlupd, ADD_SERVICE, 
+	CHECKED_ASPRINTF(&sqlupd, ADD_SERVICE, 
 	svc->server_id, 
 	svc->plugin, 
 	svc->service_name,
@@ -1592,7 +1592,7 @@ int GetServerById(int server_id, struct server * svc, char * config) {
       	mysql_select_db(mysql, mysql_db);
       		CHK_ERR(mysql,NULL);
 	
-	asprintf(&sqlupd, SERVER_SELECTOR, server_id);
+	CHECKED_ASPRINTF(&sqlupd, SERVER_SELECTOR, server_id);
 	
 	
 	mysql_query(mysql, sqlupd);
@@ -1703,7 +1703,7 @@ int ModifyServer(struct server * svc, char *config) {
       		CHK_ERR(mysql,NULL);
 	
 	
-	asprintf(&sqlupd, UPDATE_SERVER, svc->server_name, svc->client_ip, svc->client_port,svc->server_icon,svc->server_enabled, svc->server_notify, svc->server_flap_seconds,svc->server_dead,svc->server_ssh_keyfile, svc->server_ssh_passphrase, svc->server_ssh_username,svc->enabled_triggers, svc->default_service_type,svc->orch_id, svc->server_id);
+	CHECKED_ASPRINTF(&sqlupd, UPDATE_SERVER, svc->server_name, svc->client_ip, svc->client_port,svc->server_icon,svc->server_enabled, svc->server_notify, svc->server_flap_seconds,svc->server_dead,svc->server_ssh_keyfile, svc->server_ssh_passphrase, svc->server_ssh_username,svc->enabled_triggers, svc->default_service_type,svc->orch_id, svc->server_id);
 	
 	//Log("dbg", sqlupd);
 	
@@ -1716,7 +1716,7 @@ int ModifyServer(struct server * svc, char *config) {
 
 	//update services - if orch_id changed
 
-	asprintf(&sqlupd, SERVER_CHANGE_SERVICES_ORCH_ID,svc->orch_id, svc->server_id);	
+	CHECKED_ASPRINTF(&sqlupd, SERVER_CHANGE_SERVICES_ORCH_ID,svc->orch_id, svc->server_id);	
 
 	mysql_query(mysql, sqlupd);
 	CHK_ERR(mysql,NULL);
@@ -1760,7 +1760,7 @@ int DeleteServer(int server_id, char * config) {
       		CHK_ERR(mysql,NULL);
 	
 	
-	asprintf(&sqlupd, DELETE_SERVER, server_id);
+	CHECKED_ASPRINTF(&sqlupd, DELETE_SERVER, server_id);
 	
 	//Log("dbg", sqlupd);
 	
@@ -1772,7 +1772,7 @@ int DeleteServer(int server_id, char * config) {
 	
 	
 	//DELETE_SERVICE_BY_SERVER
-	asprintf(&sqlupd, DELETE_SERVICE_BY_SERVER, server_id);
+	CHECKED_ASPRINTF(&sqlupd, DELETE_SERVICE_BY_SERVER, server_id);
 	mysql_query(mysql, sqlupd);
 		CHK_ERR(mysql,NULL);
 	
@@ -1817,7 +1817,7 @@ int AddServer(struct server * svc, char *config) {
       		CHK_ERR(mysql,NULL);
 	
 	
-	asprintf(&sqlupd, ADD_SERVER, svc->server_name, svc->client_ip, svc->client_port, svc->server_icon, svc->server_enabled, svc->server_notify, svc->server_flap_seconds, svc->server_dead, svc->server_ssh_keyfile, svc->server_ssh_passphrase, svc->server_ssh_username, svc->enabled_triggers, svc->default_service_type, svc->orch_id);
+	CHECKED_ASPRINTF(&sqlupd, ADD_SERVER, svc->server_name, svc->client_ip, svc->client_port, svc->server_icon, svc->server_enabled, svc->server_notify, svc->server_flap_seconds, svc->server_dead, svc->server_ssh_keyfile, svc->server_ssh_passphrase, svc->server_ssh_username, svc->enabled_triggers, svc->default_service_type, svc->orch_id);
 	
 
 	//Log("dbg", sqlupd);
@@ -1850,7 +1850,7 @@ char * GetAutor() {
 }
 char * GetVersion() {
 	char * vers;
-	asprintf(&vers, "%s on %s", DLVERSION, MYSQL_SERVER_VERSION);
+	CHECKED_ASPRINTF(&vers, "%s on %s", DLVERSION, MYSQL_SERVER_VERSION);
 	return vers;
 }
 
@@ -1878,7 +1878,7 @@ int doUpdateServer(struct server * svc, char * config) {
 
         
 
-        asprintf(&sqlupd, SERVER_UPDATE_TEXT, svc->server_enabled, svc->server_notify, svc->server_id);
+        CHECKED_ASPRINTF(&sqlupd, SERVER_UPDATE_TEXT, svc->server_enabled, svc->server_notify, svc->server_id);
 
 
         mysql_query(mysql, sqlupd);
@@ -1924,7 +1924,7 @@ int doUpdate(struct service * svc, char * config) {
 	service_mysql_safe(svc);
 	
 	
-	asprintf(&sqlupd, SERVICE_UPDATE_TEXT, svc->last_check, svc->new_server_text, svc->current_state, svc->last_notify_send, svc->last_state_change, svc->service_ack_current,svc->service_retain_current,svc->handled,  svc->service_id);
+	CHECKED_ASPRINTF(&sqlupd, SERVICE_UPDATE_TEXT, svc->last_check, svc->new_server_text, svc->current_state, svc->last_notify_send, svc->last_state_change, svc->service_ack_current,svc->service_retain_current,svc->handled,  svc->service_id);
 	
 	
 	mysql_query(mysql, sqlupd);
@@ -1968,11 +1968,11 @@ char * sql, *where;
       		
 
       	if(orch_id > 0) {
-      		asprintf(&where, " where orch_id=%d", orch_id);
+      		CHECKED_ASPRINTF(&where, " where orch_id=%d", orch_id);
       	} else {
-      		asprintf(&where, " ");
+      		CHECKED_ASPRINTF(&where, " ");
       	}
-      	asprintf(&sql, WORKER_SELECTOR, where);
+      	CHECKED_ASPRINTF(&sql, WORKER_SELECTOR, where);
 
       	mysql_query(mysql, sql);
 		CHK_ERR(mysql,NULL);
@@ -2148,11 +2148,11 @@ int GetServiceMap(struct service * svcs, char * config, int orch_id) {
       		
 
       	if(orch_id > 0) {
-      		asprintf(&where, " where orch_id=%d", orch_id);
+      		CHECKED_ASPRINTF(&where, " where orch_id=%d", orch_id);
       	} else {
-      		asprintf(&where, " ");
+      		CHECKED_ASPRINTF(&where, " ");
       	}
-      	asprintf(&sql, SERVICE_MAP_SELECTOR, where);
+      	CHECKED_ASPRINTF(&sql, SERVICE_MAP_SELECTOR, where);
 
       	mysql_query(mysql, sql);
 		CHK_ERR(mysql,NULL);
@@ -2332,11 +2332,11 @@ int GetServerMap(struct server * srv, char * config, int orch_id) {
       		
 
       	if(orch_id > 0) {
-      		asprintf(&where, " where orch_id=%d", orch_id);
+      		CHECKED_ASPRINTF(&where, " where orch_id=%d", orch_id);
       	} else {
-      		asprintf(&where, " ");
+      		CHECKED_ASPRINTF(&where, " ");
       	}
-      	asprintf(&sql, SERVER_MAP_SELECTOR, where);
+      	CHECKED_ASPRINTF(&sql, SERVER_MAP_SELECTOR, where);
 
       	mysql_query(mysql, sql);
 		CHK_ERR(mysql,NULL);
@@ -2477,7 +2477,7 @@ int ServerGroupChangeId(int from, int to, char * config) {
       		CHK_ERR(mysql,NULL);
 	
 	
-	asprintf(&sqlupd, SERVERGROUP_CHANGE_ID, to, from);
+	CHECKED_ASPRINTF(&sqlupd, SERVERGROUP_CHANGE_ID, to, from);
 	
 	
 	
@@ -2521,11 +2521,11 @@ int GetServerGroupMap(struct servergroup * svcs, char * config, int orch_id) {
       		
 
       	if(orch_id > 0) {
-      		asprintf(&where, " where orch_id=%d", orch_id);
+      		CHECKED_ASPRINTF(&where, " where orch_id=%d", orch_id);
       	} else {
-      		asprintf(&where, " ");
+      		CHECKED_ASPRINTF(&where, " ");
       	}
-      	asprintf(&sql, SERVERGROUP_SEL, where);
+      	CHECKED_ASPRINTF(&sql, SERVERGROUP_SEL, where);
 
       	mysql_query(mysql, sql);
 		CHK_ERR(mysql,NULL);
@@ -2640,7 +2640,7 @@ int AddServerGroup(struct servergroup * svc, char *config) {
       		CHK_ERR(mysql,NULL);
 	
 	
-	asprintf(&sqlupd, ADD_SERVERGROUP, svc->servergroup_name, svc->servergroup_notify, svc->servergroup_active, svc->servergroup_members, svc->servergroup_dead, svc->enabled_triggers, svc->orch_id);
+	CHECKED_ASPRINTF(&sqlupd, ADD_SERVERGROUP, svc->servergroup_name, svc->servergroup_notify, svc->servergroup_active, svc->servergroup_members, svc->servergroup_dead, svc->enabled_triggers, svc->orch_id);
 	
 	
 	
@@ -2683,7 +2683,7 @@ int DeleteServerGroup(int servergroup_id, char * config) {
       		CHK_ERR(mysql,NULL);
 	
 	
-	asprintf(&sqlupd, DEL_SERVERGROUP, servergroup_id);
+	CHECKED_ASPRINTF(&sqlupd, DEL_SERVERGROUP, servergroup_id);
 	
 	//Log("dbg", sqlupd);
 	
@@ -2730,7 +2730,7 @@ int UpdateServerGroup(struct servergroup * svc, char *config) {
 	
 	
 	
-	asprintf(&sqlupd, UPDATE_SERVERGROUP, svc->servergroup_name, svc->servergroup_notify, svc->servergroup_active, svc->servergroup_members,svc->servergroup_dead,svc->enabled_triggers,svc->orch_id, svc->servergroup_id);
+	CHECKED_ASPRINTF(&sqlupd, UPDATE_SERVERGROUP, svc->servergroup_name, svc->servergroup_notify, svc->servergroup_active, svc->servergroup_members,svc->servergroup_dead,svc->enabled_triggers,svc->orch_id, svc->servergroup_id);
 	
 	
 	
@@ -2773,7 +2773,7 @@ int ServiceGroupChangeId(int from, int to, char * config) {
       		CHK_ERR(mysql,NULL);
 	
 	
-	asprintf(&sqlupd, SERVICEGROUP_CHANGE_ID, to, from);
+	CHECKED_ASPRINTF(&sqlupd, SERVICEGROUP_CHANGE_ID, to, from);
 	
 	
 	
@@ -2817,11 +2817,11 @@ int GetServiceGroupMap(struct servicegroup * svcs, char * config, int orch_id) {
       		
 
       	if(orch_id > 0) {
-      		asprintf(&where, " where orch_id=%d", orch_id);
+      		CHECKED_ASPRINTF(&where, " where orch_id=%d", orch_id);
       	} else {
-      		asprintf(&where, " ");
+      		CHECKED_ASPRINTF(&where, " ");
       	}
-      	asprintf(&sql, SERVICEGROUP_SEL, where);
+      	CHECKED_ASPRINTF(&sql, SERVICEGROUP_SEL, where);
 
       	mysql_query(mysql, sql);
 		CHK_ERR(mysql,NULL);
@@ -2939,7 +2939,7 @@ int AddServiceGroup(struct servicegroup * svc, char *config) {
       		CHK_ERR(mysql,NULL);
 	
 	
-	asprintf(&sqlupd, ADD_SERVICEGROUP, svc->servicegroup_name, svc->servicegroup_notify, svc->servicegroup_active, svc->servicegroup_members, svc->servicegroup_dead, svc->enabled_triggers, svc->orch_id);
+	CHECKED_ASPRINTF(&sqlupd, ADD_SERVICEGROUP, svc->servicegroup_name, svc->servicegroup_notify, svc->servicegroup_active, svc->servicegroup_members, svc->servicegroup_dead, svc->enabled_triggers, svc->orch_id);
 	
 	
 	
@@ -2982,7 +2982,7 @@ int DeleteServiceGroup(int servicegroup_id, char * config) {
       		CHK_ERR(mysql,NULL);
 	
 	
-	asprintf(&sqlupd, DEL_SERVICEGROUP, servicegroup_id);
+	CHECKED_ASPRINTF(&sqlupd, DEL_SERVICEGROUP, servicegroup_id);
 	
 	//Log("dbg", sqlupd);
 	
@@ -3029,7 +3029,7 @@ int UpdateServiceGroup(struct servicegroup * svc, char *config) {
 	
 	
 	
-	asprintf(&sqlupd, UPDATE_SERVICEGROUP, svc->servicegroup_name, svc->servicegroup_notify, svc->servicegroup_active, svc->servicegroup_members,svc->servicegroup_dead,svc->enabled_triggers,svc->orch_id, svc->servicegroup_id);
+	CHECKED_ASPRINTF(&sqlupd, UPDATE_SERVICEGROUP, svc->servicegroup_name, svc->servicegroup_notify, svc->servicegroup_active, svc->servicegroup_members,svc->servicegroup_dead,svc->enabled_triggers,svc->orch_id, svc->servicegroup_id);
 	
 	
 	

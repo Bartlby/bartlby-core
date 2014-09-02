@@ -28,6 +28,7 @@ $Author$
 #include <bartlby.h>
 
 
+
 #ifdef NEEDS_JSON_GET_EX
 int json_object_object_get_ex(struct json_object* jso, const char *key, struct json_object **value) {
  *value = json_object_object_get(jso, key);

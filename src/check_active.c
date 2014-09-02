@@ -105,7 +105,7 @@ void bartlby_check_active(struct service * svc, char * cfgfile) {
 		SEND Request
 	*/
 	connection_timed_out=0;
-	asprintf(&client_request, "%s| %s|", svc->plugin, svc->plugin_arguments);
+	CHECKED_ASPRINTF(&client_request, "%s| %s|", svc->plugin, svc->plugin_arguments);
 	
 	
 	//Send it
