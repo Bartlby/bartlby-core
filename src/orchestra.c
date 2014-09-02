@@ -21,6 +21,12 @@ $Author$
 */
 
 /*
+configs:
+	orch_master_pw=<PORTIER_PASSWD>
+	orch_id=<ID OF THIS ORCH>
+	orch_master_ip=<IP OF MASTER ORCH>
+	orch_master_port=<PORT>
+	
 	bartlby_orchestra_init
 */
 

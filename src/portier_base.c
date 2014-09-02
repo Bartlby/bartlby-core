@@ -319,6 +319,7 @@ int bartlby_portier_send_trigger(char * passive_host, int passive_port, int to_s
 			json_object_object_add(jso_out, "recovery_outstanding", json_object_new_int(svc->recovery_outstanding));
 			json_object_object_add(jso_out, "node_id", json_object_new_int(node_id));
 			json_object_object_add(jso_out, "passwd", json_object_new_string(portier_passwd));
+			json_object_object_add(jso_out, "service_name", json_object_new_string(svc->service_name));
 			
 			bartlby_portier_send_no_result(jso_out, client_socket);
 

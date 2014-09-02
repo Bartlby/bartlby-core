@@ -12,7 +12,7 @@ addons:
     notification_email: helmut@januschka.com
     build_command_prepend: make clean; ./configure --enable-nrpe --enable-ssl --prefix=$PWD/installation --with-user=travis
     build_command:   make -j4
-    branch_pattern: development.*
+    branch_pattern: coverity_scan
 
 
 before_install:

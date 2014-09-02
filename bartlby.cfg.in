@@ -36,4 +36,6 @@ agent_plugin_dir=@PLUGIN_DIR@
 performance_rrd_htdocs=/var/www/bartlby-ui/rrd/
 rrd_tool=rrdtool
 
+
+portier_password=123
 notification_aggregation_interval=60

@@ -1230,7 +1230,7 @@ int schedule_loop(char * cfgfile, void * shm_addr, void * SOHandle) {
 		shortest_intervall=10;
 		getloadavg(current_load, 3);
 		sched_definitiv_running();
-		for(x=0; x<local_svc_count-1; x++) {
+		for(x=0; x<local_svc_count; x++) {
 			
 			
 			if(do_shutdown == 1 || gshm_hdr->do_reload == 1 || gshm_hdr->do_reload == 2) {
