@@ -69,11 +69,8 @@ void bartlby_portier_exec_trigger_line(char * cfgfile, const char * execline, co
 
 void bartlby_portier_set_svc_state(long service_id, char * service_text, long current_state,long last_notify_send,long last_state_change,long service_ack_current,long service_retain_current,long handled, long last_check);
 
+void bartlby_portier_orch_service_status(char * cfgfile, long service_id, int handled, long service_retain_current, int service_ack_current, int last_check, char * new_server_text, int current_state, int last_notify_send, int last_state_change, char * pw);
 
-
-void bartlby_portier_set_svc_state(long service_id, char * service_text, long current_state,long last_notify_send,long last_state_change,long service_ack_current,long service_retain_current,long handled, long last_check) {
-	printf("-123 not impl. '%s' \n", service_text);
-}
 
 
 void bartlby_portier_exec_trigger_line(char * cfgfile, const char * execline, const char * passwd) {
@@ -242,7 +239,8 @@ void bartlby_portier_exec_trigger(char * cfgfile, int standby_workers_only, cons
 	free(base_dir);
 	free(find_trigger);	
 	free(trigger_dir);
-				
+
+
 	jso = json_object_new_object();
 	json_object_object_add(jso,"error_code", json_object_new_int(0));
 	json_object_object_add(jso,"trigger", json_object_new_string(trigger_name));
@@ -366,7 +364,60 @@ void bartlby_show_error(int code, char * msg, int http) {
     
 
 }
+void bartlby_portier_orch_service_status(char * cfgfile, long service_id, int handled, long service_retain_current, int service_ack_current, int last_check, char * new_server_text, int current_state, int last_notify_send, int last_state_change, char * pw) {
+	char * portier_passwd;
+	int svc_found=0;
+	int x;
+	json_object * jso;
+	
+	portier_passwd=getConfigValue("portier_password", cfgfile);
+	if(portier_passwd == NULL) {
+		bartlby_show_error(-222, "Portier Passwd unset", is_http);
+		return;
+	}
 
+
+	
+	if(strcmp(pw, portier_passwd) != 0) {
+		free(portier_passwd);
+		bartlby_show_error(-345, "Auth failed", is_http);
+		return;	
+	}
+	free(portier_passwd);
+
+	for(x=0; x<shm_hdr->svccount; x++) {
+		if(svcmap[x].service_id == service_id) {
+			svc_found = 1;
+			break;
+		}
+	}
+	if(svc_found == 0) {
+		bartlby_show_error(-347, "Service ID not found", is_http);
+		return;
+	}
+
+	svcmap[x].handled=handled;
+	svcmap[x].service_retain_current=service_retain_current;
+	svcmap[x].service_ack_current=service_ack_current;
+	svcmap[x].last_check=last_check;
+	svcmap[x].current_state=current_state;
+	svcmap[x].last_notify_send=last_notify_send;
+	svcmap[x].last_state_change=last_state_change;
+	strcpy(svcmap[x].new_server_text, new_server_text);
+
+	jso = json_object_new_object();
+	json_object_object_add(jso, "error_code", json_object_new_int(0));
+    json_object_object_add(jso, "message", json_object_new_string("ORCH result submitted successfully"));
+
+
+    printf("%s\n", json_object_to_json_string(jso));
+    json_object_put(jso);
+	return;
+	
+
+
+
+}
 void bartlby_portier_submit_passive_result(long service_id, int status, const char * message) {
 	
 	int svc_found, x;
@@ -740,7 +791,72 @@ int main(int argc, char ** argv) {
 					}
 
 				 }
+				 /*
+				 METHOD: orch_service_status
+				 NOTE: THIS IS PW PROTECTED
+				 PURPOSE: Update Status flags from remote node
+				 ON-ERROR: error_code < 0 and "error_msg" set to a text
+				 << 
+				 	{ "method": "orch_service_status",
+				 	"servicemak_id": 9,
+				 	"handled": 0,
+				 	"service_retain_current": 48, 
+				 	"service_ack_current": 0,
+				 	"last_check": 1409335896,
+				 	"new_server_text":
+				 	 "Passive Service has been timed out",
+				 	  "current_state": 2, 
+				 	  "last_notify_send": 1409175456,
+				 	   "last_state_change": 1409175457,
+				 	    "passwd": "123" 
+				 	 }
+				 >> {"error_code": 0, "error_msg": "success" }
+				 */
+				 if(strcmp(json_object_get_string(jso_method), "orch_service_status") == 0) {
+						if(	json_object_object_get_ex(jso_in, "service_id", &jsoo[0]) &&
+							json_object_object_get_ex(jso_in, "handled", &jsoo[1]) &&
+							json_object_object_get_ex(jso_in, "service_retain_current", &jsoo[2]) &&
+							json_object_object_get_ex(jso_in, "service_ack_current", &jsoo[3]) &&
+							json_object_object_get_ex(jso_in, "last_check", &jsoo[4]) &&
+							json_object_object_get_ex(jso_in, "new_server_text", &jsoo[5]) &&
+							json_object_object_get_ex(jso_in, "current_state", &jsoo[6]) &&
+							json_object_object_get_ex(jso_in, "last_notify_send", &jsoo[7]) &&
+							json_object_object_get_ex(jso_in, "last_state_change", &jsoo[8]) &&
+							json_object_object_get_ex(jso_in, "passwd", &jsoo[9]) 		
 
+						) {
+							/*
+							void bartlby_portier_orch_service_status(char * cfgfile,
+							 long service_id, 
+							 int handled, 
+							 long service_retain_current, 
+							 int service_ack_current, 
+							 int last_check,
+							  char * new_server_text, 
+							  int current_state,
+							   int last_notify_send, 
+							   int last_state_change, 
+							   char * pw);
+
+							*/
+							bartlby_portier_orch_service_status(cfgfile, 
+														json_object_get_int64(jsoo[0]),
+														json_object_get_int(jsoo[1]),
+														json_object_get_int64(jsoo[2]),
+														json_object_get_int(jsoo[3]),
+														json_object_get_int(jsoo[4]),
+														(char*)json_object_get_string(jsoo[5]),
+														json_object_get_int(jsoo[6]),
+														json_object_get_int(jsoo[7]),
+														json_object_get_int(jsoo[8]),
+														(char*)json_object_get_string(jsoo[9])														
+														);
+			
+							PORTIER_CLEANUP;
+
+					}
+
+				 }
 				 //IF STILL ALIVE
 				 // RAIS METHOD NOT IMPLEMENTED
 				 bartlby_show_error(-999, "Method not implemented", is_http);

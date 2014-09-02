@@ -93,9 +93,9 @@ int bartlby_portier_send_no_result(json_object * obj, int sock) {
     		json_object_object_get_ex(rjso, "error_code", &json_error);
     		json_object_object_get_ex(rjso, "error_msg", &json_errormsg);
 			if(json_object_get_int(json_error) < 0) {
-				_log(LH_MAIN, B_LOG_CRIT, "Remote JSON COMMAND failed with '%s'", json_object_get_string(json_errormsg));
+				_log(LH_MAIN, B_LOG_CRIT, "Remote JSON COMMAND failed '%s'  with '%s'",json_object_to_json_string(obj), json_object_get_string(json_errormsg));
 			}    else { 			
-    			_log(LH_MAIN, B_LOG_DEBUG, "Remote JSON COMMAND returned with error_code '%ld'", json_object_get_int(json_error));
+    			_log(LH_MAIN, B_LOG_DEBUG, "Remote JSON COMMAND '%s' returned with error_code '%ld'", json_object_to_json_string(obj), json_object_get_int(json_error));
     		}
     		json_object_put(rjso);
     	} else {
@@ -179,7 +179,79 @@ int bartlby_portier_connect(char *host_name,int port){
 
 ////OLD STUFF
 int bartlby_portier_send_svc_status(char * passive_host, int passive_port, char * passwd, struct service * svc, char * cfgfile) {
+
+	int res;
+	char verstr[2048];
+	char cmdstr[2048];
+	char result[2048];
+	int rc;
 	
+	int client_socket;
+	int client_connect_retval=-1;
+	struct sigaction act1, oact1;
+	
+
+	json_object * jso_out, *jso_in, *jso_err_code, *jso_errmsg;
+
+	
+	portier_connection_timed_out=0;
+	
+
+	
+	
+	
+	act1.sa_handler = bartlby_portier_conn_timeout;
+	sigemptyset(&act1.sa_mask);
+	act1.sa_flags=0;
+	#ifdef SA_INTERRUPT
+	act1.sa_flags |= SA_INTERRUPT;
+	#endif
+	
+	if(sigaction(SIGALRM, &act1, &oact1) < 0) {
+		
+		return -3; //timeout handler
+	
+		
+	}
+	
+	alarm(5);
+	client_socket = bartlby_portier_connect(passive_host, passive_port);
+	alarm(0);
+	if(portier_connection_timed_out == 1 || client_socket == -1) {
+		return -4; //connect
+	} 
+	portier_connection_timed_out=0;
+
+
+
+	//#define SERVICE_UPDATE_TEXT "update services set , , ervice_last_notify_send=FROM_UNIXTIME(%d), service_last_state_change=FROM_UNIXTIME(%d), 
+	jso_out = json_object_new_object();
+	json_object_object_add(jso_out, "method", json_object_new_string("orch_service_status"));
+	json_object_object_add(jso_out, "service_id", json_object_new_int64(svc->service_id));
+	
+	json_object_object_add(jso_out, "handled", json_object_new_int(svc->handled));
+	json_object_object_add(jso_out, "service_retain_current", json_object_new_int(svc->service_retain_current));
+	json_object_object_add(jso_out, "service_ack_current", json_object_new_int(svc->service_ack_current));
+	json_object_object_add(jso_out, "last_check", json_object_new_int(svc->last_check));
+	json_object_object_add(jso_out, "new_server_text", json_object_new_string(svc->new_server_text));
+	json_object_object_add(jso_out, "current_state", json_object_new_int(svc->current_state));
+	json_object_object_add(jso_out, "last_notify_send", json_object_new_int(svc->last_notify_send));
+	json_object_object_add(jso_out, "last_state_change", json_object_new_int(svc->last_state_change));
+
+
+	json_object_object_add(jso_out, "passwd", json_object_new_string(passwd));
+	
+	bartlby_portier_send_no_result(jso_out, client_socket);
+
+
+	bartlby_portier_disconnect(client_socket);
+	
+	json_object_put(jso_out);
+
+	
+	//INIT JSON OBJECT and send "svc_status"
+
+
 	return 0;
 }
 
