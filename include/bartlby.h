@@ -1,6 +1,9 @@
 #include "config.h"
 
-
+///*** asprintf on clang */
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE
+#endif
 
 #include <arpa/inet.h>
 #include <ctype.h>
@@ -106,9 +109,6 @@ static char * log_levels[] = {"DEBUG", "INFO", "WARN", "CRIT", "HASTO"};
 #endif
 
 
-#ifndef _GNU_SOURCE
-#define _GNU_SOURCE
-#endif
 
 
 
@@ -690,6 +690,23 @@ void bartlby_notification_log_aggregate(struct shm_header *shmdr, char * cfgfile
 void bartlby_notification_log_debug(struct shm_header * shmhdr);
 
 
+/*** TRIGGER*/
+int bartlby_servicegroup_has_trigger(struct service * svc, char * trigger);
+int bartlby_servergroup_has_trigger(struct server * srv, char * trigger);
+int bartlby_trigger_worker_level(struct worker * w,  struct service * svc, int node_id);
+void bartlby_trigger_upstream(char * cfgfile, int has_local_users, int to_standbys, char * trigger_name, char * cmdl, struct service * svc);
+int bartlby_worker_has_service(struct worker * w, struct service * svc, char * cfgfile, int node_id);
+int bartlby_trigger_escalation(struct worker *w, struct service * svc, int standby_workers_only, int node_id);
+
+/*
+PORTIER
+*/
+int bartlby_portier_connect(char *host_name,int port);
+int bartlby_portier_send_trigger(char * passive_host, int passive_port, int to_standbys,char * trigger_name, char * execline, struct service * svc, int node_id, char * portier_passwd);
+int bartlby_portier_send_svc_status(char * passive_host, int passive_port, char * passwd, struct service * svc, char * cfgfile);
+int bartlby_portier_send(json_object * obj, int sock);
+void bartlby_portier_disconnect(int sock);
+char * bartlby_portier_fetch_reply(int sock);
 
 //COMPAT
 #ifdef NEEDS_JSON_GET_EX

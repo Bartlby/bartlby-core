@@ -55,7 +55,7 @@ catches signals, need for reload and shutdown
 
 void catch_signal(int signum) {
 	pid_t sig_pid;
-	if(signum == SIGINT || signum == SIGUSR1 || SIGTERM || SIGKILL) {
+	if(signum == SIGINT || signum == SIGUSR1 ||  signum ==  SIGTERM ||  signum ==  SIGKILL) {
 		do_shutdown=1;
 		sig_pid=getpid();
 		if(sig_pid != sched_pid) {

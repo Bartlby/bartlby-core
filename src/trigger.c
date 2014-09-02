@@ -35,6 +35,7 @@ static sig_atomic_t connection_timed_out=0;
 
 
 
+
 int bartlby_servicegroup_has_trigger(struct service * svc, char * trigger) {
 		//Check if servicegroup has notifications on
 
@@ -116,7 +117,6 @@ int bartlby_trigger_worker_level(struct worker * w,  struct service * svc, int n
 	free(find_level);	
 	return rt;
 }
-
 int bartlby_trigger_escalation(struct worker *w, struct service * svc, int standby_workers_only, int node_id) {
 	if(standby_workers_only == 0 && w->active != 1) {
 		//_log("Worker: %s is inactive", w->mail);

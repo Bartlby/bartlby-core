@@ -41,9 +41,6 @@ json_object *my_string, *my_int, *my_object, *my_array, *my_object1, *my_object2
        
 */
 
-int bartlby_portier_connect(char *host_name,int port);
-int bartlby_portier_send_trigger(char * passive_host, int passive_port, int to_standbys,char * trigger_name, char * execline, struct service * svc, int node_id, char * portier_passwd);
-int bartlby_portier_send_svc_status(char * passive_host, int passive_port, char * passwd, struct service * svc, char * cfgfile);
 
 
 
