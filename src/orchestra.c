@@ -33,7 +33,9 @@ configs:
 
 #include <bartlby.h>
 
-
+void bartlby_orchestra_upstream_log(char * cfg, char * log_line) {
+	_log(LH_ORCH,B_LOG_DEBUG, "UPSTREAM LOG LINE '%s'", log_line);
+}
 void bartlby_orchestra_send_svc(char * cfg, struct service * svc) {
 	int rtc;
 	char * orch_master_ip_cfg;

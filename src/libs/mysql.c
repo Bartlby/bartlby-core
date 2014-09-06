@@ -2285,7 +2285,10 @@ int GetServiceMap(struct service * svcs, char * config, int orch_id) {
       		_log(LH_LIB, B_LOG_INFO, "no services found!");	
       	}
     	
-    	free(mysql_host);
+
+  mysql_free_result(res);
+  mysql_close(mysql);
+  free(mysql_host);
 	free(mysql_user);
 	free(mysql_pw);
 	free(mysql_db);
@@ -2447,7 +2450,9 @@ int GetServerMap(struct server * srv, char * config, int orch_id) {
       		_log(LH_LIB, B_LOG_INFO,"no servers found!");	
       	}
     	
-    	free(mysql_host);
+  mysql_free_result(res);
+  mysql_close(mysql);
+  free(mysql_host);
 	free(mysql_user);
 	free(mysql_pw);
 	free(mysql_db);
@@ -2607,7 +2612,8 @@ int GetServerGroupMap(struct servergroup * svcs, char * config, int orch_id) {
 	
 	
 	
-	
+	mysql_free_result(res);
+  mysql_close(mysql);
 	free(mysql_host);
 	free(mysql_user);
 	free(mysql_pw);
@@ -2906,7 +2912,8 @@ int GetServiceGroupMap(struct servicegroup * svcs, char * config, int orch_id) {
 	
 	
 	
-	
+	mysql_free_result(res);
+  mysql_close(mysql);
 	free(mysql_host);
 	free(mysql_user);
 	free(mysql_pw);

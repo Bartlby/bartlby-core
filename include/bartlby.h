@@ -73,6 +73,12 @@
        _debug("ASPRINTF FAILED");\
     }
 
+#define CHECKED_VASPRINTF(...)                                       \
+    if (vasprintf( __VA_ARGS__ ) == -1) {                             \
+       _debug("ASPRINTF FAILED");\
+    }
+
+
 static char * log_handles[] = {"DEBUG", "TRIGGER", "SCHED", "CHECK", "MAIN", "SHM", "DAEMON", "PERF", "ACK", "EVNT", "EXT", "NOTIFYLOG", "LIB", "PORTIER", "MOD", "ORCH"};
 static char * log_levels[] = {"DEBUG", "INFO", "WARN", "CRIT", "HASTO"};
 
@@ -130,7 +136,7 @@ static char * log_levels[] = {"DEBUG", "INFO", "WARN", "CRIT", "HASTO"};
 #define REL_NAME_INT "Insomnia"
 #define REL_NAME REL_NAME_INT " - rev:" __GIT_VERSION
 //#define VERSION  "1.4.0"
-#define EXPECTCORE 1600004
+#define EXPECTCORE 1600005
 
 #define MAX_CCACHE 1024
 #define MAX_CCACHE_KEY 1024
@@ -684,7 +690,7 @@ void bartlby_orchestra_init(struct shm_header * shmhdr);
 int bartlby_orchestra_belongs_to_orch(struct service * svc, char * cfgfile);
 void bartlby_orchestra_check_timeouts(struct service * svcmap,struct shm_header * hdr, char * cfgfile);
 void bartlby_orchestra_send_svc(char * cfg, struct service * svc);
-
+void bartlby_orchestra_upstream_log(char * cfg, char * log_line);
 //Notification Log
 int bartlby_notification_log_last_notification_state(struct shm_header * shmhdr, char * cfgfile, long svc_id, long worker_id, char * trigger_name);
 void * bartlby_notification_log_set_hardcopy(struct shm_header * shmhdr, void * hardcopy, long notification_log_current_top, time_t notification_log_last_run);
