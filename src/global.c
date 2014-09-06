@@ -234,6 +234,8 @@ int _log(int handle, int severity, const char * str,  ...) {
 	char * find_severity;
 	char * find_handle;
 
+	char * upstream_line;
+
 	time(&tnow);
 	tmnow = localtime(&tnow);
 	
@@ -247,8 +249,6 @@ int _log(int handle, int severity, const char * str,  ...) {
 		log_handles_excl=getConfigValue("exclude_log_handles", config_file);
 		log_levels_excl=getConfigValue("exclude_log_levels", config_file);
 
-
-		
 		CHECKED_ASPRINTF(&find_severity, ",%s,", log_levels[severity]);
 		CHECKED_ASPRINTF(&find_handle, ",%s,", log_handles[handle]);
 		
@@ -259,6 +259,7 @@ int _log(int handle, int severity, const char * str,  ...) {
 			free(split_log_files);
 			free(find_handle);
 			free(find_severity);
+			free(logfile_dd);
 			return 0;
 		}
 		if(severity != B_LOG_HASTO && log_levels_excl != NULL && strstr(log_levels_excl, find_severity) != NULL) {
@@ -267,6 +268,7 @@ int _log(int handle, int severity, const char * str,  ...) {
 			free(split_log_files);
 			free(find_handle);
 			free(find_severity);
+			free(logfile_dd);
 			return 0;
 		}
 
@@ -312,7 +314,26 @@ int _log(int handle, int severity, const char * str,  ...) {
 		fclose(fp);
 	}
    	
-   	va_end(argzeiger);
+  
+
+
+   	
+	va_end(argzeiger);
+
+	
+	if(severity == B_LOG_HASTO)  {
+		va_start(argzeiger,str);
+
+		CHECKED_VASPRINTF(&upstream_line, str, argzeiger);
+		
+		bartlby_orchestra_upstream_log(config_file, upstream_line);
+		free(upstream_line);
+		
+		va_end(argzeiger);
+	}
+
+
+   	
    	free(logfile);
    	free(logfile_dd);
 	return 1;   
