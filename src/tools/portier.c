@@ -71,7 +71,33 @@ void bartlby_portier_set_svc_state(long service_id, char * service_text, long cu
 
 void bartlby_portier_orch_service_status(char * cfgfile, long service_id, int handled, long service_retain_current, int service_ack_current, int last_check, char * new_server_text, int current_state, int last_notify_send, int last_state_change, char * pw);
 
+void bartlby_portier_log_line(char * cfgfile, const char * log_line, long time_stamp, const char * passwd);
 
+
+void bartlby_portier_log_line(char * cfgfile, const char * log_line, long time_stamp, const char * passwd) {
+	char * portier_passwd;
+	json_object * jso;
+
+	portier_passwd=getConfigValue("portier_password", cfgfile);
+	if(portier_passwd == NULL) {
+		bartlby_show_error(-222, "Portier Passwd unset", is_http);
+		return;
+	}
+
+	if(portier_passwd != NULL && strcmp(passwd, portier_passwd) == 0) {
+		_log(LH_PORTIER, B_LOG_HASTO,log_line);
+		jso = json_object_new_object();
+		json_object_object_add(jso,"error_code", json_object_new_int(0));
+		json_object_object_add(jso,"logging", json_object_new_string("done"));
+		printf("%s\n", json_object_to_json_string(jso));
+
+		json_object_put(jso);
+	} else {
+		bartlby_show_error(-113, "Auth Failed", is_http);
+	}
+	free(portier_passwd);
+
+}
 
 void bartlby_portier_exec_trigger_line(char * cfgfile, const char * execline, const char * passwd) {
 
@@ -776,6 +802,37 @@ int main(int argc, char ** argv) {
 
 				 }
 				 /*
+				 METHOD: orch_log
+				 NOTE: THIS IS PW PROTECTED
+				 PURPOSE: Add a remote _log() call to local logfile - for reporting
+				 ON-ERROR: error_code < 0 and "error_msg" set to a text
+				 << {"method": "orch_log", 
+				 	 "time_stamp": 0123123123,
+				 	 "line": "@LOG@dasdas",
+				 	 "passwd": "password"
+				 	}
+				 >> {"error_code": 0, "done":1 }
+				 */
+				 if(strcmp(json_object_get_string(jso_method), "orch_log") == 0) {
+						if(	json_object_object_get_ex(jso_in, "log_line", &jsoo[0]) &&
+							json_object_object_get_ex(jso_in, "time_stamp", &jsoo[1]) && 
+							json_object_object_get_ex(jso_in, "passwd", &jsoo[2])
+						) {
+							
+							bartlby_portier_log_line(cfgfile, 
+														json_object_get_string(jsoo[0]),
+														json_object_get_int64(jsoo[1]),
+														json_object_get_string(jsoo[2])
+														);
+			
+							PORTIER_CLEANUP;
+
+					}
+
+				 }
+
+
+				 /*
 				 METHOD: orch_service_status
 				 NOTE: THIS IS PW PROTECTED
 				 PURPOSE: Update Status flags from remote node
@@ -809,20 +866,6 @@ int main(int argc, char ** argv) {
 							json_object_object_get_ex(jso_in, "passwd", &jsoo[9]) 		
 
 						) {
-							/*
-							void bartlby_portier_orch_service_status(char * cfgfile,
-							 long service_id, 
-							 int handled, 
-							 long service_retain_current, 
-							 int service_ack_current, 
-							 int last_check,
-							  char * new_server_text, 
-							  int current_state,
-							   int last_notify_send, 
-							   int last_state_change, 
-							   char * pw);
-
-							*/
 							bartlby_portier_orch_service_status(cfgfile, 
 														json_object_get_int64(jsoo[0]),
 														json_object_get_int(jsoo[1]),

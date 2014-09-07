@@ -715,13 +715,13 @@ int bartlby_trigger_per_worker(char * cfgfile, char * trigger_name, struct shm_h
 /*
 PORTIER
 */
-int bartlby_portier_connect(char *host_name,int port);
-int bartlby_portier_send_trigger(char * passive_host, int passive_port, int to_standbys,char * trigger_name, char * execline, struct service * svc, int node_id, char * portier_passwd);
+int bartlby_portier_connect(char *host_name,int port, int spool, char * cfgfile);
+int bartlby_portier_send_trigger(char * passive_host, int passive_port, int to_standbys,char * trigger_name, char * execline, struct service * svc, int node_id, char * portier_passwd, char * cfgfile);
 int bartlby_portier_send_svc_status(char * passive_host, int passive_port, char * passwd, struct service * svc, char * cfgfile);
-int bartlby_portier_send(json_object * obj, int sock);
-void bartlby_portier_disconnect(int sock);
-char * bartlby_portier_fetch_reply(int sock);
-
+int bartlby_portier_send(json_object * obj, int sock, int spool);
+void bartlby_portier_disconnect(int sock, int spool);
+char * bartlby_portier_fetch_reply(int sock, int spool);
+int bartlby_portier_send_log(char * passive_host, int passive_port, char * passwd, char  * log_line, char * cfgfile);
 //COMPAT
 #ifdef NEEDS_JSON_GET_EX
 int json_object_object_get_ex(struct json_object* jso, const char *key, struct json_object **value);
