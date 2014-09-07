@@ -34,7 +34,37 @@ configs:
 #include <bartlby.h>
 
 void bartlby_orchestra_upstream_log(char * cfg, char * log_line) {
-	_log(LH_ORCH,B_LOG_DEBUG, "UPSTREAM LOG LINE '%s'", log_line);
+	int rtc;
+	char * orch_master_ip_cfg;
+	char * orch_master_port_cfg;
+	int orch_master_port;
+	char * orch_master_pw_cfg;
+	int orch_id;
+
+	orch_id=bartlby_orchestra_get_id(cfg);
+	if(orch_id != 0) {
+		orch_master_ip_cfg=getConfigValue("orch_master_ip", cfg);		
+		orch_master_port_cfg=getConfigValue("orch_master_port", cfg);
+		orch_master_pw_cfg=getConfigValue("orch_master_pw", cfg);
+
+		if(orch_master_ip_cfg != NULL && orch_master_pw_cfg != NULL && orch_master_port_cfg != NULL) {
+			orch_master_port=atoi(orch_master_port_cfg);
+			
+			rtc=bartlby_portier_send_log(orch_master_ip_cfg, orch_master_port, orch_master_pw_cfg, log_line, cfg);	
+
+			
+
+		}  else {
+			_log(LH_ORCH, B_LOG_CRIT, "you have to set 'orch_master_ip' && orch_master_pw && orch_master_port - skipping orch sync");
+		}
+
+		if(orch_master_port_cfg != NULL) free(orch_master_port_cfg);
+		if(orch_master_ip_cfg != NULL) free(orch_master_ip_cfg);
+		if(orch_master_pw_cfg != NULL) free(orch_master_pw_cfg);
+		
+	}
+
+
 }
 void bartlby_orchestra_send_svc(char * cfg, struct service * svc) {
 	int rtc;

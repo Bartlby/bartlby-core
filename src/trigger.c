@@ -434,10 +434,10 @@ void bartlby_trigger_upstream(char * cfgfile, int has_local_users, int to_standb
 	if(has_local_users == 1) {
 		//_log("UPSTREAM: just send exec line: %s", cmdl);
 		//int bartlby_trigger_tcp_upstream(char * passive_host, int passive_port, int passive_cmd, int to_standbys, char * execline) {
-		rtc=bartlby_portier_send_trigger(cfg_upstream_host, upstream_port, to_standbys,trigger_name, cmdl, NULL, node_id, portier_passwd);
+		rtc=bartlby_portier_send_trigger(cfg_upstream_host, upstream_port, to_standbys,trigger_name, cmdl, NULL, node_id, portier_passwd, cfgfile);
 	} else {
 		//_log("UPSTREAM: send request to  '%s:%d' call a '%s' on remote workers - with message: '%s'",cfg_upstream_host, upstream_port, trigger_name, cmdl);
-		rtc=bartlby_portier_send_trigger(cfg_upstream_host, upstream_port, to_standbys, trigger_name, cmdl, svc, node_id, portier_passwd);
+		rtc=bartlby_portier_send_trigger(cfg_upstream_host, upstream_port, to_standbys, trigger_name, cmdl, svc, node_id, portier_passwd,cfgfile);
 	}
 	if(rtc < 0 ) {
 		_log(LH_TRIGGER, B_LOG_CRIT,"Notification Upstream failed");
