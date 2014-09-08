@@ -57,10 +57,11 @@ int bartlby_portier_send_no_result(json_object * obj, int sock, int spool) {
 	if(bartlby_portier_send(obj, sock, spool) >0) {
     	reply=bartlby_portier_fetch_reply(sock, spool);
     	rjso=json_tokener_parse(reply);
-    	if(rjso) {
-    		json_object_object_get_ex(rjso, "error_code", &json_error);
-    		json_object_object_get_ex(rjso, "error_msg", &json_errormsg);
-			if(json_object_get_int(json_error) < 0) {
+    	if(rjso && 
+    		json_object_object_get_ex(rjso, "error_code", &json_error) && 
+    		json_object_object_get_ex(rjso, "error_msg", &json_errormsg)) {
+    		
+    		if(json_object_get_int(json_error) < 0) {
 				_log(LH_MAIN, B_LOG_CRIT, "Remote JSON COMMAND failed '%s'  with '%s'",json_object_to_json_string(obj), json_object_get_string(json_errormsg));
 			}    else { 			
     			_log(LH_MAIN, B_LOG_DEBUG, "Remote JSON COMMAND '%s' returned with error_code '%ld'", json_object_to_json_string(obj), json_object_get_int(json_error));
@@ -71,7 +72,7 @@ int bartlby_portier_send_no_result(json_object * obj, int sock, int spool) {
     	}
     	free(reply);
     }	
-    bartlby_portier_disconnect(sock, spool);
+    //bartlby_portier_disconnect(sock, spool);
     return 0;
 }
 int bartlby_portier_send(json_object * obj, int sock,int spool) {
@@ -109,14 +110,20 @@ int bartlby_portier_connect(char *host_name,int port, int spool, char * cfgfile)
 	char * spool_dir_cfg;
 	char * spool_dir_tmpl;
 	struct stat sb;
-
+	mode_t mask;
+	
 	if(spool == 1) {
 		spool_dir_cfg=getConfigValue("portier_spool_dir", cfgfile);
 		if(spool_dir_cfg != NULL) {
 
 			if (stat(spool_dir_cfg, &sb) == 0 && S_ISDIR(sb.st_mode)) {
 				CHECKED_ASPRINTF(&spool_dir_tmpl, "%s/cmd_XXXXXX", spool_dir_cfg);
+				
+				//* SET UMASK - @@@coverity
+				mask=umask(S_IXUSR | S_IRWXG | S_IRWXO);
 				sockfd=mkstemp(spool_dir_tmpl);
+				umask(mask);
+
 				free(spool_dir_tmpl);
 				free(spool_dir_cfg);
 				return sockfd;
@@ -425,7 +432,7 @@ int bartlby_portier_send_trigger(char * passive_host, int passive_port, int to_s
 
 		}
 
-
+	bartlby_portier_disconnect(client_socket,do_spool);
 
 	return 0;
 }
