@@ -413,6 +413,7 @@ void bartlby_portier_orch_service_status(char * cfgfile, long service_id, int ha
 	svcmap[x].current_state=current_state;
 	svcmap[x].last_notify_send=last_notify_send;
 	svcmap[x].last_state_change=last_state_change;
+	svcmap[x].last_orch_sync=time(NULL);
 	strncpy(svcmap[x].new_server_text, new_server_text, 2047);
 
 	jso = json_object_new_object();

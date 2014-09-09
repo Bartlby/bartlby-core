@@ -145,7 +145,7 @@ void bartlby_orchestra_check_timeouts(struct service * svcmap,struct shm_header 
 			continue;
 		}
 		//Services dos not belong to this node - so check for timeout - runaaway
-		my_diff=cur_time-(svcmap[x].last_check+(svcmap[x].check_interval*2));
+		my_diff=cur_time-svcmap[x].last_orch_sync;
 
 		
 
