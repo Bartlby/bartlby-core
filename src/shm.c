@@ -70,6 +70,7 @@ void bartlby_SHM_link_services_servers(void * shm_addr, char * cfgfile, void * S
 	}
 	
 	for(x=0; x<hdr->svccount; x++) {
+		svcmap[x].last_orch_sync=time(NULL);
 		svcmap[x].srv_place=-1;
 		for(y=0; y<hdr->srvcount; y++) {
 			if(svcmap[x].server_id == srvmap[y].server_id) {

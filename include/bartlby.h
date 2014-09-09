@@ -445,6 +445,7 @@ struct service {
 
 	int handled;
 	int orch_id;
+	int last_orch_sync;
 };
 
 struct servicegroup {
