@@ -165,8 +165,10 @@ void bartlby_orchestra_check_timeouts(struct service * svcmap,struct shm_header 
 			bartlby_fin_service(&svcmap[x],SOHandle,shm_addr,cfgfile);
 			
 			//FIXME - fix also in sched.c
+			svcmap[x].last_orch_sync=time(NULL);
 			svcmap[x].last_check=time(NULL);
 			sched_reschedule(&svcmap[x]);
+
 			
 		}	
 	}
