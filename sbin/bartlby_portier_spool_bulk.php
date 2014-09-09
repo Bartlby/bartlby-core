@@ -34,8 +34,9 @@ if(!$sock) {
 }
 
 $svcs_uniq=array();
+krsort($files);
 while(list($k, $v) = @each($files)) {
-	
+	echo "DOING: $v \n";	
 	$cnt = file_get_contents($v);
 	$parsed = json_decode($cnt);
 	if($parsed->method == "orch_service_status") {
