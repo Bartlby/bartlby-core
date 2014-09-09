@@ -1,0 +1,10 @@
+README.notification_upstream
+------------------------------
+
+
+config variables:
+	* upstream_has_local_users
+	* upstream_enabled
+	* upstream_my_node_id (node id seen from Site-Manager view, set 0 if in orch mode)
+	* upstream_host
+	* upstream_port
