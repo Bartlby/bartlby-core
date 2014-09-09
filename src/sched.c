@@ -116,6 +116,10 @@ void sched_write_back_all(char * cfgfile, void * shm_addr, void * SOHandle) {
 	
 
 	for(x=0; x<gshm_hdr->svccount; x++) {
+		//Do not writeback services that came in via an orch-node
+		if(bartlby_orchestra_belongs_to_orch(&services[x], cfgfile) < 0) {
+			continue;
+		}
 		if(doUpdate(&services[x], cfgfile) != 1) {
 			_log(LH_SCHED, B_LOG_CRIT, "doUpdate() failed in sched_writeback_all() '%s` for service id: %d", strerror(errno), services[x].service_id);		
 		}
@@ -1301,7 +1305,7 @@ int schedule_loop(char * cfgfile, void * shm_addr, void * SOHandle) {
 			_log(LH_SCHED, B_LOG_DEBUG,"AGGREGATION RUN");
 			bartlby_notification_log_aggregate(gshm_hdr, cfgfile);
 		} 
-		bartlby_orchestra_check_timeouts(services, gshm_hdr, cfgfile);
+		bartlby_orchestra_check_timeouts(services, gshm_hdr, cfgfile, shm_addr, SOHandle);
 		
 		
 	}

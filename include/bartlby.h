@@ -688,7 +688,7 @@ int bartlby_agent_tcp_connect(char *host_name,int port,int *sd, struct service *
 int bartlby_orchestra_get_id(char * cfgfile);
 void bartlby_orchestra_init(struct shm_header * shmhdr);
 int bartlby_orchestra_belongs_to_orch(struct service * svc, char * cfgfile);
-void bartlby_orchestra_check_timeouts(struct service * svcmap,struct shm_header * hdr, char * cfgfile);
+void bartlby_orchestra_check_timeouts(struct service * svcmap,struct shm_header * hdr, char * cfgfile,void * shm_addr, void * SOHandle);
 void bartlby_orchestra_send_svc(char * cfg, struct service * svc);
 void bartlby_orchestra_upstream_log(char * cfg, char * log_line);
 //Notification Log

@@ -33,6 +33,8 @@ configs:
 
 #include <bartlby.h>
 
+static time_t orch_last_reload=0;
+
 void bartlby_orchestra_upstream_log(char * cfg, char * log_line) {
 	int rtc;
 	char * orch_master_ip_cfg;
@@ -101,26 +103,71 @@ void bartlby_orchestra_send_svc(char * cfg, struct service * svc) {
 
 }
 
-void bartlby_orchestra_check_timeouts(struct service * svcmap,struct shm_header * hdr, char * cfgfile) {
+void bartlby_orchestra_check_timeouts(struct service * svcmap,struct shm_header * hdr, char * cfgfile,void * shm_addr, void * SOHandle) {
 	int x;
 	time_t cur_time;
 	long my_diff;
 	
+	char * orch_auto_reload;
+	int orch_auto_reload_seconds;
+
+	char * orch_node_timeout;
+	int orch_node_timeout_sec;
+
+
+	orch_auto_reload=getConfigValue("orch_auto_reload", cfgfile);
+	if(orch_auto_reload != NULL) {
+		orch_auto_reload_seconds=atoi(orch_auto_reload);
+		free(orch_auto_reload);
+	} else {
+		orch_auto_reload_seconds=600;
+	}
 	cur_time=time(NULL);
 	
-	
-	
+	///* check if reload is required ****////	
+	if(cur_time-orch_last_reload > orch_auto_reload_seconds && bartlby_orchestra_get_id(cfgfile) != 0) {
+		_log(LH_ORCH, B_LOG_INFO, "Auto Reloading because of %d Seconds since last reload", orch_auto_reload_seconds);
+		hdr->do_reload=1;
+		orch_last_reload=cur_time;
+	}
+
+	///** Check if we have a service that hasn't submitted a state-update within a timeframe
+	orch_node_timeout=getConfigValue("orch_node_timeout", cfgfile);
+	if(orch_node_timeout != NULL) {
+		orch_node_timeout_sec=atoi(orch_node_timeout);
+		free(orch_node_timeout);
+	} else {
+		orch_node_timeout_sec=300;
+	}
+		
 	for(x=0; x<hdr->svccount; x++) {
 		if(bartlby_orchestra_belongs_to_orch(&svcmap[x], cfgfile) == 0) {
 			continue;
 		}
 		//Services dos not belong to this node - so check for timeout - runaaway
-		my_diff=cur_time-svcmap[x].last_check;
-		if(my_diff > 300 && svcmap[x].is_gone != 4) {
-			_debug("TIMEOUT (%ld) FOR: %s %d - is the ORCH node dead?",my_diff, svcmap[x].service_name, svcmap[x].orch_id);
-			svcmap[x].is_gone=4;
+		my_diff=cur_time-(svcmap[x].last_check+(svcmap[x].check_interval*2));
+
+		
+
+		
+		
+
+		if(my_diff > orch_node_timeout_sec) {
+			
+			//_debug("TIMEOUT (%ld) FOR: %s %d - is the ORCH node dead?",my_diff, svcmap[x].service_name, svcmap[x].orch_id);
+			//svcmap[x].is_gone=4;
+			
+			
 			//PULL TRIGGERS? - set state to unkown? - critical? - retain count? - outputmsg? = "Timed out - no response from orch_id:%d"?
 			//set is_gone=4 - if already - mark as REALLY DEAD - means 2 times timeout!
+			svcmap[x].current_state=STATE_CRITICAL;
+			snprintf(svcmap[x].new_server_text,200, "ORCH Sync Timeout");
+			bartlby_fin_service(&svcmap[x],SOHandle,shm_addr,cfgfile);
+			
+			//FIXME - fix also in sched.c
+			svcmap[x].last_check=time(NULL);
+			sched_reschedule(&svcmap[x]);
+			
 		}	
 	}
 	
@@ -144,6 +191,7 @@ int bartlby_orchestra_belongs_to_orch(struct service * svc, char * cfgfile) {
 void bartlby_orchestra_init(struct shm_header * shmhdr) {
 	//INIT - happens after shm population
 	_log(LH_ORCH, B_LOG_DEBUG, "**********ORCHESTRA MODE INIT");
+	orch_last_reload=time(NULL);
 	
 }
 int bartlby_orchestra_get_id(char * cfgfile) {
