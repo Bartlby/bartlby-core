@@ -59,6 +59,10 @@ dist_perfhandlerdefaults_DATA=perf/defaults/bartlby_http.rrd.xml perf/defaults/b
 triggerdir=$(prefix)/trigger
 dist_trigger_DATA=trigger/icq.sh trigger/jabber.sh trigger/mail.sh trigger/push.sh trigger/sms.sh
 
+#sbins
+toolsdir=$(prefix)/sbin
+dist_tools_DATA=sbin/bartlby_portier_spool_bulk.php
+
 
 
 mysqldir=$(prefix)
@@ -91,6 +95,7 @@ install-data-hook:
 	 for i in $(dist_perfhandler_DATA) ; do chmod +x $(DESTDIR)$(prefix)/$$i ; done ;
 	 for i in $(dist_perfhandlerdefaults_DATA) ; do chmod +x $(DESTDIR)$(prefix)/$$i ; done ;
 	 for i in $(dist_trigger_DATA) ; do chmod +x $(DESTDIR)$(prefix)/$$i ; done ;
+	 for i in $(dist_tools_DATA) ; do chmod +x $(DESTDIR)$(prefix)/$$i ; done ;
 	 $(MKDIR_P) $(DESTDIR)$(prefix)/contrib
 	 $(MKDIR_P) $(DESTDIR)$(prefix)/var/log
 	 chmod +x $(DESTDIR)$(prefix)/etc/bartlby.startup
