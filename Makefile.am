@@ -32,11 +32,11 @@ bartlby_CFLAGS = $(AM_CFLAGS)  $(NRPE_ADDON) $(OPENSSL_ADDON)  $(SNMP_ADDON) $(S
 nodist_bartlby_shmt_SOURCES = src/tools/shmt.c
 bartlby_shmt_LDADD = -ldl libbartlby.a $(OPENSSL_FLAG) $(SNMP_FLAG) $(SSH_FLAG) $(JSON_FLAG)
 bartlby_shmt_CFLAGS = $(AM_CFLAGS) $(NRPE_ADDON) $(SSL_ADDON)  $(SNMP_ADDON) $(SSH_ADDON) $(JSON_ADDON) $(GIT_VERSION)
-bartlby_shmt_LDFLAGS =  -Wl,--no-as-needed
+bartlby_shmt_LDFLAGS =  -Wl,--no-as-needed -pthread
 
 nodist_bartlby_portier_SOURCES =  src/tools/portier.c
 bartlby_portier_LDADD = -ldl libbartlby.a $(OPENSSL_FLAG) $(SNMP_FLAG) $(SSH_FLAG) $(JSON_FLAG)
-bartlby_portier_LDFLAGS = -pthread -Wl,--no-as-needed
+bartlby_portier_LDFLAGS = -pthread -Wl,--no-as-needed -pthread
 bartlby_portier_CFLAGS = $(AM_CFLAGS) $(NRPE_ADDON) $(SSL_ADDON) $(SNMP_ADDON) $(SSH_ADDON) $(JSON_ADDON) $(GIT_VERSION)
 
 lib_LTLIBRARIES = mysql.la
