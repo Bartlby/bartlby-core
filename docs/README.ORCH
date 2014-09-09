@@ -1,0 +1,37 @@
+README.ORCH
+---------------------------------
+
+
+This document describes how you setup a multiple bartlby-nodes combined to on orchestra.
+in the following named "ORCH"-mode.
+
+Prerequisites:
+----------------------
+orchestra mode should be used to horizontally scale out a monitoring infrastructure - for solving this you require to have one single global accessable mysql-database.
+this DB has to be accessable by all orch-nodes
+(e.g you can use a mysql-ndbm cluster or google-sql)
+
+**** if you want to have the notifications from each orch-node handled by the orch-master - you ll have to configure notification upstreaming
+****  as described in the "notification upstream guide"
+
+Config Variables:
+-------------------------
+	* orch_master_ip
+		= this is the ip-address of the bartlby_portier running on the ORCH-master
+	* orch_master_port
+		= this is the port of the bartlby_portier running on the ORCH-master
+	* orch_master_pw
+		= the passwort for the bartlby_portier
+	* orch_id
+		= ID of this node
+
+
+
+
+
+
+
+
+
+
+

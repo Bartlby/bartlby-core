@@ -34,9 +34,9 @@ if(!$sock) {
 }
 
 $svcs_uniq=array();
-krsort($files);
 while(list($k, $v) = @each($files)) {
-	echo "DOING: $v \n";	
+	$ts_array=explode("-", $k);
+	$ts=$ts_array[0];
 	$cnt = file_get_contents($v);
 	$parsed = json_decode($cnt);
 	if($parsed->method == "orch_service_status") {
@@ -54,6 +54,11 @@ while(list($k, $v) = @each($files)) {
 	$ret_parsed = json_decode($ret);
 	if($ret_parsed->error_code != 0) {
 		echo "FAIL: " . $ret . "\n";
+		$diff=time()-$ts;
+		if($diff > 1800) {
+			echo "PURGING REALLY OLD FILE $diff \n";
+			unlink($v);
+		}
 	} else {
 		unlink($v);
 	}

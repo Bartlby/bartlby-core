@@ -1,0 +1,14 @@
+README.portier_spooling
+----------------------------
+
+if enabled the communication between core and portier (e.g. upstreaming of notifictaions or orch communication)
+is spooled to a given directory.
+
+you can call sbin/bartlby_portier_spool_bulk.php via a cronjob to work threw the queue - and kick out doublettes.
+
+tools:
+	sbin/bartlby_portier_spool_bulk.php
+
+config vars:
+	* portier_spool_dir
+	* portier_spool_commands
