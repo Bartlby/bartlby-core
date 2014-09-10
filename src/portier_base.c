@@ -328,7 +328,7 @@ int bartlby_portier_send_svc_status(char * passive_host, int passive_port, char 
 	json_object_object_add(jso_out, "current_state", json_object_new_int(svc->current_state));
 	json_object_object_add(jso_out, "last_notify_send", json_object_new_int(svc->last_notify_send));
 	json_object_object_add(jso_out, "last_state_change", json_object_new_int(svc->last_state_change));
-
+	json_object_object_add(jso_out, "orch_id", json_object_new_int(bartlby_orchestra_get_id(cfgfile)));
 
 	json_object_object_add(jso_out, "passwd", json_object_new_string(passwd));
 	
