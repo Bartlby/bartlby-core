@@ -152,24 +152,9 @@ void bartlby_orchestra_check_timeouts(struct service * svcmap,struct shm_header 
 		
 		
 
-		if(my_diff > orch_node_timeout_sec) {
-			
-			//_debug("TIMEOUT (%ld) FOR: %s %d - is the ORCH node dead?",my_diff, svcmap[x].service_name, svcmap[x].orch_id);
-			//svcmap[x].is_gone=4;
-			
-			
-			//PULL TRIGGERS? - set state to unkown? - critical? - retain count? - outputmsg? = "Timed out - no response from orch_id:%d"?
-			//set is_gone=4 - if already - mark as REALLY DEAD - means 2 times timeout!
-			svcmap[x].current_state=STATE_CRITICAL;
-			snprintf(svcmap[x].new_server_text,200, "ORCH Sync Timeout");
-			bartlby_fin_service(&svcmap[x],SOHandle,shm_addr,cfgfile);
-			
-			//FIXME - fix also in sched.c
-			svcmap[x].last_orch_sync=time(NULL);
-			svcmap[x].last_check=time(NULL);
-			sched_reschedule(&svcmap[x]);
-
-			
+		if(my_diff > orch_node_timeout_sec && svcmap[x].is_gone != BARTLBY_OBJECT_OUT_OF_SYNC) {
+			svcmap[x].is_gone=BARTLBY_OBJECT_OUT_OF_SYNC;
+						
 		}	
 	}
 	

@@ -240,6 +240,12 @@ static char * log_levels[] = {"DEBUG", "INFO", "WARN", "CRIT", "HASTO"};
 #define SERVICE_HANDLED 1;
 
 
+#define BARTLBY_OBJECT_CHANGED 1
+#define BARTLBY_OBJECT_DELETED 2
+#define BARTLBY_OBJECT_OUT_OF_SYNC 3
+
+
+
 
 #define LOAD_SYMBOL(x,y,z) 	x=dlsym(y, z); \
     	if((dlmsg=dlerror()) != NULL) { \
