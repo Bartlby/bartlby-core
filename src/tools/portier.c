@@ -69,7 +69,7 @@ void bartlby_portier_exec_trigger_line(char * cfgfile, const char * execline, co
 
 void bartlby_portier_set_svc_state(long service_id, char * service_text, long current_state,long last_notify_send,long last_state_change,long service_ack_current,long service_retain_current,long handled, long last_check);
 
-void bartlby_portier_orch_service_status(char * cfgfile, long service_id, int handled, long service_retain_current, int service_ack_current, int last_check, char * new_server_text, int current_state, int last_notify_send, int last_state_change, char * pw);
+void bartlby_portier_orch_service_status(char * cfgfile, long service_id, int handled, long service_retain_current, int service_ack_current, int last_check, char * new_server_text, int current_state, int last_notify_send, int last_state_change, char * pw, int orch_id);
 
 void bartlby_portier_log_line(char * cfgfile, const char * log_line, long time_stamp, const char * passwd);
 
@@ -374,7 +374,7 @@ void bartlby_show_error(int code, char * msg, int http) {
     
 
 }
-void bartlby_portier_orch_service_status(char * cfgfile, long service_id, int handled, long service_retain_current, int service_ack_current, int last_check, char * new_server_text, int current_state, int last_notify_send, int last_state_change, char * pw) {
+void bartlby_portier_orch_service_status(char * cfgfile, long service_id, int handled, long service_retain_current, int service_ack_current, int last_check, char * new_server_text, int current_state, int last_notify_send, int last_state_change, char * pw, int orch_id) {
 	char * portier_passwd;
 	int svc_found=0;
 	int x;
@@ -405,7 +405,10 @@ void bartlby_portier_orch_service_status(char * cfgfile, long service_id, int ha
 		bartlby_show_error(-347, "Service ID not found", is_http);
 		return;
 	}
-
+	if(svcmap[x].orch_id != orch_id) {
+		bartlby_show_error(-348, "Result received but orch_id does not match?! dead node sending results?", is_http);
+		return;	
+	}
 	svcmap[x].handled=handled;
 	svcmap[x].service_retain_current=service_retain_current;
 	svcmap[x].service_ack_current=service_ack_current;
@@ -850,7 +853,8 @@ int main(int argc, char ** argv) {
 				 	  "current_state": 2, 
 				 	  "last_notify_send": 1409175456,
 				 	   "last_state_change": 1409175457,
-				 	    "passwd": "123" 
+				 	    "passwd": "123",
+				 	    "orch_id": 1 
 				 	 }
 				 >> {"error_code": 0, "error_msg": "success" }
 				 */
@@ -864,7 +868,9 @@ int main(int argc, char ** argv) {
 							json_object_object_get_ex(jso_in, "current_state", &jsoo[6]) &&
 							json_object_object_get_ex(jso_in, "last_notify_send", &jsoo[7]) &&
 							json_object_object_get_ex(jso_in, "last_state_change", &jsoo[8]) &&
-							json_object_object_get_ex(jso_in, "passwd", &jsoo[9]) 		
+							json_object_object_get_ex(jso_in, "passwd", &jsoo[9]) && 
+							json_object_object_get_ex(jso_in, "orch_id", &jsoo[10]) 
+
 
 						) {
 							bartlby_portier_orch_service_status(cfgfile, 
@@ -877,7 +883,8 @@ int main(int argc, char ** argv) {
 														json_object_get_int(jsoo[6]),
 														json_object_get_int(jsoo[7]),
 														json_object_get_int(jsoo[8]),
-														(char*)json_object_get_string(jsoo[9])														
+														(char*)json_object_get_string(jsoo[9]),
+														json_object_get_int(jsoo[10])														
 														);
 			
 							PORTIER_CLEANUP;
