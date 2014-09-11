@@ -308,8 +308,12 @@ struct notification_log_entry {
 	int type; // 0 if it was a normal notification, 1 = it was a escalation notification to the standby's
 	time_t time;
 	int aggregation_interval;
+	int received_via;
 };
 #define NOTIFICATION_LOG_MAX 512
+#define NOTIFICATION_VIA_LOCAL 1
+#define NOTIFICATION_VIA_UPSTREAM 2
+
 
 
 struct shm_header {
@@ -704,7 +708,7 @@ void * bartlby_notification_log_set_hardcopy(struct shm_header * shmhdr, void * 
 void * bartlby_notification_log_get_hardcopy(struct shm_header * shmhdr);
 void bartlby_notification_log_finish(struct shm_header * shmhdr);
 void bartlby_notification_log_init(struct shm_header * shmhdr);
-void bartlby_notification_log_add(struct shm_header * shmhdr, char * cfgfile, long worker_id, long service_id, int state, int type, int aggregation_interval, char * trigger_name);
+void bartlby_notification_log_add(struct shm_header * shmhdr, char * cfgfile, long worker_id, long service_id, int state, int type, int aggregation_interval, char * trigger_name, int received_via);
 void bartlby_notification_log_aggregate(struct shm_header *shmdr, char * cfgfile);
 void bartlby_notification_log_debug(struct shm_header * shmhdr);
 
@@ -717,7 +721,7 @@ void bartlby_trigger_upstream(char * cfgfile, int has_local_users, int to_standb
 int bartlby_worker_has_service(struct worker * w, struct service * svc, char * cfgfile, int node_id);
 int bartlby_trigger_escalation(struct worker *w, struct service * svc, int standby_workers_only, int node_id);
 
-int bartlby_trigger_per_worker(char * cfgfile, char * trigger_name, struct shm_header *hdr, struct worker * wrk, struct server * srvmap, int do_check, struct service * svc, char * find_trigger, int standby_workers_only, char * full_path, int upstream_enabled, int upstream_has_local_users, char * notify_msg);
+int bartlby_trigger_per_worker(char * cfgfile, char * trigger_name, struct shm_header *hdr, struct worker * wrk, struct server * srvmap, int do_check, struct service * svc, char * find_trigger, int standby_workers_only, char * full_path, int upstream_enabled, int upstream_has_local_users, char * notify_msg, int received_via);
 
 /*
 PORTIER

@@ -286,7 +286,7 @@ int bartlby_worker_has_service(struct worker * w, struct service * svc, char * c
 
 
 
-int bartlby_trigger_per_worker(char * cfgfile, char * trigger_name, struct shm_header *hdr, struct worker * wrk, struct server * srvmap, int do_check, struct service * svc, char * find_trigger, int standby_workers_only, char * full_path, int upstream_enabled, int upstream_has_local_users, char * notify_msg) {
+int bartlby_trigger_per_worker(char * cfgfile, char * trigger_name, struct shm_header *hdr, struct worker * wrk, struct server * srvmap, int do_check, struct service * svc, char * find_trigger, int standby_workers_only, char * full_path, int upstream_enabled, int upstream_has_local_users, char * notify_msg, int received_via) {
 			int notification_log_last_state;
 			char * exec_str;
 			struct ext_notify en;
@@ -328,7 +328,7 @@ int bartlby_trigger_per_worker(char * cfgfile, char * trigger_name, struct shm_h
 							_log(LH_TRIGGER, B_LOG_HASTO,"@NOT@%ld|%d|%d|%s|%s|%s:%d/%s (%d)", svc->service_id, svc->last_state ,svc->current_state,trigger_name,wrk->name, srvmap[svc->srv_place].server_name, srvmap[svc->srv_place].client_port, svc->service_name, wrk->notification_aggregation_interval);
 							
 
-							bartlby_notification_log_add(hdr, cfgfile, wrk->worker_id, svc->service_id, svc->current_state, standby_workers_only, wrk->notification_aggregation_interval,  trigger_name);
+							bartlby_notification_log_add(hdr, cfgfile, wrk->worker_id, svc->service_id, svc->current_state, standby_workers_only, wrk->notification_aggregation_interval,  trigger_name, received_via);
 							if(wrk->notification_aggregation_interval > 0) { // 3 == THE AGGREGATION MESSAGE ITSELF
 								//As we aggregate the notifications - skip the execution of the trigger
 								free(exec_str);
@@ -642,7 +642,7 @@ void bartlby_trigger(struct service * svc, char * cfgfile, void * shm_addr, int 
 				continue;
 			}
 			for(x=0; x<hdr->wrkcount; x++) {
-					if(bartlby_trigger_per_worker(cfgfile, entry->d_name, hdr, &wrkmap[x], srvmap, do_check, svc, find_trigger, standby_workers_only, full_path, upstream_enabled, upstream_has_local_users, notify_msg) == -2) continue;
+					if(bartlby_trigger_per_worker(cfgfile, entry->d_name, hdr, &wrkmap[x], srvmap, do_check, svc, find_trigger, standby_workers_only, full_path, upstream_enabled, upstream_has_local_users, notify_msg, NOTIFICATION_VIA_LOCAL) == -2) continue;
 			}	
 		}
 				

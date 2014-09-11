@@ -314,7 +314,7 @@ void bartlby_notification_log_init(struct shm_header * shmhdr) {
 	_log(LH_NOTIFYLOG, B_LOG_INFO,"Initialized Empty Notification Log");
 }
 
-void bartlby_notification_log_add(struct shm_header * shmhdr,char * cfgfile,  long worker_id, long service_id, int state, int type, int aggregation_interval, char * trigger_name) {
+void bartlby_notification_log_add(struct shm_header * shmhdr, char * cfgfile, long worker_id, long service_id, int state, int type, int aggregation_interval, char * trigger_name, int received_via) {
 
 	//Add One entry
 	//Aquire Semaphore
@@ -349,6 +349,7 @@ void bartlby_notification_log_add(struct shm_header * shmhdr,char * cfgfile,  lo
 	shmhdr->notification_log[x].time = time(NULL);
 	shmhdr->notification_log[x].type=type;
 	shmhdr->notification_log[x].aggregation_interval=aggregation_interval;
+	shmhdr->notification_log[x].received_via=received_via;
 	//bartlby_notification_B_LOG_DEBUG(shmhdr);
 	
 
