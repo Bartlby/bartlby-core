@@ -244,7 +244,7 @@ void bartlby_portier_exec_trigger(char * cfgfile, int standby_workers_only, cons
 	} 
 			
 	for(x=0; x<shm_hdr->wrkcount; x++) {
-		if(bartlby_trigger_per_worker(cfgfile, (char*)trigger_name, shm_hdr, &wrkmap[x], srvmap, 1, &local_svc, find_trigger, standby_workers_only, full_path, upstream_enabled, upstream_has_local_users, (char*)execline) == -2) continue;
+		if(bartlby_trigger_per_worker(cfgfile, (char*)trigger_name, shm_hdr, &wrkmap[x], srvmap, 1, &local_svc, find_trigger, standby_workers_only, full_path, upstream_enabled, upstream_has_local_users, (char*)execline, NOTIFICATION_VIA_LOCAL) == -2) continue;
 	}
 	free(base_dir);
 	free(find_trigger);	
