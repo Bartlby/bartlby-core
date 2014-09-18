@@ -421,7 +421,7 @@ void bartlby_portier_orch_service_status(char * cfgfile, long service_id, int ha
 
 	jso = json_object_new_object();
 	json_object_object_add(jso, "error_code", json_object_new_int(0));
-    json_object_object_add(jso, "message", json_object_new_string("ORCH result submitted successfully"));
+    json_object_object_add(jso, "error_msg", json_object_new_string("ORCH result submitted successfully"));
 
 
     printf("%s\n", json_object_to_json_string(jso));
@@ -453,7 +453,7 @@ void bartlby_portier_submit_passive_result(long service_id, int status, const ch
 			
 			jso = json_object_new_object();
 			json_object_object_add(jso, "error_code", json_object_new_int(0));
-    		json_object_object_add(jso, "message", json_object_new_string("Passive Result submitted"));
+    		json_object_object_add(jso, "error_msg", json_object_new_string("Passive Result submitted"));
 
 
     		printf("%s\n", json_object_to_json_string(jso));
