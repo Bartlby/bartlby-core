@@ -132,6 +132,7 @@ void bartlby_portier_exec_trigger_line(char * cfgfile, const char * execline, co
 		} 
 		jso = json_object_new_object();
 		json_object_object_add(jso,"error_code", json_object_new_int(0));
+		json_object_object_add(jso,"error_msg", json_object_new_string("DONE"));
 		json_object_object_add(jso,"execline", json_object_new_string(execline));
 		json_object_object_add(jso,"output", json_object_new_string(trigger_return));
 	
@@ -255,6 +256,7 @@ void bartlby_portier_exec_trigger(char * cfgfile, int standby_workers_only, cons
 	json_object_object_add(jso,"error_code", json_object_new_int(0));
 	json_object_object_add(jso,"trigger", json_object_new_string(trigger_name));
 	json_object_object_add(jso,"output", json_object_new_string(trigger_return));
+	json_object_object_add(jso,"error_msg", json_object_new_string(trigger_return));
 	
 	printf("%s\n", json_object_to_json_string(jso));
 
