@@ -88,7 +88,7 @@ void bartlby_portier_log_line(char * cfgfile, const char * log_line, long time_s
 		_log(LH_PORTIER, B_LOG_HASTO,log_line);
 		jso = json_object_new_object();
 		json_object_object_add(jso,"error_code", json_object_new_int(0));
-		json_object_object_add(jso,"logging", json_object_new_string("done"));
+		json_object_object_add(jso,"error_msg", json_object_new_string("done"));
 		printf("%s\n", json_object_to_json_string(jso));
 
 		json_object_put(jso);
