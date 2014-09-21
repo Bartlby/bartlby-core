@@ -175,7 +175,7 @@ static MYSQL * mysql_conn;
                                     server_ssh_username, \
                                     enabled_triggers, \
                                     default_service_type, \
-                                    orch_id \
+                                    orch_id, \
                                     exec_plan \
                                     ) \
                                 VALUES( \
@@ -192,7 +192,7 @@ static MYSQL * mysql_conn;
                                     '%s', \
                                     '%s', \
                                     '%d', \
-                                    '%d' \
+                                    '%d', \
                                     '%s' \
                                 )"
 
@@ -217,7 +217,7 @@ static MYSQL * mysql_conn;
                               server_ssh_username='%s', \
                               enabled_triggers='%s', \
                               default_service_type='%d', \
-                              orch_id='%d' \
+                              orch_id='%d', \
                               exec_plan='%s' \
                             where \
                               server_id=%ld"
@@ -237,7 +237,7 @@ static MYSQL * mysql_conn;
                               server_ssh_username, \
                               enabled_triggers, \
                               default_service_type, \
-                              orch_id \
+                              orch_id, \
                               exec_plan \
                           from  \
                               servers  \
@@ -281,7 +281,7 @@ static MYSQL * mysql_conn;
                                 fires_events, \
                                 enabled_triggers, \
                                 service_snmp_textmatch, \
-                                orch_id \
+                                orch_id, \
                                 usid, \
                                 prio, \
                                 notify_super_users \
@@ -398,7 +398,7 @@ static MYSQL * mysql_conn;
                             service_ack_current, \
                             server_id, \
                             service_handled, \
-                            orch_id   \
+                            orch_id,   \
                             usid, \
                             prio, \
                             notify_super_users \
@@ -1624,6 +1624,7 @@ int GetServiceById(int service_id, struct service * svc, char * config) {
 	
 	CHECKED_ASPRINTF(&sqlupd, SERVICE_SELECTOR, service_id);
 	
+
 	
 	mysql_query(mysql, sqlupd);
 		CHK_ERR(mysql,NULL);
@@ -1637,7 +1638,7 @@ int GetServiceById(int service_id, struct service * svc, char * config) {
       		svc->server_id=atol(row[33]);
       		svc->handled=atoi(row[34]);
       		svc->orch_id=atoi(row[35]);
-
+          
           if(row[36] != NULL) {
             sprintf(svc->usid, "%s", row[36]);
           } else {
@@ -2366,7 +2367,7 @@ int AddServer(struct server * svc, char *config) {
 	
 
 	//Log("dbg", sqlupd);
-	
+	 
 	mysql_query(mysql, sqlupd);
 		CHK_ERR(mysql,NULL);
 	
@@ -3213,7 +3214,7 @@ int AddServerGroup(struct servergroup * svc, char *config) {
 	CHECKED_ASPRINTF(&sqlupd, ADD_SERVERGROUP, svc->servergroup_name, svc->servergroup_notify, svc->servergroup_active, svc->servergroup_members, svc->servergroup_dead, svc->enabled_triggers, svc->orch_id);
 	
 	
-	
+
 	mysql_query(mysql, sqlupd);
 		CHK_ERR(mysql,NULL);
 	
