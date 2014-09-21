@@ -116,7 +116,7 @@ static MYSQL * mysql_conn;
                                 service_ack_current, \
                                 server_id, \
                                 service_handled, \
-                                orch_id \
+                                orch_id, \
                                 usid, \
                                 prio, \
                                 notify_super_users \
