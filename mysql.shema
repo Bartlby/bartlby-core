@@ -33,6 +33,7 @@ CREATE TABLE `servers` (
   `server_ssh_username` varchar(512) NOT NULL default '',
   `enabled_triggers` varchar(512) NOT NULL default '',
   `default_service_type` int(11) NOT NULL default '1',
+  `exec_plan` text default '',
   `orch_id` int(11) NOT NULL default '0',
   PRIMARY KEY  (`server_id`),
   UNIQUE KEY `server_id` (`server_id`)
@@ -79,6 +80,9 @@ CREATE TABLE `services` (
   `service_retain_current` int(11) NOT NULL default '0',
   `service_handled` int(11) NOT NULL default '0',
   `orch_id` int(11) NOT NULL default '0',
+  `usid` varchar(100) NOT NULL default '',
+  `prio` int(11) NOT NULL default '50',
+  `notify_super_users` int(11) NOT NULL default '1',
   PRIMARY KEY  (`service_id`),
   KEY `service_id` (`service_id`),
   KEY `service_id_2` (`service_id`,`server_id`)

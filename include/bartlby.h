@@ -369,6 +369,7 @@ struct server {
 	char enabled_triggers[512];
 	int default_service_type;
 	int orch_id;
+	char exec_plan[2048];
 } xxyz;
 
 
@@ -456,6 +457,10 @@ struct service {
 	int handled;
 	int orch_id;
 	int last_orch_sync;
+
+	char usid[50];
+	int prio;
+	int notify_super_users;
 };
 
 struct servicegroup {

@@ -75,7 +75,8 @@ static MYSQL * mysql_conn;
                                     server_ssh_username, \
                                     enabled_triggers, \
                                     default_service_type, \
-                                    orch_id  \
+                                    orch_id,  \
+                                    exec_plan \
                               from servers  %s"
 
 
@@ -116,66 +117,530 @@ static MYSQL * mysql_conn;
                                 server_id, \
                                 service_handled, \
                                 orch_id \
+                                usid, \
+                                prio, \
+                                notify_super_users \
                             from services svc %s  \
                             ORDER BY RAND()"
 
 
 
-#define WORKER_SELECTOR "select worker_mail, worker_icq, visible_services ,notify_levels, worker_active, worker_name, worker_id, password, enabled_triggers, escalation_limit, escalation_minutes, notify_plan, visible_servers, selected_services, selected_servers, is_super_user, notification_aggregation_interval, orch_id from workers  %s"
-#define SERVICE_UPDATE_TEXT "update services set service_last_check=FROM_UNIXTIME(%d), service_text='%s', service_state=%d, service_last_notify_send=FROM_UNIXTIME(%d), service_last_state_change=FROM_UNIXTIME(%d), service_ack_current=%d, service_retain_current=%ld, service_handled=%d where service_id=%ld"
+#define WORKER_SELECTOR "select worker_mail, \
+                               worker_icq, \
+                               visible_services, \
+                               notify_levels, \
+                               worker_active, \
+                               worker_name, \
+                               worker_id, \
+                               password, \
+                               enabled_triggers, \
+                               escalation_limit, \
+                               escalation_minutes, \
+                               notify_plan, \
+                               visible_servers, \
+                               selected_services, \
+                               selected_servers, \
+                               is_super_user, \
+                               notification_aggregation_interval, \
+                               orch_id \
+                          from workers  %s"
+
+#define SERVICE_UPDATE_TEXT "update services \
+                            set \
+                              service_last_check=FROM_UNIXTIME(%d), \
+                              service_text='%s', \
+                              service_state=%d, \
+                              service_last_notify_send=FROM_UNIXTIME(%d), \
+                              service_last_state_change=FROM_UNIXTIME(%d), \
+                              service_ack_current=%d, \
+                              service_retain_current=%ld, \
+                              service_handled=%d \
+                            where \
+                              service_id=%ld"
 
 
 
-#define ADD_SERVER "insert into servers (server_name,server_ip,server_port, server_ico, server_enabled, server_notify, server_flap_seconds, server_dead, server_ssh_keyfile, server_ssh_passphrase, server_ssh_username, enabled_triggers, default_service_type, orch_id) VALUES('%s','%s', '%d', '%s', '%d', '%d', '%ld', '%d', '%s','%s', '%s', '%s', '%d', '%d')"
+#define ADD_SERVER "insert into \
+                                servers ( \
+                                    server_name, \
+                                    server_ip, \
+                                    server_port,  \
+                                    server_ico, \
+                                    server_enabled, \
+                                    server_notify, \
+                                    server_flap_seconds, \
+                                    server_dead, \
+                                    server_ssh_keyfile, \
+                                    server_ssh_passphrase, \
+                                    server_ssh_username, \
+                                    enabled_triggers, \
+                                    default_service_type, \
+                                    orch_id \
+                                    exec_plan \
+                                    ) \
+                                VALUES( \
+                                    '%s', \
+                                    '%s', \
+                                    '%d', \
+                                    '%s', \
+                                    '%d', \
+                                    '%d', \
+                                    '%ld', \
+                                    '%d', \
+                                    '%s', \
+                                    '%s', \
+                                    '%s', \
+                                    '%s', \
+                                    '%d', \
+                                    '%d' \
+                                    '%s' \
+                                )"
+
+
+
 #define DELETE_SERVER "delete from servers where server_id=%d"
-#define UPDATE_SERVER "update servers set server_name='%s',server_ip='%s',server_port=%d, server_ico='%s', server_enabled='%d', server_notify='%d', server_flap_seconds='%ld', server_dead='%d', server_ssh_keyfile='%s', server_ssh_passphrase='%s', server_ssh_username='%s', enabled_triggers='%s', default_service_type='%d', orch_id='%d' where server_id=%ld"
-#define SERVER_SELECTOR "select server_name, server_ip, server_port, server_ico, server_enabled, server_notify, server_flap_seconds, server_dead, server_ssh_keyfile, server_ssh_passphrase, server_ssh_username, enabled_triggers, default_service_type, orch_id from servers where server_id=%d"
+
+
+
+#define UPDATE_SERVER "update servers  \
+                            set \
+                              server_name='%s', \
+                              server_ip='%s', \
+                              server_port=%d, \
+                              server_ico='%s', \
+                              server_enabled='%d', \
+                              server_notify='%d', \
+                              server_flap_seconds='%ld', \
+                              server_dead='%d', \
+                              server_ssh_keyfile='%s', \
+                              server_ssh_passphrase='%s', \
+                              server_ssh_username='%s', \
+                              enabled_triggers='%s', \
+                              default_service_type='%d', \
+                              orch_id='%d' \
+                              exec_plan='%s' \
+                            where \
+                              server_id=%ld"
+
+
+#define SERVER_SELECTOR "select  \
+                              server_name, \
+                              server_ip, \
+                              server_port, \
+                              server_ico, \
+                              server_enabled, \
+                              server_notify, \
+                              server_flap_seconds, \
+                              server_dead, \
+                              server_ssh_keyfile, \
+                              server_ssh_passphrase, \
+                              server_ssh_username, \
+                              enabled_triggers, \
+                              default_service_type, \
+                              orch_id \
+                              exec_plan \
+                          from  \
+                              servers  \
+                          where \
+                              server_id=%d"
+
 #define SERVER_CHANGE_ID "update servers set server_id=%d where server_id=%d"
 #define SERVER_CHANGE_SERVICES "update services set server_id=%d where server_id=%d"
 #define SERVER_CHANGE_SERVICES_ORCH_ID "update services set orch_id=%d where server_id=%ld"
-
-
 #define SERVER_UPDATE_TEXT "update servers set server_enabled='%d', server_notify='%d' where server_id=%ld"
-
 #define DELETE_SERVICE_BY_SERVER "delete from services where server_id=%d"
 
-#define ADD_SERVICE "insert into services(server_id, service_plugin, service_name, service_state,service_text, service_args,service_notify, service_active, service_interval, service_type,service_var,service_passive_timeout,service_check_timeout, service_ack_enabled, service_retain, service_snmp_community, service_snmp_objid, service_snmp_version, service_snmp_warning, service_snmp_critical, service_snmp_type, flap_seconds, service_exec_plan,renotify_interval, escalate_divisor, fires_events, enabled_triggers, service_snmp_textmatch, orch_id) values(%ld,'%s','%s',4, 'Newly created', '%s',%d,%d,%ld,%d,'%s',%ld, %ld, %d, %ld, '%s', '%s', %d, %ld, %ld, %ld, %ld, '%s',%ld,%ld, %ld, '%s', '%s', '%d')"
+
+#define ADD_SERVICE "insert into services \
+                              ( \
+                                server_id, \
+                                service_plugin, \
+                                service_name, \
+                                service_state, \
+                                service_text, \
+                                service_args, \
+                                service_notify, \
+                                service_active, \
+                                service_interval, \
+                                service_type, \
+                                service_var, \
+                                service_passive_timeout, \
+                                service_check_timeout, \
+                                service_ack_enabled, \
+                                service_retain, \
+                                service_snmp_community, \
+                                service_snmp_objid, \
+                                service_snmp_version, \
+                                service_snmp_warning, \
+                                service_snmp_critical, \
+                                service_snmp_type, \
+                                flap_seconds, \
+                                service_exec_plan, \
+                                renotify_interval, \
+                                escalate_divisor, \
+                                fires_events, \
+                                enabled_triggers, \
+                                service_snmp_textmatch, \
+                                orch_id \
+                                usid, \
+                                prio, \
+                                notify_super_users \
+                              )  \
+                        values( \
+                          %ld, \
+                          '%s', \
+                          '%s', \
+                          4, \
+                          'Newly created', \
+                          '%s', \
+                          %d, \
+                          %d, \
+                          %ld, \
+                          %d, \
+                          '%s', \
+                          %ld, \
+                          %ld, \
+                          %d, \
+                          %ld, \
+                          '%s', \
+                          '%s', \
+                          %d, \
+                          %ld, \
+                          %ld, \
+                          %ld, \
+                          %ld, \
+                          '%s', \
+                          %ld, \
+                          %ld, \
+                          %ld, \
+                          '%s', \
+                          '%s', \
+                          '%d', \
+                          '%s', \
+                          %d, \
+                          %d \
+                    )"
+
+
 #define DELETE_SERVICE "delete from services where service_id=%d"
 #define SERVICE_CHANGE_ID "update services set service_id=%d where service_id=%d"
 
-#define UPDATE_SERVICE "update services set service_type=%d,service_name='%s',server_id=%ld,service_interval = %ld, service_plugin='%s',service_args='%s',service_passive_timeout=%ld, service_var='%s',service_check_timeout=%ld, service_ack_enabled='%d', service_retain='%ld', service_snmp_community='%s', service_snmp_objid='%s', service_snmp_version='%d', service_snmp_warning='%ld', service_snmp_critical='%ld', service_snmp_type='%ld', service_notify='%d', service_active='%d', flap_seconds='%ld', service_exec_plan='%s',renotify_interval=%ld, escalate_divisor=%ld, fires_events=%ld, enabled_triggers='%s', service_snmp_textmatch='%s', service_handled=%d, orch_id=%d  where service_id=%ld"
+#define UPDATE_SERVICE "update \
+                          services  \
+                        set  \
+                          service_type=%d, \
+                          service_name='%s', \
+                          server_id=%ld, \
+                          service_interval = %ld, \
+                          service_plugin='%s', \
+                          service_args='%s', \
+                          service_passive_timeout=%ld, \
+                          service_var='%s', \
+                          service_check_timeout=%ld, \
+                          service_ack_enabled='%d', \
+                          service_retain='%ld', \
+                          service_snmp_community='%s', \
+                          service_snmp_objid='%s', \
+                          service_snmp_version='%d', \
+                          service_snmp_warning='%ld', \
+                          service_snmp_critical='%ld', \
+                          service_snmp_type='%ld', \
+                          service_notify='%d', \
+                          service_active='%d', \
+                          flap_seconds='%ld', \
+                          service_exec_plan='%s ', \
+                          renotify_interval=%ld, \
+                          escalate_divisor=%ld, \
+                          fires_events=%ld, \
+                          enabled_triggers='%s', \
+                          service_snmp_textmatch='%s', \
+                          service_handled=%d, \
+                          orch_id=%d,   \
+                          usid='%s', \
+                          prio=%d, \
+                          notify_super_users=%d \
+                      where \
+                        service_id=%ld"
 
-#define SERVICE_SELECTOR "select service_id, service_name, service_state, service_plugin, service_args, UNIX_TIMESTAMP(service_last_check), service_interval, service_text, service_notify, service_type, service_var, service_passive_timeout, service_active,service_check_timeout, service_ack_enabled, service_retain, service_snmp_community, service_snmp_objid, service_snmp_version, service_snmp_warning, service_snmp_critical, service_snmp_type, flap_seconds, service_exec_plan, renotify_interval, escalate_divisor, fires_events,  enabled_triggers,  service_snmp_textmatch, UNIX_TIMESTAMP(service_last_notify_send), UNIX_TIMESTAMP(service_last_state_change), service_retain_current, service_ack_current, server_id, service_handled, orch_id  from services svc where service_id=%d"
+#define SERVICE_SELECTOR "select \
+                            service_id, \
+                            service_name, \
+                            service_state, \
+                            service_plugin, \
+                            service_args, \
+                            UNIX_TIMESTAMP(service_last_check), \
+                            service_interval, \
+                            service_text, \
+                            service_notify, \
+                            service_type, \
+                            service_var, \
+                            service_passive_timeout, \
+                            service_active, \
+                            service_check_timeout, \
+                            service_ack_enabled, \
+                            service_retain, \
+                            service_snmp_community, \
+                            service_snmp_objid, \
+                            service_snmp_version, \
+                            service_snmp_warning, \
+                            service_snmp_critical, \
+                            service_snmp_type, \
+                            flap_seconds, \
+                            service_exec_plan, \
+                            renotify_interval, \
+                            escalate_divisor, \
+                            fires_events, \
+                            enabled_triggers, \
+                            service_snmp_textmatch, \
+                            UNIX_TIMESTAMP(service_last_notify_send), \
+                            UNIX_TIMESTAMP(service_last_state_change), \
+                            service_retain_current, \
+                            service_ack_current, \
+                            server_id, \
+                            service_handled, \
+                            orch_id   \
+                            usid, \
+                            prio, \
+                            notify_super_users \
+                        from  \
+                            services svc  \
+                        where service_id=%d"
 
 
 
 
-#define ADD_WORKER    "INSERT INTO workers(worker_mail, worker_icq, notify_levels, worker_active, worker_name, password,enabled_triggers, escalation_limit, escalation_minutes, notify_plan, visible_services, visible_servers, selected_servers, selected_services, is_super_user, notification_aggregation_interval, orch_id) VALUES('%s', '%s', '%s', %d, '%s', '%s', '%s', '%ld', '%ld', '%s', '%s', '%s', '%s', '%s', %d, %d, %d)"
+#define ADD_WORKER    "INSERT INTO workers \
+                          ( \
+                            worker_mail, \
+                            worker_icq, \
+                            notify_levels, \
+                            worker_active, \
+                            worker_name, \
+                            password, \
+                            enabled_triggers, \
+                            escalation_limit, \
+                            escalation_minutes, \
+                            notify_plan, \
+                            visible_services, \
+                            visible_servers, \
+                            selected_servers, \
+                            selected_services, \
+                            is_super_user, \
+                            notification_aggregation_interval, \
+                            orch_id \
+                          )  \
+                        VALUES( \
+                            '%s', \
+                            '%s', \
+                            '%s', \
+                            %d, \
+                            '%s', \
+                            '%s', \
+                            '%s', \
+                            '%ld', \
+                            '%ld', \
+                            '%s', \
+                            '%s', \
+                            '%s', \
+                            '%s', \
+                            '%s', \
+                            %d, \
+                            %d, \
+                            %d \
+                        )"
+
 #define DELETE_WORKER "delete from workers where worker_id=%d"
-#define UPDATE_WORKER "update workers set worker_mail='%s', worker_icq='%s', notify_levels='%s', worker_active=%d, worker_name='%s', password='%s', enabled_triggers='%s', escalation_limit='%ld', escalation_minutes='%ld', notify_plan='%s', visible_services='%s', visible_servers='%s', selected_services='%s', selected_servers='%s', is_super_user=%d, notification_aggregation_interval=%d, orch_id=%d WHERE worker_id=%ld"
-#define WORKER_SEL "select worker_mail, worker_icq, visible_services,notify_levels, worker_active, worker_name, worker_id, password, enabled_triggers, escalation_limit, escalation_minutes, notify_plan, visible_servers, selected_servers, selected_services, is_super_user, notification_aggregation_interval,orch_id from workers where worker_id=%d"
+
+#define UPDATE_WORKER "update workers \
+                          set \
+                            worker_mail='%s', \
+                            worker_icq='%s', \
+                            notify_levels='%s', \
+                            worker_active=%d, \
+                            worker_name='%s', \
+                            password='%s', \
+                            enabled_triggers='%s', \
+                            escalation_limit='%ld', \
+                            escalation_minutes='%ld', \
+                            notify_plan='%s', \
+                            visible_services='%s', \
+                            visible_servers='%s', \
+                            selected_services='%s', \
+                            selected_servers='%s', \
+                            is_super_user=%d, \
+                            notification_aggregation_interval=%d, \
+                            orch_id=%d \
+                        WHERE  \
+                            worker_id=%ld"
+
+
+#define WORKER_SEL "select  \
+                          worker_mail, \
+                          worker_icq, \
+                          visible_services, \
+                          notify_levels, \
+                          worker_active, \
+                          worker_name, \
+                          worker_id, \
+                          password, \
+                          enabled_triggers, \
+                          escalation_limit, \
+                          escalation_minutes, \
+                          notify_plan, \
+                          visible_servers, \
+                          selected_servers, \
+                          selected_services, \
+                          is_super_user, \
+                          notification_aggregation_interval, \
+                          orch_id  \
+                      from  \
+                          workers where worker_id=%d"
+
+
 #define WORKER_CHANGE_ID "update workers set worker_id=%d where worker_id=%d"
 
 
-#define UPDATE_DOWNTIME "update downtime set downtime_notice='%s', downtime_from=%d,downtime_to=%d, service_id=%d, downtime_type=%d, orch_id=%d where downtime_id=%ld"
+#define UPDATE_DOWNTIME "update \
+                            downtime \
+                          set \
+                            downtime_notice='%s', \
+                            downtime_from=%d, \
+                            downtime_to=%d, \
+                            service_id=%d, \
+                            downtime_type=%d, \
+                            orch_id=%d \
+                          where  \
+                            downtime_id=%ld"
+
 #define DEL_DOWNTIME "delete from downtime where downtime_id=%d"
-#define ADD_DOWNTIME "INSERT INTO downtime(downtime_type, downtime_from,downtime_to,service_id, downtime_notice,orch_id) VALUES(%d,%d,%d,%d, '%s', '%d')"
-#define DOWNTIME_SEL "select downtime_id, downtime_type, downtime_from, downtime_to, downtime_notice, service_id, orch_id from downtime %s"
+#define ADD_DOWNTIME "INSERT INTO \
+                              downtime \
+                                ( \
+                                  downtime_type, \
+                                  downtime_from, \
+                                  downtime_to, \
+                                  service_id, \
+                                  downtime_notice, \
+                                  orch_id \
+                                ) \
+                              VALUES( \
+                                  %d, \
+                                  %d, \
+                                  %d, \
+                                  %d, \
+                                  '%s', \
+                                  '%d' \
+                              )"
+
+#define DOWNTIME_SEL "select \
+                        downtime_id, \
+                        downtime_type, \
+                        downtime_from, \
+                        downtime_to, \
+                        downtime_notice, \
+                        service_id, \
+                        orch_id \
+                      from \
+                        downtime %s"
+
 #define DOWNTIME_CHANGE_ID "update downtime set downtime_id=%d where downtime_id=%d"
 
 
 
-#define UPDATE_SERVERGROUP "update servergroups set servergroup_name='%s', servergroup_notify=%d,servergroup_active=%d, servergroup_members='%s', servergroup_dead=%d, enabled_triggers='%s', orch_id=%d where servergroup_id=%ld"
+#define UPDATE_SERVERGROUP "update servergroups \
+                                    set \
+                                      servergroup_name='%s', \
+                                      servergroup_notify=%d, \
+                                      servergroup_active=%d, \
+                                      servergroup_members='%s', \
+                                      servergroup_dead=%d, \
+                                      enabled_triggers='%s', \
+                                      orch_id=%d \
+                                    where \
+                                      servergroup_id=%ld"
+
 #define DEL_SERVERGROUP "delete from servergroups where servergroup_id=%d"
-#define ADD_SERVERGROUP "INSERT INTO servergroups(servergroup_name, servergroup_notify,servergroup_active,servergroup_members, servergroup_dead, enabled_triggers, orch_id) VALUES('%s', %d,%d,'%s', %d, '%s', '%d')"
-#define SERVERGROUP_SEL "select servergroup_id, servergroup_name, servergroup_notify, servergroup_active, servergroup_members, servergroup_dead, enabled_triggers, orch_id from servergroups %s"
+#define ADD_SERVERGROUP "INSERT INTO \
+                                      servergroups( \
+                                          servergroup_name, \
+                                          servergroup_notify, \
+                                          servergroup_active, \
+                                          servergroup_members, \
+                                          servergroup_dead, \
+                                          enabled_triggers, \
+                                          orch_id \
+                                        ) \
+                                      VALUES( \
+                                          '%s', \
+                                          %d, \
+                                          %d, \
+                                          '%s', \
+                                          %d, \
+                                          '%s', \
+                                          '%d' \
+                                      )"
+
+#define SERVERGROUP_SEL "select \
+                            servergroup_id, \
+                            servergroup_name, \
+                            servergroup_notify, \
+                            servergroup_active, \
+                            servergroup_members, \
+                            servergroup_dead, \
+                            enabled_triggers, \
+                            orch_id  \
+                          from \
+                            servergroups %s"
+
 #define SERVERGROUP_CHANGE_ID "update servergroups set servergroup_id=%d where servergroup_id=%d"
 
 
-#define UPDATE_SERVICEGROUP "update servicegroups set servicegroup_name='%s', servicegroup_notify=%d,servicegroup_active=%d, servicegroup_members='%s', servicegroup_dead=%d, enabled_triggers='%s', orch_id=%d where servicegroup_id=%ld"
+#define UPDATE_SERVICEGROUP "update \
+                              servicegroups  \
+                            set \
+                              servicegroup_name='%s', \
+                              servicegroup_notify=%d, \
+                              servicegroup_active=%d, \
+                              servicegroup_members='%s', \
+                              servicegroup_dead=%d, \
+                              enabled_triggers='%s', \
+                              orch_id=%d \
+                            where \
+                              servicegroup_id=%ld"
+
+
 #define DEL_SERVICEGROUP "delete from servicegroups where servicegroup_id=%d"
-#define ADD_SERVICEGROUP "INSERT INTO servicegroups(servicegroup_name, servicegroup_notify,servicegroup_active,servicegroup_members, servicegroup_dead, enabled_triggers,orch_id) VALUES('%s', %d,%d,'%s', %d, '%s', '%d')"
-#define SERVICEGROUP_SEL "select servicegroup_id, servicegroup_name, servicegroup_notify, servicegroup_active, servicegroup_members, servicegroup_dead, enabled_triggers,orch_id from servicegroups %s"
+#define ADD_SERVICEGROUP "INSERT INTO \
+                                servicegroups( \
+                                    servicegroup_name, \
+                                    servicegroup_notify, \
+                                    servicegroup_active, \
+                                    servicegroup_members, \
+                                    servicegroup_dead, \
+                                    enabled_triggers, \
+                                    orch_id \
+                                  ) \
+                              VALUES( \
+                                '%s', \
+                                %d, \
+                                %d, \
+                                '%s', \
+                                %d, \
+                                '%s', \
+                                '%d' \
+                              )"
+
+#define SERVICEGROUP_SEL "select  \
+                            servicegroup_id, \
+                            servicegroup_name, \
+                            servicegroup_notify, \
+                            servicegroup_active, \
+                            servicegroup_members, \
+                            servicegroup_dead, \
+                            enabled_triggers, \
+                            orch_id \
+                        from  \
+                          servicegroups %s"
 #define SERVICEGROUP_CHANGE_ID "update servicegroups set servicegroup_id=%d where servicegroup_id=%d"
 
 
@@ -1172,6 +1637,17 @@ int GetServiceById(int service_id, struct service * svc, char * config) {
       		svc->server_id=atol(row[33]);
       		svc->handled=atoi(row[34]);
       		svc->orch_id=atoi(row[35]);
+
+          if(row[36] != NULL) {
+            sprintf(svc->usid, "%s", row[36]);
+          } else {
+            sprintf(svc->usid, "%d", svc->service_id);
+          }
+          
+          svc->prio=atoi(row[37]);
+          svc->notify_super_users=atoi(row[38]);
+
+
       		svc->last_state=atoi(row[2]);
       		svc->current_state=atoi(row[2]);
       		
@@ -1439,6 +1915,9 @@ int UpdateService(struct service * svc, char *config) {
   svc->snmp_info.textmatch,
   svc->handled,
   svc->orch_id,
+  svc->usid,
+  svc->prio,
+  svc->notify_super_users,
 	svc->service_id
 	
 	
@@ -1598,7 +2077,10 @@ int AddService(struct service * svc, char *config) {
   svc->fires_events,
   svc->enabled_triggers,
   svc->snmp_info.textmatch,
-  svc->orch_id
+  svc->orch_id,
+  svc->usid,
+  svc->prio,
+  svc->notify_super_users
 	);
 	
 	//Log("dbg", sqlupd);
@@ -1687,6 +2169,13 @@ int GetServerById(int server_id, struct server * svc, char * config) {
       		svc->server_dead=atoi(row[7]);
       		svc->default_service_type=atoi(row[12]);
       		svc->orch_id=atoi(row[13]);
+
+          if(row[14] != NULL) {
+            snprintf(svc->exec_plan, 2047, "%s", row[14]);
+          } else {
+             sprintf(svc->exec_plan, " "); 
+          }
+
       		if(row[8] != NULL) {
       			sprintf(svc->server_ssh_keyfile, "%s", row[8]);
       		} else {
@@ -1759,7 +2248,7 @@ int ModifyServer(struct server * svc, char *config) {
       		CHK_ERR(mysql,NULL);
 	
 	
-	CHECKED_ASPRINTF(&sqlupd, UPDATE_SERVER, svc->server_name, svc->client_ip, svc->client_port,svc->server_icon,svc->server_enabled, svc->server_notify, svc->server_flap_seconds,svc->server_dead,svc->server_ssh_keyfile, svc->server_ssh_passphrase, svc->server_ssh_username,svc->enabled_triggers, svc->default_service_type,svc->orch_id, svc->server_id);
+	CHECKED_ASPRINTF(&sqlupd, UPDATE_SERVER, svc->server_name, svc->client_ip, svc->client_port,svc->server_icon,svc->server_enabled, svc->server_notify, svc->server_flap_seconds,svc->server_dead,svc->server_ssh_keyfile, svc->server_ssh_passphrase, svc->server_ssh_username,svc->enabled_triggers, svc->default_service_type,svc->orch_id, svc->exec_plan, svc->server_id);
 	
 	//Log("dbg", sqlupd);
 	
@@ -1873,7 +2362,7 @@ int AddServer(struct server * svc, char *config) {
       		CHK_ERR(mysql,NULL);
 	
 	
-	CHECKED_ASPRINTF(&sqlupd, ADD_SERVER, svc->server_name, svc->client_ip, svc->client_port, svc->server_icon, svc->server_enabled, svc->server_notify, svc->server_flap_seconds, svc->server_dead, svc->server_ssh_keyfile, svc->server_ssh_passphrase, svc->server_ssh_username, svc->enabled_triggers, svc->default_service_type, svc->orch_id);
+	CHECKED_ASPRINTF(&sqlupd, ADD_SERVER, svc->server_name, svc->client_ip, svc->client_port, svc->server_icon, svc->server_enabled, svc->server_notify, svc->server_flap_seconds, svc->server_dead, svc->server_ssh_keyfile, svc->server_ssh_passphrase, svc->server_ssh_username, svc->enabled_triggers, svc->default_service_type, svc->orch_id, svc->exec_plan);
 	
 
 	//Log("dbg", sqlupd);
@@ -2230,6 +2719,17 @@ int GetServiceMap(struct service * svcs, char * config, int orch_id) {
       			svcs[i].server_id=atol(row[33]);
       			svcs[i].handled=atoi(row[34]);
       			svcs[i].orch_id=atoi(row[35]);
+            
+            if(row[36] != NULL) {
+              sprintf(svcs[i].usid, "%s", row[36]);
+            } else {
+              sprintf(svcs[i].usid, "%d", svcs[i].service_id);              
+            }
+
+
+            svcs[i].prio=atoi(row[37]);
+            svcs[i].notify_super_users=atoi(row[38]);
+            
       			svcs[i].last_state=atoi(row[2]);
       			svcs[i].current_state=atoi(row[2]);
       			svcs[i].servicegroup_counter=0;
@@ -2490,6 +2990,14 @@ int GetServerMap(struct server * srv, char * config, int orch_id) {
       			}
 
       			srv[i].orch_id=atoi(row[14]);
+
+            if(row[15] != NULL) {
+              snprintf(srv[i].exec_plan, 2047, "%s", row[15]);
+            } else {
+              sprintf(srv[i].exec_plan, " "); 
+            }
+
+
       			srv[i].is_gone=0;     			
       			i++;
       		}
