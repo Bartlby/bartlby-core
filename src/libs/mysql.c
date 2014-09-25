@@ -55,16 +55,72 @@ static MYSQL * mysql_conn;
       			return NULL; \
       		}      		
 
-//2 nach exec_plan
-//renotify_interval, escalate_divisor
+
+
 #define AUTOR "btl-core"
 #define NAME "MYSQL Connector"
-#define DLVERSION  "1.5.0"
+#define DLVERSION  "1.5.1"
 
-#define SERVER_MAP_SELECTOR "select server_id, server_ip, server_name, server_ico, server_enabled, server_port, server_dead, server_flap_seconds, server_notify, server_ssh_keyfile, server_ssh_passphrase, server_ssh_username, enabled_triggers, default_service_type, orch_id from servers  %s"
+#define SERVER_MAP_SELECTOR "select server_id, \
+                                    server_ip, \
+                                    server_name, \
+                                    server_ico, \
+                                    server_enabled, \
+                                    server_port, \
+                                    server_dead, \
+                                    server_flap_seconds, \
+                                    server_notify, \
+                                    server_ssh_keyfile, \
+                                    server_ssh_passphrase, \
+                                    server_ssh_username, \
+                                    enabled_triggers, \
+                                    default_service_type, \
+                                    orch_id  \
+                              from servers  %s"
 
 
-#define SERVICE_MAP_SELECTOR "select service_id, service_name, service_state, service_plugin, service_args, UNIX_TIMESTAMP(service_last_check), service_interval, service_text, service_notify, service_type, service_var, service_passive_timeout,service_active, service_check_timeout, service_ack_enabled, service_retain, service_snmp_community, service_snmp_objid, service_snmp_version, service_snmp_warning, service_snmp_critical, service_snmp_type, flap_seconds, service_exec_plan, renotify_interval, escalate_divisor, fires_events, enabled_triggers, service_snmp_textmatch, UNIX_TIMESTAMP(service_last_notify_send), UNIX_TIMESTAMP(service_last_state_change),service_retain_current, service_ack_current, server_id, service_handled, orch_id   from services svc %s ORDER BY RAND()"
+#define SERVICE_MAP_SELECTOR "select \
+                                service_id, \
+                                service_name, \
+                                service_state, \
+                                service_plugin, \
+                                service_args, \
+                                UNIX_TIMESTAMP(service_last_check), \
+                                service_interval, \
+                                service_text, \
+                                service_notify, \
+                                service_type, \
+                                service_var, \
+                                service_passive_timeout, \
+                                service_active, \
+                                service_check_timeout, \
+                                service_ack_enabled, \
+                                service_retain, \
+                                service_snmp_community, \
+                                service_snmp_objid, \
+                                service_snmp_version, \
+                                service_snmp_warning, \
+                                service_snmp_critical, \
+                                service_snmp_type, \
+                                flap_seconds, \
+                                service_exec_plan, \
+                                renotify_interval, \
+                                escalate_divisor, \
+                                fires_events, \
+                                enabled_triggers, \
+                                service_snmp_textmatch, \
+                                UNIX_TIMESTAMP(service_last_notify_send), \
+                                UNIX_TIMESTAMP(service_last_state_change), \
+                                service_retain_current, \
+                                service_ack_current, \
+                                server_id, \
+                                service_handled, \
+                                orch_id \
+                            from services svc %s  \
+                            ORDER BY RAND()"
+
+
+
 #define WORKER_SELECTOR "select worker_mail, worker_icq, visible_services ,notify_levels, worker_active, worker_name, worker_id, password, enabled_triggers, escalation_limit, escalation_minutes, notify_plan, visible_servers, selected_services, selected_servers, is_super_user, notification_aggregation_interval, orch_id from workers  %s"
 #define SERVICE_UPDATE_TEXT "update services set service_last_check=FROM_UNIXTIME(%d), service_text='%s', service_state=%d, service_last_notify_send=FROM_UNIXTIME(%d), service_last_state_change=FROM_UNIXTIME(%d), service_ack_current=%d, service_retain_current=%ld, service_handled=%d where service_id=%ld"
 
