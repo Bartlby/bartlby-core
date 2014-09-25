@@ -18,7 +18,7 @@ libbartlby_a_SOURCES =  $(CORE_SOURCES)
 libbartlby_a_CFLAGS = $(AM_CFLAGS)  $(NRPE_ADDON) $(OPENSSL_ADDON)  $(SNMP_ADDON) $(SSH_ADDON) $(GIT_VERSION) $(JSON_ADDON) -g -fPIC
 
 
-bin_PROGRAMS = bartlby bartlby_shmt bartlby_portier
+bin_PROGRAMS = bartlby bartlby_shmt bartlby_portier bartlby_portier_legacy
 nodist_bartlby_SOURCES = src/bartlby.c
 
 
@@ -33,6 +33,13 @@ nodist_bartlby_shmt_SOURCES = src/tools/shmt.c
 bartlby_shmt_LDADD = -ldl libbartlby.a $(OPENSSL_FLAG) $(SNMP_FLAG) $(SSH_FLAG) $(JSON_FLAG)
 bartlby_shmt_CFLAGS = $(AM_CFLAGS) $(NRPE_ADDON) $(SSL_ADDON)  $(SNMP_ADDON) $(SSH_ADDON) $(JSON_ADDON) $(GIT_VERSION)
 bartlby_shmt_LDFLAGS =  -Wl,--no-as-needed -pthread
+
+nodist_bartlby_portier_legacy_SOURCES =  src/tools/portier_legacy.c
+bartlby_portier_legacy_LDADD = -ldl libbartlby.a $(OPENSSL_FLAG) $(SNMP_FLAG) $(SSH_FLAG) $(JSON_FLAG)
+bartlby_portier_legacy_LDFLAGS = -pthread -Wl,--no-as-needed -pthread
+bartlby_portier_legacy_CFLAGS = $(AM_CFLAGS) $(NRPE_ADDON) $(SSL_ADDON) $(SNMP_ADDON) $(SSH_ADDON) $(JSON_ADDON) $(GIT_VERSION)
+
+
 
 nodist_bartlby_portier_SOURCES =  src/tools/portier.c
 bartlby_portier_LDADD = -ldl libbartlby.a $(OPENSSL_FLAG) $(SNMP_FLAG) $(SSH_FLAG) $(JSON_FLAG)
