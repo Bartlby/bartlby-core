@@ -176,22 +176,28 @@ void bartlby_check_nrpe(struct service * svc, char * cfgfile, int use_ssl) {
 	alarm(svc->service_check_timeout);
 	result = bartlby_agent_tcp_connect(svc->srv->client_ip,svc->srv->client_port,&sd, svc);
 
-#ifdef HAVE_SSL
-	if(use_ssl == TRUE) {
-		SSL_CTX_free(ctx);		
-	}
-#endif
+
 
 	if(conn_timedout == 1) {
 		sprintf(svc->new_server_text, "%s", "timed out");
 		svc->current_state=STATE_CRITICAL;	
 		close(sd);
+		#ifdef HAVE_SSL
+		if(use_ssl == TRUE) {
+			SSL_CTX_free(ctx);		
+		}
+		#endif
 		return;
 	}
 	if(result != STATE_OK) {
 		sprintf(svc->new_server_text, "%s", "connect failed");
 		svc->current_state=STATE_CRITICAL;
 		close(sd);
+		#ifdef HAVE_SSL
+		if(use_ssl == TRUE) {
+			SSL_CTX_free(ctx);		
+		}
+		#endif
 		return;
 	}
 	if(result == STATE_OK) {
