@@ -19,6 +19,7 @@ libtool
 bartlby
 bartlby_shmt
 bartlby_portier
+bartlby_portier_legacy
 .libs/
 include/config.h
 .dirstamp
