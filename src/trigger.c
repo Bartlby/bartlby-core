@@ -295,6 +295,9 @@ int bartlby_trigger_per_worker(char * cfgfile, char * trigger_name, struct shm_h
 			struct ext_notify en;
 			FILE * ptrigger;
 			char trigger_return[1024];
+			char * srv_name;
+			int srv_port;
+
 
 			//RETURN -2 -> NEXT WORKER
 			if(service_is_in_time(wrk->notify_plan) > 0) {
@@ -323,13 +326,28 @@ int bartlby_trigger_per_worker(char * cfgfile, char * trigger_name, struct shm_h
 									
 							}
 							svc->last_notify_send=time(NULL);
-							srvmap[svc->srv_place].last_notify_send=time(NULL);
+
+							if(svc->srv_place >= 0) {
+								srvmap[svc->srv_place].last_notify_send=time(NULL);
+								srv_name=(char*)&srvmap[svc->srv_place].server_name;
+								srv_port=srvmap[svc->srv_place].client_port;
+							} else {
+								//We are upstreamed - no server info
+								srv_name=strdup("Upstreamed Host");
+								srv_port=9030;
+							}
+
 							wrk->escalation_time=time(NULL);
 							CHECKED_ASPRINTF(&exec_str, "%s \"%s\" \"%s\" \"%s\" \"%s\"", full_path, wrk->mail,wrk->icq,wrk->name, notify_msg);
 
 							//_log("EXEC trigger: %s", full_path);
-							_log(LH_TRIGGER, B_LOG_HASTO,"@NOT@%ld|%d|%d|%s|%s|%s:%d/%s (%d)", svc->service_id, svc->last_state ,svc->current_state,trigger_name,wrk->name, srvmap[svc->srv_place].server_name, srvmap[svc->srv_place].client_port, svc->service_name, wrk->notification_aggregation_interval);
+							_log(LH_TRIGGER, B_LOG_HASTO,"@NOT@%ld|%d|%d|%s|%s|%s:%d/%s (%d)", svc->service_id, svc->last_state ,svc->current_state,trigger_name,wrk->name, srv_name ,srv_port, svc->service_name, wrk->notification_aggregation_interval);
 							
+
+							if(svc->srv_place < 0) {
+								//if it was upstreamed
+								free(srv_name);
+							}
 
 							bartlby_notification_log_add(hdr, cfgfile, wrk->worker_id, svc->service_id, svc->current_state, standby_workers_only, wrk->notification_aggregation_interval,  trigger_name, received_via);
 							if(wrk->notification_aggregation_interval > 0) { // 3 == THE AGGREGATION MESSAGE ITSELF
@@ -662,6 +680,15 @@ void bartlby_trigger(struct service * svc, char * cfgfile, void * shm_addr, int 
 	free(notify_msg);
 	closedir(dtrigger);
 }
+
+
+
+
+
+
+
+
+
 
 
 
