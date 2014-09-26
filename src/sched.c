@@ -642,7 +642,11 @@ if any of these chain members does not match - service lcheck (for next round di
 						sched_reschedule(svc);						
 						return -1; //Dont sched this	
 				}
-				if(service_is_in_time(svc->service_exec_plan) < 0) {
+				if(service_is_in_time(svc->srv->exec_plan) < 0) { //SRV is in time
+						sched_reschedule(svc);						
+						return -1; //Dont sched this	
+				}
+				if(service_is_in_time(svc->service_exec_plan) < 0) { //SVC is in time
 						sched_reschedule(svc);						
 						return -1; //Dont sched this	
 				}

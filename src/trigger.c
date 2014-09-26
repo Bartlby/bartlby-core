@@ -218,7 +218,7 @@ int bartlby_worker_has_service(struct worker * w, struct service * svc, char * c
 	
 	visible_servers = w->visible_servers;
 	visible_services = w->visible_services;
-	//is_super_user = getConfigValue_ex("super_user", user_dat, 0);
+	
 	is_super_user=w->is_super_user;
 	selected_servers = w->selected_servers;
 	selected_services = w->selected_services;
@@ -239,18 +239,21 @@ int bartlby_worker_has_service(struct worker * w, struct service * svc, char * c
 	//_log("@TRIG@ visible_servers: %s; visible_services:%s; super_user: %s;", visible_servers, visible_services, is_super_user);
 	
 	
-	if(strstr(visible_servers, find_server) == NULL && is_super_user != 1) {
+	if(strstr(visible_servers, find_server) == NULL) {
 		the_state=0;	
-		//_log("doesnt have server: %s", visible_servers);
+		if(is_super_user == 1 && svc->notify_super_users == 1) {
+			the_state=6;
+		}
 	} else {
 		the_state=1; //temp its ok	
 	}
 	
-	if(the_state == 0 && strstr(visible_services, find_service) == NULL && is_super_user != 1) {
+	if(the_state == 0 && strstr(visible_services, find_service) == NULL) {
 		the_state = 0;
-		//_log("doesnt have service: %s", visible_services);	
+		if(is_super_user == 1 && svc->notify_super_users == 1) {
+			the_state=6;
+		}		
 	} else {
-		
 		the_state = 2;	//Temp ok
 	}
 	
