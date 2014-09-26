@@ -210,6 +210,8 @@ void bartlby_portier_exec_trigger(char * cfgfile, int standby_workers_only, cons
 	local_svc.notify_last_state=notify_last_state;
 	local_svc.recovery_outstanding=recovery_outstanding;
 	local_svc.current_state=current_state;
+	local_svc.srv_place=-1;
+	
 	strncpy(local_svc.service_name, (char*)service_name,1024);
 	
 	if(portier_passwd != NULL && strcmp(passwd, portier_passwd) == 0) {
