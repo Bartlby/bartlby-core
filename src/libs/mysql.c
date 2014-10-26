@@ -543,6 +543,19 @@ static MYSQL * mysql_conn;
                       from \
                         downtime %s"
 
+
+#define DOWNTIME_SELECTOR "select \
+                        downtime_id, \
+                        downtime_type, \
+                        downtime_from, \
+                        downtime_to, \
+                        downtime_notice, \
+                        service_id, \
+                        orch_id \
+                      from \
+                        downtime where downtime_id=%ld"
+
+
 #define DOWNTIME_CHANGE_ID "update downtime set downtime_id=%d where downtime_id=%d"
 
 
@@ -1213,6 +1226,117 @@ int AddDowntime(struct downtime * svc, char *config) {
 	
 	return rtc;	
 }	
+int GetDowntimeById(struct downtime * svcs, char * config, int orch_id) {
+  
+  MYSQL *mysql;
+  MYSQL_ROW  row;
+  MYSQL_RES  *res;
+  
+  
+  char * mysql_host = getConfigValue("mysql_host", config);
+  char * mysql_user = getConfigValue("mysql_user", config);
+  char * mysql_pw = getConfigValue("mysql_pw", config);
+  char * mysql_db = getConfigValue("mysql_db", config);
+  int i=0;
+  
+  char * sql, *where;
+
+
+  set_cfg(config);
+  mysql=mysql_init(NULL);
+    CHK_ERR(mysql,NULL);
+  mysql=mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
+    CHK_ERR(mysql,NULL);
+        mysql_select_db(mysql, mysql_db);
+          CHK_ERR(mysql,NULL);
+          
+
+        if(orch_id > 0) {
+          CHECKED_ASPRINTF(&where, " where orch_id=%d", orch_id);
+        } else {
+          CHECKED_ASPRINTF(&where, " ");
+        }
+        CHECKED_ASPRINTF(&sql, DOWNTIME_SELECTOR, where);
+
+        mysql_query(mysql, sql);
+    CHK_ERR(mysql,NULL);
+
+    
+    free(where);
+    free(sql);
+
+    res = mysql_store_result(mysql);
+    CHK_ERR(mysql,NULL);
+        
+        i=-1;
+        if(mysql_num_rows(res) == 1) {
+          row=mysql_fetch_row(res);
+          
+        
+            if(row[0] != NULL) {
+              
+              svcs->downtime_id = atol(row[0]);
+            } else {
+              svcs->downtime_id = -1;           
+            }
+            
+            if(row[1] != NULL) {
+              
+              svcs->downtime_type = atoi(row[1]);
+            } else {
+              svcs->downtime_type = -1;           
+            }
+            if(row[2] != NULL) {
+              
+              svcs->downtime_from = atoi(row[2]);
+            } else {
+              svcs->downtime_from = -1;           
+            }
+            if(row[3] != NULL) {
+              
+              svcs->downtime_to = atoi(row[3]);
+            } else {
+              svcs->downtime_to = -1;           
+            }
+            
+            if(row[4] != NULL) {
+              //svcs[i].icq=malloc(strlen(row[1])*sizeof(char)+2);
+              sprintf(svcs->downtime_notice, "%s", row[4]);
+            } else {
+              sprintf(svcs->downtime_notice, "(null)");             
+            }
+            if(row[5] != NULL) {
+              
+              svcs->service_id = atol(row[5]);
+            } else {
+              svcs->service_id = -1;            
+            }
+            svcs->orch_id=atoi(row[6]);
+            
+            svcs->is_gone=0;    
+            
+            i=1;  
+          }
+          
+    
+        mysql_close(mysql);
+        mysql_free_result(res);
+      
+      free(mysql_host);
+      free(mysql_user);
+      free(mysql_pw);
+      free(mysql_db);
+      
+
+          
+          
+return i;
+       
+  
+  
+  
+  
+}
 
 int GetDowntimeMap(struct downtime * svcs, char * config, int orch_id) {
 	
