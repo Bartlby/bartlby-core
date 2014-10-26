@@ -592,6 +592,23 @@ static MYSQL * mysql_conn;
                           from \
                             servergroups %s"
 
+
+
+#define SERVERGROUP_SELECTOR "select \
+                            servergroup_id, \
+                            servergroup_name, \
+                            servergroup_notify, \
+                            servergroup_active, \
+                            servergroup_members, \
+                            servergroup_dead, \
+                            enabled_triggers, \
+                            orch_id  \
+                          from \
+                            servergroups where servergroup_id=%ld"
+
+                            
+
+
 #define SERVERGROUP_CHANGE_ID "update servergroups set servergroup_id=%d where servergroup_id=%d"
 
 
@@ -641,6 +658,21 @@ static MYSQL * mysql_conn;
                             orch_id \
                         from  \
                           servicegroups %s"
+
+
+#define SERVICEGROUP_SELECTOR "select \
+                            servicegroup_id, \
+                            servicegroup_name, \
+                            servicegroup_notify, \
+                            servicegroup_active, \
+                            servicegroup_members, \
+                            servicegroup_dead, \
+                            enabled_triggers, \
+                            orch_id  \
+                          from \
+                            servicegroups where servicegroup_id=%ld"
+
+
 #define SERVICEGROUP_CHANGE_ID "update servicegroups set servicegroup_id=%d where servicegroup_id=%d"
 
 
@@ -3065,6 +3097,109 @@ int ServerGroupChangeId(int from, int to, char * config) {
 	return to;	
 }
 
+
+int GetServergroupById(int servergroup_id, struct servergroup * svc, char * config) {
+  
+  int tmprc;
+  MYSQL *mysql;
+  MYSQL_ROW  row;
+  MYSQL_RES  *res;
+  char * sqlupd;
+  
+  char * mysql_host = getConfigValue("mysql_host", config);
+  char * mysql_user = getConfigValue("mysql_user", config);
+  char * mysql_pw = getConfigValue("mysql_pw", config);
+  char * mysql_db = getConfigValue("mysql_db", config);
+  
+  
+  
+  
+  
+  
+  mysql=mysql_init(NULL);
+    CHK_ERR(mysql,NULL);
+  mysql=mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
+    CHK_ERR(mysql,NULL);
+        mysql_select_db(mysql, mysql_db);
+          CHK_ERR(mysql,NULL);
+  
+  CHECKED_ASPRINTF(&sqlupd, SERVERGROUP_SELECTOR, servergroup_id);
+  
+  
+  mysql_query(mysql, sqlupd);
+    CHK_ERR(mysql,NULL);
+        res = mysql_store_result(mysql);
+          CHK_ERR(mysql,NULL);
+        
+        
+        if(mysql_num_rows(res) == 1 ) {
+          row=mysql_fetch_row(res);
+            if(row[0] != NULL) {
+              svc->servergroup_id = atol(row[0]);
+            } else {
+              svc->servergroup_id = -1;            
+            }
+            
+            if(row[1] != NULL) {
+              
+              sprintf(svc->servergroup_name, "%s", row[1]);
+            } else {
+              sprintf(svc->servergroup_name, "(null)");            
+            }
+            if(row[2] != NULL) {
+              
+              svc->servergroup_notify = atoi(row[2]);
+            } else {
+              svc->servergroup_notify = 1;           
+            }
+            if(row[3] != NULL) {
+              
+              svc->servergroup_active = atoi(row[3]);
+            } else {
+              svc->servergroup_active = 1;           
+            }
+            if(row[4] != NULL) {
+              
+              sprintf(svc->servergroup_members, "%s", row[4]);
+              if(strcmp(svc->servergroup_name, "DEFAULT") == 0) {
+                sprintf(svc->servergroup_members, "%s", "");
+              }             
+            } else {
+              sprintf(svc->servergroup_members, "(null)");             
+            }
+            if(row[5] != NULL) {
+              svc->servergroup_dead = atoi(row[5]);
+            } else{
+              svc->servergroup_dead = 0;
+            }
+            if(row[6] != NULL) {
+              
+              sprintf(svc->enabled_triggers, "%s", row[6]);
+            } else {
+              sprintf(svc->enabled_triggers, "%s", "");            
+            }
+            
+            svc->orch_id=atoi(row[7]);      
+
+
+
+          tmprc=0;
+        } else {
+          tmprc=-1;
+        }
+  
+  
+  mysql_free_result(res);
+  mysql_close(mysql);
+  free(mysql_host);
+  free(mysql_user);
+  free(mysql_pw);
+  free(mysql_db);
+  free(sqlupd);
+  return tmprc;
+    
+}
+
 int GetServerGroupMap(struct servergroup * svcs, char * config, int orch_id) {
 	
 	MYSQL *mysql;
@@ -3360,6 +3495,109 @@ int ServiceGroupChangeId(int from, int to, char * config) {
 	free(mysql_pw);
 	free(mysql_db);
 	return to;	
+}
+
+
+int GetsServicegroupById(int servicegroup_id, struct servicegroup * svc, char * config) {
+  
+  int tmprc;
+  MYSQL *mysql;
+  MYSQL_ROW  row;
+  MYSQL_RES  *res;
+  char * sqlupd;
+  
+  char * mysql_host = getConfigValue("mysql_host", config);
+  char * mysql_user = getConfigValue("mysql_user", config);
+  char * mysql_pw = getConfigValue("mysql_pw", config);
+  char * mysql_db = getConfigValue("mysql_db", config);
+  
+  
+  
+  
+  
+  
+  mysql=mysql_init(NULL);
+    CHK_ERR(mysql,NULL);
+  mysql=mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
+    CHK_ERR(mysql,NULL);
+        mysql_select_db(mysql, mysql_db);
+          CHK_ERR(mysql,NULL);
+  
+  CHECKED_ASPRINTF(&sqlupd, SERVICEGROUP_SELECTOR, servicegroup_id);
+  
+  
+  mysql_query(mysql, sqlupd);
+    CHK_ERR(mysql,NULL);
+        res = mysql_store_result(mysql);
+          CHK_ERR(mysql,NULL);
+        
+        
+        if(mysql_num_rows(res) == 1 ) {
+          row=mysql_fetch_row(res);
+            if(row[0] != NULL) {
+              svc->servicegroup_id = atol(row[0]);
+            } else {
+              svc->servicegroup_id = -1;            
+            }
+            
+            if(row[1] != NULL) {
+              
+              sprintf(svc->servicegroup_name, "%s", row[1]);
+            } else {
+              sprintf(svc->servicegroup_name, "(null)");            
+            }
+            if(row[2] != NULL) {
+              
+              svc->servicegroup_notify = atoi(row[2]);
+            } else {
+              svc->servicegroup_notify = 1;           
+            }
+            if(row[3] != NULL) {
+              
+              svc->servicegroup_active = atoi(row[3]);
+            } else {
+              svc->servicegroup_active = 1;           
+            }
+            if(row[4] != NULL) {
+              
+              sprintf(svc->servicegroup_members, "%s", row[4]);
+              if(strcmp(svc->servicegroup_name, "DEFAULT") == 0) {
+                sprintf(svc->servicegroup_members, "%s", "");
+              }             
+            } else {
+              sprintf(svc->servicegroup_members, "(null)");             
+            }
+            if(row[5] != NULL) {
+              svc->servicegroup_dead = atoi(row[5]);
+            } else{
+              svc->servicegroup_dead = 0;
+            }
+            if(row[6] != NULL) {
+              
+              sprintf(svc->enabled_triggers, "%s", row[6]);
+            } else {
+              sprintf(svc->enabled_triggers, "%s", "");            
+            }
+            
+            svc->orch_id=atoi(row[7]);      
+
+
+
+          tmprc=0;
+        } else {
+          tmprc=-1;
+        }
+  
+  
+  mysql_free_result(res);
+  mysql_close(mysql);
+  free(mysql_host);
+  free(mysql_user);
+  free(mysql_pw);
+  free(mysql_db);
+  free(sqlupd);
+  return tmprc;
+    
 }
 
 int GetServiceGroupMap(struct servicegroup * svcs, char * config, int orch_id) {
