@@ -1226,23 +1226,25 @@ int AddDowntime(struct downtime * svc, char *config) {
 	
 	return rtc;	
 }	
-int GetDowntimeById(struct downtime * svcs, char * config, int orch_id) {
-  
+int GetDowntimeById(int downtime_id, struct downtime * svcs, char * config) {
+ 
+  int tmprc;
   MYSQL *mysql;
   MYSQL_ROW  row;
   MYSQL_RES  *res;
-  
+  char * sqlupd;
   
   char * mysql_host = getConfigValue("mysql_host", config);
   char * mysql_user = getConfigValue("mysql_user", config);
   char * mysql_pw = getConfigValue("mysql_pw", config);
   char * mysql_db = getConfigValue("mysql_db", config);
-  int i=0;
   
-  char * sql, *where;
+  
+  
+  
+  
 
-
-  set_cfg(config);
+ 
   mysql=mysql_init(NULL);
     CHK_ERR(mysql,NULL);
   mysql=mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
@@ -1251,24 +1253,15 @@ int GetDowntimeById(struct downtime * svcs, char * config, int orch_id) {
           CHK_ERR(mysql,NULL);
           
 
-        if(orch_id > 0) {
-          CHECKED_ASPRINTF(&where, " where orch_id=%d", orch_id);
-        } else {
-          CHECKED_ASPRINTF(&where, " ");
-        }
-        CHECKED_ASPRINTF(&sql, DOWNTIME_SELECTOR, where);
-
-        mysql_query(mysql, sql);
-    CHK_ERR(mysql,NULL);
-
-    
-    free(where);
-    free(sql);
+        CHECKED_ASPRINTF(&sqlupd, DOWNTIME_SELECTOR, downtime_id);
+  
+  
+      mysql_query(mysql, sqlupd);
 
     res = mysql_store_result(mysql);
     CHK_ERR(mysql,NULL);
         
-        i=-1;
+        tmprc=-1;
         if(mysql_num_rows(res) == 1) {
           row=mysql_fetch_row(res);
           
@@ -1315,7 +1308,7 @@ int GetDowntimeById(struct downtime * svcs, char * config, int orch_id) {
             
             svcs->is_gone=0;    
             
-            i=1;  
+            tmprc=1;  
           }
           
     
@@ -1330,7 +1323,7 @@ int GetDowntimeById(struct downtime * svcs, char * config, int orch_id) {
 
           
           
-return i;
+return tmprc;
        
   
   
