@@ -112,6 +112,7 @@ CREATE TABLE `workers` (
   `orch_id` int(11) NOT NULL default '0',
   `api_pubkey` varchar(255) NOT NULL default '',
   `api_privkey` varchar(255) NOT NULL default '',
+  `api_enabled` int(1) NOT NULL default '0',
   PRIMARY KEY  (`worker_id`)
 )  ;
 
