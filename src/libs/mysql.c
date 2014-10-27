@@ -454,7 +454,8 @@ static MYSQL * mysql_conn;
                             %d, \
                             %d, \
                             '%s',\
-                            '%s' \
+                            '%s', \
+                            '%d' \
                         )"
 
 #define DELETE_WORKER "delete from workers where worker_id=%d"
@@ -480,7 +481,7 @@ static MYSQL * mysql_conn;
                             orch_id=%d, \
                             api_pubkey = '%s', \
                             api_privkey = '%s', \
-                            api_enabled = '%s' \
+                            api_enabled = %d \
                         WHERE  \
                             worker_id=%ld"
 
