@@ -526,6 +526,9 @@ struct worker {
 	int is_super_user;
 
 	int orch_id;
+
+	char api_pubkey[255];
+	char api_privkey[255];
 }sa;
 
 

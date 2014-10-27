@@ -110,6 +110,8 @@ CREATE TABLE `workers` (
   `is_super_user` int(11) default 0,
   `notification_aggregation_interval` int(11) default 0,
   `orch_id` int(11) NOT NULL default '0',
+  `api_pubkey` varchar(255) NOT NULL default '',
+  `api_privkey` varchar(255) NOT NULL default '',
   PRIMARY KEY  (`worker_id`)
 )  ;
 

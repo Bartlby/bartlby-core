@@ -142,7 +142,9 @@ static MYSQL * mysql_conn;
                                selected_servers, \
                                is_super_user, \
                                notification_aggregation_interval, \
-                               orch_id \
+                               orch_id, \
+                               api_pubkey, \
+                               api_privkey \
                           from workers  %s"
 
 #define SERVICE_UPDATE_TEXT "update services \
@@ -427,7 +429,9 @@ static MYSQL * mysql_conn;
                             selected_services, \
                             is_super_user, \
                             notification_aggregation_interval, \
-                            orch_id \
+                            orch_id, \
+                            api_pubkey, \
+                            api_privkey \
                           )  \
                         VALUES( \
                             '%s', \
@@ -446,7 +450,9 @@ static MYSQL * mysql_conn;
                             '%s', \
                             %d, \
                             %d, \
-                            %d \
+                            %d, \
+                            '%s',\
+                            '%s' \
                         )"
 
 #define DELETE_WORKER "delete from workers where worker_id=%d"
@@ -469,7 +475,9 @@ static MYSQL * mysql_conn;
                             selected_servers='%s', \
                             is_super_user=%d, \
                             notification_aggregation_interval=%d, \
-                            orch_id=%d \
+                            orch_id=%d, \
+                            api_pubkey = '%s', \
+                            api_privkey = '%s' \
                         WHERE  \
                             worker_id=%ld"
 
@@ -492,7 +500,9 @@ static MYSQL * mysql_conn;
                           selected_services, \
                           is_super_user, \
                           notification_aggregation_interval, \
-                          orch_id  \
+                          orch_id,  \
+                          api_pubkey, \
+                          api_privkey \
                       from  \
                           workers where worker_id=%d"
 
@@ -1578,7 +1588,20 @@ int GetWorkerById(int worker_id, struct worker * svc, char * config) {
       		svc->is_super_user=atoi(row[15]);
       		svc->notification_aggregation_interval=atoi(row[16]);
       		svc->orch_id=atoi(row[17]);
-			svc->is_gone=0;
+			     
+          if(row[18] != NULL) {
+            sprintf(svc->api_pubkey, "%s", row[18]); 
+          } else {
+            sprintf(svc->api_pubkey, " "); 
+          }
+          if(row[19] != NULL) {
+            sprintf(svc->api_privkey, "%s", row[19]); 
+          } else {
+            sprintf(svc->api_privkey, " "); 
+          }          
+
+
+          svc->is_gone=0;
       		tmprc=0;
       		//printf("limit: %ld, minutes: %ld", svc->escalation_limit, svc->escalation_minutes);
       	} else {
@@ -1622,7 +1645,7 @@ int UpdateWorker(struct worker * svc, char *config) {
 	
 	
 	
-	CHECKED_ASPRINTF(&sqlupd, UPDATE_WORKER, svc->mail, svc->icq, svc->notify_levels, svc->active, svc->name,svc->password,svc->enabled_triggers,svc->escalation_limit, svc->escalation_minutes, svc->notify_plan,svc->visible_services, svc->visible_servers, svc->selected_services, svc->selected_servers, svc->is_super_user, svc->notification_aggregation_interval, svc->orch_id, svc->worker_id);
+	CHECKED_ASPRINTF(&sqlupd, UPDATE_WORKER, svc->mail, svc->icq, svc->notify_levels, svc->active, svc->name,svc->password,svc->enabled_triggers,svc->escalation_limit, svc->escalation_minutes, svc->notify_plan,svc->visible_services, svc->visible_servers, svc->selected_services, svc->selected_servers, svc->is_super_user, svc->notification_aggregation_interval, svc->orch_id,svc->api_pubkey, svc->api_privkey,  svc->worker_id);
 	
 	
 	
@@ -1720,7 +1743,7 @@ int AddWorker(struct worker * svc, char *config) {
 	
 	
 	
-	CHECKED_ASPRINTF(&sqlupd, ADD_WORKER, svc->mail, svc->icq, svc->notify_levels, svc->active, svc->name, svc->password, svc->enabled_triggers, svc->escalation_limit, svc->escalation_minutes, svc->notify_plan, svc->visible_services, svc->visible_servers, svc->selected_servers, svc->selected_services, svc->is_super_user, svc->notification_aggregation_interval, svc->orch_id);
+	CHECKED_ASPRINTF(&sqlupd, ADD_WORKER, svc->mail, svc->icq, svc->notify_levels, svc->active, svc->name, svc->password, svc->enabled_triggers, svc->escalation_limit, svc->escalation_minutes, svc->notify_plan, svc->visible_services, svc->visible_servers, svc->selected_servers, svc->selected_services, svc->is_super_user, svc->notification_aggregation_interval, svc->orch_id, svc->api_pubkey, svc->api_privkey);
 	
 	
 	
@@ -2782,8 +2805,18 @@ char * sql, *where;
       			svcs[i].notification_aggregation_interval=atoi(row[16]);
 				svcs[i].orch_id=atoi(row[17]);
 
-
-
+            if(row[18] != NULL) {
+              sprintf(svcs[i].api_pubkey, "%s", row[18]);
+                
+            } else {
+              sprintf(svcs[i].api_pubkey, ""); 
+            }
+            if(row[19] != NULL) {
+              sprintf(svcs[i].api_privkey, "%s", row[19]);
+                
+            } else {
+              sprintf(svcs[i].api_privkey, ""); 
+            }
 
 
       			//_log("%d escal", svcs[i].escalation_limit);
