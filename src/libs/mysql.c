@@ -144,7 +144,8 @@ static MYSQL * mysql_conn;
                                notification_aggregation_interval, \
                                orch_id, \
                                api_pubkey, \
-                               api_privkey \
+                               api_privkey, \
+                               api_enabled \
                           from workers  %s"
 
 #define SERVICE_UPDATE_TEXT "update services \
@@ -431,7 +432,8 @@ static MYSQL * mysql_conn;
                             notification_aggregation_interval, \
                             orch_id, \
                             api_pubkey, \
-                            api_privkey \
+                            api_privkey, \
+                            api_enabled \
                           )  \
                         VALUES( \
                             '%s', \
@@ -477,7 +479,8 @@ static MYSQL * mysql_conn;
                             notification_aggregation_interval=%d, \
                             orch_id=%d, \
                             api_pubkey = '%s', \
-                            api_privkey = '%s' \
+                            api_privkey = '%s', \
+                            api_enabled = '%s' \
                         WHERE  \
                             worker_id=%ld"
 
@@ -502,7 +505,8 @@ static MYSQL * mysql_conn;
                           notification_aggregation_interval, \
                           orch_id,  \
                           api_pubkey, \
-                          api_privkey \
+                          api_privkey, \
+                          api_enabled \
                       from  \
                           workers where worker_id=%d"
 
@@ -1600,6 +1604,7 @@ int GetWorkerById(int worker_id, struct worker * svc, char * config) {
             sprintf(svc->api_privkey, " "); 
           }          
 
+          svc->api_enabled=atoi(row[20]);
 
           svc->is_gone=0;
       		tmprc=0;
@@ -1645,7 +1650,7 @@ int UpdateWorker(struct worker * svc, char *config) {
 	
 	
 	
-	CHECKED_ASPRINTF(&sqlupd, UPDATE_WORKER, svc->mail, svc->icq, svc->notify_levels, svc->active, svc->name,svc->password,svc->enabled_triggers,svc->escalation_limit, svc->escalation_minutes, svc->notify_plan,svc->visible_services, svc->visible_servers, svc->selected_services, svc->selected_servers, svc->is_super_user, svc->notification_aggregation_interval, svc->orch_id,svc->api_pubkey, svc->api_privkey,  svc->worker_id);
+	CHECKED_ASPRINTF(&sqlupd, UPDATE_WORKER, svc->mail, svc->icq, svc->notify_levels, svc->active, svc->name,svc->password,svc->enabled_triggers,svc->escalation_limit, svc->escalation_minutes, svc->notify_plan,svc->visible_services, svc->visible_servers, svc->selected_services, svc->selected_servers, svc->is_super_user, svc->notification_aggregation_interval, svc->orch_id,svc->api_pubkey, svc->api_privkey,svc->api_enabled,  svc->worker_id);
 	
 	
 	
@@ -1743,7 +1748,7 @@ int AddWorker(struct worker * svc, char *config) {
 	
 	
 	
-	CHECKED_ASPRINTF(&sqlupd, ADD_WORKER, svc->mail, svc->icq, svc->notify_levels, svc->active, svc->name, svc->password, svc->enabled_triggers, svc->escalation_limit, svc->escalation_minutes, svc->notify_plan, svc->visible_services, svc->visible_servers, svc->selected_servers, svc->selected_services, svc->is_super_user, svc->notification_aggregation_interval, svc->orch_id, svc->api_pubkey, svc->api_privkey);
+	CHECKED_ASPRINTF(&sqlupd, ADD_WORKER, svc->mail, svc->icq, svc->notify_levels, svc->active, svc->name, svc->password, svc->enabled_triggers, svc->escalation_limit, svc->escalation_minutes, svc->notify_plan, svc->visible_services, svc->visible_servers, svc->selected_servers, svc->selected_services, svc->is_super_user, svc->notification_aggregation_interval, svc->orch_id, svc->api_pubkey, svc->api_privkey, svc->api_enabled);
 	
 	
 	
@@ -2817,7 +2822,7 @@ char * sql, *where;
             } else {
               sprintf(svcs[i].api_privkey, ""); 
             }
-
+            svcs[i].api_enabled=atoi(row[20]);
 
       			//_log("%d escal", svcs[i].escalation_limit);
       			svcs[i].escalation_count=0;
