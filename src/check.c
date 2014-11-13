@@ -148,11 +148,11 @@ void bartlby_fin_service(struct service * svc, void * SOHandle, void * shm_addr,
 	
 	struct shm_header * hdr;
 
-	int is_hard;
+	int do_log;
 	
 	int (*doUpdate)(struct service *,char *);
 	
-	
+	do_log=0;
 	hdr=bartlby_SHM_GetHDR(shm_addr);
 	wrkmap=bartlby_SHM_WorkerMap(shm_addr);
 	
@@ -161,21 +161,20 @@ void bartlby_fin_service(struct service * svc, void * SOHandle, void * shm_addr,
 		svc->service_retain_current=0;
 		svc->last_state=svc->current_state;
 		svc->last_state_change=time(NULL);
-		_log(LH_CHECK, B_LOG_HASTO,"@LOG@%ld|%d|%s:%d/%s|%s|SOFT", svc->service_id, svc->current_state, svc->srv->server_name, svc->srv->client_port, svc->service_name, svc->new_server_text);
+		do_log=1;
 		//bartlby_push_event(EVENT_STATUS_CHANGED, "Service-Changed;%d;%s:%d/%s;%d;%s", svc->service_id, svc->srv->server_name, svc->srv->client_port, svc->service_name, svc->current_state, svc->new_server_text);
 		bartlby_push_event(EVENT_STATUS_CHANGED, "{\"type\":\"Service-Changed\",\"service_id\":%d,\"server_and_service_name\":\"%s:%d/%s\",\"current_state\":%d,\"current_output\":\"%s\"}",svc->service_id, svc->srv->server_name, svc->srv->client_port, svc->service_name, svc->current_state, svc->new_server_text);
 		bartlby_callback(EXTENSION_CALLBACK_STATE_CHANGED, svc);
 
 	}
 	//LOG HARD STATE	
-	if(svc->service_retain_current == svc->service_retain) {
-		_log(LH_CHECK, B_LOG_HASTO,"@LOG@%ld|%d|%s:%d/%s|%s|HARD", svc->service_id, svc->current_state, svc->srv->server_name, svc->srv->client_port, svc->service_name, svc->new_server_text);
-	}
+	//rename notify_last_state to last_hard_state !? would make much more sense :D
 	
 	if(svc->service_retain_current == svc->service_retain && svc->current_state != svc->notify_last_state) {
 		//bartlby_push_event(EVENT_TRIGGER_PUSHED, "Trigger-Pushed;%d;%s:%d/%s;%d;%s", svc->service_id, svc->srv->server_name, svc->srv->client_port, svc->service_name, svc->current_state, svc->new_server_text);
+		do_log=2;
 		bartlby_push_event(EVENT_TRIGGER_PUSHED, "{\"type\":\"Trigger-Pushed\",\"service_id\":%d,\"server_and_service_name\":\"%s:%d/%s\",\"current_state\":%d,\"current_output\":\"%s\"}",svc->service_id, svc->srv->server_name, svc->srv->client_port, svc->service_name, svc->current_state, svc->new_server_text);
-				
+					
 		if(svc->current_state == STATE_CRITICAL && svc->recovery_outstanding == RECOVERY_DONE) {
 			svc->recovery_outstanding = RECOVERY_OUTSTANDING;	
 		}
@@ -199,6 +198,18 @@ void bartlby_fin_service(struct service * svc, void * SOHandle, void * shm_addr,
 		
 	
 	}
+	if(do_log > 0) {
+		switch(do_log) {
+			case 1:
+				_log(LH_CHECK, B_LOG_HASTO,"@LOG@%ld|%d|%s:%d/%s|%s|SOFT", svc->service_id, svc->current_state, svc->srv->server_name, svc->srv->client_port, svc->service_name, svc->new_server_text);
+			break;
+			case 2:
+				_log(LH_CHECK, B_LOG_HASTO,"@LOG@%ld|%d|%s:%d/%s|%s|HARD", svc->service_id, svc->current_state, svc->srv->server_name, svc->srv->client_port, svc->service_name, svc->new_server_text);
+			break;
+		}
+		
+	}
+
 	if(svc->current_state == STATE_CRITICAL && svc->fires_events > 0) {
 				bartlby_check_eventhandler(svc, cfgfile);
 	}
