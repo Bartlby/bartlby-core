@@ -31,6 +31,18 @@ $Author$
 char config_file[255];
 
 
+char *remove_nl_copy(char *s) {
+	char * p;
+	int i;
+	p = strdup(s);
+	for (i=0 ; i<strlen(p) ; i++)
+    		if (p[i]=='\n')
+        		p[i]=' ';
+
+	return p;
+}
+
+
 
 void set_cfg(char * cfg) {
 	struct stat cStat;

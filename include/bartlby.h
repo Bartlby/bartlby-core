@@ -703,6 +703,7 @@ int bartlby_agent_tcp_my_connect(char *host_name,int port,int *sd,char *proto, s
 int bartlby_agent_tcp_connect(char *host_name,int port,int *sd, struct service * svc);
 
 
+char *remove_nl_copy(char *s);
 
 //Orchestra
 int bartlby_orchestra_get_id(char * cfgfile);

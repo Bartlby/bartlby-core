@@ -1,4 +1,5 @@
 /* $Id$ */
+
 /* ----------------------------------------------------------------------- *
  *
  *   Copyright 2005-2009 Helmut Januschka - All Rights Reserved
@@ -149,6 +150,7 @@ void bartlby_fin_service(struct service * svc, void * SOHandle, void * shm_addr,
 	struct shm_header * hdr;
 
 	int do_log;
+	char * log_line;
 	
 	int (*doUpdate)(struct service *,char *);
 	
@@ -199,14 +201,16 @@ void bartlby_fin_service(struct service * svc, void * SOHandle, void * shm_addr,
 	
 	}
 	if(do_log > 0) {
+		log_line=remove_nl_copy(svc->new_server_text);
 		switch(do_log) {
 			case 1:
-				_log(LH_CHECK, B_LOG_HASTO,"@LOG@%ld|%d|%s:%d/%s|%s|SOFT", svc->service_id, svc->current_state, svc->srv->server_name, svc->srv->client_port, svc->service_name, svc->new_server_text);
+				_log(LH_CHECK, B_LOG_HASTO,"@LOG@%ld|%d|%s:%d/%s|%s|SOFT", svc->service_id, svc->current_state, svc->srv->server_name, svc->srv->client_port, svc->service_name, log_line);
 			break;
 			case 2:
-				_log(LH_CHECK, B_LOG_HASTO,"@LOG@%ld|%d|%s:%d/%s|%s|HARD", svc->service_id, svc->current_state, svc->srv->server_name, svc->srv->client_port, svc->service_name, svc->new_server_text);
+				_log(LH_CHECK, B_LOG_HASTO,"@LOG@%ld|%d|%s:%d/%s|%s|HARD", svc->service_id, svc->current_state, svc->srv->server_name, svc->srv->client_port, svc->service_name, log_line);
 			break;
 		}
+		free(log_line);
 		
 	}
 
