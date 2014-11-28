@@ -64,7 +64,7 @@ void bartlby_portier_submit_passive_result(long service_id, int status, const ch
 void bartlby_portier_find_server_id(const char * server_name);
 void bartlby_portier_find_services(long server_id);
 void bartlby_portier_get_plugin_info(long service_id);
-void bartlby_portier_exec_trigger(char * cfgfile, int standby_workers_only, const char * execline, const char * trigger_name, int service_id, int server_id, int notify_last_state, int current_state, int recovery_outstanding, int node_id, const char * passwd, const char * service_name);
+void bartlby_portier_exec_trigger(char * cfgfile, int standby_workers_only, const char * execline, const char * trigger_name, int service_id, int server_id, int notify_last_state, int current_state, int recovery_outstanding, int node_id, const char * passwd, const char * service_name, int notify_super_users);
 void bartlby_portier_exec_trigger_line(char * cfgfile, const char * execline, const char * passwd);
 
 void bartlby_portier_set_svc_state(long service_id, char * service_text, long current_state,long last_notify_send,long last_state_change,long service_ack_current,long service_retain_current,long handled, long last_check);
@@ -150,7 +150,7 @@ void bartlby_portier_exec_trigger_line(char * cfgfile, const char * execline, co
 
 }
 
-void bartlby_portier_exec_trigger(char * cfgfile, int standby_workers_only, const char * execline, const char * trigger_name, int service_id, int server_id, int notify_last_state, int current_state, int recovery_outstanding, int node_id, const char * passwd, const char * service_name) {
+void bartlby_portier_exec_trigger(char * cfgfile, int standby_workers_only, const char * execline, const char * trigger_name, int service_id, int server_id, int notify_last_state, int current_state, int recovery_outstanding, int node_id, const char * passwd, const char * service_name, int notify_super_users) {
 
 	struct service local_svc;
 	int trigger_fine = 0;
@@ -517,7 +517,7 @@ int main(int argc, char ** argv) {
 
 
 	//buffers:
-	json_object * jsoo[11];
+	json_object * jsoo[12];
 	
 
 
@@ -739,7 +739,8 @@ int main(int argc, char ** argv) {
 				 	 "recovery_outstanding": 0,
 				 	 "node_id": 0,
 				 	 "passwd": "password",
-				 	 "service_name": "service_name"
+				 	 "service_name": "service_name",
+					 "notify_super_users": 1
 				 	}
 				 >> {"error_code": 0, "trigger": "bartlby_load.sh", "output": "Sent SMS" }
 				 */
@@ -768,7 +769,8 @@ int main(int argc, char ** argv) {
 														json_object_get_int(jsoo[7]),
 														json_object_get_int(jsoo[8]),
 														json_object_get_string(jsoo[9]),
-														json_object_get_string(jsoo[10])
+														json_object_get_string(jsoo[10]),
+														json_object_get_int(jsoo[11])
 														);
 			
 							PORTIER_CLEANUP;
