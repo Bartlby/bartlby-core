@@ -211,6 +211,7 @@ void bartlby_portier_exec_trigger(char * cfgfile, int standby_workers_only, cons
 	local_svc.recovery_outstanding=recovery_outstanding;
 	local_svc.current_state=current_state;
 	local_svc.srv_place=-1;
+	local_svc.notify_super_users=notify_super_users;
 	
 	strncpy(local_svc.service_name, (char*)service_name,1024);
 	
@@ -259,6 +260,7 @@ void bartlby_portier_exec_trigger(char * cfgfile, int standby_workers_only, cons
 	json_object_object_add(jso,"trigger", json_object_new_string(trigger_name));
 	json_object_object_add(jso,"output", json_object_new_string(trigger_return));
 	json_object_object_add(jso,"error_msg", json_object_new_string(trigger_return));
+	json_object_object_add(jso,"notify_super_users", json_object_new_int(notify_super_users));
 	
 	printf("%s\n", json_object_to_json_string(jso));
 
@@ -755,7 +757,8 @@ int main(int argc, char ** argv) {
 						json_object_object_get_ex(jso_in, "recovery_outstanding", &jsoo[7]) &&
 						json_object_object_get_ex(jso_in, "node_id", &jsoo[8]) &&
 						json_object_object_get_ex(jso_in, "passwd", &jsoo[9]) &&
-						json_object_object_get_ex(jso_in, "service_name", &jsoo[10])
+						json_object_object_get_ex(jso_in, "service_name", &jsoo[10]) &&
+						json_object_object_get_ex(jso_in, "notify_super_users", &jsoo[11])
 						) {
 							
 							bartlby_portier_exec_trigger(cfgfile, 
