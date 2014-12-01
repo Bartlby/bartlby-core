@@ -649,6 +649,7 @@ struct downtime * bartlby_SHM_DowntimeMap(void * shm_addr);
 struct shm_header * bartlby_SHM_GetHDR(void *);
 struct worker * bartlby_SHM_WorkerMap(void * shm_addr);
 struct server * bartlby_SHM_ServerMap(void * shm_addr);
+struct trap * bartlby_SHM_TrapMap(void * shm_addr);
 struct servicegroup * bartlby_SHM_ServiceGroupMap(void * shm_addr);
 struct servergroup * bartlby_SHM_ServerGroupMap(void * shm_addr);
 

@@ -264,6 +264,19 @@ void bartlby_SHM_link_services_servers(void * shm_addr, char * cfgfile, void * S
 	
 }
 
+struct trap * bartlby_SHM_TrapMap(void * shm_addr) {
+	//Is beyond the servergroups
+	struct shm_header * hdr;
+	struct servicegroup * svcgrpmap;
+	
+	hdr=bartlby_SHM_GetHDR(shm_addr);
+	svcgrpmap=bartlby_SHM_ServiceGroupMap(shm_addr);
+	
+	
+	return (struct trap *)(void *)&svcgrpmap[hdr->svcgroupcount+1];
+}
+
+
 struct servicegroup * bartlby_SHM_ServiceGroupMap(void * shm_addr) {
 	//Is beyond the servergroups
 	struct shm_header * hdr;

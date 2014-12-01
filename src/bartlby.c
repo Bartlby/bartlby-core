@@ -46,6 +46,7 @@ int (*gGetWorkerMap)(struct worker *,char *,int);
 int (*gGetDowntimeMap)(struct downtime *, char *,int);
 int (*gGetServerGroupMap)(struct servergroup *, char *,int);
 int (*gGetServiceGroupMap)(struct servicegroup *, char *,int);
+int (*gGetTrapMap)(struct trap *, char *,int);
 
 void (*gDataLibInit)(char *, int);
 
@@ -59,6 +60,7 @@ struct server * gsrvmap;
 
 struct servergroup * gsrvgrpmap;
 struct servicegroup * gsvcgrpmap;
+struct trap * gtrapmap;
 
 int global_startup_time;
 
@@ -71,6 +73,7 @@ int gshm_dt_cnt;
 int gshm_srv_cnt;
 int gshm_srvgrp_cnt;
 int gshm_svcgrp_cnt;
+int gshm_trap_cnt;
 
 long gSHMSize;
 
@@ -189,6 +192,8 @@ void bartlby_load_shm_stuff(char * cfgfile) {
     	
     	LOAD_SYMBOL(gGetServerGroupMap,gSOHandle, "GetServerGroupMap");
     	LOAD_SYMBOL(gGetServiceGroupMap,gSOHandle, "GetServiceGroupMap");
+
+    	LOAD_SYMBOL(gGetTrapMap,gSOHandle, "GetTrapMap");
     	
     	
     	
@@ -311,7 +316,7 @@ void bartlby_shm_fits(char * cfgfile) {
 		}
 		gSHMSize=cfg_shm_size_bytes*1024*1024;	
 		
-		suggested_minimum = (sizeof(struct shm_header) + (sizeof(struct server) * shmc->servers) + (sizeof(struct worker) * shmc->worker) + (sizeof(struct service) * shmc->services) + (sizeof(struct downtime) * shmc->downtimes) + 2000 + (sizeof(struct btl_event)*EVENT_QUEUE_MAX))  + (sizeof(struct servergroup) * shmc->servergroups) + (sizeof(struct servicegroup) * shmc->servicegroups) * 2;
+		suggested_minimum = (sizeof(struct shm_header) + (sizeof(struct server) * shmc->servers) + (sizeof(struct worker) * shmc->worker) + (sizeof(struct service) * shmc->services) + (sizeof(struct downtime) * shmc->downtimes) + 2000 + (sizeof(struct btl_event)*EVENT_QUEUE_MAX))  + (sizeof(struct servergroup) * shmc->servergroups) + (sizeof(struct servicegroup) * shmc->servicegroups) + (sizeof(struct trap) * shmc->traps) * 2;
 		if(gSHMSize <= suggested_minimum) {
 			_log(LH_MAIN, B_LOG_CRIT,"SHM is to small minimum: %d KB ", suggested_minimum/1024);
 			exit(1);	
@@ -379,6 +384,11 @@ int bartlby_populate_shm(char * cfgfile) {
 			gsvcgrpmap = bartlby_SHM_ServiceGroupMap(gBartlby_address);
 			gshm_svcgrp_cnt = gGetServiceGroupMap(gsvcgrpmap, cfgfile, orch_id);
 			gshm_hdr->svcgroupcount=gshm_svcgrp_cnt;
+
+			//Add Traps
+			gtrapmap = bartlby_SHM_TrapMap(gBartlby_address);
+			gshm_trap_cnt = gGetTrapMap(gtrapmap, cfgfile, orch_id);
+			gshm_hdr->trapcount=gshm_trap_cnt;
 			
 			
 			_log(LH_MAIN, B_LOG_INFO,"Workers: %ld", gshm_hdr->wrkcount);
@@ -386,6 +396,7 @@ int bartlby_populate_shm(char * cfgfile) {
 			_log(LH_MAIN, B_LOG_INFO,"Servers: %ld", gshm_hdr->srvcount);
 			_log(LH_MAIN, B_LOG_INFO,"ServerGroups: %ld", gshm_hdr->srvgroupcount);
 			_log(LH_MAIN, B_LOG_INFO,"ServiceGroups: %ld", gshm_hdr->svcgroupcount);
+			_log(LH_MAIN, B_LOG_INFO,"Traps: %ld", gshm_hdr->trapcount);
 
 			gshm_hdr->current_running=0;
 			sprintf(gshm_hdr->version, "%s-%s (%s)", PROGNAME, VERSION, REL_NAME);
@@ -398,7 +409,7 @@ int bartlby_populate_shm(char * cfgfile) {
 			}
 			
 			gshm_hdr->sirene_mode=0; //Default disable	
-			gshm_hdr->size_of_structs=sizeof(struct shm_header)+sizeof(struct worker)+sizeof(struct service)+sizeof(struct downtime)+sizeof(struct server) + +sizeof(struct servergroup)+sizeof(struct servicegroup);
+			gshm_hdr->size_of_structs=sizeof(struct shm_header)+sizeof(struct worker)+sizeof(struct service)+sizeof(struct downtime)+sizeof(struct server) + +sizeof(struct servergroup)+sizeof(struct servicegroup)+sizeof(struct trap);
 			gshm_hdr->pstat.sum=0;
 			gshm_hdr->pstat.counter=0;
 			
