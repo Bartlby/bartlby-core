@@ -81,6 +81,11 @@ static MYSQL * mysql_conn;
                                       trap_id=%ld"
 
 #define DEL_TRAP "delete from traps where trap_id=%d"
+
+
+
+
+
 #define ADD_TRAP "INSERT INTO \
                                       traps( \
                                           trap_name, \
@@ -102,10 +107,10 @@ static MYSQL * mysql_conn;
                                           '%s', \
                                           '%s', \
                                           '%s', \
-                                          '%d' \
-                                          '%d' \
-                                          '%d' \
-                                          '%d' \
+                                          '%d', \
+                                          '%d', \
+                                          '%d', \
+                                          '%d', \
                                           '%d' \
                                       )"
 #define TRAP_SEL "select \
@@ -4127,7 +4132,14 @@ int UpdateServiceGroup(struct servicegroup * svc, char *config) {
 
 
 
+void debugStr(char * s) {
+  FILE * fp;
+  fp = fopen("/tmp/mysql_lib", "a");
+  fwrite(s , sizeof(char) , strlen(s) , fp );
+  fclose(fp);
 
+
+}
 
 int AddTrap(struct trap * svc, char *config) {
   
@@ -4165,7 +4177,7 @@ int AddTrap(struct trap * svc, char *config) {
                             svc->orch_id
   );
   
-  
+  //debugStr(sqlupd);
 
   mysql_query(mysql, sqlupd);
     CHK_ERR(mysql,NULL);
