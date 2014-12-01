@@ -136,7 +136,7 @@ static char * log_levels[] = {"DEBUG", "INFO", "WARN", "CRIT", "HASTO"};
 #define REL_NAME_INT "Insomnia"
 #define REL_NAME REL_NAME_INT " - rev:" __GIT_VERSION
 //#define VERSION  "1.4.0"
-#define EXPECTCORE 1600005
+#define EXPECTCORE 1600006
 
 #define MAX_CCACHE 1024
 #define MAX_CCACHE_KEY 1024
@@ -324,6 +324,7 @@ struct shm_header {
 	long srvcount;
 	long srvgroupcount;
 	long svcgroupcount;
+	long trapcount;
 	long current_running;
 	char  version[50];
 	int do_reload;
@@ -373,6 +374,21 @@ struct server {
 } xxyz;
 
 
+struct trap {
+    long trap_id;
+    char trap_name[512];
+    char trap_catcher[512];
+    char trap_status_text[512];
+    char trap_status_ok[512];
+    char trap_status_warning[512];
+    char trap_status_critical[512];
+    long trap_service_id;
+    long service_shm_place;
+    int trap_fixed_status;
+    int trap_prio;
+    int trap_is_final;
+    int orch_id;
+} zzk;
 
 struct service {
 	long service_id;

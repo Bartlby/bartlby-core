@@ -116,6 +116,24 @@ CREATE TABLE `workers` (
   PRIMARY KEY  (`worker_id`)
 )  ;
 
+ 
+CREATE TABLE `traps` (
+  `trap_id` int(12) NOT NULL auto_increment,
+  `trap_name` varchar(255) NOT NULL default '',
+  `trap_catcher` varchar(512) NOT NULL default '',
+  `trap_status_text` varchar(512) NOT NULL default '',
+  `trap_status_ok` varchar(512) NOT NULL default '',
+  `trap_status_warning` varchar(512) NOT NULL default '',
+  `trap_status_critical` varchar(512) NOT NULL default '',
+  `trap_service_id` int(12) NOT NULL default '0',
+  `trap_fixed_status` int(1) NOT NULL default '0',
+  `trap_prio` int(12) NOT NULL default '0',
+  `trap_is_final` int(1) NOT NULL default '0',
+  `orch_id` int(11) NOT NULL default '0',
+  PRIMARY KEY  (`trap_id`)
+)  ;
+
+
 
 CREATE TABLE `servicegroups` (
   `servicegroup_id` int(12) NOT NULL auto_increment,
