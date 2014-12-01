@@ -716,6 +716,7 @@ static MYSQL * mysql_conn;
 #define COUNT_SERVERS "select count(1) from servers"
 #define COUNT_SERVERGROUPS "select count(1) from servergroups"
 #define COUNT_SERVICEGROUPS "select count(1) from servicegroups"
+#define COUNT_TRAPS "select count(1) from traps"
 
 int GetServerById(int server_id, struct server * svc, char * config);
 
@@ -908,7 +909,7 @@ struct shm_counter * GetCounter(char * config) {
      
      //COUNT_SERVERGROUPS
      mysql_query(mysql, COUNT_SERVERGROUPS);
-	CHK_ERR_NULL(mysql,shmc);
+	   CHK_ERR_NULL(mysql,shmc);
      res = mysql_store_result(mysql);
      CHK_ERR_NULL(mysql,shmc);
      
@@ -926,6 +927,27 @@ struct shm_counter * GetCounter(char * config) {
      }
       		
      mysql_free_result(res);
+
+    //COUNT TRAPS
+     mysql_query(mysql, COUNT_TRAPS);
+     CHK_ERR_NULL(mysql,shmc);
+     res = mysql_store_result(mysql);
+     CHK_ERR_NULL(mysql,shmc);
+     
+     
+     if(mysql_num_rows(res) > 0) {
+      row=mysql_fetch_row(res);
+
+      if(row[0] != NULL) {
+        shmc->traps = atol(row[0]);
+      }
+      
+      
+     } else {
+      shmc->traps = 0; 
+     }
+          
+     mysql_free_result(res);     
      
      
 	mysql_close(mysql);
