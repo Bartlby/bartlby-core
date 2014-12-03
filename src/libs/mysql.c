@@ -4506,7 +4506,8 @@ int GetTrapMap(struct trap * svcs, char * config, int orch_id) {
               svcs[i].orch_id = atol(row[11]);
               svcs[i].service_shm_place=-2;
 
-
+              svcs[i].matched=0;
+              svcs[i].is_gone=0;
 
             i++;
           }

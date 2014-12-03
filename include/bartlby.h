@@ -205,6 +205,7 @@ static char * log_levels[] = {"DEBUG", "INFO", "WARN", "CRIT", "HASTO"};
 #define SVC_TYPE_V2 8
 #define SVC_TYPE_V2_NO_SSL 9
 #define SVC_TYPE_SSH 10
+#define SVC_TYPE_TRAP 11
 
 
 #define SVC_THRESHOLD 10
@@ -389,6 +390,8 @@ struct trap {
     int trap_prio;
     int trap_is_final;
     int orch_id;
+    int is_gone;
+    int matched;
 } zzk;
 
 struct service {
