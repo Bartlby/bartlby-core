@@ -296,6 +296,11 @@ void bartlby_check_service(struct service * svc, void * shm_addr, void * SOHandl
 		bartlby_fin_service(svc,SOHandle,shm_addr,cfgfile);
 		return;	
 	}
+	if(svc->service_type == SVC_TYPE_TRAP) {
+		//Flags are changed inside the portier part
+		bartlby_fin_service(svc,SOHandle,shm_addr,cfgfile);
+		return;	
+	}
 	if(svc->service_type == SVC_TYPE_PASSIVE) {
 		ctime=time(NULL);
 		pdiff=ctime-svc->last_check;
