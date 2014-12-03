@@ -127,7 +127,7 @@ static MYSQL * mysql_conn;
                             trap_is_final, \
                             orch_id  \
                           from \
-                            traps %s"
+                            traps %s order by trap_prio desc"
 
 
 
