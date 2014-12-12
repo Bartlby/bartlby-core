@@ -37,6 +37,7 @@ void bartlby_SHM_link_services_servers(void * shm_addr, char * cfgfile, void * S
 	struct service * svcmap;
 	struct servicegroup * svcgrpmap;
 	struct servergroup * srvgrpmap;
+	struct trap * trapmap;
 	int x;
 	int y;
 	int marker_found;
@@ -60,7 +61,7 @@ void bartlby_SHM_link_services_servers(void * shm_addr, char * cfgfile, void * S
 	srvgrpmap=bartlby_SHM_ServerGroupMap(shm_addr);
 	svcgrpmap=bartlby_SHM_ServiceGroupMap(shm_addr);
 	
-	
+	trapmap=bartlby_SHM_TrapMap(shm_addr);
 	
 	LOAD_SYMBOL(DeleteService, SOHandle, "DeleteService");
 	
@@ -84,6 +85,11 @@ void bartlby_SHM_link_services_servers(void * shm_addr, char * cfgfile, void * S
 				
 			}
 				
+		}
+		for(y=0; y<hdr->trapcount; y++) {
+			if(trapmap[y].trap_service_id >= 0 && trapmap[y].trap_service_id == svcmap[x].service_id) {
+				trapmap[y].service_shm_place=x;
+			}
 		}
 		if(	svcmap[x].srv_place == -1) {
 			_log(LH_SHM, B_LOG_CRIT,"Service-ID: %d is orphaned named %s", svcmap[x].service_id, svcmap[x].service_name);
