@@ -59,6 +59,7 @@ static struct worker * wrkmap;
 
 
 //function defs
+void bartlby_portier_submit_trap(const char * trap_data);
 void bartlby_show_error(int code, char * msg, int http);
 void bartlby_portier_submit_passive_result(long service_id, int status, const char * message);
 void bartlby_portier_find_server_id(const char * server_name);
@@ -270,6 +271,85 @@ void bartlby_portier_exec_trigger(char * cfgfile, int standby_workers_only, cons
 
 
 }
+
+void bartlby_portier_submit_trap(const char * trap_data) {
+	
+	json_object * jso;
+
+	//DO SOMETHING WITH TRAP_DATA
+	/*
+	$match=array();
+	$btl->trap_list_loop(function($trap) use(&$data, &$out, &$match) {
+		if(preg_match("/" . $trap[trap_catcher] . "/i", $data)) {
+			$match[]=$trap;
+			if($trap[trap_is_final] == 1) {
+				return LOOP_BREAK;
+			}
+
+		}
+	});		
+	for($x=0; $x<count($match); $x++) {
+		$tr=$match[$x];
+		
+		$rule_out = "";
+		$rule_out .= "<pre>";
+		if($tr[trap_is_final] == 1) {
+			$rule_out .= "<i>Rule is Final no more deeper rules will be processed</i>\n";
+		}
+		if(preg_match("/" . $tr[trap_status_text] . "/i", $data, $matches)) {
+			
+			if($matches[1] != "") {
+				$rule_out .= "Status Text extracted: <kbd>" . $matches[1] . "</kbd>\n";
+			} else {
+				$rule_out .= "Fallback Status Text (rule not matched): '" . substr($data, 0, 1023) . "'\n";
+			}
+		} else {
+			$rule_out .= "Fallback Status Text: '" . substr($data, 0, 1023) . "'\n";
+		}
+
+		$is_ok=preg_match("/" . $tr[trap_status_ok] . "/i", $data);
+		$is_warning=preg_match("/" . $tr[trap_status_warning] . "/i", $data);
+		$is_critical=preg_match("/" . $tr[trap_status_critical] . "/i", $data);
+		$is_fixed=$tr[trap_fixed_status]; //-2 unused
+
+		$status=4; //default unkown
+		if($is_fixed != -2) {
+			$status=$is_fixed;
+			$rule_out .= "<i>using fixed status: " . $is_fixed . "\n";
+		} else {
+			if($is_ok && $tr[trap_status_ok] != "") $status=0;
+			if($is_warning && $tr[trap_status_warning] != "") $status=1;
+			if($is_critical && $tr[trap_status_critical] != "") $status=2;
+		}
+		//Get service :)
+		if($tr[service_shm_place] >= 0) {
+			$svc = bartlby_get_service($btl->RES, $tr[service_shm_place]);
+			if(!$svc) {
+				$rule_out .= "NO SERVICE found just log\n";
+			} else {
+				$rule_out .= "Service: " . $svc[server_name] . "/" . $svc[service_name] . "(" . $svc[service_id] . ")\n";
+			}
+		} else {
+			$rule_out .= "NO SERVICE found just log\n";
+		}
+
+		$rule_out .= "Status set to:  " . $btl->getColorSpan($status) . "\n";
+		$rule_out .= "</pre>";
+	*/
+
+
+	//Return a error
+	jso=json_object_new_object();
+	json_object_object_add(jso, "error_code", json_object_new_int(0));
+	json_object_object_add(jso, "error_msg", json_object_new_string("asdf"));
+	printf("%s\n", json_object_to_json_string(jso));
+	json_object_put(jso);
+
+	
+}
+
+
+
 void bartlby_portier_get_plugin_info(long service_id) {
 	int svc_found=0;
 	int x;
@@ -667,6 +747,21 @@ int main(int argc, char ** argv) {
 					}
 
 				 }
+				 /*
+				 METHOD: submit_trap
+				 PURPOSE: Recieve a Trap Message (limit to 4kb)
+				 ON-ERROR: error_code < 0 and "error_msg" set to a text
+				 << {"method": "submit_trap", "data": "localhost"}
+				 >> {"error_code": 0, "error_msg": "Submited"}
+				 */
+				 if(strcmp(json_object_get_string(jso_method), "submit_trap") == 0) {
+					if(json_object_object_get_ex(jso_in, "data", &jsoo[0])) {
+							bartlby_portier_submit_trap(json_object_get_string(jsoo[0]));
+							PORTIER_CLEANUP;
+
+					}
+
+				 }				 
 				 /*
 				 METHOD: get_server_id
 				 PURPOSE: get id of an server via the name - e.g look-up hostname on passive node and get the corresponding id's
