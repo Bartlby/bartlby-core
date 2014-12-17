@@ -34,6 +34,7 @@ static struct shm_header * shm_hdr;
 static struct service * svcmap;
 static struct server * srvmap;
 static struct worker * wrkmap;
+static struct trap * trapmap;
 
 
 #define CMD_PASSIVE 1
@@ -275,73 +276,132 @@ void bartlby_portier_exec_trigger(char * cfgfile, int standby_workers_only, cons
 void bartlby_portier_submit_trap(const char * trap_data) {
 	
 	json_object * jso;
+	int x;
+	regex_t catcher_compiled, status_compiled;
+	regex_t stati_compiled[3];
+	int is_final=0;
+	int max_matches=3;
+	regmatch_t matches[max_matches];
+	char * match_copy;
+	char * status_match;
+	char * status_to_use;
 
-	//DO SOMETHING WITH TRAP_DATA
-	/*
-	$match=array();
-	$btl->trap_list_loop(function($trap) use(&$data, &$out, &$match) {
-		if(preg_match("/" . $trap[trap_catcher] . "/i", $data)) {
-			$match[]=$trap;
-			if($trap[trap_is_final] == 1) {
-				return LOOP_BREAK;
-			}
+	int is_ok=0;
+	int is_warning=0;
+	int is_critical=0;
+	int status=4;
+	long svc_id=-1;
+	struct service * svc;
 
-		}
-	});		
-	for($x=0; $x<count($match); $x++) {
-		$tr=$match[$x];
-		
-		$rule_out = "";
-		$rule_out .= "<pre>";
-		if($tr[trap_is_final] == 1) {
-			$rule_out .= "<i>Rule is Final no more deeper rules will be processed</i>\n";
-		}
-		if(preg_match("/" . $tr[trap_status_text] . "/i", $data, $matches)) {
-			
-			if($matches[1] != "") {
-				$rule_out .= "Status Text extracted: <kbd>" . $matches[1] . "</kbd>\n";
-			} else {
-				$rule_out .= "Fallback Status Text (rule not matched): '" . substr($data, 0, 1023) . "'\n";
-			}
-		} else {
-			$rule_out .= "Fallback Status Text: '" . substr($data, 0, 1023) . "'\n";
-		}
+	int rules_matched=0;
+	
+	for(x=0; x<shm_hdr->trapcount; x++) {
+		status_to_use=NULL;
+		svc_id=-1;
+		if (regcomp(&catcher_compiled, trapmap[x].trap_catcher, REG_EXTENDED)) {
+      		_log(LH_PORTIER, B_LOG_CRIT,"Catcher rule compile failed for rule: %ld", trapmap[x].trap_id);
+      		continue;
+    	}
+    	if(regexec(&catcher_compiled, trap_data,0,0,0) == 0) {
+				//Catcher matches
+				//printf("Catcher matches Rule %ld\n", trapmap[x].trap_id);    	
+    			rules_matched++;
+    			trapmap[x].matched++;
+				//Get status text
+				if(regcomp(&status_compiled, trapmap[x].trap_status_text, REG_EXTENDED)) {
+					_log(LH_PORTIER, B_LOG_CRIT,"Status rule compile failed for rule: %ld", trapmap[x].trap_id);
+				} else {
+					if (regexec(&status_compiled, trap_data, max_matches, matches, 0) == 0) {
+						 if (matches[1].rm_so != (size_t)-1) {
+							match_copy = strdup(trap_data);
+							match_copy[matches[1].rm_eo] = 0;
+							status_match = match_copy   + matches[1].rm_so;
+							
+							
+							status_to_use=strndup(status_match, 1020);
+							free(match_copy);
+						} else {
+							
+							//Status rule matched but no status text returned
+							status_to_use=strndup(trap_data, 1020);
+						}
+					} else {
+							//Status rule not matched
+							status_to_use=strndup(trap_data, 1020);
+							
+					}
+					regfree(&status_compiled);
+				}
 
-		$is_ok=preg_match("/" . $tr[trap_status_ok] . "/i", $data);
-		$is_warning=preg_match("/" . $tr[trap_status_warning] . "/i", $data);
-		$is_critical=preg_match("/" . $tr[trap_status_critical] . "/i", $data);
-		$is_fixed=$tr[trap_fixed_status]; //-2 unused
+				is_ok=0;
+				is_critical=0;
+				is_warning=0;
+				status=4;
 
-		$status=4; //default unkown
-		if($is_fixed != -2) {
-			$status=$is_fixed;
-			$rule_out .= "<i>using fixed status: " . $is_fixed . "\n";
-		} else {
-			if($is_ok && $tr[trap_status_ok] != "") $status=0;
-			if($is_warning && $tr[trap_status_warning] != "") $status=1;
-			if($is_critical && $tr[trap_status_critical] != "") $status=2;
-		}
-		//Get service :)
-		if($tr[service_shm_place] >= 0) {
-			$svc = bartlby_get_service($btl->RES, $tr[service_shm_place]);
-			if(!$svc) {
-				$rule_out .= "NO SERVICE found just log\n";
-			} else {
-				$rule_out .= "Service: " . $svc[server_name] . "/" . $svc[service_name] . "(" . $svc[service_id] . ")\n";
-			}
-		} else {
-			$rule_out .= "NO SERVICE found just log\n";
-		}
+				if(regcomp(&stati_compiled[0], trapmap[x].trap_status_ok, REG_EXTENDED) == 0) {
+						if(regexec(&stati_compiled[0], trap_data, 0,0,0) == 0) {
+							is_ok=1;
+						}
+						regfree(&stati_compiled[0]);
+				}
 
-		$rule_out .= "Status set to:  " . $btl->getColorSpan($status) . "\n";
-		$rule_out .= "</pre>";
-	*/
+				if(regcomp(&stati_compiled[1], trapmap[x].trap_status_warning, REG_EXTENDED) == 0) {
+						if(regexec(&stati_compiled[1], trap_data, 0,0,0) == 0) {
+							is_warning=1;
+						}
+						regfree(&stati_compiled[1]);
+				}				
+				if(regcomp(&stati_compiled[2], trapmap[x].trap_status_critical, REG_EXTENDED) == 0) {
+						if(regexec(&stati_compiled[2], trap_data, 0,0,0) == 0) {
+							is_critical=1;
+						}
+						regfree(&stati_compiled[2]);
+				}		
 
+				if(trapmap[x].trap_fixed_status != -2) {
+					status=trapmap[x].trap_fixed_status;
+				} else {
+					if(is_ok == 1 && strlen(trapmap[x].trap_status_ok) > 1) status=0;
+					if(is_warning == 1 && strlen(trapmap[x].trap_status_warning) > 1) status=1;
+					if(is_critical == 1 && strlen(trapmap[x].trap_status_critical) > 1) status=2;
+
+				}
+				//printf("RULE: '%s' (%ld) - Status code: %d, status msg '%s'\n", trapmap[x].trap_name, trapmap[x].trap_id, status, status_to_use);
+
+				//LOG
+				
+				//CHECK IF SVC IS ASSIGNED - set the status 
+				if(trapmap[x].service_shm_place >= 0) {
+
+					svc=&svcmap[trapmap[x].service_shm_place];
+					svc_id=svc->service_id;
+
+					svc->last_state=svc->current_state;
+					svc->current_state=status;
+					snprintf(svc->new_server_text,1020, "%s", status_to_use);
+					svc->last_check=time(NULL);
+
+
+
+				}
+				_log(LH_PORTIER, B_LOG_HASTO, "@TRAP@|%ld|%s|%d|%d|%s",trapmap[x].trap_id,trapmap[x].trap_name, status,svc_id, status_to_use);
+				if(status_to_use != NULL)  {
+					free(status_to_use);
+				}
+				if(trapmap[x].trap_is_final == 1) {
+					//printf("IS FINAL\n");
+					regfree(&catcher_compiled);
+					break;
+				}
+    	} 
+    	regfree(&catcher_compiled);
+	}
+
+	
 
 	//Return a error
 	jso=json_object_new_object();
-	json_object_object_add(jso, "error_code", json_object_new_int(0));
-	json_object_object_add(jso, "error_msg", json_object_new_string("asdf"));
+	json_object_object_add(jso, "rules_matched", json_object_new_int(rules_matched));
 	printf("%s\n", json_object_to_json_string(jso));
 	json_object_put(jso);
 
@@ -665,6 +725,7 @@ int main(int argc, char ** argv) {
 		svcmap=bartlby_SHM_ServiceMap(bartlby_address);
 		srvmap=bartlby_SHM_ServerMap(bartlby_address);
 		wrkmap=bartlby_SHM_WorkerMap(bartlby_address);
+		trapmap=bartlby_SHM_TrapMap(bartlby_address);
 
 		
 		fflush(stdout);
