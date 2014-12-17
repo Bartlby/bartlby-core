@@ -40,6 +40,8 @@
 #include <sys/times.h> 
 #include <semaphore.h>
 #include <json.h>
+#include <regex.h>
+
 
 /* Log Handles */
 #define LH_DEBUG 0
