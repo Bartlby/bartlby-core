@@ -72,7 +72,7 @@ static MYSQL * mysql_conn;
                                       trap_status_ok='%s', \
                                       trap_status_warning='%s', \
                                       trap_status_critical='%s', \
-                                      trap_service_id=%d, \
+                                      trap_service_id=%ld, \
                                       trap_fixed_status=%d, \
                                       trap_prio=%d, \
                                       trap_is_final=%d, \
@@ -109,7 +109,7 @@ static MYSQL * mysql_conn;
                                           '%s', \
                                           '%d', \
                                           '%d', \
-                                          '%d', \
+                                          '%ld', \
                                           '%d', \
                                           '%d' \
                                       )"
@@ -1356,7 +1356,7 @@ int AddDowntime(struct downtime * svc, char *config) {
 	
 	return rtc;	
 }	
-int GetDowntimeById(int downtime_id, struct downtime * svcs, char * config) {
+int GetDowntimeById(long downtime_id, struct downtime * svcs, char * config) {
  
   int tmprc;
   MYSQL *mysql;
@@ -1935,7 +1935,7 @@ int GetServiceById(int service_id, struct service * svc, char * config) {
           if(row[36] != NULL) {
             sprintf(svc->usid, "%s", row[36]);
           } else {
-            sprintf(svc->usid, "%d", svc->service_id);
+            sprintf(svc->usid, "%ld", svc->service_id);
           }
           
           svc->prio=atoi(row[37]);
@@ -3027,7 +3027,7 @@ int GetServiceMap(struct service * svcs, char * config, int orch_id) {
             if(row[36] != NULL) {
               sprintf(svcs[i].usid, "%s", row[36]);
             } else {
-              sprintf(svcs[i].usid, "%d", svcs[i].service_id);              
+              sprintf(svcs[i].usid, "%ld", svcs[i].service_id);              
             }
 
 
@@ -3769,7 +3769,7 @@ int ServiceGroupChangeId(int from, int to, char * config) {
 }
 
 
-int GetsServicegroupById(int servicegroup_id, struct servicegroup * svc, char * config) {
+int GetsServicegroupById(long servicegroup_id, struct servicegroup * svc, char * config) {
   
   int tmprc;
   MYSQL *mysql;
@@ -4329,7 +4329,7 @@ int TrapChangeId(int from, int to, char * config) {
 }
 
 
-int GetTrapById(int trap_id, struct trap * svc, char * config) {
+int GetTrapById(long trap_id, struct trap * svc, char * config) {
   
   int tmprc;
   MYSQL *mysql;
