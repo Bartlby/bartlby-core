@@ -107,9 +107,9 @@ static MYSQL * mysql_conn;
                                           '%s', \
                                           '%s', \
                                           '%s', \
-                                          '%d', \
-                                          '%d', \
                                           '%ld', \
+                                          '%d', \
+                                          '%d', \
                                           '%d', \
                                           '%d' \
                                       )"
@@ -3369,7 +3369,7 @@ int ServerGroupChangeId(int from, int to, char * config) {
 }
 
 
-int GetServergroupById(int servergroup_id, struct servergroup * svc, char * config) {
+int GetServergroupById(long servergroup_id, struct servergroup * svc, char * config) {
   
   int tmprc;
   MYSQL *mysql;
