@@ -293,6 +293,8 @@ void bartlby_portier_submit_trap(const char * trap_data) {
 	long svc_id=-1;
 	struct service * svc;
 
+	char * safe_log;
+
 	int rules_matched=0;
 	
 	for(x=0; x<shm_hdr->trapcount; x++) {
@@ -384,7 +386,9 @@ void bartlby_portier_submit_trap(const char * trap_data) {
 
 
 				}
-				_log(LH_PORTIER, B_LOG_HASTO, "@TRAP@|%ld|%s|%d|%d|%s",trapmap[x].trap_id,trapmap[x].trap_name, status,svc_id, status_to_use);
+				safe_log=remove_nl_copy(status_to_use);
+				_log(LH_PORTIER, B_LOG_HASTO, "@TRAP@|%ld|%s|%d|%d|%s",trapmap[x].trap_id,trapmap[x].trap_name, status,svc_id, safe_log);
+				free(safe_log);
 				if(status_to_use != NULL)  {
 					free(status_to_use);
 				}
