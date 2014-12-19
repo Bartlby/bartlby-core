@@ -635,7 +635,7 @@ static void agent_conn_timeout(int signo) {
 int main(int argc, char ** argv) {
 	struct sigaction act1, oact1;
 	
-	char inputbuffer[4096];
+	char inputbuffer[6096];
 	char cfgfile[2048];
 	
 	char * allowed_ip_list;
@@ -767,7 +767,7 @@ int main(int argc, char ** argv) {
 	while(loop_end == 0) {
 		alarm(CONN_TIMEOUT);
 		//ipmlg]ajgai]Amoowlkecvg~"/j"nmacnjmqv~
-		bytes_read=read(fileno(stdin), inputbuffer, 4095);
+		bytes_read=read(fileno(stdin), inputbuffer, 6095);
 		if(bytes_read < 0) {
 			bartlby_show_error(-2, "error recv()", 0); //or actually timeout by alarm()
 			exit(1);
