@@ -101,18 +101,23 @@ void sched_write_back_all(char * cfgfile, void * shm_addr, void * SOHandle) {
 	
 	struct service * services;
 	struct server * servers;
+	struct trap * traps;
 	int (*doUpdate)(struct service *,char *);
 	int (*doUpdateServer)(struct server *, char *);
+
+
+	int (*doUpdateTrap)(struct trap *, char *);
 	
 	char * dlmsg;
 	
 	gshm_hdr=bartlby_SHM_GetHDR(shm_addr); //just to be sure ;)
 	services=bartlby_SHM_ServiceMap(shm_addr);
 	servers=bartlby_SHM_ServerMap(shm_addr);
-	
+	traps=bartlby_SHM_TrapMap(shm_addr);
 	
 	LOAD_SYMBOL(doUpdate,SOHandle, "doUpdate");
 	LOAD_SYMBOL(doUpdateServer,SOHandle, "doUpdateServer");
+	LOAD_SYMBOL(doUpdateTrap, SOHandle, "doUpdateTrap")
 	
 
 	for(x=0; x<gshm_hdr->svccount; x++) {
@@ -126,6 +131,20 @@ void sched_write_back_all(char * cfgfile, void * shm_addr, void * SOHandle) {
 	}	
 	_log(LH_SCHED, B_LOG_DEBUG,"wrote back %d services!", x);
 	
+	/*
+	for(x=0; x<gshm_hdr->trapcount; x++) {
+		//Do not writeback services that came in via an orch-node
+		if(bartlby_orchestra_trap_belongs_to_orch(&traps[x], cfgfile) < 0) {
+			continue;
+		}
+		if(doUpdateTrap(&traps[x], cfgfile) != 1) {
+			_log(LH_SCHED, B_LOG_CRIT, "doUpdateTrap() failed in sched_writeback_all() '%s` for trap id: %d", strerror(errno), traps[x].trap_id);		
+		}
+	}	
+	_log(LH_SCHED, B_LOG_DEBUG,"wrote back %d traps!", x);
+	*/
+
+
 	/*
 	for(x=0; x<gshm_hdr->srvcount; x++) {
 		doUpdateServer(&servers[x], cfgfile);

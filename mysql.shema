@@ -35,6 +35,7 @@ CREATE TABLE `servers` (
   `default_service_type` int(11) NOT NULL default '1',
   `exec_plan` text default '',
   `orch_id` int(11) NOT NULL default '0',
+  `web_hooks` text default '',
   PRIMARY KEY  (`server_id`),
   UNIQUE KEY `server_id` (`server_id`)
 )  ;

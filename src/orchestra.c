@@ -160,6 +160,24 @@ void bartlby_orchestra_check_timeouts(struct service * svcmap,struct shm_header 
 	
 
 }
+
+int bartlby_orchestra_trap_belongs_to_orch(struct trap * trap, char * cfgfile) {
+	//check if svc->orch_id == current_orch_id - return 0 else return -1;
+	int orch_id;
+
+	orch_id=bartlby_orchestra_get_id(cfgfile);
+
+	if(trap->orch_id != orch_id) {
+		//_log(LH_ORCH, B_LOG_DEBUG, "Skipping service: %s because it is for ORCH: %d and i'am: %d", svc->service_name, svc->orch_id, orch_id);
+		return -1;
+	}
+	//_log(LH_ORCH, B_LOG_DEBUG, "Running service: %s because it is for ORCH: %d and i'am: %d", svc->service_name, svc->orch_id, orch_id);
+	return 0;
+
+
+}
+
+
 int bartlby_orchestra_belongs_to_orch(struct service * svc, char * cfgfile) {
 	//check if svc->orch_id == current_orch_id - return 0 else return -1;
 	int orch_id;

@@ -309,6 +309,8 @@ void bartlby_portier_submit_trap(const char * trap_data) {
 				//printf("Catcher matches Rule %ld\n", trapmap[x].trap_id);    	
     			rules_matched++;
     			trapmap[x].matched++;
+    			trapmap[x].trap_last_match=time(NULL);
+    			snprintf(trapmap[x].trap_last_data,2047, "%s", trap_data);
 				//Get status text
 				if(regcomp(&status_compiled, trapmap[x].trap_status_text, REG_EXTENDED)) {
 					_log(LH_PORTIER, B_LOG_CRIT,"Status rule compile failed for rule: %ld", trapmap[x].trap_id);

@@ -138,7 +138,7 @@ static char * log_levels[] = {"DEBUG", "INFO", "WARN", "CRIT", "HASTO"};
 #define REL_NAME_INT "Insomnia"
 #define REL_NAME REL_NAME_INT " - rev:" __GIT_VERSION
 //#define VERSION  "1.4.0"
-#define EXPECTCORE 1600006
+#define EXPECTCORE 1600007
 
 #define MAX_CCACHE 1024
 #define MAX_CCACHE_KEY 1024
@@ -375,6 +375,7 @@ struct server {
 	int default_service_type;
 	int orch_id;
 	char exec_plan[2048];
+	char web_hooks[1024];
 } xxyz;
 
 
@@ -394,6 +395,8 @@ struct trap {
     int orch_id;
     int is_gone;
     int matched;
+    int trap_last_match;
+    char trap_last_data[2048];
 } zzk;
 
 struct service {
@@ -732,6 +735,7 @@ char *remove_nl_copy(char *s);
 int bartlby_orchestra_get_id(char * cfgfile);
 void bartlby_orchestra_init(struct shm_header * shmhdr);
 int bartlby_orchestra_belongs_to_orch(struct service * svc, char * cfgfile);
+int bartlby_orchestra_trap_belongs_to_orch(struct trap * trap, char * cfgfile);
 void bartlby_orchestra_check_timeouts(struct service * svcmap,struct shm_header * hdr, char * cfgfile,void * shm_addr, void * SOHandle);
 void bartlby_orchestra_send_svc(char * cfg, struct service * svc);
 void bartlby_orchestra_upstream_log(char * cfg, char * log_line);
