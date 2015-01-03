@@ -170,7 +170,8 @@ static MYSQL * mysql_conn;
                                     default_service_type, \
                                     orch_id,  \
                                     exec_plan, \
-                                    web_hooks \
+                                    web_hooks, \
+                                    json_endpoint \
                               from servers  %s"
 
 
@@ -274,7 +275,8 @@ static MYSQL * mysql_conn;
                                     default_service_type, \
                                     orch_id, \
                                     exec_plan, \
-                                    web_hooks \
+                                    web_hooks, \
+                                    json_endpoint \
                                     ) \
                                 VALUES( \
                                     '%s', \
@@ -291,6 +293,7 @@ static MYSQL * mysql_conn;
                                     '%s', \
                                     '%d', \
                                     '%d', \
+                                    '%s', \
                                     '%s', \
                                     '%s' \
                                 )"
@@ -318,7 +321,8 @@ static MYSQL * mysql_conn;
                               default_service_type='%d', \
                               orch_id='%d', \
                               exec_plan='%s', \
-                              web_hooks='%s' \
+                              web_hooks='%s', \
+                              json_endpoint='%s' \
                             where \
                               server_id=%ld"
 
@@ -339,7 +343,8 @@ static MYSQL * mysql_conn;
                               default_service_type, \
                               orch_id, \
                               exec_plan, \
-                              web_hooks \
+                              web_hooks, \
+                              json_endpoint \
                           from  \
                               servers  \
                           where \
@@ -2479,6 +2484,11 @@ int GetServerById(int server_id, struct server * svc, char * config) {
           } else {
              sprintf(svc->web_hooks, " "); 
           }
+          if(row[16] != NULL) {
+            snprintf(svc->json_endpoint, 254, "%s", row[16]);
+          } else {
+             sprintf(svc->json_endpoint, " "); 
+          }
       		if(row[8] != NULL) {
       			sprintf(svc->server_ssh_keyfile, "%s", row[8]);
       		} else {
@@ -2551,7 +2561,7 @@ int ModifyServer(struct server * svc, char *config) {
       		CHK_ERR(mysql,NULL);
 	
 	
-	CHECKED_ASPRINTF(&sqlupd, UPDATE_SERVER, svc->server_name, svc->client_ip, svc->client_port,svc->server_icon,svc->server_enabled, svc->server_notify, svc->server_flap_seconds,svc->server_dead,svc->server_ssh_keyfile, svc->server_ssh_passphrase, svc->server_ssh_username,svc->enabled_triggers, svc->default_service_type,svc->orch_id, svc->exec_plan,svc->web_hooks, svc->server_id);
+	CHECKED_ASPRINTF(&sqlupd, UPDATE_SERVER, svc->server_name, svc->client_ip, svc->client_port,svc->server_icon,svc->server_enabled, svc->server_notify, svc->server_flap_seconds,svc->server_dead,svc->server_ssh_keyfile, svc->server_ssh_passphrase, svc->server_ssh_username,svc->enabled_triggers, svc->default_service_type,svc->orch_id, svc->exec_plan,svc->web_hooks,svc->json_endpoint, svc->server_id);
 	
 	//Log("dbg", sqlupd);
 	
@@ -2665,7 +2675,7 @@ int AddServer(struct server * svc, char *config) {
       		CHK_ERR(mysql,NULL);
 	
 	
-	CHECKED_ASPRINTF(&sqlupd, ADD_SERVER, svc->server_name, svc->client_ip, svc->client_port, svc->server_icon, svc->server_enabled, svc->server_notify, svc->server_flap_seconds, svc->server_dead, svc->server_ssh_keyfile, svc->server_ssh_passphrase, svc->server_ssh_username, svc->enabled_triggers, svc->default_service_type, svc->orch_id, svc->exec_plan, svc->web_hooks);
+	CHECKED_ASPRINTF(&sqlupd, ADD_SERVER, svc->server_name, svc->client_ip, svc->client_port, svc->server_icon, svc->server_enabled, svc->server_notify, svc->server_flap_seconds, svc->server_dead, svc->server_ssh_keyfile, svc->server_ssh_passphrase, svc->server_ssh_username, svc->enabled_triggers, svc->default_service_type, svc->orch_id, svc->exec_plan, svc->web_hooks, svc->json_endpoint);
 	
 
 	//Log("dbg", sqlupd);
@@ -3357,6 +3367,12 @@ int GetServerMap(struct server * srv, char * config, int orch_id) {
             } else {
               sprintf(srv[i].web_hooks, " "); 
             }
+            if(row[17] != NULL) {
+              snprintf(srv[i].json_endpoint, 254, "%s", row[17]);
+            } else {
+              sprintf(srv[i].json_endpoint, " "); 
+            }
+
 
       			srv[i].is_gone=0;     			
       			i++;
