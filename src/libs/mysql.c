@@ -149,7 +149,7 @@ static MYSQL * mysql_conn;
 
                             
 
-
+#define TRAP_UPDATE_INFO "update traps set trap_last_match = %d, trap_last_data='%s' where trap_id=%ld"
 #define TRAP_CHANGE_ID "update traps set trap_id=%d where trap_id=%d"
 ///TRAPS;
 
@@ -169,7 +169,8 @@ static MYSQL * mysql_conn;
                                     enabled_triggers, \
                                     default_service_type, \
                                     orch_id,  \
-                                    exec_plan \
+                                    exec_plan, \
+                                    web_hooks \
                               from servers  %s"
 
 
@@ -272,7 +273,8 @@ static MYSQL * mysql_conn;
                                     enabled_triggers, \
                                     default_service_type, \
                                     orch_id, \
-                                    exec_plan \
+                                    exec_plan, \
+                                    web_hooks \
                                     ) \
                                 VALUES( \
                                     '%s', \
@@ -289,6 +291,7 @@ static MYSQL * mysql_conn;
                                     '%s', \
                                     '%d', \
                                     '%d', \
+                                    '%s', \
                                     '%s' \
                                 )"
 
@@ -314,7 +317,8 @@ static MYSQL * mysql_conn;
                               enabled_triggers='%s', \
                               default_service_type='%d', \
                               orch_id='%d', \
-                              exec_plan='%s' \
+                              exec_plan='%s', \
+                              web_hooks='%s' \
                             where \
                               server_id=%ld"
 
@@ -334,7 +338,8 @@ static MYSQL * mysql_conn;
                               enabled_triggers, \
                               default_service_type, \
                               orch_id, \
-                              exec_plan \
+                              exec_plan, \
+                              web_hooks \
                           from  \
                               servers  \
                           where \
@@ -2469,7 +2474,11 @@ int GetServerById(int server_id, struct server * svc, char * config) {
           } else {
              sprintf(svc->exec_plan, " "); 
           }
-
+          if(row[15] != NULL) {
+            snprintf(svc->web_hooks, 1023, "%s", row[15]);
+          } else {
+             sprintf(svc->web_hooks, " "); 
+          }
       		if(row[8] != NULL) {
       			sprintf(svc->server_ssh_keyfile, "%s", row[8]);
       		} else {
@@ -2542,7 +2551,7 @@ int ModifyServer(struct server * svc, char *config) {
       		CHK_ERR(mysql,NULL);
 	
 	
-	CHECKED_ASPRINTF(&sqlupd, UPDATE_SERVER, svc->server_name, svc->client_ip, svc->client_port,svc->server_icon,svc->server_enabled, svc->server_notify, svc->server_flap_seconds,svc->server_dead,svc->server_ssh_keyfile, svc->server_ssh_passphrase, svc->server_ssh_username,svc->enabled_triggers, svc->default_service_type,svc->orch_id, svc->exec_plan, svc->server_id);
+	CHECKED_ASPRINTF(&sqlupd, UPDATE_SERVER, svc->server_name, svc->client_ip, svc->client_port,svc->server_icon,svc->server_enabled, svc->server_notify, svc->server_flap_seconds,svc->server_dead,svc->server_ssh_keyfile, svc->server_ssh_passphrase, svc->server_ssh_username,svc->enabled_triggers, svc->default_service_type,svc->orch_id, svc->exec_plan,svc->web_hooks, svc->server_id);
 	
 	//Log("dbg", sqlupd);
 	
@@ -2656,7 +2665,7 @@ int AddServer(struct server * svc, char *config) {
       		CHK_ERR(mysql,NULL);
 	
 	
-	CHECKED_ASPRINTF(&sqlupd, ADD_SERVER, svc->server_name, svc->client_ip, svc->client_port, svc->server_icon, svc->server_enabled, svc->server_notify, svc->server_flap_seconds, svc->server_dead, svc->server_ssh_keyfile, svc->server_ssh_passphrase, svc->server_ssh_username, svc->enabled_triggers, svc->default_service_type, svc->orch_id, svc->exec_plan);
+	CHECKED_ASPRINTF(&sqlupd, ADD_SERVER, svc->server_name, svc->client_ip, svc->client_port, svc->server_icon, svc->server_enabled, svc->server_notify, svc->server_flap_seconds, svc->server_dead, svc->server_ssh_keyfile, svc->server_ssh_passphrase, svc->server_ssh_username, svc->enabled_triggers, svc->default_service_type, svc->orch_id, svc->exec_plan, svc->web_hooks);
 	
 
 	//Log("dbg", sqlupd);
@@ -2692,6 +2701,49 @@ char * GetVersion() {
 	CHECKED_ASPRINTF(&vers, "%s on %s", DLVERSION, MYSQL_SERVER_VERSION);
 	return vers;
 }
+
+
+
+int doUpdateTrap(struct trap * svc, char * config) {
+
+        MYSQL *mysql;
+
+        char * sqlupd;
+
+        
+        char * mysql_host = getConfigValue("mysql_host", config);
+        char * mysql_user = getConfigValue("mysql_user", config);
+        char * mysql_pw = getConfigValue("mysql_pw", config);
+        char * mysql_db = getConfigValue("mysql_db", config);
+
+        mysql=mysql_init(NULL);
+                CHK_ERR(mysql,NULL);
+        mysql=mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
+                CHK_ERR(mysql,NULL);
+        mysql_select_db(mysql, mysql_db);
+                CHK_ERR(mysql,NULL);
+
+        
+
+        CHECKED_ASPRINTF(&sqlupd, TRAP_UPDATE_INFO, svc->trap_last_match, svc->trap_last_data, svc->trap_id);
+
+
+        mysql_query(mysql, sqlupd);
+                CHK_ERR(mysql,NULL);
+
+
+        free(sqlupd);
+
+        mysql_close(mysql);
+
+        free(mysql_host);
+        free(mysql_user);
+        free(mysql_pw);
+        free(mysql_db);
+        return 1;
+
+}
+
 
 //doUpdateServer
 //
@@ -3300,7 +3352,11 @@ int GetServerMap(struct server * srv, char * config, int orch_id) {
             } else {
               sprintf(srv[i].exec_plan, " "); 
             }
-
+            if(row[16] != NULL) {
+              snprintf(srv[i].web_hooks, 1023, "%s", row[16]);
+            } else {
+              sprintf(srv[i].web_hooks, " "); 
+            }
 
       			srv[i].is_gone=0;     			
       			i++;
@@ -4174,7 +4230,7 @@ int AddTrap(struct trap * svc, char *config) {
                             svc->trap_fixed_status,
                             svc->trap_prio,
                             svc->trap_is_final,
-                            svc->orch_id
+                            svc->orch_id                            
   );
   
   //debugStr(sqlupd);
@@ -4403,6 +4459,7 @@ int GetTrapById(long trap_id, struct trap * svc, char * config) {
           svc->trap_prio = atol(row[9]);
           svc->trap_is_final = atol(row[10]);
           svc->orch_id = atol(row[11]);
+    
           svc->service_shm_place=-2;
           tmprc=0;
         } else {
@@ -4499,11 +4556,15 @@ int GetTrapMap(struct trap * svcs, char * config, int orch_id) {
               } else {
                 sprintf(svcs[i].trap_status_critical, "(null)");          
               }
+            
+              sprintf(svcs[i].trap_last_data, " ");          
+            
               svcs[i].trap_service_id = atol(row[7]);
               svcs[i].trap_fixed_status = atol(row[8]);
               svcs[i].trap_prio = atol(row[9]);
               svcs[i].trap_is_final = atol(row[10]);
               svcs[i].orch_id = atol(row[11]);
+              svcs[i].trap_last_match = 0;
               svcs[i].service_shm_place=-2;
 
               svcs[i].matched=0;
