@@ -34,6 +34,9 @@ char config_file[255];
 char *remove_nl_copy(char *s) {
 	char * p;
 	int i;
+	if(s == NULL) {
+		s=strdup("");
+	}
 	p = strdup(s);
 	for (i=0 ; i<strlen(p) ; i++)
     		if (p[i]=='\n')
