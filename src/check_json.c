@@ -20,6 +20,18 @@ $Date$
 $Author$ 
 
 
+input is like 
+				{
+					"plugin": "bartlby_load",
+					"parameters": " -w 10 -c 20 -p"
+				}
+
+return data:
+				{
+					"output": "SOME OUTPUT",
+					"exit_code": 2‚
+				}
+
 
 */
 
