@@ -41,7 +41,7 @@ void bartlby_check_json(struct service * svc, char * cfgfile) {
 	json_payload = json_object_to_json_string(jso_out);
 
 	
-	http_out=bartlby_http_post_request(svc->srv->json_endpoint, (char *)json_payload, 5); 
+	http_out=bartlby_http_post_request(svc->srv->json_endpoint, (char *)json_payload, svc->service_check_timeout); 
 	json_object_put(jso_out);
 
 	
