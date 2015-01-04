@@ -322,6 +322,12 @@ void bartlby_check_service(struct service * svc, void * shm_addr, void * SOHandl
 		bartlby_fin_service(svc, SOHandle,shm_addr,cfgfile);
 		return;	
 	}
+	if(svc->service_type == SVC_TYPE_JSON) {
+		bartlby_check_json(svc,cfgfile);
+		bartlby_fin_service(svc,SOHandle,shm_addr,cfgfile);
+		
+		return;		
+	}	
 	if(svc->service_type == SVC_TYPE_ACTIVE) {
 		bartlby_check_active(svc,cfgfile);
 		bartlby_fin_service(svc,SOHandle,shm_addr,cfgfile);

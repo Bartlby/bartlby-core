@@ -72,6 +72,7 @@ struct http_output * bartlby_http_post_request(char *url, char *body, long timeo
 		bartlby_init_http_output(s);
 
 		curl_easy_setopt(curl, CURLOPT_URL, url);
+		curl_easy_setopt(curl, CURLOPT_POSTFIELDS, body);
 		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, bartlby_http_recv);
 		curl_easy_setopt(curl, CURLOPT_WRITEDATA, s);
 		curl_easy_setopt(curl, CURLOPT_TIMEOUT, timeout);

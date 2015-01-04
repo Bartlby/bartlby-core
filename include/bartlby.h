@@ -209,6 +209,8 @@ static char * log_levels[] = {"DEBUG", "INFO", "WARN", "CRIT", "HASTO"};
 #define SVC_TYPE_V2_NO_SSL 9
 #define SVC_TYPE_SSH 10
 #define SVC_TYPE_TRAP 11
+#define SVC_TYPE_JSON 12
+
 
 
 #define SVC_THRESHOLD 10
