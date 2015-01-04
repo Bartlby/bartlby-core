@@ -323,7 +323,28 @@ dnl Check for jsonc library.
         AC_MSG_ERROR([Unable to locate -ljson JSON support is required please install the libjson0-dev package])
   fi;
       
- 
+ dnl Check for libcurl library.
+
+  AC_MSG_CHECKING(for libcurl support)
+    AC_MSG_RESULT(yes)
+    AC_CHECK_LIB(curl,curl_easy_setopt,curl_lib_found=yes,curl_lib_found=no)
+    AC_CHECK_HEADER(curl/curl.h,curl_lib_found=yes,curl_lib_found=no)
+    
+    if test "$curl_lib_found" == "yes"; then
+    
+      CURL_ADDON="-DCURL_ADDON -I/usr/include/curl/"
+      CURL_FLAG="-lcurl "
+      CURL_LIBDIR="-L$CURL_DIR/include"
+      CURL_INCDIR=""
+      AC_SUBST(CURL_LIBDIR)
+      AC_SUBST(CURL_INCDIR)
+      AC_SUBST(CURL_ADDON)
+      AC_SUBST(CURL_FLAG)
+
+  else 
+        AC_MSG_ERROR([Unable to locate -lcurl CURL support is required please install the libcurl-dev package])
+  fi;
+      
 
 dnl Check for ssl library.
   enable_ssl=yes

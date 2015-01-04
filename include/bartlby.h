@@ -41,6 +41,7 @@
 #include <semaphore.h>
 #include <json.h>
 #include <regex.h>
+#include <curl/curl.h>
 
 
 /* Log Handles */
@@ -614,6 +615,15 @@ typedef struct port_packet_struct{
 	 
 } portier_packet;
 
+
+struct http_output {
+	char *ptr;
+	size_t len;
+	int curl_code;
+} iiiip;
+
+#define BARTLBY_HTTP_FINE CURLE_OK
+
 #define AGENT_V2_SENT_PACKET 1
 #define AGENT_V2_RETURN_PACKET 2
 
@@ -750,6 +760,9 @@ void bartlby_notification_log_add(struct shm_header * shmhdr, char * cfgfile, lo
 void bartlby_notification_log_aggregate(struct shm_header *shmdr, char * cfgfile);
 void bartlby_notification_log_debug(struct shm_header * shmhdr);
 
+/*** HTTP REQUEST STUFF **/
+struct http_output * bartlby_http_post_request(char *url, char *body, long timeout);
+void bartlby_free_http_output(struct http_output * s);
 
 /*** TRIGGER*/
 int bartlby_servicegroup_has_trigger(struct service * svc, char * trigger);
