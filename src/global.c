@@ -35,7 +35,7 @@ char *remove_nl_copy(char *s) {
 	char * p;
 	int i;
 	if(s == NULL) {
-		s=strdup("");
+		p=strdup("");
 	}
 	p = strdup(s);
 	for (i=0 ; i<strlen(p) ; i++)
