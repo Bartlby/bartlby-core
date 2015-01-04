@@ -49,7 +49,7 @@ void bartlby_check_json(struct service * svc, char * cfgfile) {
 		//_log(LH_MAIN, B_LOG_INFO,"HTTP RETURN DATA: %s", http_out->ptr);
 		jso_in=json_tokener_parse(http_out->ptr);
 		if(json_object_object_get_ex(jso_in, "output", &jso_output)) { 
-			snprintf(svc->new_server_text, 2047, json_object_get_string(jso_output));
+			snprintf(svc->new_server_text, 2047, "%s", json_object_get_string(jso_output));
 		} else {
 			snprintf(svc->new_server_text, 2047, "No Output specified");
 		}
