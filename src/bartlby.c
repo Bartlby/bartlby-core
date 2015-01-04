@@ -464,6 +464,19 @@ int bartlby_go(char * cfgfile) {
 
 	bartlby_notification_log_init(gshm_hdr);
 	
+	_log(LH_MAIN, B_LOG_CRIT,"DDD");
+	
+
+	struct http_output * http_out;
+	http_out=bartlby_http_post_request("http://jsonplaceholder.typicode.com/users", "{ass}", 5);
+
+
+	if(http_out->curl_code == BARTLBY_HTTP_FINE) {
+		_log(LH_MAIN, B_LOG_INFO,"HTTP RETURN DATA: %s", http_out->ptr);
+	} else {
+		_log(LH_MAIN, B_LOG_INFO,"HTTP RETURN CODE: %d error: %s", http_out->curl_code, curl_easy_strerror(http_out->curl_code));
+	}
+	bartlby_free_http_output(http_out);
 	
 	while(exi_code != 1) {
 		
@@ -521,6 +534,11 @@ int bartlby_go(char * cfgfile) {
 		
 	}
 	if(notification_log_hardcopy != NULL) free(notification_log_hardcopy);
+
+
+		
+
+
 	return 1;
 }
 
