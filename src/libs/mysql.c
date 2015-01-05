@@ -24,7 +24,9 @@ static MYSQL * mysql_conn;
 #define CHK_FREE_CRED if(mysql_user != NULL) { free(mysql_user); } \
 					   if(mysql_pw != NULL) { free(mysql_pw); } \
 					   if(mysql_host != NULL) { free(mysql_host); } \
-					   if(mysql_db != NULL) { free(mysql_db); }
+					   if(mysql_db != NULL) { free(mysql_db); } \
+             if(mysql != NULL) mysql_close(mysql); mysql_library_end(); \
+             bartlby_mysql_safe_free(bartlby_protection_bartlby_protection_buff_list_head);
 
 #define CHK_ERR(x, y) \
 		if (x != NULL) {\
@@ -904,9 +906,12 @@ int TestSQL(char * config, char * placeholder) {
 
 
   mysql=mysql_init(NULL);
+  
 BARTLBY_SQL_PROTECTION_INIT;
   mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
+  CHK_ERR(mysql,NULL);
   mysql_select_db(mysql, mysql_db);
+  CHK_ERR(mysql,NULL);
   
 
   
