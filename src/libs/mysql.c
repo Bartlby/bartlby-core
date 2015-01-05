@@ -21,12 +21,14 @@
 static int db_is_connected=0;
 static MYSQL * mysql_conn;
 
+#define BARTLBY_SQL_PROTECTION_FREE bartlby_mysql_safe_free(bartlby_protection_bartlby_protection_buff_list_head)
+
 #define CHK_FREE_CRED if(mysql_user != NULL) { free(mysql_user); } \
 					   if(mysql_pw != NULL) { free(mysql_pw); } \
 					   if(mysql_host != NULL) { free(mysql_host); } \
 					   if(mysql_db != NULL) { free(mysql_db); } \
-             if(mysql != NULL) mysql_close(mysql); mysql_library_end(); \
-             bartlby_mysql_safe_free(bartlby_protection_bartlby_protection_buff_list_head);
+             if(mysql != NULL) { mysql_close(mysql); mysql_library_end(); } \
+             BARTLBY_SQL_PROTECTION_FREE;
 
 #define CHK_ERR(x, y) \
 		if (x != NULL) {\
@@ -844,8 +846,6 @@ struct mysql_buffers_list {
 
 #define BARTLBY_SQL_PROTECTION(value) bartlby_mysql_safe(mysql, &bartlby_protection_buff_list, value)
                         
-#define BARTLBY_SQL_PROTECTION_FREE bartlby_mysql_safe_free(bartlby_protection_bartlby_protection_buff_list_head)
-
 
 #define BARTLBY_MYSQL_CLOSE(mysql) mysql_close(mysql); \
                                    mysql_library_end(); \
