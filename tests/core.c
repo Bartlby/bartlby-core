@@ -46,7 +46,7 @@ void test_core_sql(void *data) {
 
 
 	end:
-		//dlclose(SOHandle);
+		dlclose(SOHandle);
 		shmdt(bartlby_address);
 	;
 
