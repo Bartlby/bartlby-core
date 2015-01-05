@@ -47,7 +47,7 @@ bartlby_portier_LDFLAGS = -pthread -Wl,--no-as-needed -pthread
 bartlby_portier_CFLAGS = $(AM_CFLAGS) $(NRPE_ADDON) $(SSL_ADDON) $(SNMP_ADDON) $(SSH_ADDON) $(JSON_ADDON) $(CURL_ADDON) $(GIT_VERSION)
 
 lib_LTLIBRARIES = mysql.la
-nodist_mysql_la_SOURCES =  src/libs/mysql.c 
+nodist_mysql_la_SOURCES =  src/libs/mysql/traps.c src/libs/mysql/worker.c src/libs/mysql/server.c src/libs/mysql/service.c src/libs/mysql/downtime.c src/libs/mysql/servergroup.c src/libs/mysql/servicegroup.c src/libs/mysql/mysql.c 
 mysql_la_LIBADD = $(LIB_MYSQL)  
 mysql_la_LDFLAGS = -avoid-version -module -Wl,--export-dynamic  -Wl,--whole-archive,libbartlby.a,--no-whole-archive  
 mysql_la_CFLAGS = $(AM_CFLAGS)  $(NRPE_ADDON) $(OPENSSL_ADDON)  $(SNMP_ADDON) $(SSH_ADDON) $(JSON_ADDON) $(CURL_ADDON) $(GIT_VERSION) -g
