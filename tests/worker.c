@@ -95,7 +95,7 @@ void test_worker_stored(void *data) {
 	TT_DECLARE("INFO",("... get worker by id ", object_id));
 
 
-	rtc=DeleteWorker(rtc, CONFIG);
+	rtc=DeleteWorker(object_id, CONFIG);
 	tt_int_op(rtc, ==, 1);
 
 	TT_DECLARE("INFO",("... Delete Worker  ", object_id));
