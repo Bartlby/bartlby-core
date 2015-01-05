@@ -1,15 +1,8 @@
 #include "bartlby.h"
 
-
-#define CONFIG "/opt/bartlby/etc/bartlby.cfg"
-
-
-#define LOAD_SYMBOL_TEST(x,y,z) 	x=dlsym(y, z); \
-    	if((dlmsg=dlerror()) != NULL) { \
-        	printf("dl error: %s\n", dlmsg);	\
-			return 1;	\
-    	}
-
+#include "tinytest.h"
+#include "tinytest_macros.h"
+#include "bartlby_test.h"
 
 const char * dlmsg;
 void * bartlby_get_shm(char * cfgfile) {
@@ -53,26 +46,3 @@ void * bartlby_get_sohandle(char * cfgfile) {
     	free(data_lib);
     	return SOHandle;
 } 
-
-int main(int argc, char ** argv) {
-	void * SOHandle;
-	void * bartlby_address;
-	
-	int (*TestSQL)(char*,char*);
-
-	SOHandle = bartlby_get_sohandle(CONFIG);
-	bartlby_address=bartlby_get_shm(CONFIG);
-	
-
-	LOAD_SYMBOL_TEST(TestSQL,SOHandle, "TestSQL");
-
-	TestSQL(CONFIG,"asdasd'das'");
-
-	dlclose(SOHandle);
-
-
-
-}
-
-
-

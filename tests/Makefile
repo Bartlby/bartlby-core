@@ -1,3 +1,17 @@
+all: bartlby_test
 
-test-mysql-realescape: test-mysql-realescape.c
-	gcc -g -o test-mysql-realescape test-mysql-realescape.c ../libbartlby.a   -I../include/ -I/usr/include/curl -I/usr/include/json -ldl -ljson -lcurl
+.c.o:
+	gcc -I../include/ -I/usr/include/curl -I/usr/include/json   -g -O2 -c $<
+
+tinytest.o: tinytest.h
+
+OBJS=tinytest.o bartlby_test.o global.o worker.o
+
+bartlby_test: $(OBJS)
+	gcc -ldl -ljson -lcurl  -g -O2 $(OBJS) ../libbartlby.a  -o bartlby_test
+
+
+clean:
+	rm -f *.o *~ bartlby_test
+
+
