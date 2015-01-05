@@ -846,7 +846,8 @@ struct mysql_buffers_list {
 
 
 #define BARTLBY_MYSQL_CLOSE(mysql) mysql_close(mysql); \
-                                   mysql_library_end();
+                                   mysql_library_end(); \
+                                   BARTLBY_SQL_PROTECTION_FREE;
 
 void bartlby_mysql_safe_init(struct mysql_buffers_list ** curr, struct mysql_buffers_list ** head) {
 
@@ -903,11 +904,12 @@ int TestSQL(char * config, char * placeholder) {
 
 
   mysql=mysql_init(NULL);
+BARTLBY_SQL_PROTECTION_INIT;
   mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
   mysql_select_db(mysql, mysql_db);
   
 
-  BARTLBY_SQL_PROTECTION_INIT;
+  
 
 
   CHECKED_ASPRINTF(&sql, TEST_SQL, 
@@ -915,7 +917,7 @@ int TestSQL(char * config, char * placeholder) {
     BARTLBY_SQL_PROTECTION(placeholder)
   );
 
-  BARTLBY_SQL_PROTECTION_FREE;
+
 
   printf("SQL: @%s@\n", sql);
 
@@ -965,6 +967,7 @@ MYSQL * getDBConn(char * config) {
 
 
 			mysql=mysql_init(NULL);
+BARTLBY_SQL_PROTECTION_INIT;
 			CHK_ERR_NULL(mysql,NULL);
 			mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
 			CHK_ERR_NULL(mysql,NULL);
@@ -1012,6 +1015,7 @@ struct shm_counter * GetCounter(char * config) {
 
 
 	mysql=mysql_init(NULL);
+BARTLBY_SQL_PROTECTION_INIT;
 	CHK_ERR_NULL(mysql,shmc);
 	mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
 	CHK_ERR_NULL(mysql,shmc);
@@ -1196,6 +1200,7 @@ int UpdateDowntime(struct downtime * svc, char *config) {
 	char * mysql_db = getConfigValue("mysql_db", config);
 
 	mysql=mysql_init(NULL);
+BARTLBY_SQL_PROTECTION_INIT;
 		CHK_ERR(mysql,NULL);
 	mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
 		CHK_ERR(mysql,NULL);
@@ -1204,7 +1209,14 @@ int UpdateDowntime(struct downtime * svc, char *config) {
 	
 	
 	
-	CHECKED_ASPRINTF(&sqlupd, UPDATE_DOWNTIME, svc->downtime_notice, svc->downtime_from, svc->downtime_to, svc->service_id, svc->downtime_type,svc->orch_id, svc->downtime_id);
+	CHECKED_ASPRINTF(&sqlupd, UPDATE_DOWNTIME, 
+                    BARTLBY_SQL_PROTECTION(svc->downtime_notice),
+                    svc->downtime_from,
+                    svc->downtime_to,
+                    svc->service_id,
+                    svc->downtime_type,
+                    svc->orch_id,
+                    svc->downtime_id);
 	
 	
 	
@@ -1239,6 +1251,7 @@ int DeleteDowntime(int downtime_id, char * config) {
 	char * mysql_db = getConfigValue("mysql_db", config);
 
 	mysql=mysql_init(NULL);
+BARTLBY_SQL_PROTECTION_INIT;
 		CHK_ERR(mysql,NULL);
 	mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
 		CHK_ERR(mysql,NULL);
@@ -1283,6 +1296,7 @@ int DowntimeChangeId(int from, int to, char * config) {
 	char * mysql_db = getConfigValue("mysql_db", config);
 
 	mysql=mysql_init(NULL);
+BARTLBY_SQL_PROTECTION_INIT;
 		CHK_ERR(mysql,NULL);
 	mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
 		CHK_ERR(mysql,NULL);
@@ -1323,6 +1337,7 @@ int WorkerChangeId(int from, int to, char * config) {
 	char * mysql_db = getConfigValue("mysql_db", config);
 
 	mysql=mysql_init(NULL);
+BARTLBY_SQL_PROTECTION_INIT;
 		CHK_ERR(mysql,NULL);
 	mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
 		CHK_ERR(mysql,NULL);
@@ -1363,6 +1378,7 @@ int ServiceChangeId(int from, int to, char * config) {
 	char * mysql_db = getConfigValue("mysql_db", config);
 
 	mysql=mysql_init(NULL);
+BARTLBY_SQL_PROTECTION_INIT;
 		CHK_ERR(mysql,NULL);
 	mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
 		CHK_ERR(mysql,NULL);
@@ -1403,6 +1419,7 @@ int ServerChangeId(int from, int to, int sr, char * config) {
 	char * mysql_db = getConfigValue("mysql_db", config);
 
 	mysql=mysql_init(NULL);
+BARTLBY_SQL_PROTECTION_INIT;
 		CHK_ERR(mysql,NULL);
 	mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
 		CHK_ERR(mysql,NULL);
@@ -1453,6 +1470,7 @@ int AddDowntime(struct downtime * svc, char *config) {
 	char * mysql_db = getConfigValue("mysql_db", config);
 
 	mysql=mysql_init(NULL);
+BARTLBY_SQL_PROTECTION_INIT;
 		CHK_ERR(mysql,NULL);
 	mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
 		CHK_ERR(mysql,NULL);
@@ -1461,7 +1479,14 @@ int AddDowntime(struct downtime * svc, char *config) {
 	
 	
 	
-	CHECKED_ASPRINTF(&sqlupd, ADD_DOWNTIME, svc->downtime_type, svc->downtime_from, svc->downtime_to, svc->service_id,svc->downtime_notice, svc->orch_id);
+	CHECKED_ASPRINTF(&sqlupd, ADD_DOWNTIME, 
+                            svc->downtime_type,
+                            svc->downtime_from,
+                            svc->downtime_to,
+                            svc->service_id,
+                            BARTLBY_SQL_PROTECTION(svc->downtime_notice),
+                            svc->orch_id
+                            );
 	
 	
 	
@@ -1500,6 +1525,7 @@ int GetDowntimeById(long downtime_id, struct downtime * svcs, char * config) {
 
  
   mysql=mysql_init(NULL);
+BARTLBY_SQL_PROTECTION_INIT;
     CHK_ERR(mysql,NULL);
   mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
     CHK_ERR(mysql,NULL);
@@ -1603,6 +1629,7 @@ int GetDowntimeMap(struct downtime * svcs, char * config, int orch_id) {
 
 	set_cfg(config);
 	mysql=mysql_init(NULL);
+BARTLBY_SQL_PROTECTION_INIT;
 		CHK_ERR(mysql,NULL);
 	mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
 		CHK_ERR(mysql,NULL);
@@ -1732,6 +1759,7 @@ int GetWorkerById(int worker_id, struct worker * svc, char * config) {
 	
 	
 	mysql=mysql_init(NULL);
+BARTLBY_SQL_PROTECTION_INIT;
 		CHK_ERR(mysql,NULL);
 	mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
 		CHK_ERR(mysql,NULL);
@@ -1882,6 +1910,7 @@ int UpdateWorker(struct worker * svc, char *config) {
 	char * mysql_db = getConfigValue("mysql_db", config);
 
 	mysql=mysql_init(NULL);
+BARTLBY_SQL_PROTECTION_INIT;
 		CHK_ERR(mysql,NULL);
 	mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
 		CHK_ERR(mysql,NULL);
@@ -1890,7 +1919,29 @@ int UpdateWorker(struct worker * svc, char *config) {
 	
 	
 	
-	CHECKED_ASPRINTF(&sqlupd, UPDATE_WORKER, svc->mail, svc->icq, svc->notify_levels, svc->active, svc->name,svc->password,svc->enabled_triggers,svc->escalation_limit, svc->escalation_minutes, svc->notify_plan,svc->visible_services, svc->visible_servers, svc->selected_services, svc->selected_servers, svc->is_super_user, svc->notification_aggregation_interval, svc->orch_id,svc->api_pubkey, svc->api_privkey,svc->api_enabled,  svc->worker_id);
+	CHECKED_ASPRINTF(&sqlupd, UPDATE_WORKER, 
+                                  BARTLBY_SQL_PROTECTION(svc->mail),
+                                  BARTLBY_SQL_PROTECTION(svc->icq),
+                                  BARTLBY_SQL_PROTECTION(svc->notify_levels),
+                                  svc->active,
+                                  BARTLBY_SQL_PROTECTION(svc->name),
+                                  BARTLBY_SQL_PROTECTION(svc->password),
+                                  BARTLBY_SQL_PROTECTION(svc->enabled_triggers),
+                                  svc->escalation_limit,
+                                  svc->escalation_minutes,
+                                  BARTLBY_SQL_PROTECTION(svc->notify_plan),
+                                  BARTLBY_SQL_PROTECTION(svc->visible_services),
+                                  BARTLBY_SQL_PROTECTION(svc->visible_servers),
+                                  BARTLBY_SQL_PROTECTION(svc->selected_services),
+                                  BARTLBY_SQL_PROTECTION(svc->selected_servers),
+                                  svc->is_super_user,
+                                  svc->notification_aggregation_interval,
+                                  svc->orch_id,
+                                  BARTLBY_SQL_PROTECTION(svc->api_pubkey),
+                                  BARTLBY_SQL_PROTECTION(svc->api_privkey),
+                                  svc->api_enabled,
+                                  svc->worker_id
+                                  );
 	
 	
 	
@@ -1930,6 +1981,7 @@ int DeleteWorker(int worker_id, char * config) {
 	char * mysql_db = getConfigValue("mysql_db", config);
 
 	mysql=mysql_init(NULL);
+BARTLBY_SQL_PROTECTION_INIT;
 		CHK_ERR(mysql,NULL);
 	mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
 		CHK_ERR(mysql,NULL);
@@ -1980,6 +2032,7 @@ int AddWorker(struct worker * svc, char *config) {
 	char * mysql_db = getConfigValue("mysql_db", config);
 
 	mysql=mysql_init(NULL);
+BARTLBY_SQL_PROTECTION_INIT;
 		CHK_ERR(mysql,NULL);
 	mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
 		CHK_ERR(mysql,NULL);
@@ -1988,7 +2041,28 @@ int AddWorker(struct worker * svc, char *config) {
 	
 	
 	
-	CHECKED_ASPRINTF(&sqlupd, ADD_WORKER, svc->mail, svc->icq, svc->notify_levels, svc->active, svc->name, svc->password, svc->enabled_triggers, svc->escalation_limit, svc->escalation_minutes, svc->notify_plan, svc->visible_services, svc->visible_servers, svc->selected_servers, svc->selected_services, svc->is_super_user, svc->notification_aggregation_interval, svc->orch_id, svc->api_pubkey, svc->api_privkey, svc->api_enabled);
+	CHECKED_ASPRINTF(&sqlupd, ADD_WORKER,
+                                  BARTLBY_SQL_PROTECTION(svc->mail),
+                                  BARTLBY_SQL_PROTECTION(svc->icq),
+                                  BARTLBY_SQL_PROTECTION(svc->notify_levels),
+                                  svc->active,
+                                  BARTLBY_SQL_PROTECTION(svc->name),
+                                  BARTLBY_SQL_PROTECTION(svc->password),
+                                  BARTLBY_SQL_PROTECTION(svc->enabled_triggers),
+                                  svc->escalation_limit,
+                                  svc->escalation_minutes,
+                                  BARTLBY_SQL_PROTECTION(svc->notify_plan),
+                                  BARTLBY_SQL_PROTECTION(svc->visible_services),
+                                  BARTLBY_SQL_PROTECTION(svc->visible_servers),
+                                  BARTLBY_SQL_PROTECTION(svc->selected_servers),
+                                  BARTLBY_SQL_PROTECTION(svc->selected_services),
+                                  svc->is_super_user,
+                                  svc->notification_aggregation_interval,
+                                  svc->orch_id,
+                                  BARTLBY_SQL_PROTECTION(svc->api_pubkey),
+                                  BARTLBY_SQL_PROTECTION(svc->api_privkey),
+                                  svc->api_enabled
+                                  );
 	
 	
 	
@@ -2032,6 +2106,7 @@ int GetServiceById(int service_id, struct service * svc, char * config) {
 	
 	
 	mysql=mysql_init(NULL);
+BARTLBY_SQL_PROTECTION_INIT;
 		CHK_ERR(mysql,NULL);
 	mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
 		CHK_ERR(mysql,NULL);
@@ -2231,6 +2306,7 @@ int UpdateServiceInterval(struct service * svc, char * config) {
 	char * mysql_db = getConfigValue("mysql_db", config);
 
 	mysql=mysql_init(NULL);
+BARTLBY_SQL_PROTECTION_INIT;
 		CHK_ERR(mysql,NULL);
 	mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
 		CHK_ERR(mysql,NULL);
@@ -2279,6 +2355,7 @@ int UpdateService(struct service * svc, char *config) {
 	char * mysql_db = getConfigValue("mysql_db", config);
 
 	mysql=mysql_init(NULL);
+BARTLBY_SQL_PROTECTION_INIT;
 		CHK_ERR(mysql,NULL);
 	mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
 		CHK_ERR(mysql,NULL);
@@ -2305,41 +2382,41 @@ int UpdateService(struct service * svc, char *config) {
 	 */
 	 
 	CHECKED_ASPRINTF(&sqlupd, UPDATE_SERVICE, 
-	svc->service_type, 
-	svc->service_name, 
-	svc->server_id,
-	svc->check_interval,
-	svc->plugin,
-	svc->plugin_arguments,
-	svc->service_passive_timeout,
-	svc->service_var,
-	svc->service_check_timeout,
-	svc->service_ack_enabled,
-	svc->service_retain,
-	svc->snmp_info.community,
-	svc->snmp_info.objid,
-	svc->snmp_info.version,
-	svc->snmp_info.warn,
-	svc->snmp_info.crit,
-	svc->snmp_info.type,
-	svc->notify_enabled,
-	svc->service_active,	
-	svc->flap_seconds,
-	svc->service_exec_plan,
-	svc->renotify_interval,
-  svc->escalate_divisor,
-  svc->fires_events,
-  svc->enabled_triggers,
-  svc->snmp_info.textmatch,
-  svc->handled,
-  svc->orch_id,
-  svc->usid,
-  svc->prio,
-  svc->notify_super_users,
-	svc->service_id
-	
-	
-	);
+                                	svc->service_type, 
+                                	BARTLBY_SQL_PROTECTION(svc->service_name), 
+                                	svc->server_id,
+                                	svc->check_interval,
+                                	BARTLBY_SQL_PROTECTION(svc->plugin),
+                                	BARTLBY_SQL_PROTECTION(svc->plugin_arguments),
+                                	svc->service_passive_timeout,
+                                	BARTLBY_SQL_PROTECTION(svc->service_var),
+                                	svc->service_check_timeout,
+                                	svc->service_ack_enabled,
+                                	svc->service_retain,
+                                	BARTLBY_SQL_PROTECTION(svc->snmp_info.community),
+                                	BARTLBY_SQL_PROTECTION(svc->snmp_info.objid),
+                                	svc->snmp_info.version,
+                                	svc->snmp_info.warn,
+                                	svc->snmp_info.crit,
+                                	svc->snmp_info.type,
+                                	svc->notify_enabled,
+                                	svc->service_active,	
+                                	svc->flap_seconds,
+                                	BARTLBY_SQL_PROTECTION(svc->service_exec_plan),
+                                	svc->renotify_interval,
+                                  svc->escalate_divisor,
+                                  svc->fires_events,
+                                  BARTLBY_SQL_PROTECTION(svc->enabled_triggers),
+                                  BARTLBY_SQL_PROTECTION(svc->snmp_info.textmatch),
+                                  svc->handled,
+                                  svc->orch_id,
+                                  BARTLBY_SQL_PROTECTION(svc->usid),
+                                  svc->prio,
+                                  svc->notify_super_users,
+                                	svc->service_id
+                                	
+                                	
+                                	);
 	
 	//Log("dbg", sqlupd);
 
@@ -2379,6 +2456,7 @@ int DeleteService(int service_id, char * config) {
 	char * mysql_db = getConfigValue("mysql_db", config);
 
 	mysql=mysql_init(NULL);
+BARTLBY_SQL_PROTECTION_INIT;
 		CHK_ERR(mysql,NULL);
 	mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
 		CHK_ERR(mysql,NULL);
@@ -2433,6 +2511,7 @@ int AddService(struct service * svc, char *config) {
 	
 	
 	mysql=mysql_init(NULL);
+BARTLBY_SQL_PROTECTION_INIT;
 		CHK_ERR(mysql,NULL);
 	mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
 		CHK_ERR(mysql,NULL);
@@ -2469,38 +2548,38 @@ int AddService(struct service * svc, char *config) {
 	
 	
 	CHECKED_ASPRINTF(&sqlupd, ADD_SERVICE, 
-	svc->server_id, 
-	svc->plugin, 
-	svc->service_name,
-	svc->plugin_arguments,
-	svc->notify_enabled,
-	svc->service_active,
-	svc->check_interval,
-	svc->service_type,
-	svc->service_var,
-	svc->service_passive_timeout,
-	svc->service_check_timeout,
-	svc->service_ack_enabled,
-	svc->service_retain,
-	svc->snmp_info.community,
-	svc->snmp_info.objid,
-	svc->snmp_info.version,
-	svc->snmp_info.warn,
-	svc->snmp_info.crit,
-	svc->snmp_info.type,
-	svc->flap_seconds,
-	svc->service_exec_plan,
-	svc->renotify_interval,
-  svc->escalate_divisor,
-  svc->fires_events,
-  svc->enabled_triggers,
-  svc->snmp_info.textmatch,
-  svc->orch_id,
-  svc->usid,
-  svc->prio,
-  svc->notify_super_users
-	);
-	
+                            	svc->server_id, 
+                            	BARTLBY_SQL_PROTECTION(svc->plugin), 
+                            	BARTLBY_SQL_PROTECTION(svc->service_name),
+                            	BARTLBY_SQL_PROTECTION(svc->plugin_arguments),
+                            	svc->notify_enabled,
+                            	svc->service_active,
+                            	svc->check_interval,
+                            	svc->service_type,
+                            	BARTLBY_SQL_PROTECTION(svc->service_var),
+                            	svc->service_passive_timeout,
+                            	svc->service_check_timeout,
+                            	svc->service_ack_enabled,
+                            	svc->service_retain,
+                            	BARTLBY_SQL_PROTECTION(svc->snmp_info.community),
+                            	BARTLBY_SQL_PROTECTION(svc->snmp_info.objid),
+                            	svc->snmp_info.version,
+                            	svc->snmp_info.warn,
+                            	svc->snmp_info.crit,
+                            	svc->snmp_info.type,
+                            	svc->flap_seconds,
+                            	BARTLBY_SQL_PROTECTION(svc->service_exec_plan),
+                            	svc->renotify_interval,
+                              svc->escalate_divisor,
+                              svc->fires_events,
+                              BARTLBY_SQL_PROTECTION(svc->enabled_triggers),
+                              BARTLBY_SQL_PROTECTION(svc->snmp_info.textmatch),
+                              svc->orch_id,
+                              BARTLBY_SQL_PROTECTION(svc->usid),
+                              svc->prio,
+                              svc->notify_super_users
+                            	);
+                            	
 	//Log("dbg", sqlupd);
 	
 	
@@ -2542,6 +2621,7 @@ int GetServerById(int server_id, struct server * svc, char * config) {
 	
 	
 	mysql=mysql_init(NULL);
+BARTLBY_SQL_PROTECTION_INIT;
 		CHK_ERR(mysql,NULL);
 	mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
 		CHK_ERR(mysql,NULL);
@@ -2670,6 +2750,7 @@ int ModifyServer(struct server * svc, char *config) {
 	//service_mysql_safe(svc);
 
 	mysql=mysql_init(NULL);
+BARTLBY_SQL_PROTECTION_INIT;
 		CHK_ERR(mysql,NULL);
 	mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
 		CHK_ERR(mysql,NULL);
@@ -2677,7 +2758,27 @@ int ModifyServer(struct server * svc, char *config) {
       		CHK_ERR(mysql,NULL);
 	
 	
-	CHECKED_ASPRINTF(&sqlupd, UPDATE_SERVER, svc->server_name, svc->client_ip, svc->client_port,svc->server_icon,svc->server_enabled, svc->server_notify, svc->server_flap_seconds,svc->server_dead,svc->server_ssh_keyfile, svc->server_ssh_passphrase, svc->server_ssh_username,svc->enabled_triggers, svc->default_service_type,svc->orch_id, svc->exec_plan,svc->web_hooks,svc->json_endpoint,svc->web_hooks_level, svc->server_id);
+	CHECKED_ASPRINTF(&sqlupd, UPDATE_SERVER,
+                                  BARTLBY_SQL_PROTECTION(svc->server_name),
+                                  BARTLBY_SQL_PROTECTION(svc->client_ip),
+                                  svc->client_port,
+                                  BARTLBY_SQL_PROTECTION(svc->server_icon),
+                                  svc->server_enabled,
+                                  svc->server_notify,
+                                  svc->server_flap_seconds,
+                                  svc->server_dead,
+                                  BARTLBY_SQL_PROTECTION(svc->server_ssh_keyfile),
+                                  BARTLBY_SQL_PROTECTION(svc->server_ssh_passphrase),
+                                  BARTLBY_SQL_PROTECTION(svc->server_ssh_username),
+                                  BARTLBY_SQL_PROTECTION(svc->enabled_triggers),
+                                  svc->default_service_type,
+                                  svc->orch_id,
+                                  BARTLBY_SQL_PROTECTION(svc->exec_plan),
+                                  BARTLBY_SQL_PROTECTION(svc->web_hooks),
+                                  BARTLBY_SQL_PROTECTION(svc->json_endpoint),
+                                  svc->web_hooks_level,
+                                  svc->server_id
+                                  );
 	
 	//Log("dbg", sqlupd);
 	
@@ -2727,6 +2828,7 @@ int DeleteServer(int server_id, char * config) {
 	char * mysql_db = getConfigValue("mysql_db", config);
 
 	mysql=mysql_init(NULL);
+BARTLBY_SQL_PROTECTION_INIT;
 		CHK_ERR(mysql,NULL);
 	mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
 		CHK_ERR(mysql,NULL);
@@ -2784,6 +2886,7 @@ int AddServer(struct server * svc, char *config) {
 	char * mysql_db = getConfigValue("mysql_db", config);
 
 	mysql=mysql_init(NULL);
+BARTLBY_SQL_PROTECTION_INIT;
 		CHK_ERR(mysql,NULL);
 	mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
 		CHK_ERR(mysql,NULL);
@@ -2791,7 +2894,26 @@ int AddServer(struct server * svc, char *config) {
       		CHK_ERR(mysql,NULL);
 	
 	
-	CHECKED_ASPRINTF(&sqlupd, ADD_SERVER, svc->server_name, svc->client_ip, svc->client_port, svc->server_icon, svc->server_enabled, svc->server_notify, svc->server_flap_seconds, svc->server_dead, svc->server_ssh_keyfile, svc->server_ssh_passphrase, svc->server_ssh_username, svc->enabled_triggers, svc->default_service_type, svc->orch_id, svc->exec_plan, svc->web_hooks, svc->json_endpoint, svc->web_hooks_level);
+	CHECKED_ASPRINTF(&sqlupd, ADD_SERVER,
+                            BARTLBY_SQL_PROTECTION(svc->server_name),
+                            BARTLBY_SQL_PROTECTION(svc->client_ip),
+                            svc->client_port,
+                            BARTLBY_SQL_PROTECTION(svc->server_icon),
+                            svc->server_enabled,
+                            svc->server_notify,
+                            svc->server_flap_seconds,
+                            svc->server_dead,
+                            BARTLBY_SQL_PROTECTION(svc->server_ssh_keyfile),
+                            BARTLBY_SQL_PROTECTION(svc->server_ssh_passphrase),
+                            BARTLBY_SQL_PROTECTION(svc->server_ssh_username),
+                            BARTLBY_SQL_PROTECTION(svc->enabled_triggers),
+                            svc->default_service_type,
+                            svc->orch_id,
+                            BARTLBY_SQL_PROTECTION(svc->exec_plan),
+                            BARTLBY_SQL_PROTECTION(svc->web_hooks),
+                            BARTLBY_SQL_PROTECTION(svc->json_endpoint),
+                            svc->web_hooks_level
+                            );
 	
 
 	//Log("dbg", sqlupd);
@@ -2843,6 +2965,7 @@ int doUpdateTrap(struct trap * svc, char * config) {
         char * mysql_db = getConfigValue("mysql_db", config);
 
         mysql=mysql_init(NULL);
+BARTLBY_SQL_PROTECTION_INIT;
                 CHK_ERR(mysql,NULL);
         mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
                 CHK_ERR(mysql,NULL);
@@ -2851,7 +2974,11 @@ int doUpdateTrap(struct trap * svc, char * config) {
 
         
 
-        CHECKED_ASPRINTF(&sqlupd, TRAP_UPDATE_INFO, svc->trap_last_match, svc->trap_last_data, svc->trap_id);
+        CHECKED_ASPRINTF(&sqlupd, TRAP_UPDATE_INFO, 
+                                            svc->trap_last_match,
+                                            BARTLBY_SQL_PROTECTION(svc->trap_last_data),
+                                            svc->trap_id
+                                            );
 
 
         mysql_query(mysql, sqlupd);
@@ -2887,6 +3014,7 @@ int doUpdateServer(struct server * svc, char * config) {
         char * mysql_db = getConfigValue("mysql_db", config);
 
         mysql=mysql_init(NULL);
+BARTLBY_SQL_PROTECTION_INIT;
                 CHK_ERR(mysql,NULL);
         mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
                 CHK_ERR(mysql,NULL);
@@ -2930,6 +3058,7 @@ int doUpdate(struct service * svc, char * config) {
 	char * mysql_db = getConfigValue("mysql_db", config);
 
 	mysql=mysql_init(NULL);
+BARTLBY_SQL_PROTECTION_INIT;
 		CHK_ERR(mysql,NULL);
 	mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
 		CHK_ERR(mysql,NULL);
@@ -2941,7 +3070,17 @@ int doUpdate(struct service * svc, char * config) {
 	service_mysql_safe(svc);
 	
 	
-	CHECKED_ASPRINTF(&sqlupd, SERVICE_UPDATE_TEXT, svc->last_check, svc->new_server_text, svc->current_state, svc->last_notify_send, svc->last_state_change, svc->service_ack_current,svc->service_retain_current,svc->handled,  svc->service_id);
+	CHECKED_ASPRINTF(&sqlupd, SERVICE_UPDATE_TEXT,
+                                        svc->last_check,
+                                        BARTLBY_SQL_PROTECTION(svc->new_server_text),
+                                        svc->current_state,
+                                        svc->last_notify_send,
+                                        svc->last_state_change,
+                                        svc->service_ack_current,
+                                        svc->service_retain_current,
+                                        svc->handled,
+                                        svc->service_id
+                                        );
 	
 	
 	mysql_query(mysql, sqlupd);
@@ -2977,6 +3116,7 @@ char * sql, *where;
 
 	set_cfg(config);
 	mysql=mysql_init(NULL);
+BARTLBY_SQL_PROTECTION_INIT;
 		CHK_ERR(mysql,NULL);
 	mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
 		CHK_ERR(mysql,NULL);
@@ -3167,6 +3307,7 @@ int GetServiceMap(struct service * svcs, char * config, int orch_id) {
 
 	set_cfg(config);
 	mysql=mysql_init(NULL);
+BARTLBY_SQL_PROTECTION_INIT;
 		CHK_ERR(mysql,NULL);
 	mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
 		CHK_ERR(mysql,NULL);
@@ -3365,6 +3506,7 @@ int GetServerMap(struct server * srv, char * config, int orch_id) {
 
 	set_cfg(config);
 	mysql=mysql_init(NULL);
+BARTLBY_SQL_PROTECTION_INIT;
 		CHK_ERR(mysql,NULL);
 	mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
 		CHK_ERR(mysql,NULL);
@@ -3532,6 +3674,7 @@ int ServerGroupChangeId(int from, int to, char * config) {
 	char * mysql_db = getConfigValue("mysql_db", config);
 
 	mysql=mysql_init(NULL);
+BARTLBY_SQL_PROTECTION_INIT;
 		CHK_ERR(mysql,NULL);
 	mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
 		CHK_ERR(mysql,NULL);
@@ -3577,6 +3720,7 @@ int GetServergroupById(long servergroup_id, struct servergroup * svc, char * con
   
   
   mysql=mysql_init(NULL);
+BARTLBY_SQL_PROTECTION_INIT;
     CHK_ERR(mysql,NULL);
   mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
     CHK_ERR(mysql,NULL);
@@ -3678,6 +3822,7 @@ int GetServerGroupMap(struct servergroup * svcs, char * config, int orch_id) {
 
 	set_cfg(config);
 	mysql=mysql_init(NULL);
+BARTLBY_SQL_PROTECTION_INIT;
 		CHK_ERR(mysql,NULL);
 	mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
 		CHK_ERR(mysql,NULL);
@@ -3799,6 +3944,7 @@ int AddServerGroup(struct servergroup * svc, char *config) {
 	char * mysql_db = getConfigValue("mysql_db", config);
 
 	mysql=mysql_init(NULL);
+BARTLBY_SQL_PROTECTION_INIT;
 		CHK_ERR(mysql,NULL);
 	mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
 		CHK_ERR(mysql,NULL);
@@ -3806,7 +3952,15 @@ int AddServerGroup(struct servergroup * svc, char *config) {
       		CHK_ERR(mysql,NULL);
 	
 	
-	CHECKED_ASPRINTF(&sqlupd, ADD_SERVERGROUP, svc->servergroup_name, svc->servergroup_notify, svc->servergroup_active, svc->servergroup_members, svc->servergroup_dead, svc->enabled_triggers, svc->orch_id);
+	CHECKED_ASPRINTF(&sqlupd, ADD_SERVERGROUP,
+                                  BARTLBY_SQL_PROTECTION(svc->servergroup_name),
+                                  svc->servergroup_notify,
+                                  svc->servergroup_active,
+                                  BARTLBY_SQL_PROTECTION(svc->servergroup_members),
+                                  svc->servergroup_dead,
+                                  BARTLBY_SQL_PROTECTION(svc->enabled_triggers),
+                                  svc->orch_id
+                                  );
 	
 	
 
@@ -3842,6 +3996,7 @@ int DeleteServerGroup(int servergroup_id, char * config) {
 	char * mysql_db = getConfigValue("mysql_db", config);
 
 	mysql=mysql_init(NULL);
+BARTLBY_SQL_PROTECTION_INIT;
 		CHK_ERR(mysql,NULL);
 	mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
 		CHK_ERR(mysql,NULL);
@@ -3888,6 +4043,7 @@ int UpdateServerGroup(struct servergroup * svc, char *config) {
 	char * mysql_db = getConfigValue("mysql_db", config);
 
 	mysql=mysql_init(NULL);
+BARTLBY_SQL_PROTECTION_INIT;
 		CHK_ERR(mysql,NULL);
 	mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
 		CHK_ERR(mysql,NULL);
@@ -3896,7 +4052,16 @@ int UpdateServerGroup(struct servergroup * svc, char *config) {
 	
 	
 	
-	CHECKED_ASPRINTF(&sqlupd, UPDATE_SERVERGROUP, svc->servergroup_name, svc->servergroup_notify, svc->servergroup_active, svc->servergroup_members,svc->servergroup_dead,svc->enabled_triggers,svc->orch_id, svc->servergroup_id);
+	CHECKED_ASPRINTF(&sqlupd, UPDATE_SERVERGROUP, 
+                                  BARTLBY_SQL_PROTECTION(svc->servergroup_name),
+                                  svc->servergroup_notify,
+                                  svc->servergroup_active,
+                                  BARTLBY_SQL_PROTECTION(svc->servergroup_members),
+                                  svc->servergroup_dead,
+                                  BARTLBY_SQL_PROTECTION(svc->enabled_triggers),
+                                  svc->orch_id,
+                                  svc->servergroup_id
+                                  );
 	
 	
 	
@@ -3932,6 +4097,7 @@ int ServiceGroupChangeId(int from, int to, char * config) {
 	char * mysql_db = getConfigValue("mysql_db", config);
 
 	mysql=mysql_init(NULL);
+BARTLBY_SQL_PROTECTION_INIT;
 		CHK_ERR(mysql,NULL);
 	mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
 		CHK_ERR(mysql,NULL);
@@ -3977,6 +4143,7 @@ int GetsServicegroupById(long servicegroup_id, struct servicegroup * svc, char *
   
   
   mysql=mysql_init(NULL);
+BARTLBY_SQL_PROTECTION_INIT;
     CHK_ERR(mysql,NULL);
   mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
     CHK_ERR(mysql,NULL);
@@ -4078,6 +4245,7 @@ int GetServiceGroupMap(struct servicegroup * svcs, char * config, int orch_id) {
 
 	set_cfg(config);
 	mysql=mysql_init(NULL);
+BARTLBY_SQL_PROTECTION_INIT;
 		CHK_ERR(mysql,NULL);
 	mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
 		CHK_ERR(mysql,NULL);
@@ -4202,6 +4370,7 @@ int AddServiceGroup(struct servicegroup * svc, char *config) {
 	char * mysql_db = getConfigValue("mysql_db", config);
 
 	mysql=mysql_init(NULL);
+BARTLBY_SQL_PROTECTION_INIT;
 		CHK_ERR(mysql,NULL);
 	mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
 		CHK_ERR(mysql,NULL);
@@ -4209,7 +4378,15 @@ int AddServiceGroup(struct servicegroup * svc, char *config) {
       		CHK_ERR(mysql,NULL);
 	
 	
-	CHECKED_ASPRINTF(&sqlupd, ADD_SERVICEGROUP, svc->servicegroup_name, svc->servicegroup_notify, svc->servicegroup_active, svc->servicegroup_members, svc->servicegroup_dead, svc->enabled_triggers, svc->orch_id);
+	CHECKED_ASPRINTF(&sqlupd, ADD_SERVICEGROUP, 
+                              BARTLBY_SQL_PROTECTION(svc->servicegroup_name),
+                              svc->servicegroup_notify,
+                              svc->servicegroup_active,
+                              BARTLBY_SQL_PROTECTION(svc->servicegroup_members),
+                              svc->servicegroup_dead,
+                              BARTLBY_SQL_PROTECTION(svc->enabled_triggers),
+                              svc->orch_id
+                              );
 	
 	
 	
@@ -4245,6 +4422,7 @@ int DeleteServiceGroup(int servicegroup_id, char * config) {
 	char * mysql_db = getConfigValue("mysql_db", config);
 
 	mysql=mysql_init(NULL);
+BARTLBY_SQL_PROTECTION_INIT;
 		CHK_ERR(mysql,NULL);
 	mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
 		CHK_ERR(mysql,NULL);
@@ -4291,6 +4469,7 @@ int UpdateServiceGroup(struct servicegroup * svc, char *config) {
 	char * mysql_db = getConfigValue("mysql_db", config);
 
 	mysql=mysql_init(NULL);
+BARTLBY_SQL_PROTECTION_INIT;
 		CHK_ERR(mysql,NULL);
 	mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
 		CHK_ERR(mysql,NULL);
@@ -4299,7 +4478,16 @@ int UpdateServiceGroup(struct servicegroup * svc, char *config) {
 	
 	
 	
-	CHECKED_ASPRINTF(&sqlupd, UPDATE_SERVICEGROUP, svc->servicegroup_name, svc->servicegroup_notify, svc->servicegroup_active, svc->servicegroup_members,svc->servicegroup_dead,svc->enabled_triggers,svc->orch_id, svc->servicegroup_id);
+	CHECKED_ASPRINTF(&sqlupd, UPDATE_SERVICEGROUP,
+                                  BARTLBY_SQL_PROTECTION(svc->servicegroup_name),
+                                  svc->servicegroup_notify,
+                                  svc->servicegroup_active,
+                                  BARTLBY_SQL_PROTECTION(svc->servicegroup_members),
+                                  svc->servicegroup_dead,
+                                  BARTLBY_SQL_PROTECTION(svc->enabled_triggers),
+                                  svc->orch_id,
+                                  svc->servicegroup_id
+                                  );
 	
 	
 	
@@ -4345,6 +4533,7 @@ int AddTrap(struct trap * svc, char *config) {
   char * mysql_db = getConfigValue("mysql_db", config);
 
   mysql=mysql_init(NULL);
+BARTLBY_SQL_PROTECTION_INIT;
     CHK_ERR(mysql,NULL);
   mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
     CHK_ERR(mysql,NULL);
@@ -4353,12 +4542,12 @@ int AddTrap(struct trap * svc, char *config) {
   
   
   CHECKED_ASPRINTF(&sqlupd, ADD_TRAP, 
-                            svc->trap_name,
-                            svc->trap_catcher,
-                            svc->trap_status_text,
-                            svc->trap_status_ok,
-                            svc->trap_status_warning,
-                            svc->trap_status_critical,
+                            BARTLBY_SQL_PROTECTION(svc->trap_name),
+                            BARTLBY_SQL_PROTECTION(svc->trap_catcher),
+                            BARTLBY_SQL_PROTECTION(svc->trap_status_text),
+                            BARTLBY_SQL_PROTECTION(svc->trap_status_ok),
+                            BARTLBY_SQL_PROTECTION(svc->trap_status_warning),
+                            BARTLBY_SQL_PROTECTION(svc->trap_status_critical),
                             svc->trap_service_id,
                             svc->trap_fixed_status,
                             svc->trap_prio,
@@ -4400,6 +4589,7 @@ int DeleteTrap(int trap_id, char * config) {
   char * mysql_db = getConfigValue("mysql_db", config);
 
   mysql=mysql_init(NULL);
+BARTLBY_SQL_PROTECTION_INIT;
     CHK_ERR(mysql,NULL);
   mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
     CHK_ERR(mysql,NULL);
@@ -4444,18 +4634,20 @@ int UpdateTrap(struct trap * svc, char *config) {
   char * mysql_db = getConfigValue("mysql_db", config);
 
   mysql=mysql_init(NULL);
+BARTLBY_SQL_PROTECTION_INIT;
     CHK_ERR(mysql,NULL);
   mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
     CHK_ERR(mysql,NULL);
   mysql_select_db(mysql, mysql_db);
           CHK_ERR(mysql,NULL);
   
-  CHECKED_ASPRINTF(&sqlupd, UPDATE_TRAP,svc->trap_name,
-                            svc->trap_catcher,
-                            svc->trap_status_text,
-                            svc->trap_status_ok,
-                            svc->trap_status_warning,
-                            svc->trap_status_critical,
+  CHECKED_ASPRINTF(&sqlupd, UPDATE_TRAP,
+                            BARTLBY_SQL_PROTECTION(svc->trap_name),
+                            BARTLBY_SQL_PROTECTION(svc->trap_catcher),
+                            BARTLBY_SQL_PROTECTION(svc->trap_status_text),
+                            BARTLBY_SQL_PROTECTION(svc->trap_status_ok),
+                            BARTLBY_SQL_PROTECTION(svc->trap_status_warning),
+                            BARTLBY_SQL_PROTECTION(svc->trap_status_critical),
                             svc->trap_service_id,
                             svc->trap_fixed_status,
                             svc->trap_prio,
@@ -4492,6 +4684,7 @@ int TrapChangeId(int from, int to, char * config) {
   char * mysql_db = getConfigValue("mysql_db", config);
 
   mysql=mysql_init(NULL);
+BARTLBY_SQL_PROTECTION_INIT;
     CHK_ERR(mysql,NULL);
   mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
     CHK_ERR(mysql,NULL);
@@ -4538,6 +4731,7 @@ int GetTrapById(long trap_id, struct trap * svc, char * config) {
   
   
   mysql=mysql_init(NULL);
+BARTLBY_SQL_PROTECTION_INIT;
     CHK_ERR(mysql,NULL);
   mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
     CHK_ERR(mysql,NULL);
@@ -4629,6 +4823,7 @@ int GetTrapMap(struct trap * svcs, char * config, int orch_id) {
 
   set_cfg(config);
   mysql=mysql_init(NULL);
+BARTLBY_SQL_PROTECTION_INIT;
     CHK_ERR(mysql,NULL);
   mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
     CHK_ERR(mysql,NULL);
