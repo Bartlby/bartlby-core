@@ -13,9 +13,11 @@ extern const char * dlmsg;
 
 ///////
 
+extern struct testcase_t core_tests[];
 extern struct testcase_t worker_tests[];
 
 struct testgroup_t groups[] = {
+	{ "core/", core_tests },
 	{ "worker/", worker_tests },
 	END_OF_GROUPS
 };
