@@ -64,10 +64,7 @@ void bartlby_call_webhooks(char * cfg, struct service * svc) {
 	int x = 0;
 	char * work_hooks;
 
-	const char s[2] = ",";
-
   	work_hooks=strdup(svc->srv->web_hooks);
-	x=0;
 	
 	 while ((token = strsep (&work_hooks, "\n")) != NULL) {
 	 	url=strdup(token);
