@@ -55,7 +55,7 @@ void bartlby_call_single_webhook(char * cfg,char * endpoint,  struct service * s
 	json_object_put(jso_out);
 }
 
-void bartlby_call_webhooks(char * cfg, struct service * svc) {
+void bartlby_call_webhooks(char * cfg, struct service * svc, int hard) {
 	
 
 	char * token;
@@ -63,6 +63,12 @@ void bartlby_call_webhooks(char * cfg, struct service * svc) {
 	char * url;
 	int x = 0;
 	char * work_hooks;
+	
+
+	if(strlen(svc->srv->web_hooks) < 3) return;
+
+
+
 
   	work_hooks=strdup(svc->srv->web_hooks);
 	
