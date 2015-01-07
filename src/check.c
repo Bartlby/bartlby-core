@@ -214,6 +214,8 @@ void bartlby_fin_service(struct service * svc, void * SOHandle, void * shm_addr,
 		}
 		free(log_line);
 		
+
+		//FIRE Web Hooks?
 		if(svc->srv->web_hooks_level == 0) {
 			//HOOKS ON BOTH
 			bartlby_call_webhooks(cfgfile, svc,3);

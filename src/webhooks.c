@@ -56,7 +56,12 @@ void bartlby_call_single_webhook(char * cfg,char * endpoint,  struct service * s
 }
 
 void bartlby_call_webhooks(char * cfg, struct service * svc, int hard) {
-	
+	/*
+		hard:
+			0 = BOTH
+			1 = HARD
+			2 = SOFT
+	*/
 
 	char * token;
 	char * temp_token;
