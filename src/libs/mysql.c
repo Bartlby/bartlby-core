@@ -325,7 +325,7 @@ static MYSQL * mysql_conn;
                               orch_id='%d', \
                               exec_plan='%s', \
                               web_hooks='%s', \
-                              json_endpoint='%s' \
+                              json_endpoint='%s', \
                               web_hooks_level=%d \
                             where \
                               server_id=%ld"
@@ -348,7 +348,7 @@ static MYSQL * mysql_conn;
                               orch_id, \
                               exec_plan, \
                               web_hooks, \
-                              json_endpoint \
+                              json_endpoint, \
                               web_hooks_level \
                           from  \
                               servers  \
