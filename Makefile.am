@@ -68,7 +68,7 @@ dist_trigger_DATA=trigger/icq.sh trigger/jabber.sh trigger/mail.sh trigger/push.
 
 #sbins
 toolsdir=$(prefix)/sbin
-dist_tools_DATA=sbin/bartlby_portier_spool_bulk.php
+dist_tools_DATA=sbin/bartlby_portier_spool_bulk.php sbin/bartlby_submit_trap.php
 
 
 
