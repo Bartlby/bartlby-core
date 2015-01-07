@@ -766,6 +766,9 @@ void bartlby_notification_log_debug(struct shm_header * shmhdr);
 struct http_output * bartlby_http_post_request(char *url, char *body, long timeout);
 void bartlby_free_http_output(struct http_output * s);
 
+/**** JSON **/
+json_object * bartlby_service_to_json(struct service * svc);
+
 /*** TRIGGER*/
 int bartlby_servicegroup_has_trigger(struct service * svc, char * trigger);
 int bartlby_servergroup_has_trigger(struct server * srv, char * trigger);
@@ -796,4 +799,7 @@ struct json_object* json_object_new_int64(int64_t i);
 int32_t json_object_get_int64(struct json_object *obj);
 
 #endif
+
+
+void trim(char * const a);
 

@@ -23,7 +23,7 @@ $Author$
 input is like 
 				{
 					"plugin": "bartlby_load",
-					"parameters": " -w 10 -c 20 -p"
+					"plugin_arguments": " -w 10 -c 20 -p"
 				}
 
 return data:
@@ -46,15 +46,13 @@ void bartlby_check_json(struct service * svc, char * cfgfile) {
 	struct http_output * http_out;
 	int temp_status;
 
-	jso_out = json_object_new_object();
-	json_object_object_add(jso_out, "plugin", json_object_new_string(svc->plugin));
-	json_object_object_add(jso_out, "parameters", json_object_new_string(svc->plugin_arguments));
-	
+	jso_out = bartlby_service_to_json(svc);
 	json_payload = json_object_to_json_string(jso_out);
 
-	json_object_put(jso_out);
+	
 	
 	http_out=bartlby_http_post_request(svc->srv->json_endpoint, (char *)json_payload, svc->service_check_timeout); 
+
 	json_object_put(jso_out);
 
 	
