@@ -171,7 +171,8 @@ static MYSQL * mysql_conn;
                                     orch_id,  \
                                     exec_plan, \
                                     web_hooks, \
-                                    json_endpoint \
+                                    json_endpoint, \
+                                    web_hooks_level \
                               from servers  %s"
 
 
@@ -276,7 +277,8 @@ static MYSQL * mysql_conn;
                                     orch_id, \
                                     exec_plan, \
                                     web_hooks, \
-                                    json_endpoint \
+                                    json_endpoint, \
+                                    web_hooks_level \
                                     ) \
                                 VALUES( \
                                     '%s', \
@@ -295,7 +297,8 @@ static MYSQL * mysql_conn;
                                     '%d', \
                                     '%s', \
                                     '%s', \
-                                    '%s' \
+                                    '%s', \
+                                    '%d' \
                                 )"
 
 
@@ -323,6 +326,7 @@ static MYSQL * mysql_conn;
                               exec_plan='%s', \
                               web_hooks='%s', \
                               json_endpoint='%s' \
+                              web_hooks_level=%d \
                             where \
                               server_id=%ld"
 
@@ -345,6 +349,7 @@ static MYSQL * mysql_conn;
                               exec_plan, \
                               web_hooks, \
                               json_endpoint \
+                              web_hooks_level \
                           from  \
                               servers  \
                           where \
@@ -2474,6 +2479,8 @@ int GetServerById(int server_id, struct server * svc, char * config) {
       		svc->default_service_type=atoi(row[12]);
       		svc->orch_id=atoi(row[13]);
 
+          svc->web_hooks_level=atoi(row[17]);
+
           if(row[14] != NULL) {
             snprintf(svc->exec_plan, 2047, "%s", row[14]);
           } else {
@@ -2561,7 +2568,7 @@ int ModifyServer(struct server * svc, char *config) {
       		CHK_ERR(mysql,NULL);
 	
 	
-	CHECKED_ASPRINTF(&sqlupd, UPDATE_SERVER, svc->server_name, svc->client_ip, svc->client_port,svc->server_icon,svc->server_enabled, svc->server_notify, svc->server_flap_seconds,svc->server_dead,svc->server_ssh_keyfile, svc->server_ssh_passphrase, svc->server_ssh_username,svc->enabled_triggers, svc->default_service_type,svc->orch_id, svc->exec_plan,svc->web_hooks,svc->json_endpoint, svc->server_id);
+	CHECKED_ASPRINTF(&sqlupd, UPDATE_SERVER, svc->server_name, svc->client_ip, svc->client_port,svc->server_icon,svc->server_enabled, svc->server_notify, svc->server_flap_seconds,svc->server_dead,svc->server_ssh_keyfile, svc->server_ssh_passphrase, svc->server_ssh_username,svc->enabled_triggers, svc->default_service_type,svc->orch_id, svc->exec_plan,svc->web_hooks,svc->json_endpoint,svc->web_hooks_level, svc->server_id);
 	
 	//Log("dbg", sqlupd);
 	
@@ -2675,7 +2682,7 @@ int AddServer(struct server * svc, char *config) {
       		CHK_ERR(mysql,NULL);
 	
 	
-	CHECKED_ASPRINTF(&sqlupd, ADD_SERVER, svc->server_name, svc->client_ip, svc->client_port, svc->server_icon, svc->server_enabled, svc->server_notify, svc->server_flap_seconds, svc->server_dead, svc->server_ssh_keyfile, svc->server_ssh_passphrase, svc->server_ssh_username, svc->enabled_triggers, svc->default_service_type, svc->orch_id, svc->exec_plan, svc->web_hooks, svc->json_endpoint);
+	CHECKED_ASPRINTF(&sqlupd, ADD_SERVER, svc->server_name, svc->client_ip, svc->client_port, svc->server_icon, svc->server_enabled, svc->server_notify, svc->server_flap_seconds, svc->server_dead, svc->server_ssh_keyfile, svc->server_ssh_passphrase, svc->server_ssh_username, svc->enabled_triggers, svc->default_service_type, svc->orch_id, svc->exec_plan, svc->web_hooks, svc->json_endpoint, svc->web_hooks_level);
 	
 
 	//Log("dbg", sqlupd);
@@ -3285,6 +3292,7 @@ int GetServerMap(struct server * srv, char * config, int orch_id) {
       			srv[i].server_dead=atoi(row[6]);
       			srv[i].server_flap_seconds=atol(row[7]);
       			srv[i].server_notify=atoi(row[8]);
+            srv[i].web_hooks_level=atoi(row[18]);
       			srv[i].last_notify_send=time(NULL);
       			srv[i].flap_count=0;
       			srv[i].servergroup_counter=0;

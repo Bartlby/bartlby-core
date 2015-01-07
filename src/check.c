@@ -205,16 +205,36 @@ void bartlby_fin_service(struct service * svc, void * SOHandle, void * shm_addr,
 		switch(do_log) {
 			case 1:
 				_log(LH_CHECK, B_LOG_HASTO,"@LOG@%ld|%d|%s:%d/%s|%s|SOFT", svc->service_id, svc->current_state, svc->srv->server_name, svc->srv->client_port, svc->service_name, log_line);
+				
 			break;
 			case 2:
 				_log(LH_CHECK, B_LOG_HASTO,"@LOG@%ld|%d|%s:%d/%s|%s|HARD", svc->service_id, svc->current_state, svc->srv->server_name, svc->srv->client_port, svc->service_name, log_line);
+				
 			break;
 		}
 		free(log_line);
 		
+		if(svc->srv->web_hooks_level == 0) {
+			//HOOKS ON BOTH
+			bartlby_call_webhooks(cfgfile, svc,3);
+		} else {
+			if(svc->srv->web_hooks_level == 1) {
+				//ONLY HARD
+				if(do_log == 2) {
+					bartlby_call_webhooks(cfgfile, svc,1);	
+				}
+			}
+			if(svc->srv->web_hooks_level == 2) {
+				if(do_log == 1) {
+					//ONLY SOFT
+					bartlby_call_webhooks(cfgfile, svc,0);
+				}
+			}
+
+		}
 		
 	}
-	bartlby_call_webhooks(cfgfile, svc);
+	
 	if(svc->current_state == STATE_CRITICAL && svc->fires_events > 0) {
 				bartlby_check_eventhandler(svc, cfgfile);
 	}

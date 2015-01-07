@@ -380,6 +380,7 @@ struct server {
 	char exec_plan[2048];
 	char web_hooks[1024];
 	char json_endpoint[256];
+	int web_hooks_level;
 } xxyz;
 
 
@@ -765,6 +766,9 @@ void bartlby_notification_log_debug(struct shm_header * shmhdr);
 /*** HTTP REQUEST STUFF **/
 struct http_output * bartlby_http_post_request(char *url, char *body, long timeout);
 void bartlby_free_http_output(struct http_output * s);
+
+/**WEBHOOKS **/
+void bartlby_call_webhooks(char * cfg, struct service * svc, int hard);
 
 /**** JSON **/
 json_object * bartlby_service_to_json(struct service * svc);
