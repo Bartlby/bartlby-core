@@ -31,6 +31,15 @@ $Author$
 char config_file[255];
 
 
+void trim(char * const a)
+{
+    char *p = a, *q = a;
+    while (isspace(*q))            ++q;
+    while (*q)                     *p++ = *q++;
+    *p = '\0';
+    while (p > a && isspace(*--p)) *p = '\0';
+}
+
 char *remove_nl_copy(char *s) {
 	char * p;
 	int i;

@@ -212,8 +212,9 @@ void bartlby_fin_service(struct service * svc, void * SOHandle, void * shm_addr,
 		}
 		free(log_line);
 		
+		
 	}
-
+	bartlby_call_webhooks(cfgfile, svc);
 	if(svc->current_state == STATE_CRITICAL && svc->fires_events > 0) {
 				bartlby_check_eventhandler(svc, cfgfile);
 	}
