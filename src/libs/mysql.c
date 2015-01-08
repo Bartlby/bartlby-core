@@ -837,11 +837,8 @@ struct mysql_buffers_list {
 
 
 #define BARTLBY_SQL_PROTECTION_INIT struct mysql_buffers_list * bartlby_protection_buff_list; \
-                        struct mysql_buffers_list * bartlby_protection_bartlby_protection_buff_list_head; \
-                        bartlby_protection_buff_list = malloc(sizeof(struct mysql_buffers_list)); \
-                        bartlby_protection_buff_list->next=NULL; \
-                        bartlby_protection_buff_list->sql=NULL; \
-                        bartlby_protection_bartlby_protection_buff_list_head=bartlby_protection_buff_list;
+                                    struct mysql_buffers_list * bartlby_protection_bartlby_protection_buff_list_head; \
+                                    bartlby_mysql_safe_init(&bartlby_protection_buff_list, &bartlby_protection_bartlby_protection_buff_list_head)
 
 #define BARTLBY_SQL_PROTECTION(value) bartlby_mysql_safe(mysql, &bartlby_protection_buff_list, value)
                         
@@ -851,6 +848,14 @@ struct mysql_buffers_list {
 #define BARTLBY_MYSQL_CLOSE(mysql) mysql_close(mysql); \
                                    mysql_library_end();
 
+void bartlby_mysql_safe_init(struct mysql_buffers_list ** curr, struct mysql_buffers_list ** head) {
+
+  *curr = malloc(sizeof(struct mysql_buffers_list)); \
+  (*curr)->next=NULL; \
+  (*curr)->sql=NULL; \
+  *head=(*curr);
+
+}
 void bartlby_mysql_safe_free(struct mysql_buffers_list * head) {
   struct mysql_buffers_list * curr, *t;
 
