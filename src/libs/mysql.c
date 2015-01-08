@@ -826,6 +826,110 @@ static MYSQL * mysql_conn;
 #define COUNT_SERVICEGROUPS "select count(1) from servicegroups"
 #define COUNT_TRAPS "select count(1) from traps"
 
+
+#define TEST_SQL "select a='%s' b='%s' from test"
+
+
+struct mysql_buffers_list {
+  char * sql;
+  struct mysql_buffers_list * next;
+};
+
+
+#define BARTLBY_SQL_PROTECTION_INIT struct mysql_buffers_list * bartlby_protection_buff_list; \
+                        struct mysql_buffers_list * bartlby_protection_bartlby_protection_buff_list_head; \
+                        bartlby_protection_buff_list = malloc(sizeof(struct mysql_buffers_list)); \
+                        bartlby_protection_buff_list->next=NULL; \
+                        bartlby_protection_buff_list->sql=NULL; \
+                        bartlby_protection_bartlby_protection_buff_list_head=bartlby_protection_buff_list;
+
+#define BARTLBY_SQL_PROTECTION(value) bartlby_mysql_safe(mysql, &bartlby_protection_buff_list, value)
+                        
+#define BARTLBY_SQL_PROTECTION_FREE bartlby_mysql_safe_free(bartlby_protection_bartlby_protection_buff_list_head)
+
+
+#define BARTLBY_MYSQL_CLOSE(mysql) mysql_close(mysql); \
+                                   mysql_library_end();
+
+void bartlby_mysql_safe_free(struct mysql_buffers_list * head) {
+  struct mysql_buffers_list * curr, *t;
+
+  curr=head->next;
+  while(curr != NULL) {
+    t=curr;
+    free(curr->sql);
+    curr=t->next;
+    free(t);
+
+
+  }
+  free(head);
+}
+char * bartlby_mysql_safe(MYSQL * mysql, struct mysql_buffers_list ** bartlby_protection_buff_list, char * value) {
+    struct mysql_buffers_list * new;
+    new=malloc(sizeof(struct mysql_buffers_list)); 
+
+    
+    new->next=NULL;
+    new->sql = malloc((strlen(value)*2)+1); 
+    mysql_real_escape_string(mysql, new->sql, value, strlen(value)); 
+
+    (*bartlby_protection_buff_list)->next=new;
+    *bartlby_protection_buff_list=new; 
+    
+    
+    return new->sql;
+
+}
+
+int TestSQL(char * config, char * placeholder) {
+
+
+  MYSQL *mysql;
+  MYSQL_ROW  row;
+  MYSQL_RES  *res;
+  char * mysql_host = getConfigValue("mysql_host", config);
+  char * mysql_user = getConfigValue("mysql_user", config);
+  char * mysql_pw = getConfigValue("mysql_pw", config);
+  char * mysql_db = getConfigValue("mysql_db", config);
+  
+  char * sql;
+ 
+
+
+  mysql=mysql_init(NULL);
+  mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
+  mysql_select_db(mysql, mysql_db);
+  
+
+  BARTLBY_SQL_PROTECTION_INIT;
+
+
+  CHECKED_ASPRINTF(&sql, TEST_SQL, 
+    BARTLBY_SQL_PROTECTION(placeholder),
+    BARTLBY_SQL_PROTECTION(placeholder)
+  );
+
+  BARTLBY_SQL_PROTECTION_FREE;
+
+  printf("SQL: @%s@\n", sql);
+
+  free(sql);
+
+
+  BARTLBY_MYSQL_CLOSE(mysql);
+  mysql_library_end();
+
+  free(mysql_host);
+  free(mysql_user);
+  free(mysql_pw);
+  free(mysql_db);
+  
+
+  return 0;
+
+}                            
+
 int GetServerById(int server_id, struct server * svc, char * config);
 
 
@@ -857,7 +961,7 @@ MYSQL * getDBConn(char * config) {
 
 			mysql=mysql_init(NULL);
 			CHK_ERR_NULL(mysql,NULL);
-			mysql=mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
+			mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
 			CHK_ERR_NULL(mysql,NULL);
 	     	mysql_select_db(mysql, mysql_db);
 	     	CHK_ERR_NULL(mysql,NULL);
@@ -904,7 +1008,7 @@ struct shm_counter * GetCounter(char * config) {
 
 	mysql=mysql_init(NULL);
 	CHK_ERR_NULL(mysql,shmc);
-	mysql=mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
+	mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
 	CHK_ERR_NULL(mysql,shmc);
      mysql_select_db(mysql, mysql_db);
      CHK_ERR_NULL(mysql,shmc);
@@ -1058,7 +1162,7 @@ struct shm_counter * GetCounter(char * config) {
      mysql_free_result(res);     
      
      
-	mysql_close(mysql);
+	BARTLBY_MYSQL_CLOSE(mysql);
 	free(mysql_host);
 	free(mysql_user);
 	free(mysql_pw);
@@ -1088,7 +1192,7 @@ int UpdateDowntime(struct downtime * svc, char *config) {
 
 	mysql=mysql_init(NULL);
 		CHK_ERR(mysql,NULL);
-	mysql=mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
+	mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
 		CHK_ERR(mysql,NULL);
 	mysql_select_db(mysql, mysql_db);
       		CHK_ERR(mysql,NULL);
@@ -1105,7 +1209,7 @@ int UpdateDowntime(struct downtime * svc, char *config) {
 	
 	free(sqlupd);
 	rtc=1;
-	mysql_close(mysql);
+	BARTLBY_MYSQL_CLOSE(mysql);
 		
 	free(mysql_host);
 	free(mysql_user);
@@ -1131,7 +1235,7 @@ int DeleteDowntime(int downtime_id, char * config) {
 
 	mysql=mysql_init(NULL);
 		CHK_ERR(mysql,NULL);
-	mysql=mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
+	mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
 		CHK_ERR(mysql,NULL);
 	mysql_select_db(mysql, mysql_db);
       		CHK_ERR(mysql,NULL);
@@ -1148,7 +1252,7 @@ int DeleteDowntime(int downtime_id, char * config) {
 	
 	free(sqlupd);
 	
-	mysql_close(mysql);
+	BARTLBY_MYSQL_CLOSE(mysql);
 		
 	free(mysql_host);
 	free(mysql_user);
@@ -1175,7 +1279,7 @@ int DowntimeChangeId(int from, int to, char * config) {
 
 	mysql=mysql_init(NULL);
 		CHK_ERR(mysql,NULL);
-	mysql=mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
+	mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
 		CHK_ERR(mysql,NULL);
 	mysql_select_db(mysql, mysql_db);
       		CHK_ERR(mysql,NULL);
@@ -1192,7 +1296,7 @@ int DowntimeChangeId(int from, int to, char * config) {
 	free(sqlupd);
 		
 	
-	mysql_close(mysql);
+	BARTLBY_MYSQL_CLOSE(mysql);
 	free(mysql_host);
 	free(mysql_user);
 	free(mysql_pw);
@@ -1215,7 +1319,7 @@ int WorkerChangeId(int from, int to, char * config) {
 
 	mysql=mysql_init(NULL);
 		CHK_ERR(mysql,NULL);
-	mysql=mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
+	mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
 		CHK_ERR(mysql,NULL);
 	mysql_select_db(mysql, mysql_db);
       		CHK_ERR(mysql,NULL);
@@ -1232,7 +1336,7 @@ int WorkerChangeId(int from, int to, char * config) {
 	free(sqlupd);
 		
 	
-	mysql_close(mysql);
+	BARTLBY_MYSQL_CLOSE(mysql);
 	free(mysql_host);
 	free(mysql_user);
 	free(mysql_pw);
@@ -1255,7 +1359,7 @@ int ServiceChangeId(int from, int to, char * config) {
 
 	mysql=mysql_init(NULL);
 		CHK_ERR(mysql,NULL);
-	mysql=mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
+	mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
 		CHK_ERR(mysql,NULL);
 	mysql_select_db(mysql, mysql_db);
       		CHK_ERR(mysql,NULL);
@@ -1272,7 +1376,7 @@ int ServiceChangeId(int from, int to, char * config) {
 	free(sqlupd);
 		
 	
-	mysql_close(mysql);
+	BARTLBY_MYSQL_CLOSE(mysql);
 	free(mysql_host);
 	free(mysql_user);
 	free(mysql_pw);
@@ -1295,7 +1399,7 @@ int ServerChangeId(int from, int to, int sr, char * config) {
 
 	mysql=mysql_init(NULL);
 		CHK_ERR(mysql,NULL);
-	mysql=mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
+	mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
 		CHK_ERR(mysql,NULL);
 	mysql_select_db(mysql, mysql_db);
       		CHK_ERR(mysql,NULL);
@@ -1322,7 +1426,7 @@ int ServerChangeId(int from, int to, int sr, char * config) {
 	}
 	
 	
-	mysql_close(mysql);
+	BARTLBY_MYSQL_CLOSE(mysql);
 	free(mysql_host);
 	free(mysql_user);
 	free(mysql_pw);
@@ -1345,7 +1449,7 @@ int AddDowntime(struct downtime * svc, char *config) {
 
 	mysql=mysql_init(NULL);
 		CHK_ERR(mysql,NULL);
-	mysql=mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
+	mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
 		CHK_ERR(mysql,NULL);
 	mysql_select_db(mysql, mysql_db);
       		CHK_ERR(mysql,NULL);
@@ -1362,7 +1466,7 @@ int AddDowntime(struct downtime * svc, char *config) {
 	
 	free(sqlupd);
 	rtc=mysql_insert_id(mysql);
-	mysql_close(mysql);
+	BARTLBY_MYSQL_CLOSE(mysql);
 		
 	free(mysql_host);
 	free(mysql_user);
@@ -1392,7 +1496,7 @@ int GetDowntimeById(long downtime_id, struct downtime * svcs, char * config) {
  
   mysql=mysql_init(NULL);
     CHK_ERR(mysql,NULL);
-  mysql=mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
+  mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
     CHK_ERR(mysql,NULL);
         mysql_select_db(mysql, mysql_db);
           CHK_ERR(mysql,NULL);
@@ -1457,7 +1561,7 @@ int GetDowntimeById(long downtime_id, struct downtime * svcs, char * config) {
           }
           
     
-        mysql_close(mysql);
+        BARTLBY_MYSQL_CLOSE(mysql);
         mysql_free_result(res);
       
       free(mysql_host);
@@ -1495,7 +1599,7 @@ int GetDowntimeMap(struct downtime * svcs, char * config, int orch_id) {
 	set_cfg(config);
 	mysql=mysql_init(NULL);
 		CHK_ERR(mysql,NULL);
-	mysql=mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
+	mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
 		CHK_ERR(mysql,NULL);
       	mysql_select_db(mysql, mysql_db);
       		CHK_ERR(mysql,NULL);
@@ -1569,7 +1673,7 @@ int GetDowntimeMap(struct downtime * svcs, char * config, int orch_id) {
       		}
       		
     
-		    mysql_close(mysql);
+		    BARTLBY_MYSQL_CLOSE(mysql);
 			mysql_free_result(res);
 			
 			free(mysql_host);
@@ -1586,7 +1690,7 @@ int GetDowntimeMap(struct downtime * svcs, char * config, int orch_id) {
       	}
 	
 	
-	mysql_close(mysql);
+	BARTLBY_MYSQL_CLOSE(mysql);
 	mysql_free_result(res);
 	
 	free(mysql_host);
@@ -1624,7 +1728,7 @@ int GetWorkerById(int worker_id, struct worker * svc, char * config) {
 	
 	mysql=mysql_init(NULL);
 		CHK_ERR(mysql,NULL);
-	mysql=mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
+	mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
 		CHK_ERR(mysql,NULL);
       	mysql_select_db(mysql, mysql_db);
       		CHK_ERR(mysql,NULL);
@@ -1746,7 +1850,7 @@ int GetWorkerById(int worker_id, struct worker * svc, char * config) {
 	
 	
 	mysql_free_result(res);
-      	mysql_close(mysql);
+      	BARTLBY_MYSQL_CLOSE(mysql);
       	free(mysql_host);
 	free(mysql_user);
 	free(mysql_pw);
@@ -1774,7 +1878,7 @@ int UpdateWorker(struct worker * svc, char *config) {
 
 	mysql=mysql_init(NULL);
 		CHK_ERR(mysql,NULL);
-	mysql=mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
+	mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
 		CHK_ERR(mysql,NULL);
 	mysql_select_db(mysql, mysql_db);
       		CHK_ERR(mysql,NULL);
@@ -1791,7 +1895,7 @@ int UpdateWorker(struct worker * svc, char *config) {
 	
 	free(sqlupd);
 	rtc=1;
-	mysql_close(mysql);
+	BARTLBY_MYSQL_CLOSE(mysql);
 		
 	free(mysql_host);
 	free(mysql_user);
@@ -1822,7 +1926,7 @@ int DeleteWorker(int worker_id, char * config) {
 
 	mysql=mysql_init(NULL);
 		CHK_ERR(mysql,NULL);
-	mysql=mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
+	mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
 		CHK_ERR(mysql,NULL);
 	mysql_select_db(mysql, mysql_db);
       		CHK_ERR(mysql,NULL);
@@ -1839,7 +1943,7 @@ int DeleteWorker(int worker_id, char * config) {
 	
 	free(sqlupd);
 	
-	mysql_close(mysql);
+	BARTLBY_MYSQL_CLOSE(mysql);
 		
 	free(mysql_host);
 	free(mysql_user);
@@ -1872,7 +1976,7 @@ int AddWorker(struct worker * svc, char *config) {
 
 	mysql=mysql_init(NULL);
 		CHK_ERR(mysql,NULL);
-	mysql=mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
+	mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
 		CHK_ERR(mysql,NULL);
 	mysql_select_db(mysql, mysql_db);
       		CHK_ERR(mysql,NULL);
@@ -1889,7 +1993,7 @@ int AddWorker(struct worker * svc, char *config) {
 	
 	free(sqlupd);
 	rtc=mysql_insert_id(mysql);
-	mysql_close(mysql);
+	BARTLBY_MYSQL_CLOSE(mysql);
 		
 	free(mysql_host);
 	free(mysql_user);
@@ -1924,7 +2028,7 @@ int GetServiceById(int service_id, struct service * svc, char * config) {
 	
 	mysql=mysql_init(NULL);
 		CHK_ERR(mysql,NULL);
-	mysql=mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
+	mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
 		CHK_ERR(mysql,NULL);
       	mysql_select_db(mysql, mysql_db);
       		CHK_ERR(mysql,NULL);
@@ -2099,7 +2203,7 @@ int GetServiceById(int service_id, struct service * svc, char * config) {
 	
 	
 	mysql_free_result(res);
-      	mysql_close(mysql);
+      	BARTLBY_MYSQL_CLOSE(mysql);
       	free(mysql_host);
 	free(mysql_user);
 	free(mysql_pw);
@@ -2123,7 +2227,7 @@ int UpdateServiceInterval(struct service * svc, char * config) {
 
 	mysql=mysql_init(NULL);
 		CHK_ERR(mysql,NULL);
-	mysql=mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
+	mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
 		CHK_ERR(mysql,NULL);
 	mysql_select_db(mysql, mysql_db);
       		CHK_ERR(mysql,NULL);
@@ -2139,7 +2243,7 @@ int UpdateServiceInterval(struct service * svc, char * config) {
 	
 	free(sqlupd);
 	rtc=mysql_insert_id(mysql);
-	mysql_close(mysql);
+	BARTLBY_MYSQL_CLOSE(mysql);
 		
 	free(mysql_host);
 	free(mysql_user);
@@ -2171,7 +2275,7 @@ int UpdateService(struct service * svc, char *config) {
 
 	mysql=mysql_init(NULL);
 		CHK_ERR(mysql,NULL);
-	mysql=mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
+	mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
 		CHK_ERR(mysql,NULL);
 	mysql_select_db(mysql, mysql_db);
       		CHK_ERR(mysql,NULL);
@@ -2240,7 +2344,7 @@ int UpdateService(struct service * svc, char *config) {
 	
 	free(sqlupd);
 	rtc=mysql_insert_id(mysql);
-	mysql_close(mysql);
+	BARTLBY_MYSQL_CLOSE(mysql);
 		
 	free(mysql_host);
 	free(mysql_user);
@@ -2271,7 +2375,7 @@ int DeleteService(int service_id, char * config) {
 
 	mysql=mysql_init(NULL);
 		CHK_ERR(mysql,NULL);
-	mysql=mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
+	mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
 		CHK_ERR(mysql,NULL);
 	mysql_select_db(mysql, mysql_db);
       		CHK_ERR(mysql,NULL);
@@ -2288,7 +2392,7 @@ int DeleteService(int service_id, char * config) {
 	
 	free(sqlupd);
 	
-	mysql_close(mysql);
+	BARTLBY_MYSQL_CLOSE(mysql);
 		
 	free(mysql_host);
 	free(mysql_user);
@@ -2325,7 +2429,7 @@ int AddService(struct service * svc, char *config) {
 	
 	mysql=mysql_init(NULL);
 		CHK_ERR(mysql,NULL);
-	mysql=mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
+	mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
 		CHK_ERR(mysql,NULL);
 	mysql_select_db(mysql, mysql_db);
       		CHK_ERR(mysql,NULL);
@@ -2403,7 +2507,7 @@ int AddService(struct service * svc, char *config) {
 	free(sqlupd);
 	rtc=mysql_insert_id(mysql);
 	
-	mysql_close(mysql);
+	BARTLBY_MYSQL_CLOSE(mysql);
 		
 	free(mysql_host);
 	free(mysql_user);
@@ -2434,7 +2538,7 @@ int GetServerById(int server_id, struct server * svc, char * config) {
 	
 	mysql=mysql_init(NULL);
 		CHK_ERR(mysql,NULL);
-	mysql=mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
+	mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
 		CHK_ERR(mysql,NULL);
       	mysql_select_db(mysql, mysql_db);
       		CHK_ERR(mysql,NULL);
@@ -2529,7 +2633,7 @@ int GetServerById(int server_id, struct server * svc, char * config) {
 	
 	
 	mysql_free_result(res);
-      	mysql_close(mysql);
+      	BARTLBY_MYSQL_CLOSE(mysql);
       	free(mysql_host);
 	free(mysql_user);
 	free(mysql_pw);
@@ -2562,7 +2666,7 @@ int ModifyServer(struct server * svc, char *config) {
 
 	mysql=mysql_init(NULL);
 		CHK_ERR(mysql,NULL);
-	mysql=mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
+	mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
 		CHK_ERR(mysql,NULL);
 	mysql_select_db(mysql, mysql_db);
       		CHK_ERR(mysql,NULL);
@@ -2589,7 +2693,7 @@ int ModifyServer(struct server * svc, char *config) {
 	
 
 	rtc=1;
-	mysql_close(mysql);
+	BARTLBY_MYSQL_CLOSE(mysql);
 		
 	free(mysql_host);
 	free(mysql_user);
@@ -2619,7 +2723,7 @@ int DeleteServer(int server_id, char * config) {
 
 	mysql=mysql_init(NULL);
 		CHK_ERR(mysql,NULL);
-	mysql=mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
+	mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
 		CHK_ERR(mysql,NULL);
 	mysql_select_db(mysql, mysql_db);
       		CHK_ERR(mysql,NULL);
@@ -2644,7 +2748,7 @@ int DeleteServer(int server_id, char * config) {
 	
 	free(sqlupd);
 	
-	mysql_close(mysql);
+	BARTLBY_MYSQL_CLOSE(mysql);
 		
 	free(mysql_host);
 	free(mysql_user);
@@ -2676,7 +2780,7 @@ int AddServer(struct server * svc, char *config) {
 
 	mysql=mysql_init(NULL);
 		CHK_ERR(mysql,NULL);
-	mysql=mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
+	mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
 		CHK_ERR(mysql,NULL);
 	mysql_select_db(mysql, mysql_db);
       		CHK_ERR(mysql,NULL);
@@ -2693,7 +2797,7 @@ int AddServer(struct server * svc, char *config) {
 	
 	free(sqlupd);
 	rtc=mysql_insert_id(mysql);
-	mysql_close(mysql);
+	BARTLBY_MYSQL_CLOSE(mysql);
 		
 	free(mysql_host);
 	free(mysql_user);
@@ -2735,7 +2839,7 @@ int doUpdateTrap(struct trap * svc, char * config) {
 
         mysql=mysql_init(NULL);
                 CHK_ERR(mysql,NULL);
-        mysql=mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
+        mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
                 CHK_ERR(mysql,NULL);
         mysql_select_db(mysql, mysql_db);
                 CHK_ERR(mysql,NULL);
@@ -2751,7 +2855,7 @@ int doUpdateTrap(struct trap * svc, char * config) {
 
         free(sqlupd);
 
-        mysql_close(mysql);
+        BARTLBY_MYSQL_CLOSE(mysql);
 
         free(mysql_host);
         free(mysql_user);
@@ -2779,7 +2883,7 @@ int doUpdateServer(struct server * svc, char * config) {
 
         mysql=mysql_init(NULL);
                 CHK_ERR(mysql,NULL);
-        mysql=mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
+        mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
                 CHK_ERR(mysql,NULL);
         mysql_select_db(mysql, mysql_db);
                 CHK_ERR(mysql,NULL);
@@ -2795,7 +2899,7 @@ int doUpdateServer(struct server * svc, char * config) {
 
         free(sqlupd);
 
-        mysql_close(mysql);
+        BARTLBY_MYSQL_CLOSE(mysql);
 
         free(mysql_host);
         free(mysql_user);
@@ -2822,7 +2926,7 @@ int doUpdate(struct service * svc, char * config) {
 
 	mysql=mysql_init(NULL);
 		CHK_ERR(mysql,NULL);
-	mysql=mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
+	mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
 		CHK_ERR(mysql,NULL);
 	mysql_select_db(mysql, mysql_db);
       		CHK_ERR(mysql,NULL);
@@ -2841,7 +2945,7 @@ int doUpdate(struct service * svc, char * config) {
 	
 	free(sqlupd);
 		
-	mysql_close(mysql);
+	BARTLBY_MYSQL_CLOSE(mysql);
 		
 	free(mysql_host);
 	free(mysql_user);
@@ -2869,7 +2973,7 @@ char * sql, *where;
 	set_cfg(config);
 	mysql=mysql_init(NULL);
 		CHK_ERR(mysql,NULL);
-	mysql=mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
+	mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
 		CHK_ERR(mysql,NULL);
       	mysql_select_db(mysql, mysql_db);
       		CHK_ERR(mysql,NULL);
@@ -3017,7 +3121,7 @@ char * sql, *where;
       		}
       		
       		mysql_free_result(res);
-      		mysql_close(mysql);
+      		BARTLBY_MYSQL_CLOSE(mysql);
       		free(mysql_host);
 		      free(mysql_user);
 		      free(mysql_pw);
@@ -3059,7 +3163,7 @@ int GetServiceMap(struct service * svcs, char * config, int orch_id) {
 	set_cfg(config);
 	mysql=mysql_init(NULL);
 		CHK_ERR(mysql,NULL);
-	mysql=mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
+	mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
 		CHK_ERR(mysql,NULL);
       	mysql_select_db(mysql, mysql_db);
       		CHK_ERR(mysql,NULL);
@@ -3204,7 +3308,7 @@ int GetServiceMap(struct service * svcs, char * config, int orch_id) {
       		
       		
       		mysql_free_result(res);
-      		mysql_close(mysql);
+      		BARTLBY_MYSQL_CLOSE(mysql);
       		free(mysql_host);
 		free(mysql_user);
 		free(mysql_pw);
@@ -3216,7 +3320,7 @@ int GetServiceMap(struct service * svcs, char * config, int orch_id) {
     	
 
   mysql_free_result(res);
-  mysql_close(mysql);
+  BARTLBY_MYSQL_CLOSE(mysql);
   free(mysql_host);
 	free(mysql_user);
 	free(mysql_pw);
@@ -3257,7 +3361,7 @@ int GetServerMap(struct server * srv, char * config, int orch_id) {
 	set_cfg(config);
 	mysql=mysql_init(NULL);
 		CHK_ERR(mysql,NULL);
-	mysql=mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
+	mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
 		CHK_ERR(mysql,NULL);
       	mysql_select_db(mysql, mysql_db);
       		CHK_ERR(mysql,NULL);
@@ -3388,7 +3492,7 @@ int GetServerMap(struct server * srv, char * config, int orch_id) {
       		
       		
       		mysql_free_result(res);
-      		mysql_close(mysql);
+      		BARTLBY_MYSQL_CLOSE(mysql);
       		free(mysql_host);
 		free(mysql_user);
 		free(mysql_pw);
@@ -3399,7 +3503,7 @@ int GetServerMap(struct server * srv, char * config, int orch_id) {
       	}
     	
   mysql_free_result(res);
-  mysql_close(mysql);
+  BARTLBY_MYSQL_CLOSE(mysql);
   free(mysql_host);
 	free(mysql_user);
 	free(mysql_pw);
@@ -3424,7 +3528,7 @@ int ServerGroupChangeId(int from, int to, char * config) {
 
 	mysql=mysql_init(NULL);
 		CHK_ERR(mysql,NULL);
-	mysql=mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
+	mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
 		CHK_ERR(mysql,NULL);
 	mysql_select_db(mysql, mysql_db);
       		CHK_ERR(mysql,NULL);
@@ -3440,7 +3544,7 @@ int ServerGroupChangeId(int from, int to, char * config) {
 	free(sqlupd);
 		
 	
-	mysql_close(mysql);
+	BARTLBY_MYSQL_CLOSE(mysql);
 	free(mysql_host);
 	free(mysql_user);
 	free(mysql_pw);
@@ -3469,7 +3573,7 @@ int GetServergroupById(long servergroup_id, struct servergroup * svc, char * con
   
   mysql=mysql_init(NULL);
     CHK_ERR(mysql,NULL);
-  mysql=mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
+  mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
     CHK_ERR(mysql,NULL);
         mysql_select_db(mysql, mysql_db);
           CHK_ERR(mysql,NULL);
@@ -3541,7 +3645,7 @@ int GetServergroupById(long servergroup_id, struct servergroup * svc, char * con
   
   
   mysql_free_result(res);
-  mysql_close(mysql);
+  BARTLBY_MYSQL_CLOSE(mysql);
   free(mysql_host);
   free(mysql_user);
   free(mysql_pw);
@@ -3570,7 +3674,7 @@ int GetServerGroupMap(struct servergroup * svcs, char * config, int orch_id) {
 	set_cfg(config);
 	mysql=mysql_init(NULL);
 		CHK_ERR(mysql,NULL);
-	mysql=mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
+	mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
 		CHK_ERR(mysql,NULL);
       	mysql_select_db(mysql, mysql_db);
       		CHK_ERR(mysql,NULL);
@@ -3651,7 +3755,7 @@ int GetServerGroupMap(struct servergroup * svcs, char * config, int orch_id) {
       		}
       		
       		mysql_free_result(res);
-      		mysql_close(mysql);
+      		BARTLBY_MYSQL_CLOSE(mysql);
       		free(mysql_host);
 		free(mysql_user);
 		free(mysql_pw);
@@ -3664,7 +3768,7 @@ int GetServerGroupMap(struct servergroup * svcs, char * config, int orch_id) {
 	
 	
 	mysql_free_result(res);
-  mysql_close(mysql);
+  BARTLBY_MYSQL_CLOSE(mysql);
 	free(mysql_host);
 	free(mysql_user);
 	free(mysql_pw);
@@ -3691,7 +3795,7 @@ int AddServerGroup(struct servergroup * svc, char *config) {
 
 	mysql=mysql_init(NULL);
 		CHK_ERR(mysql,NULL);
-	mysql=mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
+	mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
 		CHK_ERR(mysql,NULL);
 	mysql_select_db(mysql, mysql_db);
       		CHK_ERR(mysql,NULL);
@@ -3707,7 +3811,7 @@ int AddServerGroup(struct servergroup * svc, char *config) {
 	
 	free(sqlupd);
 	rtc=mysql_insert_id(mysql);
-	mysql_close(mysql);
+	BARTLBY_MYSQL_CLOSE(mysql);
 		
 	free(mysql_host);
 	free(mysql_user);
@@ -3734,7 +3838,7 @@ int DeleteServerGroup(int servergroup_id, char * config) {
 
 	mysql=mysql_init(NULL);
 		CHK_ERR(mysql,NULL);
-	mysql=mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
+	mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
 		CHK_ERR(mysql,NULL);
 	mysql_select_db(mysql, mysql_db);
       		CHK_ERR(mysql,NULL);
@@ -3750,7 +3854,7 @@ int DeleteServerGroup(int servergroup_id, char * config) {
 	
 	free(sqlupd);
 	
-	mysql_close(mysql);
+	BARTLBY_MYSQL_CLOSE(mysql);
 		
 	free(mysql_host);
 	free(mysql_user);
@@ -3780,7 +3884,7 @@ int UpdateServerGroup(struct servergroup * svc, char *config) {
 
 	mysql=mysql_init(NULL);
 		CHK_ERR(mysql,NULL);
-	mysql=mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
+	mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
 		CHK_ERR(mysql,NULL);
 	mysql_select_db(mysql, mysql_db);
       		CHK_ERR(mysql,NULL);
@@ -3797,7 +3901,7 @@ int UpdateServerGroup(struct servergroup * svc, char *config) {
 	
 	free(sqlupd);
 	rtc=1;
-	mysql_close(mysql);
+	BARTLBY_MYSQL_CLOSE(mysql);
 		
 	free(mysql_host);
 	free(mysql_user);
@@ -3824,7 +3928,7 @@ int ServiceGroupChangeId(int from, int to, char * config) {
 
 	mysql=mysql_init(NULL);
 		CHK_ERR(mysql,NULL);
-	mysql=mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
+	mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
 		CHK_ERR(mysql,NULL);
 	mysql_select_db(mysql, mysql_db);
       		CHK_ERR(mysql,NULL);
@@ -3840,7 +3944,7 @@ int ServiceGroupChangeId(int from, int to, char * config) {
 	free(sqlupd);
 		
 	
-	mysql_close(mysql);
+	BARTLBY_MYSQL_CLOSE(mysql);
 	free(mysql_host);
 	free(mysql_user);
 	free(mysql_pw);
@@ -3869,7 +3973,7 @@ int GetsServicegroupById(long servicegroup_id, struct servicegroup * svc, char *
   
   mysql=mysql_init(NULL);
     CHK_ERR(mysql,NULL);
-  mysql=mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
+  mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
     CHK_ERR(mysql,NULL);
         mysql_select_db(mysql, mysql_db);
           CHK_ERR(mysql,NULL);
@@ -3941,7 +4045,7 @@ int GetsServicegroupById(long servicegroup_id, struct servicegroup * svc, char *
   
   
   mysql_free_result(res);
-  mysql_close(mysql);
+  BARTLBY_MYSQL_CLOSE(mysql);
   free(mysql_host);
   free(mysql_user);
   free(mysql_pw);
@@ -3970,7 +4074,7 @@ int GetServiceGroupMap(struct servicegroup * svcs, char * config, int orch_id) {
 	set_cfg(config);
 	mysql=mysql_init(NULL);
 		CHK_ERR(mysql,NULL);
-	mysql=mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
+	mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
 		CHK_ERR(mysql,NULL);
       	mysql_select_db(mysql, mysql_db);
       		CHK_ERR(mysql,NULL);
@@ -4054,7 +4158,7 @@ int GetServiceGroupMap(struct servicegroup * svcs, char * config, int orch_id) {
       		}
       		
       		mysql_free_result(res);
-      		mysql_close(mysql);
+      		BARTLBY_MYSQL_CLOSE(mysql);
       		free(mysql_host);
 		free(mysql_user);
 		free(mysql_pw);
@@ -4067,7 +4171,7 @@ int GetServiceGroupMap(struct servicegroup * svcs, char * config, int orch_id) {
 	
 	
 	mysql_free_result(res);
-  mysql_close(mysql);
+  BARTLBY_MYSQL_CLOSE(mysql);
 	free(mysql_host);
 	free(mysql_user);
 	free(mysql_pw);
@@ -4094,7 +4198,7 @@ int AddServiceGroup(struct servicegroup * svc, char *config) {
 
 	mysql=mysql_init(NULL);
 		CHK_ERR(mysql,NULL);
-	mysql=mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
+	mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
 		CHK_ERR(mysql,NULL);
 	mysql_select_db(mysql, mysql_db);
       		CHK_ERR(mysql,NULL);
@@ -4110,7 +4214,7 @@ int AddServiceGroup(struct servicegroup * svc, char *config) {
 	
 	free(sqlupd);
 	rtc=mysql_insert_id(mysql);
-	mysql_close(mysql);
+	BARTLBY_MYSQL_CLOSE(mysql);
 		
 	free(mysql_host);
 	free(mysql_user);
@@ -4137,7 +4241,7 @@ int DeleteServiceGroup(int servicegroup_id, char * config) {
 
 	mysql=mysql_init(NULL);
 		CHK_ERR(mysql,NULL);
-	mysql=mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
+	mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
 		CHK_ERR(mysql,NULL);
 	mysql_select_db(mysql, mysql_db);
       		CHK_ERR(mysql,NULL);
@@ -4153,7 +4257,7 @@ int DeleteServiceGroup(int servicegroup_id, char * config) {
 	
 	free(sqlupd);
 	
-	mysql_close(mysql);
+	BARTLBY_MYSQL_CLOSE(mysql);
 		
 	free(mysql_host);
 	free(mysql_user);
@@ -4183,7 +4287,7 @@ int UpdateServiceGroup(struct servicegroup * svc, char *config) {
 
 	mysql=mysql_init(NULL);
 		CHK_ERR(mysql,NULL);
-	mysql=mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
+	mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
 		CHK_ERR(mysql,NULL);
 	mysql_select_db(mysql, mysql_db);
       		CHK_ERR(mysql,NULL);
@@ -4200,7 +4304,7 @@ int UpdateServiceGroup(struct servicegroup * svc, char *config) {
 	
 	free(sqlupd);
 	rtc=1;
-	mysql_close(mysql);
+	BARTLBY_MYSQL_CLOSE(mysql);
 		
 	free(mysql_host);
 	free(mysql_user);
@@ -4237,7 +4341,7 @@ int AddTrap(struct trap * svc, char *config) {
 
   mysql=mysql_init(NULL);
     CHK_ERR(mysql,NULL);
-  mysql=mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
+  mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
     CHK_ERR(mysql,NULL);
   mysql_select_db(mysql, mysql_db);
           CHK_ERR(mysql,NULL);
@@ -4265,7 +4369,7 @@ int AddTrap(struct trap * svc, char *config) {
   
   free(sqlupd);
   rtc=mysql_insert_id(mysql);
-  mysql_close(mysql);
+  BARTLBY_MYSQL_CLOSE(mysql);
     
   free(mysql_host);
   free(mysql_user);
@@ -4292,7 +4396,7 @@ int DeleteTrap(int trap_id, char * config) {
 
   mysql=mysql_init(NULL);
     CHK_ERR(mysql,NULL);
-  mysql=mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
+  mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
     CHK_ERR(mysql,NULL);
   mysql_select_db(mysql, mysql_db);
           CHK_ERR(mysql,NULL);
@@ -4308,7 +4412,7 @@ int DeleteTrap(int trap_id, char * config) {
   
   free(sqlupd);
   
-  mysql_close(mysql);
+  BARTLBY_MYSQL_CLOSE(mysql);
     
   free(mysql_host);
   free(mysql_user);
@@ -4336,7 +4440,7 @@ int UpdateTrap(struct trap * svc, char *config) {
 
   mysql=mysql_init(NULL);
     CHK_ERR(mysql,NULL);
-  mysql=mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
+  mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
     CHK_ERR(mysql,NULL);
   mysql_select_db(mysql, mysql_db);
           CHK_ERR(mysql,NULL);
@@ -4359,7 +4463,7 @@ int UpdateTrap(struct trap * svc, char *config) {
   
   free(sqlupd);
   rtc=1;
-  mysql_close(mysql);
+  BARTLBY_MYSQL_CLOSE(mysql);
     
   free(mysql_host);
   free(mysql_user);
@@ -4384,7 +4488,7 @@ int TrapChangeId(int from, int to, char * config) {
 
   mysql=mysql_init(NULL);
     CHK_ERR(mysql,NULL);
-  mysql=mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
+  mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
     CHK_ERR(mysql,NULL);
   mysql_select_db(mysql, mysql_db);
           CHK_ERR(mysql,NULL);
@@ -4400,7 +4504,7 @@ int TrapChangeId(int from, int to, char * config) {
   free(sqlupd);
     
   
-  mysql_close(mysql);
+  BARTLBY_MYSQL_CLOSE(mysql);
   free(mysql_host);
   free(mysql_user);
   free(mysql_pw);
@@ -4430,7 +4534,7 @@ int GetTrapById(long trap_id, struct trap * svc, char * config) {
   
   mysql=mysql_init(NULL);
     CHK_ERR(mysql,NULL);
-  mysql=mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
+  mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
     CHK_ERR(mysql,NULL);
         mysql_select_db(mysql, mysql_db);
           CHK_ERR(mysql,NULL);
@@ -4492,7 +4596,7 @@ int GetTrapById(long trap_id, struct trap * svc, char * config) {
   
   
   mysql_free_result(res);
-  mysql_close(mysql);
+  BARTLBY_MYSQL_CLOSE(mysql);
   free(mysql_host);
   free(mysql_user);
   free(mysql_pw);
@@ -4521,7 +4625,7 @@ int GetTrapMap(struct trap * svcs, char * config, int orch_id) {
   set_cfg(config);
   mysql=mysql_init(NULL);
     CHK_ERR(mysql,NULL);
-  mysql=mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
+  mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
     CHK_ERR(mysql,NULL);
         mysql_select_db(mysql, mysql_db);
           CHK_ERR(mysql,NULL);
@@ -4598,7 +4702,7 @@ int GetTrapMap(struct trap * svcs, char * config, int orch_id) {
           }
           
           mysql_free_result(res);
-          mysql_close(mysql);
+          BARTLBY_MYSQL_CLOSE(mysql);
           free(mysql_host);
     free(mysql_user);
     free(mysql_pw);
@@ -4611,7 +4715,7 @@ int GetTrapMap(struct trap * svcs, char * config, int orch_id) {
   
   
   mysql_free_result(res);
-  mysql_close(mysql);
+  BARTLBY_MYSQL_CLOSE(mysql);
   free(mysql_host);
   free(mysql_user);
   free(mysql_pw);
@@ -4621,3 +4725,4 @@ int GetTrapMap(struct trap * svcs, char * config, int orch_id) {
   
   
 }
+
