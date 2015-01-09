@@ -1,6 +1,6 @@
 #!/bin/sh
 
-echo "###### UNIT TESTS ##########################"
+
 CFG_DIR=$PWD/installation;
 cd tests/
 make CFLAGS=-DCONFIG=\\\"$CFG_DIR/etc/bartlby.cfg\\\"
@@ -10,6 +10,9 @@ then
 	echo "TEST COMPILE FAILED";
 	exit $EE;
 fi;
+
+
+echo "###### UNIT TESTS ##########################"
 ./bartlby_test
 EX=$?;
 cd ..
