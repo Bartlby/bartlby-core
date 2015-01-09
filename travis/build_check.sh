@@ -1,7 +1,7 @@
 #!/bin/sh
 
 echo "###### UNIT TESTS ##########################"
-CFG_DIR=$PWD;
+CFG_DIR=$PWD/installation;
 cd tests/
 make CFLAGS=-DCONFIG=\\\"$CFG_DIR/etc/bartlby.cfg\\\"
 ./bartlby_test
