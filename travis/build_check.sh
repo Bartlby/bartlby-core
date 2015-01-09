@@ -4,6 +4,7 @@ cd tests/
 make CFLAGS=-DTRAVIS
 ./bartlby_test --verbose
 EX=$?;
+cd ..
 
 installation/etc/bartlby.startup stop
 cat installation/var/log/bartlby*

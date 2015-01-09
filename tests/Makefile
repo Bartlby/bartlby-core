@@ -8,7 +8,7 @@ tinytest.o: tinytest.h
 OBJS=tinytest.o bartlby_test.o global.o worker.o core.o
 
 bartlby_test: $(OBJS)
-	gcc -ldl -ljson -lcurl  -g -O2 $(OBJS) ../libbartlby.a  -o bartlby_test
+	gcc -ldl -ljson -lcurl -lrt -g -O2 $(OBJS) ../libbartlby.a  -o bartlby_test
 
 
 
