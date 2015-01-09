@@ -1,13 +1,15 @@
 #!/bin/sh
 
+echo "###### UNIT TESTS ##########################"
 cd tests/
 make CFLAGS=-DTRAVIS
-./bartlby_test --verbose
+./bartlby_test
 EX=$?;
 cd ..
+echo "###### UNIT TESTS ##########################"
 
 installation/etc/bartlby.startup stop
-cat installation/var/log/bartlby*
+echo "Version:" 
 installation/bin/bartlby -v
 
 grepcheck=$(grep "Pid file removed" installation/var/log/bartlby*)
