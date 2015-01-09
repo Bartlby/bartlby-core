@@ -1,8 +1,11 @@
 #!/bin/sh
 
-sleep 5
+cd tests/
+make CFLAGS=-DTRAVIS
+./bartlby_test --verbose
+EX=$?;
+
 installation/etc/bartlby.startup stop
-sleep 3
 cat installation/var/log/bartlby*
 installation/bin/bartlby -v
 
@@ -13,4 +16,4 @@ then
 	echo "ERROR SEE LOG";
 	exit 1;
 fi;
-exit 0;
+exit $EX;
