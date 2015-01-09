@@ -43,7 +43,7 @@ void test_core_sql(void *data) {
 	
 
 	
-
+	
 
 	end:
 		dlclose(SOHandle);
@@ -52,10 +52,37 @@ void test_core_sql(void *data) {
 
 
 }
+
+void test_shm_so(void *data) {
+	(void)data;
+	void * SOHandle;
+	void * bartlby_address;
+
+
 	
+
+	
+	
+	
+	SOHandle = bartlby_get_sohandle(CONFIG);
+	bartlby_address=bartlby_get_shm(CONFIG);
+	
+	tt_ptr_op(SOHandle, !=, NULL);
+	tt_ptr_op(bartlby_address, !=, NULL);
+	
+	TT_DECLARE("INFO",("... Lib and SHM work  "));
+
+
+	end:
+		dlclose(SOHandle);
+		shmdt(bartlby_address);
+	;
+
+
+}	
 
 //TINYTEST SETUP
 struct testcase_t core_tests[] = {
-	{ "testsql", test_core_sql, },
+	{ "shm_and_lib", test_shm_so, },
 	END_OF_TESTCASES
 };
