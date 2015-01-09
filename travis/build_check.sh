@@ -15,7 +15,7 @@ EX=$?;
 cd ..
 echo "###### UNIT TESTS ##########################"
 
-installation/etc/bartlby.startup stop
+sudo installation/etc/bartlby.startup stop
 echo "Version:" 
 installation/bin/bartlby -v
 
