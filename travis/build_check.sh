@@ -2,7 +2,7 @@
 
 echo "###### UNIT TESTS ##########################"
 cd tests/
-make CFLAGS=-DTRAVIS
+make CFLAGS=-DCONFIG=\\\"$PWD/etc/bartlby.cfg\\\"
 ./bartlby_test
 EX=$?;
 cd ..
