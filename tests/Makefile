@@ -1,14 +1,14 @@
 all: bartlby_test
 
 .c.o:
-	gcc -I../include/ -I/usr/include/curl -I/usr/include/json $(CFLAGS)   -g -O2 -c $<
+	gcc -I../include/ -I/usr/include/curl -I/usr/include/json $(CFLAGS)    -g -O2 -c $<
 
 tinytest.o: tinytest.h
 
 OBJS=tinytest.o bartlby_test.o global.o worker.o core.o
 
 bartlby_test: $(OBJS)
-	gcc -ldl -ljson -lcurl -lrt -g -O2 $(OBJS) ../libbartlby.a  -o bartlby_test
+	gcc -Wl,--no-as-needed -g -O2 $(OBJS) ../libbartlby.a -ldl -ljson -lcurl -lrt  -o bartlby_test
 
 
 
