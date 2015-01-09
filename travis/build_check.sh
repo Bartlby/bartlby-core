@@ -1,8 +1,9 @@
 #!/bin/sh
 
 echo "###### UNIT TESTS ##########################"
+CFG_DIR=$PWD;
 cd tests/
-make CFLAGS=-DCONFIG=\\\"$PWD/etc/bartlby.cfg\\\"
+make CFLAGS=-DCONFIG=\\\"$CFG_DIR/etc/bartlby.cfg\\\"
 ./bartlby_test
 EX=$?;
 cd ..
