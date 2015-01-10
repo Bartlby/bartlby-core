@@ -1,3 +1,15 @@
+struct mysql_buffers_list {
+  char * sql;
+  struct mysql_buffers_list * next;
+};
+
+char * bartlby_mysql_safe(MYSQL * mysql, struct mysql_buffers_list ** bartlby_protection_buff_list, char * value);
+void bartlby_mysql_safe_free(struct mysql_buffers_list * head);
+void bartlby_mysql_safe_init(struct mysql_buffers_list ** curr, struct mysql_buffers_list ** head);
+
+
+
+
 #define BARTLBY_SQL_PROTECTION_FREE bartlby_mysql_safe_free(bartlby_protection_bartlby_protection_buff_list_head)
 
 #define CHK_FREE_CRED if(mysql_user != NULL) { free(mysql_user); } \
@@ -43,10 +55,6 @@
 #define DLVERSION  "1.5.1"
 
 
-struct mysql_buffers_list {
-  char * sql;
-  struct mysql_buffers_list * next;
-};
 
 
 #define BARTLBY_SQL_PROTECTION_INIT struct mysql_buffers_list * bartlby_protection_buff_list; \
