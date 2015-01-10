@@ -49,13 +49,14 @@ void test_worker_lib(void *data) {
 
 	
 	
-	int (*AddWorker)(struct worker *, char *);
+	long (*AddWorker)(struct worker *, char *);
 	int (*UpdateWorker)(struct worker *, char *);
 	int (*DeleteWorker)(long worker_id, char *);
-	int (*GetWorkerById)(int, struct worker *, char * );
+	int (*GetWorkerById)(long, struct worker *, char * );
 
 	int rtc=-1;
-	int object_id=-1;
+	long object_id=-1;
+	long lrtc=-1;
 
 	SOHandle = bartlby_get_sohandle(CONFIG);
 	bartlby_address=bartlby_get_shm(CONFIG);
@@ -69,9 +70,9 @@ void test_worker_lib(void *data) {
 	LOAD_SYMBOL_TEST(UpdateWorker,SOHandle, "UpdateWorker");	
 	LOAD_SYMBOL_TEST(GetWorkerById,SOHandle, "GetWorkerById");	
 
-	rtc=AddWorker(&dummy_worker, CONFIG);
-	object_id=rtc;
-	tt_int_op(rtc, >, 0);
+	lrtc=AddWorker(&dummy_worker, CONFIG);
+	object_id=lrtc;
+	tt_int_op(lrtc, >, 0);
 	
 	TT_DECLARE("INFO",("... Added Worker id: %ld", object_id));
 
@@ -129,7 +130,8 @@ void test_worker_running(void *data) {
 		
 
 	int rtc=-1;
-	int object_id=-1;
+	long lrtc=-1;
+	long object_id=-1;
 
 	SOHandle = bartlby_get_sohandle(CONFIG);
 	bartlby_address=bartlby_get_shm(CONFIG);
@@ -142,9 +144,9 @@ void test_worker_running(void *data) {
 	LOAD_SYMBOL_TEST(DeleteWorker,SOHandle, "DeleteWorker");
 
 
-	rtc=AddWorker(&dummy_worker, CONFIG);
-	object_id=rtc;
-	tt_int_op(rtc, >, 0);
+	lrtc=AddWorker(&dummy_worker, CONFIG);
+	object_id=lrtc;
+	tt_int_op(lrtc, >, 0);
 	
 	TT_DECLARE("INFO",("... Added Worker id: %ld", object_id));
 
