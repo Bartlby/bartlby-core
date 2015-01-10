@@ -34,7 +34,7 @@
                               servicegroup_id=%ld"
 
 
-#define DEL_SERVICEGROUP "delete from servicegroups where servicegroup_id=%d"
+#define DEL_SERVICEGROUP "delete from servicegroups where servicegroup_id=%ld"
 #define ADD_SERVICEGROUP "INSERT INTO \
                                 servicegroups( \
                                     servicegroup_name, \
@@ -81,14 +81,14 @@
                             servicegroups where servicegroup_id=%ld"
 
 
-#define SERVICEGROUP_CHANGE_ID "update servicegroups set servicegroup_id=%d where servicegroup_id=%d"
+#define SERVICEGROUP_CHANGE_ID "update servicegroups set servicegroup_id=%ld where servicegroup_id=%ld"
 
 
 
 
 
 
-int ServiceGroupChangeId(int from, int to, char * config) {
+long ServiceGroupChangeId(long from, long to, char * config) {
 	MYSQL *mysql;
 	
 	
@@ -360,10 +360,10 @@ BARTLBY_SQL_PROTECTION_INIT;
 	
 }
 
-int AddServiceGroup(struct servicegroup * svc, char *config) {
+long AddServiceGroup(struct servicegroup * svc, char *config) {
 	
 	MYSQL *mysql;
-	int rtc;
+	long rtc;
 	
 	char * sqlupd;
 	
@@ -412,7 +412,7 @@ BARTLBY_SQL_PROTECTION_INIT;
 }	
 
 
-int DeleteServiceGroup(int servicegroup_id, char * config) {
+int DeleteServiceGroup(long servicegroup_id, char * config) {
 	
 	MYSQL *mysql;
 

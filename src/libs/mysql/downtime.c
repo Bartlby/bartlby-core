@@ -32,7 +32,7 @@
                           where  \
                             downtime_id=%ld"
 
-#define DEL_DOWNTIME "delete from downtime where downtime_id=%d"
+#define DEL_DOWNTIME "delete from downtime where downtime_id=%ld"
 #define ADD_DOWNTIME "INSERT INTO \
                               downtime \
                                 ( \
@@ -76,7 +76,7 @@
                         downtime where downtime_id=%ld"
 
 
-#define DOWNTIME_CHANGE_ID "update downtime set downtime_id=%d where downtime_id=%d"
+#define DOWNTIME_CHANGE_ID "update downtime set downtime_id=%ld where downtime_id=%ld"
 
 
 int UpdateDowntime(struct downtime * svc, char *config) {
@@ -132,7 +132,7 @@ BARTLBY_SQL_PROTECTION_INIT;
 	return rtc;	
 }
 
-int DeleteDowntime(int downtime_id, char * config) {
+int DeleteDowntime(long downtime_id, char * config) {
 	
 	MYSQL *mysql;
 
@@ -178,7 +178,7 @@ BARTLBY_SQL_PROTECTION_INIT;
 	
 }
 
-int DowntimeChangeId(int from, int to, char * config) {
+long DowntimeChangeId(long from, long to, char * config) {
 	MYSQL *mysql;
 	
 	
@@ -224,10 +224,11 @@ BARTLBY_SQL_PROTECTION_INIT;
 
 
 
-int AddDowntime(struct downtime * svc, char *config) {
+long AddDowntime(struct downtime * svc, char *config) {
 	
+  
 	MYSQL *mysql;
-	int rtc;
+	long rtc;
 	
 	char * sqlupd;
 	

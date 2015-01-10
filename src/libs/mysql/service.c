@@ -157,8 +157,8 @@
                     )"
 
 
-#define DELETE_SERVICE "delete from services where service_id=%d"
-#define SERVICE_CHANGE_ID "update services set service_id=%d where service_id=%d"
+#define DELETE_SERVICE "delete from services where service_id=%ld"
+#define SERVICE_CHANGE_ID "update services set service_id=%ld where service_id=%ld"
 
 #define UPDATE_SERVICE "update \
                           services  \
@@ -239,13 +239,13 @@
                             notify_super_users \
                         from  \
                             services svc  \
-                        where service_id=%d"
+                        where service_id=%ld"
 
 
 #define UPDATE_SERVICE_INTERVAL "update services set service_interval=%ld where service_id=%ld"
 
 
-int ServiceChangeId(int from, int to, char * config) {
+long ServiceChangeId(long from, long to, char * config) {
 	MYSQL *mysql;
 	
 	
@@ -286,7 +286,7 @@ BARTLBY_SQL_PROTECTION_INIT;
 	return to;	
 }
 
-int GetServiceById(int service_id, struct service * svc, char * config) {
+int GetServiceById(long service_id, struct service * svc, char * config) {
 	
 	
 	
@@ -526,8 +526,8 @@ BARTLBY_SQL_PROTECTION_INIT;
 	
 	
 	free(sqlupd);
-	rtc=mysql_insert_id(mysql);
-	BARTLBY_MYSQL_CLOSE(mysql);
+	rtc=1;
+  BARTLBY_MYSQL_CLOSE(mysql);
 		
 	free(mysql_host);
 	free(mysql_user);
@@ -628,7 +628,7 @@ BARTLBY_SQL_PROTECTION_INIT;
 	
 	
 	free(sqlupd);
-	rtc=mysql_insert_id(mysql);
+	rtc=1;
 	BARTLBY_MYSQL_CLOSE(mysql);
 		
 	free(mysql_host);
@@ -640,7 +640,7 @@ BARTLBY_SQL_PROTECTION_INIT;
 	return rtc;	
 }
 
-int DeleteService(int service_id, char * config) {
+int DeleteService(long service_id, char * config) {
 	/*
 		we get a svc->server_id
 		KICK it (not like beckham)
@@ -691,7 +691,7 @@ BARTLBY_SQL_PROTECTION_INIT;
 }
 
 
-int AddService(struct service * svc, char *config) {
+long AddService(struct service * svc, char *config) {
 	/*
 		We get a struct service
 		fully filled :-)
@@ -699,7 +699,7 @@ int AddService(struct service * svc, char *config) {
 		and return svc->service_id
 	*/
 	MYSQL *mysql;
-	int rtc;
+	long rtc;
 	
 	char * sqlupd;
 	

@@ -19,10 +19,10 @@
 
 #include "bartlby_mysql.h"
 
-#define SERVER_CHANGE_SERVICES "update services set server_id=%d where server_id=%d"
+#define SERVER_CHANGE_SERVICES "update services set server_id=%ld where server_id=%ld"
 #define SERVER_CHANGE_SERVICES_ORCH_ID "update services set orch_id=%d where server_id=%ld"
 #define SERVER_UPDATE_TEXT "update servers set server_enabled='%d', server_notify='%d' where server_id=%ld"
-#define DELETE_SERVICE_BY_SERVER "delete from services where server_id=%d"
+#define DELETE_SERVICE_BY_SERVER "delete from services where server_id=%ld"
 
 
 
@@ -91,7 +91,7 @@
 
 
 
-#define DELETE_SERVER "delete from servers where server_id=%d"
+#define DELETE_SERVER "delete from servers where server_id=%ld"
 
 
 
@@ -141,13 +141,13 @@
                           from  \
                               servers  \
                           where \
-                              server_id=%d"
+                              server_id=%ld"
 
-#define SERVER_CHANGE_ID "update servers set server_id=%d where server_id=%d"
+#define SERVER_CHANGE_ID "update servers set server_id=%ld where server_id=%ld"
 
 
 
-int ServerChangeId(int from, int to, int sr, char * config) {
+long ServerChangeId(long from, long to, int sr, char * config) {
 	MYSQL *mysql;
 	
 	
@@ -198,7 +198,7 @@ BARTLBY_SQL_PROTECTION_INIT;
 	return to;	
 }
 
-int GetServerById(int server_id, struct server * svc, char * config) {
+int GetServerById(long server_id, struct server * svc, char * config) {
 	
 	int tmprc;
 	MYSQL *mysql;
@@ -405,7 +405,7 @@ BARTLBY_SQL_PROTECTION_INIT;
 	return rtc;	
 }		
 	
-int DeleteServer(int server_id, char * config) {
+int DeleteServer(long server_id, char * config) {
 	/*
 		we get a svc->server_id
 		KICK it (not like beckham)
@@ -462,7 +462,7 @@ BARTLBY_SQL_PROTECTION_INIT;
 	
 	
 }
-int AddServer(struct server * svc, char *config) {
+long AddServer(struct server * svc, char *config) {
 	/*
 		We get a struct service
 		filled with server_name, client_port, client_ip
@@ -470,7 +470,7 @@ int AddServer(struct server * svc, char *config) {
 		and return svc->server_id
 	*/
 	MYSQL *mysql;
-	int rtc;
+	long rtc;
 	
 	char * sqlupd;
 	

@@ -31,7 +31,7 @@
                                     where \
                                       servergroup_id=%ld"
 
-#define DEL_SERVERGROUP "delete from servergroups where servergroup_id=%d"
+#define DEL_SERVERGROUP "delete from servergroups where servergroup_id=%ld"
 #define ADD_SERVERGROUP "INSERT INTO \
                                       servergroups( \
                                           servergroup_name, \
@@ -81,10 +81,10 @@
                             
 
 
-#define SERVERGROUP_CHANGE_ID "update servergroups set servergroup_id=%d where servergroup_id=%d"
+#define SERVERGROUP_CHANGE_ID "update servergroups set servergroup_id=%ld where servergroup_id=%ld"
 
 
-int ServerGroupChangeId(int from, int to, char * config) {
+long ServerGroupChangeId(long from, long to, char * config) {
 	MYSQL *mysql;
 	
 	
@@ -353,10 +353,10 @@ BARTLBY_SQL_PROTECTION_INIT;
 	
 }
 
-int AddServerGroup(struct servergroup * svc, char *config) {
+long AddServerGroup(struct servergroup * svc, char *config) {
 	
 	MYSQL *mysql;
-	int rtc;
+	long rtc;
 	
 	char * sqlupd;
 	
@@ -405,7 +405,7 @@ BARTLBY_SQL_PROTECTION_INIT;
 }	
 
 
-int DeleteServerGroup(int servergroup_id, char * config) {
+int DeleteServerGroup(long servergroup_id, char * config) {
 	
 	MYSQL *mysql;
 
