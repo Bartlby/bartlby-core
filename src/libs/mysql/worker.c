@@ -90,7 +90,7 @@
                             '%d' \
                         )"
 
-#define DELETE_WORKER "delete from workers where worker_id=%d"
+#define DELETE_WORKER "delete from workers where worker_id=%ld"
 
 #define UPDATE_WORKER "update workers \
                           set \
@@ -141,14 +141,14 @@
                           api_privkey, \
                           api_enabled \
                       from  \
-                          workers where worker_id=%d"
+                          workers where worker_id=%ld"
 
 
-#define WORKER_CHANGE_ID "update workers set worker_id=%d where worker_id=%d"
+#define WORKER_CHANGE_ID "update workers set worker_id=%ld where worker_id=%ld"
 
 
 
-int WorkerChangeId(int from, int to, char * config) {
+long WorkerChangeId(long from, long to, char * config) {
 	MYSQL *mysql;
 	
 	
@@ -189,7 +189,7 @@ BARTLBY_SQL_PROTECTION_INIT;
 	return to;	
 }
 
-int GetWorkerById(int worker_id, struct worker * svc, char * config) {
+int GetWorkerById(long worker_id, struct worker * svc, char * config) {
 	
 	int tmprc;
 	MYSQL *mysql;
@@ -411,7 +411,7 @@ BARTLBY_SQL_PROTECTION_INIT;
 }
 
 
-int DeleteWorker(int worker_id, char * config) {
+int DeleteWorker(long worker_id, char * config) {
 	/*
 		we get a svc->server_id
 		KICK it (not like beckham)
@@ -461,7 +461,7 @@ BARTLBY_SQL_PROTECTION_INIT;
 	
 }
 
-int AddWorker(struct worker * svc, char *config) {
+long AddWorker(struct worker * svc, char *config) {
 	/*
 		We get a struct worker
 		filled with worker_mail, worker_ic, enabled_services, notify_levels, active
@@ -469,7 +469,7 @@ int AddWorker(struct worker * svc, char *config) {
 		and return wrk->worker_id
 	*/
 	MYSQL *mysql;
-	int rtc;
+	long rtc;
 	
 	char * sqlupd;
 	

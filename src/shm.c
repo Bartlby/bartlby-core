@@ -49,7 +49,7 @@ void bartlby_SHM_link_services_servers(void * shm_addr, char * cfgfile, void * S
 	char * group_has_service;
 	char * autodelete_orphaned_services;
 	
-	int (*DeleteService)(int, char *); 
+	int (*DeleteService)(long, char *); 
 	
 	default_server_group_index=-1;
 	default_service_group_index=-1;

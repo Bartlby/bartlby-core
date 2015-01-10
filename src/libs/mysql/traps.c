@@ -37,7 +37,7 @@
                                     where \
                                       trap_id=%ld"
 
-#define DEL_TRAP "delete from traps where trap_id=%d"
+#define DEL_TRAP "delete from traps where trap_id=%ld"
 
 
 
@@ -107,14 +107,14 @@
                             
 
 #define TRAP_UPDATE_INFO "update traps set trap_last_match = %d, trap_last_data='%s' where trap_id=%ld"
-#define TRAP_CHANGE_ID "update traps set trap_id=%d where trap_id=%d"
+#define TRAP_CHANGE_ID "update traps set trap_id=%ld where trap_id=%ld"
 ///TRAPS;
 
 
-int AddTrap(struct trap * svc, char *config) {
+long AddTrap(struct trap * svc, char *config) {
   
   MYSQL *mysql;
-  int rtc;
+  long rtc;
   
   char * sqlupd;
   
@@ -167,7 +167,7 @@ BARTLBY_SQL_PROTECTION_INIT;
 } 
 
 
-int DeleteTrap(int trap_id, char * config) {
+int DeleteTrap(long trap_id, char * config) {
   
   MYSQL *mysql;
 
@@ -263,7 +263,7 @@ BARTLBY_SQL_PROTECTION_INIT;
   return rtc; 
 }
 
-int TrapChangeId(int from, int to, char * config) {
+long TrapChangeId(long from, long to, char * config) {
   MYSQL *mysql;
   
   
