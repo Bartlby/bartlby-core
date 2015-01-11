@@ -7,6 +7,7 @@
 
 
 /*
+cproto -I../../../include -I/usr/include/curl -I/usr/include/json  service.c
 Test Library  Functions
 
 long WorkerChangeId(long from, long to, char *config); -> DONE
@@ -63,7 +64,7 @@ void test_worker_lib(void *data) {
 
 	struct worker * wrkmap;
 	
-	
+	wrkmap=NULL;
 	long (*AddWorker)(struct worker *, char *);
 	int (*UpdateWorker)(struct worker *, char *);
 	int (*DeleteWorker)(long worker_id, char *);
@@ -146,7 +147,7 @@ void test_worker_lib(void *data) {
 
 
 	end:
-		free(wrkmap);
+		if(wrkmap != NULL) free(wrkmap);
 		dlclose(SOHandle);
 		shmdt(bartlby_address);
 	;
