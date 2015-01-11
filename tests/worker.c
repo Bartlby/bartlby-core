@@ -4,6 +4,20 @@
 
 #include "bartlby_test.h"
 
+
+
+/*
+Test Library  Functions
+
+long WorkerChangeId(long from, long to, char *config); -> DONE
+int GetWorkerById(long worker_id, struct worker *svc, char *config); - DONE
+int UpdateWorker(struct worker *svc, char *config); - DONE
+int DeleteWorker(long worker_id, char *config); - DONE
+long AddWorker(struct worker *svc, char *config); - DONE
+int GetWorkerMap(struct worker *svcs, char *config, int orch_id); - DONE
+*/
+
+
 extern char * dlmsg;
 	//DEFINE SAMPLE DATA:
 	struct worker dummy_worker = {
@@ -47,67 +61,92 @@ void test_worker_lib(void *data) {
 	struct worker returned_object;
 
 
+	struct worker * wrkmap;
 	
 	
 	long (*AddWorker)(struct worker *, char *);
 	int (*UpdateWorker)(struct worker *, char *);
 	int (*DeleteWorker)(long worker_id, char *);
 	int (*GetWorkerById)(long, struct worker *, char * );
+	long (*WorkerChangeId)(long, long, char*);
+	int (*GetWorkerMap)(struct worker*, char*, int);
+
+
 
 	int rtc=-1;
 	long object_id=-1;
 	long lrtc=-1;
+	int x;
 
 	SOHandle = bartlby_get_sohandle(CONFIG);
 	bartlby_address=bartlby_get_shm(CONFIG);
 	
 
 	
-	/// ADD worker
-
 	LOAD_SYMBOL_TEST(AddWorker,SOHandle, "AddWorker");
 	LOAD_SYMBOL_TEST(DeleteWorker,SOHandle, "DeleteWorker");
 	LOAD_SYMBOL_TEST(UpdateWorker,SOHandle, "UpdateWorker");	
 	LOAD_SYMBOL_TEST(GetWorkerById,SOHandle, "GetWorkerById");	
+	LOAD_SYMBOL_TEST(WorkerChangeId,SOHandle, "WorkerChangeId");	
+	LOAD_SYMBOL_TEST(GetWorkerMap,SOHandle, "GetWorkerMap");	
 
+
+	/******* ADD WORKER ****/
 	lrtc=AddWorker(&dummy_worker, CONFIG);
 	object_id=lrtc;
 	tt_int_op(lrtc, >, 0);
-	
 	TT_DECLARE("INFO",("... Added Worker id: %ld", object_id));
+	/******* ADD WORKER ****/
 
+
+	/******* MODIFY WORKER ****/
 	dummy_worker.worker_id=object_id;
 	memcpy(&modified_object,&dummy_worker, sizeof(struct worker));
 	memcpy(&returned_object,&dummy_worker, sizeof(struct worker));
-	
-
-	
-
 	snprintf(modified_object.name,2048, "modified-unit-test");
 	rtc=UpdateWorker(&modified_object, CONFIG);
 	tt_int_op(rtc, ==, 1);
-
 	TT_DECLARE("INFO",("... Modified Worker, changed name"));
+	/******* MODIFY WORKER ****/
 
+	/******* GETWORKERBYID ****/
 	rtc=GetWorkerById(object_id, &returned_object, CONFIG);
 	tt_int_op(rtc, ==, 0);
 	tt_str_op(returned_object.name, ==, modified_object.name);
-
 	TT_DECLARE("INFO",("... get worker by id ", object_id));
+	/******* GETWORKERBYID ****/
 
+	/******* WORKERCHANGEID ****/
+	object_id=WorkerChangeId(lrtc, 999, CONFIG);
+	tt_int_op(object_id, ==, 999);
+	TT_DECLARE("INFO",("... Changed worker id from %ld to %ld ",lrtc, object_id));
+	/******* WORKERCHANGEID ****/
 
+	/*** WORKERMAP **/
+	wrkmap = malloc(sizeof(struct worker)*10);
+	rtc=GetWorkerMap(wrkmap, CONFIG, 999);
+	lrtc=-1;
+	for(x=0; x<rtc; x++) {
+		if(wrkmap[x].worker_id==object_id) {
+			lrtc = 1;
+		}
+	}
+	tt_int_op(lrtc, ==, 1);
+	TT_DECLARE("INFO",("... Created WorkerMap and found  %ld ", object_id));
+	/*** WORKERMAP **/
+
+	/*** DELETEWORKER **/
 	rtc=DeleteWorker(object_id, CONFIG);
 	tt_int_op(rtc, ==, 1);
-
-	TT_DECLARE("INFO",("... Delete Worker  ", object_id));
-	//TT_BLATHER(("Successfully added/modified/deleted a worker object"));
-	
+	TT_DECLARE("INFO",("... Delete Worker  %ld ", object_id));
+	/*** DELETEWORKER **/
 	
 
 
 
 
 	end:
+		free(wrkmap);
 		dlclose(SOHandle);
 		shmdt(bartlby_address);
 	;
