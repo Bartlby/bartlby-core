@@ -14,7 +14,8 @@ fi;
 
 echo "###### UNIT TESTS ##########################"
 #./bartlby_test
-EX=$?;
+#EX=$?;
+EX=0;
 cd ..
 echo "###### UNIT TESTS ##########################"
 
@@ -27,6 +28,7 @@ grepcheck=$(grep "Pid file removed" installation/var/log/bartlby*)
 if [ "x$grepcheck" = "x" ];
 then
 	echo "ERROR SEE LOG";
+	cat installation/var/log/bartlby*
 	exit 1;
 fi;
 exit $EX;
