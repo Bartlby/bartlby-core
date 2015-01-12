@@ -15,10 +15,14 @@ extern const char * dlmsg;
 
 extern struct testcase_t core_tests[];
 extern struct testcase_t worker_tests[];
+extern struct testcase_t service_tests[];
+extern struct testcase_t server_tests[];
 
 struct testgroup_t groups[] = {
 	{ "core/", core_tests },
 	{ "worker/", worker_tests },
+	{ "service/", service_tests },
+	{ "server/", server_tests},
 	END_OF_GROUPS
 };
 
