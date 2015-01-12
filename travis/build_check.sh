@@ -13,7 +13,7 @@ fi;
 
 
 echo "###### UNIT TESTS ##########################"
-./bartlby_test
+#./bartlby_test
 EX=$?;
 cd ..
 echo "###### UNIT TESTS ##########################"
