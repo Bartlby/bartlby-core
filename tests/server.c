@@ -73,7 +73,7 @@ void test_server_lib(void *data) {
 	int (*ModifyServer)(struct server *, char *);
 	int (*DeleteServer)(long server_id, char *);
 	int (*GetServerById)(long, struct server *, char * );
-	long (*ServerChangeId)(long, long, char*);
+	long (*ServerChangeId)(long, long, int, char*);
 	int (*GetServerMap)(struct server*, char*, int);
 	int (*doUpdateServer)(struct server*, char *);
 
@@ -128,7 +128,7 @@ void test_server_lib(void *data) {
 
 	/******* SERVERCHANGEID ****/
 	NN=lrtc+999;
-	object_id=ServerChangeId(lrtc, NN, CONFIG);
+	object_id=ServerChangeId(lrtc, NN, 1,CONFIG);
 	tt_int_op(object_id, ==, NN);
 	TT_DECLARE("INFO",("... Changed server id from %ld to %ld ",lrtc, object_id));
 	/******* SERVERCHANGEID ****/

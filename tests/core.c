@@ -38,7 +38,11 @@ void test_core_sql(void *data) {
 	LOAD_SYMBOL_TEST(TestSQL,SOHandle, "TestSQL");
 	
 	rtc=TestSQL(CONFIG, "aass''asas");
-	tt_int_op(rtc, ==, 0);
+	if(rtc != 0) {
+		exit(1);
+	}
+
+	
 	
 	
 
