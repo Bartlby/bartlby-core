@@ -191,7 +191,7 @@ void test_service_lib(void *data) {
 	tt_int_op(rtc, >, 0);
 	
 	lrtc=-1;
-	for(x=0; x<rtc; x++) {
+	for(x=0; x<=rtc; x++) {
 		if(svcmap[x].service_id==object_id) {
 			lrtc = 1;
 		}
