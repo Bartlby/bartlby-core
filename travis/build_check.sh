@@ -3,7 +3,7 @@
 
 CFG_DIR=$PWD/installation;
 cd tests/
-#make CFLAGS=-DCONFIG=\\\"$CFG_DIR/etc/bartlby.cfg\\\"
+make CFLAGS=-DCONFIG=\\\"$CFG_DIR/etc/bartlby.cfg\\\"
 EE=$?
 if [ $EE != 0 ];
 then
@@ -13,9 +13,9 @@ fi;
 
 
 echo "###### UNIT TESTS ##########################"
-#./bartlby_test
-#EX=$?;
-EX=0;
+./bartlby_test
+EX=$?;
+#EX=0;
 cd ..
 echo "###### UNIT TESTS ##########################"
 

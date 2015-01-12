@@ -106,7 +106,7 @@ void sched_write_back_all(char * cfgfile, void * shm_addr, void * SOHandle) {
 	int (*doUpdateServer)(struct server *, char *);
 
 
-	int (*doUpdateTrap)(struct trap *, char *);
+	//int (*doUpdateTrap)(struct trap *, char *);
 	
 	char * dlmsg;
 	
@@ -117,7 +117,7 @@ void sched_write_back_all(char * cfgfile, void * shm_addr, void * SOHandle) {
 	
 	LOAD_SYMBOL(doUpdate,SOHandle, "doUpdate");
 	LOAD_SYMBOL(doUpdateServer,SOHandle, "doUpdateServer");
-	LOAD_SYMBOL(doUpdateTrap, SOHandle, "doUpdateTrap")
+	//LOAD_SYMBOL(doUpdateTrap, SOHandle, "doUpdateTrap")
 	
 
 	for(x=0; x<gshm_hdr->svccount; x++) {
