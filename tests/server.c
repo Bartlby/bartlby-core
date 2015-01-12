@@ -15,7 +15,7 @@ int GetServerById(long server_id, struct server *svc, char *config); - DONE
 int ModifyServer(struct server *svc, char *config); -  DONE
 int DeleteServer(long server_id, char *config); -  DONE
 long AddServer(struct server *svc, char *config); - DONE
-int doUpdateServer(struct server *svc, char *config); - 
+int doUpdateServer(struct server *svc, char *config); -  DONE
 int GetServerMap(struct server *srv, char *config, int orch_id); - DONE
 
 
@@ -75,7 +75,7 @@ void test_server_lib(void *data) {
 	int (*GetServerById)(long, struct server *, char * );
 	long (*ServerChangeId)(long, long, char*);
 	int (*GetServerMap)(struct server*, char*, int);
-
+	int (*doUpdateServer)(struct server*, char *);
 
 
 	int rtc=-1;
@@ -98,17 +98,18 @@ void test_server_lib(void *data) {
 	LOAD_SYMBOL_TEST(GetServerById,SOHandle, "GetServerById");	
 	LOAD_SYMBOL_TEST(ServerChangeId,SOHandle, "ServerChangeId");	
 	LOAD_SYMBOL_TEST(GetServerMap,SOHandle, "GetServerMap");	
+	LOAD_SYMBOL_TEST(doUpdateServer, SOHandle, "doUpdateServer");
 
 
-	/******* ADD WORKER ****/
+	/******* ADD SERVER ****/
 	lrtc=AddServer(&dummy_server, CONFIG);
 	object_id=lrtc;
 	tt_int_op(lrtc, >, 0);
 	TT_DECLARE("INFO",("... Added Server id: %ld", object_id));
-	/******* ADD WORKER ****/
+	/******* ADD SERVER ****/
 
 
-	/******* MODIFY WORKER ****/
+	/******* MODIFY SERVER ****/
 	dummy_server.server_id=object_id;
 	memcpy(&modified_object,&dummy_server, sizeof(struct server));
 	memcpy(&returned_object,&dummy_server, sizeof(struct server));
@@ -116,41 +117,58 @@ void test_server_lib(void *data) {
 	rtc=ModifyServer(&modified_object, CONFIG);
 	tt_int_op(rtc, ==, 1);
 	TT_DECLARE("INFO",("... Modified Server, changed name"));
-	/******* MODIFY WORKER ****/
+	/******* MODIFY SERVER ****/
 
-	/******* GETWORKERBYID ****/
+	/******* GETSERVERBYID ****/
 	rtc=GetServerById(object_id, &returned_object, CONFIG);
 	tt_int_op(rtc, ==, 0);
 	tt_str_op(returned_object.server_name, ==, modified_object.server_name);
 	TT_DECLARE("INFO",("... get server by id  %ld", object_id));
-	/******* GETWORKERBYID ****/
+	/******* GETSERVERBYID ****/
 
-	/******* WORKERCHANGEID ****/
+	/******* SERVERCHANGEID ****/
 	NN=lrtc+999;
 	object_id=ServerChangeId(lrtc, NN, CONFIG);
 	tt_int_op(object_id, ==, NN);
 	TT_DECLARE("INFO",("... Changed server id from %ld to %ld ",lrtc, object_id));
-	/******* WORKERCHANGEID ****/
+	/******* SERVERCHANGEID ****/
 
-	/*** WORKERMAP **/
+	
+
+	/*** SERVERMAP **/
 	srvmap = malloc(sizeof(struct server)*(shm_hdr->srvcount+2));
 	rtc=GetServerMap(srvmap, CONFIG, TEST_ORCH_ID);
-	tt_int_op(rtc, !=, 0);
+	tt_int_op(rtc, >, 0);
 	lrtc=-1;
-	for(x=0; x<shm_hdr->srvcount; x++) {
+	for(x=0; x<rtc; x++) {
 		if(srvmap[x].server_id==object_id) {
 			lrtc = 1;
 		}
 	}
 	tt_int_op(lrtc, ==, 1);
 	TT_DECLARE("INFO",("... Created ServerMap and found  %ld ", object_id));
-	/*** WORKERMAP **/
+	/*** SERVERMAP **/
 
-	/*** DELETEWORKER **/
+
+	/***** doUpdate **/
+	modified_object.server_enabled=27;
+	modified_object.server_id=NN;
+	rtc=doUpdateServer(&modified_object, CONFIG);
+	tt_int_op(rtc, ==, 1);
+	rtc=GetServerById(NN, &returned_object, CONFIG);
+	tt_int_op(rtc, ==, 0);
+	tt_int_op(returned_object.server_enabled, ==, 27);
+	
+	TT_DECLARE("INFO",("... Called doUpdateServer() on  %ld ", object_id));
+
+	/***** doUpdate **/
+
+
+	/*** DELETESERVER **/
 	rtc=DeleteServer(object_id, CONFIG);
 	tt_int_op(rtc, ==, 1);
 	TT_DECLARE("INFO",("... Delete Server  %ld ", object_id));
-	/*** DELETEWORKER **/
+	/*** DELETESERVER **/
 	
 
 
@@ -202,7 +220,7 @@ void test_server_running(void *data) {
 
 	dummy_server.server_id=object_id;
 	
-	//Reload - and detach/reattach to shm
+	/****** RELOAD ***/
 	shm_hdr=bartlby_SHM_GetHDR(bartlby_address);
 	shm_hdr->do_reload=1;
 	shmdt(bartlby_address);
@@ -210,16 +228,16 @@ void test_server_running(void *data) {
 	
 
 	bartlby_address=bartlby_get_shm(CONFIG);
-
 	shm_hdr=bartlby_SHM_GetHDR(bartlby_address);
 
 	TT_DECLARE("INFO", ("Reloaded SHM"));
 	tt_int_op(shm_hdr->do_reload, ==, 0);
+	/*** RELOAD ***/
 
 	map = bartlby_SHM_ServerMap(bartlby_address);
 
 	res = -1;
-	for(x=0; x<shm_hdr->wrkcount; x++) {
+	for(x=0; x<shm_hdr->srvcount; x++) {
 		
 		if(map[x].server_id == object_id) {
 			res = 1;

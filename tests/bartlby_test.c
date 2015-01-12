@@ -17,12 +17,21 @@ extern struct testcase_t core_tests[];
 extern struct testcase_t worker_tests[];
 extern struct testcase_t service_tests[];
 extern struct testcase_t server_tests[];
+extern struct testcase_t downtime_tests[];
+extern struct testcase_t trap_tests[];
+extern struct testcase_t servicegroup_tests[];
+extern struct testcase_t servergroup_tests[];
+
 
 struct testgroup_t groups[] = {
 	{ "core/", core_tests },
 	{ "worker/", worker_tests },
 	{ "service/", service_tests },
 	{ "server/", server_tests},
+	{ "downtime/", downtime_tests},
+	{ "traps/", trap_tests},
+	{ "servicegroups/", servicegroup_tests},
+	{ "servergroups/", servergroup_tests},
 	END_OF_GROUPS
 };
 
