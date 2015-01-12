@@ -43,7 +43,7 @@ extern char * dlmsg;
 		.selected_services="",
 		.notification_aggregation_interval=60,
 		.is_super_user=1,
-		.orch_id=999,
+		.orch_id=TEST_ORCH_ID,
 		.api_pubkey="",
 		.api_privkey="",
 		.api_enabled=0
@@ -77,11 +77,15 @@ void test_worker_lib(void *data) {
 	int rtc=-1;
 	long object_id=-1;
 	long lrtc=-1;
+	long NN=-1;
 	int x;
+	struct shm_header * shm_hdr;
 
+	
 	SOHandle = bartlby_get_sohandle(CONFIG);
 	bartlby_address=bartlby_get_shm(CONFIG);
 	
+	shm_hdr = bartlby_SHM_GetHDR(bartlby_address);
 
 	
 	LOAD_SYMBOL_TEST(AddWorker,SOHandle, "AddWorker");
@@ -118,16 +122,18 @@ void test_worker_lib(void *data) {
 	/******* GETWORKERBYID ****/
 
 	/******* WORKERCHANGEID ****/
-	object_id=WorkerChangeId(lrtc, 999, CONFIG);
-	tt_int_op(object_id, ==, 999);
+	NN=lrtc+999;
+	object_id=WorkerChangeId(lrtc, NN, CONFIG);
+	tt_int_op(object_id, ==, NN);
 	TT_DECLARE("INFO",("... Changed worker id from %ld to %ld ",lrtc, object_id));
 	/******* WORKERCHANGEID ****/
 
 	/*** WORKERMAP **/
-	wrkmap = malloc(sizeof(struct worker)*10);
-	rtc=GetWorkerMap(wrkmap, CONFIG, 999);
+	wrkmap = malloc(sizeof(struct worker)*(shm_hdr->wrkcount+2));
+	rtc=GetWorkerMap(wrkmap, CONFIG, TEST_ORCH_ID);
+	tt_int_op(rtc, !=, 0);
 	lrtc=-1;
-	for(x=0; x<rtc; x++) {
+	for(x=0; x<shm_hdr->wrkcount; x++) {
 		if(wrkmap[x].worker_id==object_id) {
 			lrtc = 1;
 		}
