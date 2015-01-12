@@ -358,7 +358,7 @@ BARTLBY_SQL_PROTECTION_INIT;
             
             svcs->is_gone=0;    
             
-            tmprc=1;  
+            tmprc=0;  
           }
           
     
@@ -500,7 +500,7 @@ BARTLBY_SQL_PROTECTION_INIT;
 	free(mysql_pw);
 	free(mysql_db);
 	
-	return -1;
+	return 0;
 	
 	
 }

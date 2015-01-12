@@ -106,7 +106,7 @@
 
                             
 
-#define TRAP_UPDATE_INFO "update traps set trap_last_match = %d, trap_last_data='%s' where trap_id=%ld"
+
 #define TRAP_CHANGE_ID "update traps set trap_id=%ld where trap_id=%ld"
 ///TRAPS;
 
@@ -518,48 +518,5 @@ BARTLBY_SQL_PROTECTION_INIT;
   
   
 } 
-int doUpdateTrap(struct trap * svc, char * config) {
 
-        MYSQL *mysql;
-
-        char * sqlupd;
-
-        
-        char * mysql_host = getConfigValue("mysql_host", config);
-        char * mysql_user = getConfigValue("mysql_user", config);
-        char * mysql_pw = getConfigValue("mysql_pw", config);
-        char * mysql_db = getConfigValue("mysql_db", config);
-
-        mysql=mysql_init(NULL);
-BARTLBY_SQL_PROTECTION_INIT;
-                CHK_ERR(mysql,NULL);
-        mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
-                CHK_ERR(mysql,NULL);
-        mysql_select_db(mysql, mysql_db);
-                CHK_ERR(mysql,NULL);
-
-        
-
-        CHECKED_ASPRINTF(&sqlupd, TRAP_UPDATE_INFO, 
-                                            svc->trap_last_match,
-                                            BARTLBY_SQL_PROTECTION(svc->trap_last_data),
-                                            svc->trap_id
-                                            );
-
-
-        mysql_query(mysql, sqlupd);
-                CHK_ERR(mysql,NULL);
-
-
-        free(sqlupd);
-
-        BARTLBY_MYSQL_CLOSE(mysql);
-
-        free(mysql_host);
-        free(mysql_user);
-        free(mysql_pw);
-        free(mysql_db);
-        return 1;
-
-}
                            

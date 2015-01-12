@@ -268,9 +268,12 @@ BARTLBY_SQL_PROTECTION_INIT;
       	mysql_query(mysql, sql);
 		CHK_ERR(mysql,NULL);
 
+    
 		
 		free(where);
 		free(sql);
+
+
 
 
 	res = mysql_store_result(mysql);
@@ -355,7 +358,7 @@ BARTLBY_SQL_PROTECTION_INIT;
 	free(mysql_pw);
 	free(mysql_db);
 	
-	return -1;
+	return 0;
 	
 	
 }

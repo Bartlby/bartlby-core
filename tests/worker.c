@@ -128,12 +128,14 @@ void test_worker_lib(void *data) {
 	TT_DECLARE("INFO",("... Changed worker id from %ld to %ld ",lrtc, object_id));
 	/******* WORKERCHANGEID ****/
 
+
+
 	/*** WORKERMAP **/
 	wrkmap = malloc(sizeof(struct worker)*(shm_hdr->wrkcount+2));
 	rtc=GetWorkerMap(wrkmap, CONFIG, TEST_ORCH_ID);
-	tt_int_op(rtc, !=, 0);
+	tt_int_op(rtc, >, 0);
 	lrtc=-1;
-	for(x=0; x<shm_hdr->wrkcount; x++) {
+	for(x=0; x<rtc; x++) {
 		if(wrkmap[x].worker_id==object_id) {
 			lrtc = 1;
 		}

@@ -182,13 +182,16 @@ void test_service_lib(void *data) {
 	TT_DECLARE("INFO",("... Changed service id from %ld to %ld ",lrtc, object_id));
 	/******* serviceCHANGEID ****/
 
+
+	
+
 	/*** serviceMAP **/
 	svcmap = malloc(sizeof(struct service)*(shm_hdr->svccount+2));
 	rtc=GetServiceMap(svcmap, CONFIG, TEST_ORCH_ID);
-	tt_int_op(rtc, !=, 0);
+	tt_int_op(rtc, >, 0);
 	
 	lrtc=-1;
-	for(x=0; x<shm_hdr->svccount; x++) {
+	for(x=0; x<rtc; x++) {
 		if(svcmap[x].service_id==object_id) {
 			lrtc = 1;
 		}
@@ -281,7 +284,7 @@ void test_service_running(void *data) {
 
 	dummy_service.service_id=object_id;
 	
-	//Reload - and detach/reattach to shm
+	/****** RELOAD ***/
 	shm_hdr=bartlby_SHM_GetHDR(bartlby_address);
 	shm_hdr->do_reload=1;
 	shmdt(bartlby_address);
@@ -289,11 +292,11 @@ void test_service_running(void *data) {
 	
 
 	bartlby_address=bartlby_get_shm(CONFIG);
-
 	shm_hdr=bartlby_SHM_GetHDR(bartlby_address);
 
 	TT_DECLARE("INFO", ("Reloaded SHM"));
 	tt_int_op(shm_hdr->do_reload, ==, 0);
+	/*** RELOAD ***/
 
 	map = bartlby_SHM_ServiceMap(bartlby_address);
 
