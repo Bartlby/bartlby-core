@@ -374,6 +374,8 @@ BARTLBY_SQL_PROTECTION_INIT;
           } else {
             sprintf(svc->trap_status_critical, "(null)");          
           }
+
+          sprintf(svc->trap_last_data, " ");          
           svc->trap_service_id = atol(row[7]);
           svc->trap_fixed_status = atol(row[8]);
           svc->trap_prio = atol(row[9]);
