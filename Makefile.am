@@ -89,6 +89,9 @@ MAINTAINERCLEANFILES = Makefile.in aclocal.m4 compile \
             m4/ltsugar.m4 m4/ltversion.m4 m4/lt~obsolete.m4
 
 
+test:
+	cd tests && $(MAKE) && ./bartlby_test
+	
 
 install-data-hook:
 	@list='$(dist_noinst_cfg)'; for p in $$list; do \
