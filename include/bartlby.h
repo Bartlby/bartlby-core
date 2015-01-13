@@ -649,7 +649,7 @@ void bartlby_check_service(struct service * svc, void *, void *, char *);
 void bartlby_check_active(struct service * svc, char * cfgfile);
 void bartlby_check_local(struct service * svc, char * cfgfile);
 void bartlby_check_group(struct service * svc, void * shm_addr);
-
+void bartlby_check_json(struct service * svc, char * cfgfile);
 
 void bartlby_check_snmp(struct service * svc, char * cfgfile);
 void bartlby_check_ssh(struct service * svc, char * cfgfile);
