@@ -23,18 +23,20 @@ int bartlby_is_running(char * cfgfile) {
     
     fp = fopen(pidfile, "r");
     if(fp == NULL) {
-    	
+    	printf("PID FILE OPEN FAILED %s\n", pidfile);
     	free(pidfile);
     	return -1;
     }
     
     if(fgets(PID, 49, fp) == NULL) {
+    	printf("FGETS failed %s", pidfile);
     	free(pidfile);
     	return -1;
     }
     fclose(fp);
     free(pidfile);
     if(kill(atoi(PID), 0) < 0 ) {
+    	printf("KILL failed %s", PID);
     	return -1;
     }
     return 1;
