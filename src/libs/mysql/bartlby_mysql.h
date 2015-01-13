@@ -67,3 +67,6 @@ void bartlby_mysql_safe_init(struct mysql_buffers_list ** curr, struct mysql_buf
 #define BARTLBY_MYSQL_CLOSE(mysql) mysql_close(mysql); \
                                    mysql_library_end(); \
                                    BARTLBY_SQL_PROTECTION_FREE;
+
+
+int GetServerById(long server_id, struct server * svc, char * config);
