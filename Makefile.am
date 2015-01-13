@@ -90,7 +90,7 @@ MAINTAINERCLEANFILES = Makefile.in aclocal.m4 compile \
 
 
 test:
-	cd tests && $(MAKE) && ./bartlby_test
+	cd tests && $(MAKE) && ./bartlby_test && ./untested_functions.sh
 	
 
 install-data-hook:
