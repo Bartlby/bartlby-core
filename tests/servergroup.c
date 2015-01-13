@@ -67,8 +67,16 @@ void test_servergroup_lib(void *data) {
 	struct shm_header * shm_hdr;
 
 	
+	bartlby_address=NULL;
+	SOHandle=NULL;
+	SKIP_IF_NOT_RUNNING(CONFIG);
+
 	SOHandle = bartlby_get_sohandle(CONFIG);
 	bartlby_address=bartlby_get_shm(CONFIG);
+	
+	tt_ptr_op(bartlby_address, !=, NULL);
+	tt_ptr_op(SOHandle, !=, NULL);
+
 	
 	shm_hdr = bartlby_SHM_GetHDR(bartlby_address);
 
@@ -152,8 +160,9 @@ void test_servergroup_lib(void *data) {
 
 	end:
 		if(srvmap != NULL) free(srvmap);
-		dlclose(SOHandle);
-		shmdt(bartlby_address);
+		if(SOHandle != NULL) dlclose(SOHandle);
+		if(bartlby_address != NULL) shmdt(bartlby_address);
+	
 	;
 
 
@@ -177,9 +186,16 @@ void test_servergroup_running(void *data) {
 	long lrtc=-1;
 	long object_id=-1;
 
+	bartlby_address=NULL;
+	SOHandle=NULL;
+	SKIP_IF_NOT_RUNNING(CONFIG);
+
 	SOHandle = bartlby_get_sohandle(CONFIG);
 	bartlby_address=bartlby_get_shm(CONFIG);
+
 	
+	tt_ptr_op(bartlby_address, !=, NULL);
+	tt_ptr_op(SOHandle, !=, NULL);
 
 	
 	/// ADD servergroup
@@ -235,8 +251,8 @@ void test_servergroup_running(void *data) {
 
 
 	end:
-		dlclose(SOHandle);
-		shmdt(bartlby_address);
+		if(SOHandle != NULL) dlclose(SOHandle);
+		if(bartlby_address != NULL) shmdt(bartlby_address);
 	;
 
 
