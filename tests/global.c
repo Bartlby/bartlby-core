@@ -5,6 +5,44 @@
 #include "bartlby_test.h"
 
 const char * dlmsg;
+
+int bartlby_is_running(char * cfgfile) {
+	char * pid_dir, * pidfile;
+	char PID[50];
+	FILE * fp;
+
+	pid_dir = getConfigValue("pidfile_dir", cfgfile);
+
+	if (asprintf( &pidfile, "%s/bartlby.pid", pid_dir ) == -1) {                             \
+       printf("ASPRINTF FAILED");
+       free(pid_dir);
+       return -1;
+    }
+
+    free(pid_dir);
+    
+    fp = fopen(pidfile, "r");
+    if(fp == NULL) {
+    	
+    	free(pidfile);
+    	return -1;
+    }
+    
+    if(fgets(PID, 49, fp) == NULL) {
+    	free(pidfile);
+    	return -1;
+    }
+    fclose(fp);
+    free(pidfile);
+    if(kill(atoi(PID), 0) < 0 ) {
+    	return -1;
+    }
+    return 1;
+
+
+
+}
+
 void * bartlby_get_shm(char * cfgfile) {
 	char * shmtok;
 	void * bartlby_address;

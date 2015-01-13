@@ -13,3 +13,7 @@
 
 void * bartlby_get_shm(char * cfgfile);
 void * bartlby_get_sohandle(char * cfgfile);    	
+int bartlby_is_running(char * cfgfile);
+
+
+#define SKIP_IF_NOT_RUNNING(cfg) if(bartlby_is_running(cfg) <= 0)  { tt_assert_msg(NULL, "INSTANCE NOT RUNNING"); }
