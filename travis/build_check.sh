@@ -13,7 +13,7 @@ fi;
 
 
 echo "###### UNIT TESTS ##########################"
-./bartlby_test
+sudo ./bartlby_test
 EX=$?;
 #EX=0;
 cd ..
