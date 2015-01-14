@@ -82,6 +82,61 @@ char * bartlby_mysql_safe(MYSQL * mysql, struct mysql_buffers_list ** bartlby_pr
 
 }
 
+int CleanupTestData(char * config) {
+
+  MYSQL *mysql;
+  MYSQL_ROW  row;
+  MYSQL_RES  *res;
+  
+  
+  
+  
+  char * mysql_host = getConfigValue("mysql_host", config);
+  char * mysql_user = getConfigValue("mysql_user", config);
+  char * mysql_pw = getConfigValue("mysql_pw", config);
+  char * mysql_db = getConfigValue("mysql_db", config);
+  
+  
+  
+
+
+  mysql=mysql_init(NULL);
+BARTLBY_SQL_PROTECTION_INIT;
+  CHK_ERR(mysql,NULL);
+  mysql_real_connect(mysql, mysql_host, mysql_user, mysql_pw, NULL, 0, NULL, 0);
+  CHK_ERR(mysql,NULL);
+     mysql_select_db(mysql, mysql_db);
+     CHK_ERR(mysql,NULL);
+  
+  
+  mysql_query(mysql, "delete from services where orch_id = 999");
+  CHK_ERR(mysql,NULL);
+  mysql_query(mysql, "delete from servers where orch_id = 999");
+  CHK_ERR(mysql,NULL);
+  mysql_query(mysql, "delete from downtime where orch_id = 999");
+  CHK_ERR(mysql,NULL);
+  mysql_query(mysql, "delete from traps where orch_id = 999");
+  CHK_ERR(mysql,NULL);
+  mysql_query(mysql, "delete from workers where orch_id = 999");
+  CHK_ERR(mysql,NULL);
+  mysql_query(mysql, "delete from servicegroups where orch_id = 999");
+  CHK_ERR(mysql,NULL);
+  mysql_query(mysql, "delete from servergroups where orch_id = 999");
+  CHK_ERR(mysql,NULL);
+
+
+  BARTLBY_MYSQL_CLOSE(mysql);
+  mysql_library_end();
+
+  free(mysql_host);
+  free(mysql_user);
+  free(mysql_pw);
+  free(mysql_db);
+
+  return 1;
+
+}
+
 int TestSQL(char * config, char * placeholder) {
 
 
