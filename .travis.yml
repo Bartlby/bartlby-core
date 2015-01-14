@@ -4,12 +4,7 @@ os:
     - osx
 compiler:
     - gcc
-    - clang
 
-matrix:
-   exclude:
-     - compiler: clang
-     - env: COVERITY_SCAN_BRANCH=1
 env:
   global:
    # The next declaration is the encrypted COVERITY_SCAN_TOKEN, created
@@ -32,9 +27,8 @@ before_install:
   - sudo apt-get install -y libjson0-dev libjson0 libcurl4-openssl-dev
 
 before_script:
-    # Compile PHP
     - ./travis/compile.sh
 
 script: 
- - if [ "$COVERITY_SCAN_BRANCH" != 1 ]; then ./travis/build_check.sh fi;
+    - ./travis/build_check.sh
 
