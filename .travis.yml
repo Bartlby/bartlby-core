@@ -36,5 +36,5 @@ before_script:
     - ./travis/compile.sh
 
 script: 
- - ./travis/build_check.sh
+ - if [ "$COVERITY_SCAN_BRANCH" != 1 ]; then ./travis/build_check.sh fi;
 
