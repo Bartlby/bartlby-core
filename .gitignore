@@ -50,4 +50,4 @@ config.status
 bartlby_v2_dh.h
 postinstall-pak
 preinstall-pak
-
+tests/bartlby_test
