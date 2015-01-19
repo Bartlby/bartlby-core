@@ -47,6 +47,9 @@ int bartlby_svc_is_in_svcgroup(void * bartlby_address, struct service * svc, int
 int bartlby_svc_is_in_srvgroup(void * bartlby_address,struct service * svc, int servergroup_id) {
 
 	int x;
+		if(svc->srv_place == -1) {
+			return 0;
+		}
 		//Check if server group is enabled to run checks
 		if(svc->srv->servergroup_counter == 0) {
 				///Server is not member of a group
