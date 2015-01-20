@@ -1,8 +1,13 @@
-bartlby-core (1.5.0) UNRELEASED; urgency=low
+bartlby-core (1.6.0) UNRELEASED; urgency=low
 
   * 1.5.0
+  * RELEASE 1.6.0
+  * 
+  * 
+  * 
+  * 
 
- -- root <root@Debian-60-squeeze-64-minimal>  Mon, 24 Jun 2013 18:15:34 +0200
+ -- root <root@Debian-60-squeeze-64-minimal>  Tue, 20 Jan 2015 12:37:35 +0100
 
 bartlby-core (1.4.9) unstable; urgency=low
 
