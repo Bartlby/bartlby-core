@@ -139,7 +139,7 @@ static char * log_levels[] = {"DEBUG", "INFO", "WARN", "CRIT", "HASTO"};
 #define REL_NAME_INT "Insomnia"
 #define REL_NAME REL_NAME_INT " - rev:" __GIT_VERSION
 //#define VERSION  "1.4.0"
-#define EXPECTCORE 1600008
+#define EXPECTCORE 1600000
 
 #define MAX_CCACHE 1024
 #define MAX_CCACHE_KEY 1024
