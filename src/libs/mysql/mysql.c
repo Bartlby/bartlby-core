@@ -20,7 +20,7 @@
 #include "bartlby_mysql.h"
 
 static int db_is_connected=0;
-static MYSQL * mysql_conn;
+
 
 
 
@@ -85,8 +85,7 @@ char * bartlby_mysql_safe(MYSQL * mysql, struct mysql_buffers_list ** bartlby_pr
 int CleanupTestData(char * config) {
 
   MYSQL *mysql;
-  MYSQL_ROW  row;
-  MYSQL_RES  *res;
+  
   
   
   
@@ -141,8 +140,7 @@ int TestSQL(char * config, char * placeholder) {
 
 
   MYSQL *mysql;
-  MYSQL_ROW  row;
-  MYSQL_RES  *res;
+  
   char * mysql_host = getConfigValue("mysql_host", config);
   char * mysql_user = getConfigValue("mysql_user", config);
   char * mysql_pw = getConfigValue("mysql_pw", config);

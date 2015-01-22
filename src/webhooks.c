@@ -64,7 +64,7 @@ void bartlby_call_webhooks(char * cfg, struct service * svc, int hard) {
 	*/
 
 	char * token;
-	char * temp_token;
+	
 	char * url;
 	int x = 0;
 	char * work_hooks;

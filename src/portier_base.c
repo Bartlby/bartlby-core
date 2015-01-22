@@ -183,16 +183,14 @@ int bartlby_portier_connect(char *host_name,int port, int spool, char * cfgfile)
 
 int bartlby_portier_send_log(char * passive_host, int passive_port, char * passwd, char  * log_line, char * cfgfile) {
 
-	int res;
-	
-	int rc;
 	
 	int client_socket;
-	int client_connect_retval=-1;
+	
+
 	struct sigaction act1, oact1;
 	
 
-	json_object * jso_out, *jso_in, *jso_err_code, *jso_errmsg;
+	json_object * jso_out;
 
 	
 	portier_connection_timed_out=0;
@@ -260,19 +258,14 @@ int bartlby_portier_send_log(char * passive_host, int passive_port, char * passw
 
 int bartlby_portier_send_svc_status(char * passive_host, int passive_port, char * passwd, struct service * svc, char * cfgfile) {
 
-	int res;
-	char verstr[2048];
-	char cmdstr[2048];
-	char result[2048];
-	int rc;
+	
 	
 	int client_socket;
-	int client_connect_retval=-1;
 	struct sigaction act1, oact1;
 	
 
-	json_object * jso_out, *jso_in, *jso_err_code, *jso_errmsg;
-
+	
+	json_object * jso_out;
 
 	int do_spool=0;
 	char * portier_spool=NULL;
@@ -346,18 +339,12 @@ int bartlby_portier_send_svc_status(char * passive_host, int passive_port, char 
 }
 
 int bartlby_portier_send_trigger(char * passive_host, int passive_port, int to_standbys,char * trigger_name, char * execline, struct service * svc, int node_id, char * portier_passwd, char * cfgfile) {
-	int res;
-	char verstr[2048];
-	char cmdstr[2048];
-	char result[2048];
-	int rc;
 	
 	int client_socket;
-	int client_connect_retval=-1;
 	struct sigaction act1, oact1;
 	
 
-	json_object * jso_out, *jso_in, *jso_err_code, *jso_errmsg;
+	json_object * jso_out;
 
 	
 	int do_spool=0;

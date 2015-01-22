@@ -48,15 +48,13 @@ void bartlby_check_ssh(struct service * svc, char * cfgfile) {
 	
 	
 	int rc;
-	int state;	
 	int nbytes;
-	int auth;
 	char buffer[2048];
 	char buffer2[2048];
 	char rmessage[2048];
 	int bytes_read;
 	
-	int log=9;
+	
 	char * cmd_line;
 	
 	
@@ -140,7 +138,7 @@ void bartlby_check_ssh(struct service * svc, char * cfgfile) {
     if (rc < 0) {
         goto failed;
     }
-		sprintf(buffer2, "");
+		sprintf(buffer2, " ");
 	memset(buffer, '\0', sizeof(char)*(1024*2));
 	memset(buffer2, '\0', sizeof(char)*(1024*2));
     bytes_read=0;

@@ -155,10 +155,8 @@ int replay_shm(char * k, char * f, long size) {
 
 int dumpSHMToFile(char * keystr, char * file) {
 	//Write SHM To File
-	char *numEnd;
 	char *programName="bartlby_shm_dump";
-	intmax_t key_signed;
-	uintmax_t key_unsigned;
+	
 	int id;
 
 	
