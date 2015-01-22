@@ -75,7 +75,7 @@ struct worker_aggregate {
 
 //PRAGMA HELPERS
 void bartlby_notification_log_aggregate_destroy(struct worker_aggregate * current) {
-	struct worker_aggregate  * wa, *w;
+	struct worker_aggregate  * wa;
 	struct trigger_aggregate * ta, *t;
 	struct service_aggregate * sa, *s;
 
@@ -420,7 +420,7 @@ void bartlby_notification_log_aggregate(struct shm_header *shmhdr, char * cfgfil
 	FILE * ptrigger;
 
 	char trigger_return[1024];
-	struct service * svc;
+	
 	char * tmpstr;
 
 	struct worker * wrkmap;
@@ -437,15 +437,13 @@ void bartlby_notification_log_aggregate(struct shm_header *shmhdr, char * cfgfil
 
 	//UPSTREAM NOTIFICATIONS:
 	char * cfg_upstream_enabled;
-	char * cfg_upstream_has_local_users;
+	
 	
 
 	int upstream_enabled;
-	int upstream_has_local_users;
 	
 
 	cfg_upstream_enabled = getConfigValue("upstream_enabled", cfgfile);
-	cfg_upstream_has_local_users = getConfigValue("upstream_has_local_users", cfgfile);
 	
 
 	
@@ -457,16 +455,7 @@ void bartlby_notification_log_aggregate(struct shm_header *shmhdr, char * cfgfil
 	} else {
 		upstream_enabled=0;
 	}
-	if(cfg_upstream_has_local_users == NULL) {
-		cfg_upstream_has_local_users=strdup("false");	
-	}
-	if(strcmp(cfg_upstream_has_local_users, "true") == 0) {
-		upstream_has_local_users=1;
-	} else {
-		upstream_has_local_users=0;
-	}
-	free(cfg_upstream_enabled);
-	free(cfg_upstream_has_local_users);
+	
 	///UPSTEAM NOTIFICATIONS
 
 
@@ -661,7 +650,7 @@ void bartlby_notification_log_aggregate(struct shm_header *shmhdr, char * cfgfil
 void bartlby_notification_B_LOG_DEBUG(struct shm_header * shmhdr) {
 	//Print out a list
 	//Possible Loop:
-	int done=0;
+	
 	int x;
 	//First get current - to limit
 	for(x=0; x<NOTIFICATION_LOG_MAX; x++) {

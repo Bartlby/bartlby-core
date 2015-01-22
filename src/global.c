@@ -26,6 +26,8 @@ $Author$
 #include <bartlby.h>
 
 
+static char * log_handles[] = {"DEBUG", "TRIGGER", "SCHED", "CHECK", "MAIN", "SHM", "DAEMON", "PERF", "ACK", "EVNT", "EXT", "NOTIFYLOG", "LIB", "PORTIER", "MOD", "ORCH"};
+static char * log_levels[] = {"DEBUG", "INFO", "WARN", "CRIT", "HASTO"};
 
 
 char config_file[255];
@@ -364,52 +366,7 @@ int _log(int handle, int severity, const char * str,  ...) {
 	return 1;   
 }
 
-static char * _strrepl(const char *orig, const char *find, const char *replace)
-{
-    const char *loc;
-    char *newstr, *temp, *tempstr;
-    unsigned int olen, flen, rlen, i;
 
-    if (!orig || !find || !replace )
-        return NULL;  /* oops */
-
-    olen = strlen(orig);
-    flen = strlen(find);
-    rlen = strlen(replace);
-
-    temp = strstr(orig,find);
-    if (!temp)
-        return NULL;
-     /* count up any instances of the string we can find */
-    i = 0;
-    while (temp)
-    { /* advance past current instance and get a count */
-         temp += flen;
-         i++;
-         temp = strstr(temp,find);
-     }
-
-    /* allocate a buffer for the new string */
-    newstr = (char *) malloc((olen + ((rlen - flen) * i) + 1) * sizeof(char));
-    tempstr = newstr;
-    loc = orig;
-
-    while((temp = strstr(loc,find))!=NULL)
-    { /* copy pieces into the new buffer */
-        memcpy(tempstr,loc,(int)(temp - loc));
-        tempstr += (int)(temp - loc);
-
-        memcpy(tempstr,replace,rlen);
-        tempstr += rlen;
-
-       loc = temp + flen;
-    }
-
-    strcpy(tempstr,loc);  /* copy the last piece */
-
-
-    return newstr;
-}
 
 
 void str_replace(char *str, const char *from, const char *to, int maxlen)

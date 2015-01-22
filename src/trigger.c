@@ -197,11 +197,7 @@ int bartlby_trigger_chk(struct service *svc) {
 
 int bartlby_worker_has_service(struct worker * w, struct service * svc, char * cfgfile, int node_id) {
 
-// return 0 if worker doesnt have
-// else return 1	
-// default to false
-	char * uir;
-	char * user_dat;
+
 	char * visible_servers, * visible_services;
 	char * selected_servers, * selected_services;
 	int is_super_user;
@@ -486,14 +482,13 @@ void bartlby_trigger(struct service * svc, char * cfgfile, void * shm_addr, int 
 	struct worker * wrkmap;
 	struct server * srvmap;
 	struct shm_header * hdr;
-	char * exec_str;
-
+	
 	char * find_trigger;
 	
 	struct sigaction act1, oact1;
 	char * cfg_trigger_msg;
 	
-	int notification_log_last_state;
+	
 	//UPSTREAM NOTIFICATIONS:
 	char * cfg_upstream_enabled;
 	char * cfg_upstream_has_local_users;

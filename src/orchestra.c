@@ -36,7 +36,7 @@ configs:
 static time_t orch_last_reload=0;
 
 void bartlby_orchestra_upstream_log(char * cfg, char * log_line) {
-	int rtc;
+	
 	char * orch_master_ip_cfg;
 	char * orch_master_port_cfg;
 	int orch_master_port;
@@ -52,7 +52,7 @@ void bartlby_orchestra_upstream_log(char * cfg, char * log_line) {
 		if(orch_master_ip_cfg != NULL && orch_master_pw_cfg != NULL && orch_master_port_cfg != NULL) {
 			orch_master_port=atoi(orch_master_port_cfg);
 			
-			rtc=bartlby_portier_send_log(orch_master_ip_cfg, orch_master_port, orch_master_pw_cfg, log_line, cfg);	
+			bartlby_portier_send_log(orch_master_ip_cfg, orch_master_port, orch_master_pw_cfg, log_line, cfg);	
 
 			
 
@@ -69,7 +69,7 @@ void bartlby_orchestra_upstream_log(char * cfg, char * log_line) {
 
 }
 void bartlby_orchestra_send_svc(char * cfg, struct service * svc) {
-	int rtc;
+	
 	char * orch_master_ip_cfg;
 	char * orch_master_port_cfg;
 	int orch_master_port;
@@ -86,7 +86,7 @@ void bartlby_orchestra_send_svc(char * cfg, struct service * svc) {
 		if(orch_master_ip_cfg != NULL && orch_master_pw_cfg != NULL && orch_master_port_cfg != NULL) {
 			orch_master_port=atoi(orch_master_port_cfg);
 			
-			rtc=bartlby_portier_send_svc_status(orch_master_ip_cfg, orch_master_port, orch_master_pw_cfg, svc, cfg);	
+			bartlby_portier_send_svc_status(orch_master_ip_cfg, orch_master_port, orch_master_pw_cfg, svc, cfg);	
 
 			
 
