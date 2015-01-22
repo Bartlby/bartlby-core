@@ -455,7 +455,7 @@ void bartlby_notification_log_aggregate(struct shm_header *shmhdr, char * cfgfil
 	} else {
 		upstream_enabled=0;
 	}
-	
+	free(cfg_upstream_enabled);
 	///UPSTEAM NOTIFICATIONS
 
 
