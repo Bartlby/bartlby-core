@@ -30,7 +30,6 @@ $Author$
 
 void catch_signal(int signum);
 int do_shutdown=0;
-int g_current_worker_idx=0;
 pid_t sched_pid;
 
 struct shm_header * gshm_hdr;
@@ -855,30 +854,30 @@ void sig_cont_handler(int sig) {
 	//_log("Received SIGCONT: %d", sig);
 
 }
-void sched_run_worker() {
+void sched_run_worker( int idx ) {
 	
 	prctl(PR_SET_NAME, "bartlby worker");
 	prctl(PR_SET_DUMPABLE, 1);
 	signal(SIGCONT, sig_cont_handler);
 	while(1) {
 
-		if(gshm_hdr->worker_threads[g_current_worker_idx].svc != NULL ) {
-			gshm_hdr->worker_threads[g_current_worker_idx].idle=0;
+		if(gshm_hdr->worker_threads[idx].svc != NULL ) {
+			gshm_hdr->worker_threads[idx].idle=0;
 			
-			sched_do_now(gshm_hdr->worker_threads[g_current_worker_idx].svc, gConfig, gshm_hdr, gSOHandle);
-			times(&gshm_hdr->worker_threads[g_current_worker_idx].timing);
-			gshm_hdr->worker_threads[g_current_worker_idx].svc=NULL;
-			gshm_hdr->worker_threads[g_current_worker_idx].idle=1;
+			sched_do_now(gshm_hdr->worker_threads[idx].svc, gConfig, gshm_hdr, gSOHandle);
+			times(&gshm_hdr->worker_threads[idx].timing);
+			gshm_hdr->worker_threads[idx].svc=NULL;
+			gshm_hdr->worker_threads[idx].idle=1;
 
 		}
-		if(gshm_hdr->worker_threads[g_current_worker_idx].shutdown == 1) {
+		if(gshm_hdr->worker_threads[idx].shutdown == 1) {
 			exit(1);
 		}
 		pause();
 	}
 
 }
-int sched_fork_worker() {
+int sched_fork_worker(int idx) {
 	int child_pid;
     struct sigaction sa;
      
@@ -898,7 +897,7 @@ int sched_fork_worker() {
 	} else if(child_pid == 0) {
 		prctl(PR_SET_DUMPABLE, 0);
 		setpgid(0,0);
-		sched_run_worker();
+		sched_run_worker(idx);
 		exit(0);
 	}
 	return child_pid;
@@ -909,8 +908,7 @@ void sched_init_workers() {
 	int x;
 	if(sched_mode == SCHED_MODE_WORKER) {
 		for(x=0; x<sched_worker_count; x++) {
-			g_current_worker_idx=x;
-			gshm_hdr->worker_threads[x].pid=sched_fork_worker();
+			gshm_hdr->worker_threads[x].pid=sched_fork_worker(x);
 			gshm_hdr->worker_threads[x].start_time=time(NULL);
 			gshm_hdr->worker_threads[x].svc=NULL;
 			gshm_hdr->worker_threads[x].idle=1;
@@ -1034,8 +1032,7 @@ void sched_check_for_dead_workers() {
 		for(x=0; x<sched_worker_count; x++) {
 			if(kill(gshm_hdr->worker_threads[x].pid, 0) != 0) {
 				_log(LH_SCHED, B_LOG_INFO,"worker thread %d died", x);
-				g_current_worker_idx=x;
-				gshm_hdr->worker_threads[x].pid=sched_fork_worker();
+				gshm_hdr->worker_threads[x].pid=sched_fork_worker(x);
 				gshm_hdr->worker_threads[x].start_time=time(NULL);
 				gshm_hdr->worker_threads[x].svc=NULL;
 				gshm_hdr->worker_threads[x].idle=1;
@@ -1275,20 +1272,26 @@ int schedule_loop(char * cfgfile, void * shm_addr, void * SOHandle) {
 
 					gettimeofday(&run_c_start,NULL);
 					round_visitors++;
-					ct = time(NULL);			
-					expt = (ssort[x].svc->last_check+ssort[x].svc->check_interval);
+					expt = ssort[x].svc->check_interval*1000;
+					ct=bartlby_milli_timediff(run_c_start, ssort[x].svc->lcheck);
+					
 					if(ct > expt && ssort[x].svc->service_type != SVC_TYPE_PASSIVE) {
 						// service check has delayed
 						ssort[x].svc->delay_time.sum += ct - expt;
+						ssort[x].svc->delay_time.counter++;
+
 					}
-					ssort[x].svc->delay_time.counter++;
-					//WTF?
-					if(ssort[x].svc->service_type != SVC_TYPE_PASSIVE) {
-						ssort[x].svc->last_check=time(NULL);
-					} 
+					
+					
 					bartlby_callback(EXTENSION_CALLBACK_CHECK_WILL_RUN, ssort[x].svc);
 			 		sched_reschedule(ssort[x].svc);
 			 		sched_run_check(ssort[x].svc, cfgfile, shm_addr, SOHandle, worker_slot);
+
+			 		//Passive checks will set the field themselve (on submit)
+			 		if(ssort[x].svc->service_type != SVC_TYPE_PASSIVE) {
+						ssort[x].svc->last_check=time(NULL);
+					} 
+			 		
 			 		usleep(g_micros_before_after_check);
 			 		gettimeofday(&run_c_end,NULL);
 			 		
