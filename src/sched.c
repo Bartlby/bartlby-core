@@ -806,7 +806,8 @@ void sched_wait_open(int timeout, int fasten) {
 
 
 void sched_do_now(struct service * svc, char * cfgfile , void * shm_addr, void * SOHandle)  {
-	 struct timeval check_start, check_end;
+	struct timeval check_start, check_end;
+	int ct, expt;
 	
 	gshm_hdr->current_running++;
 	
@@ -817,7 +818,21 @@ void sched_do_now(struct service * svc, char * cfgfile , void * shm_addr, void *
 	
 	
 	
+	
+	expt = svc->check_interval*1000;
+	ct=bartlby_milli_timediff(check_start, svc->lcheck);
+					
+	if(ct > expt && svc->service_type != SVC_TYPE_PASSIVE) {
+		// service check has delayed
+		svc->delay_time.sum += ct - expt;
+		svc->delay_time.counter++;
+	}
+					
 
+
+
+	
+	bartlby_callback(EXTENSION_CALLBACK_CHECK_WILL_RUN, svc);
 	
 	bartlby_check_service(svc, shm_addr, SOHandle, cfgfile);	
 	
@@ -846,7 +861,12 @@ void sched_do_now(struct service * svc, char * cfgfile , void * shm_addr, void *
 	gshm_hdr->checks_performed++;
 	
 	
-	
+	sched_reschedule(svc);
+	//Passive checks will set the field themselve (on submit)
+	if(svc->service_type != SVC_TYPE_PASSIVE) {
+		svc->last_check=time(NULL);
+	} 
+	usleep(g_micros_before_after_check);
 	
 	
 }
@@ -1059,7 +1079,7 @@ int schedule_loop(char * cfgfile, void * shm_addr, void * SOHandle) {
 	
 	int sched_pause;
 	
-	struct timeval  stat_round_start, stat_round_end, run_c_start, run_c_end;
+	struct timeval  stat_round_start, stat_round_end;
 	
 	
 	char * cfg_mps;
@@ -1077,7 +1097,7 @@ int schedule_loop(char * cfgfile, void * shm_addr, void * SOHandle) {
 	int notification_aggregate_interval;
 	
 	
-	int ct, expt;
+	
 
 	int worker_slot=0;
 	
@@ -1270,31 +1290,11 @@ int schedule_loop(char * cfgfile, void * shm_addr, void * SOHandle) {
 						}
 					}
 
-					gettimeofday(&run_c_start,NULL);
-					round_visitors++;
-					expt = ssort[x].svc->check_interval*1000;
-					ct=bartlby_milli_timediff(run_c_start, ssort[x].svc->lcheck);
-					
-					if(ct > expt && ssort[x].svc->service_type != SVC_TYPE_PASSIVE) {
-						// service check has delayed
-						ssort[x].svc->delay_time.sum += ct - expt;
-						ssort[x].svc->delay_time.counter++;
-
-					}
 					
 					
-					bartlby_callback(EXTENSION_CALLBACK_CHECK_WILL_RUN, ssort[x].svc);
-			 		sched_reschedule(ssort[x].svc);
+					
 			 		sched_run_check(ssort[x].svc, cfgfile, shm_addr, SOHandle, worker_slot);
 
-			 		//Passive checks will set the field themselve (on submit)
-			 		if(ssort[x].svc->service_type != SVC_TYPE_PASSIVE) {
-						ssort[x].svc->last_check=time(NULL);
-					} 
-			 		
-			 		usleep(g_micros_before_after_check);
-			 		gettimeofday(&run_c_end,NULL);
-			 		
 			 		
 				}				
 			} else {
