@@ -106,7 +106,7 @@ void bartlby_portier_exec_trigger_line(char * cfgfile, const char * execline, co
 	
 	char * portier_passwd;
 	
-	int x;
+	
 	FILE * ptrigger;
 	char trigger_return[1024] = {0};
 	json_object * jso;
@@ -159,11 +159,11 @@ void bartlby_portier_exec_trigger(char * cfgfile, int standby_workers_only, cons
 	char * portier_passwd;
 	char * find_trigger, * full_path, * trigger_dir;
 	struct stat finfo;
-	char * base_dir, *exec_str;
+	char * base_dir;
 	int x;
-	FILE * ptrigger;
+	
 	char trigger_return[1024];
-	int notification_log_last_state;
+	
 	json_object * jso;
 
 //NOTIFICATION UPSTREAM
@@ -279,7 +279,7 @@ void bartlby_portier_submit_trap(const char * trap_data) {
 	int x;
 	regex_t catcher_compiled, status_compiled;
 	regex_t stati_compiled[3];
-	int is_final=0;
+	
 	int max_matches=3;
 	regmatch_t matches[max_matches];
 	char * match_copy;
@@ -588,7 +588,7 @@ void bartlby_portier_orch_service_status(char * cfgfile, long service_id, int ha
 void bartlby_portier_submit_passive_result(long service_id, int status, const char * message) {
 	
 	int svc_found, x;
-	char * passive_beauty;
+	
 	json_object * jso;
 	svc_found=0;
 	for(x=0; x<shm_hdr->svccount; x++) {
@@ -1092,6 +1092,7 @@ int main(int argc, char ** argv) {
 		exit(1);
 		*/
 	}
+	return 0;
 
 }
 

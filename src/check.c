@@ -144,10 +144,9 @@ void bartlby_check_grep_perf_line(char * l, struct service * svc, char * cfgfile
 
 void bartlby_fin_service(struct service * svc, void * SOHandle, void * shm_addr,char * cfgfile) {
 	char * dlmsg;
-	struct worker * wrkmap;
 	char * cfg_instant_wb;
 	
-	struct shm_header * hdr;
+	
 
 	int do_log;
 	char * log_line;
@@ -155,8 +154,6 @@ void bartlby_fin_service(struct service * svc, void * SOHandle, void * shm_addr,
 	int (*doUpdate)(struct service *,char *);
 	
 	do_log=0;
-	hdr=bartlby_SHM_GetHDR(shm_addr);
-	wrkmap=bartlby_SHM_WorkerMap(shm_addr);
 	
 
 	if(svc->current_state != svc->last_state) {
