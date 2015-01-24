@@ -409,7 +409,7 @@ int bartlby_populate_shm(char * cfgfile) {
 			}
 			
 			gshm_hdr->sirene_mode=0; //Default disable	
-			gshm_hdr->size_of_structs=sizeof(struct shm_header)+sizeof(struct worker)+sizeof(struct service)+sizeof(struct downtime)+sizeof(struct server) + +sizeof(struct servergroup)+sizeof(struct servicegroup)+sizeof(struct trap);
+			gshm_hdr->size_of_structs=sizeof(struct shm_header)+sizeof(struct worker)+sizeof(struct service)+sizeof(struct downtime)+sizeof(struct server) + +sizeof(struct servergroup)+sizeof(struct servicegroup)+sizeof(struct trap)+sizeof(struct btl_event);
 			gshm_hdr->pstat.sum=0;
 			gshm_hdr->pstat.counter=0;
 			
