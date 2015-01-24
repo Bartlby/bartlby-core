@@ -462,6 +462,9 @@ int bartlby_go(char * cfgfile) {
 	int notification_log_last_max;
 	time_t notification_log_last_run;
 
+	void * event_queue_hardcopy;
+	int event_queue_last;
+
 	bartlby_notification_log_init(gshm_hdr);
 	
 		
@@ -494,6 +497,9 @@ int bartlby_go(char * cfgfile) {
 		notification_log_last_max = gshm_hdr->notification_log_current_top;
 		notification_log_hardcopy =  bartlby_notification_log_get_hardcopy(gshm_hdr);
 
+		//Make EventQueue Survivable
+		event_queue_last = gshm_hdr->cur_event_index;
+		event_queue_hardcopy = bartlby_event_queue_get_hardcopy(gBartlby_address);
 
 		if(shmdt(gBartlby_address) < 0) {
 			_log(LH_MAIN, B_LOG_CRIT,"shmdt() failed '%s`", strerror(errno));	
@@ -514,6 +520,7 @@ int bartlby_go(char * cfgfile) {
 				exit(1);
 			}
 			bartlby_notification_log_set_hardcopy(gshm_hdr, notification_log_hardcopy, notification_log_last_max, notification_log_last_run);
+			bartlby_event_queue_set_hardcopy(gBartlby_address, event_queue_hardcopy, event_queue_last);
 		}
 		
 
@@ -521,6 +528,7 @@ int bartlby_go(char * cfgfile) {
 		
 	}
 	if(notification_log_hardcopy != NULL) free(notification_log_hardcopy);
+	if(event_queue_hardcopy != NULL) free(event_queue_hardcopy);
 
 
 		

@@ -147,7 +147,8 @@ void bartlby_fin_service(struct service * svc, void * SOHandle, void * shm_addr,
 	char * cfg_instant_wb;
 	
 	
-
+	json_object * jso;
+	
 	int do_log;
 	char * log_line;
 	
@@ -161,8 +162,17 @@ void bartlby_fin_service(struct service * svc, void * SOHandle, void * shm_addr,
 		svc->last_state=svc->current_state;
 		svc->last_state_change=time(NULL);
 		do_log=1;
-		//bartlby_push_event(EVENT_STATUS_CHANGED, "Service-Changed;%d;%s:%d/%s;%d;%s", svc->service_id, svc->srv->server_name, svc->srv->client_port, svc->service_name, svc->current_state, svc->current_output);
-		bartlby_push_event(EVENT_STATUS_CHANGED, "{\"type\":\"Service-Changed\",\"service_id\":%d,\"server_and_service_name\":\"%s:%d/%s\",\"current_state\":%d,\"current_output\":\"%s\"}",svc->service_id, svc->srv->server_name, svc->srv->client_port, svc->service_name, svc->current_state, svc->current_output);
+		
+
+		/******* PUSH SVC TO EVENT QUEUE *******/
+		jso = json_object_new_object();
+		json_object_object_add(jso,"type", json_object_new_string("Service-Changed"));
+		json_object_object_add(jso,"service", bartlby_service_to_json(svc));
+		bartlby_push_event(cfgfile, shm_addr, EVENT_STATUS_CHANGED, json_object_to_json_string(jso));
+		json_object_put(jso);
+
+		/******* PUSH SVC TO EVENT QUEUE *******/
+
 		bartlby_callback(EXTENSION_CALLBACK_STATE_CHANGED, svc);
 
 	}
@@ -170,9 +180,17 @@ void bartlby_fin_service(struct service * svc, void * SOHandle, void * shm_addr,
 	//rename notify_last_state to last_hard_state !? would make much more sense :D
 	
 	if(svc->service_retain_current == svc->service_retain && svc->current_state != svc->notify_last_state) {
-		//bartlby_push_event(EVENT_TRIGGER_PUSHED, "Trigger-Pushed;%d;%s:%d/%s;%d;%s", svc->service_id, svc->srv->server_name, svc->srv->client_port, svc->service_name, svc->current_state, svc->current_output);
 		do_log=2;
-		bartlby_push_event(EVENT_TRIGGER_PUSHED, "{\"type\":\"Trigger-Pushed\",\"service_id\":%d,\"server_and_service_name\":\"%s:%d/%s\",\"current_state\":%d,\"current_output\":\"%s\"}",svc->service_id, svc->srv->server_name, svc->srv->client_port, svc->service_name, svc->current_state, svc->current_output);
+
+		/******* PUSH SVC TO EVENT QUEUE *******/
+		jso = json_object_new_object();
+		json_object_object_add(jso,"type", json_object_new_string("Trigger-Fired"));
+		json_object_object_add(jso,"service", bartlby_service_to_json(svc));
+		bartlby_push_event(cfgfile,shm_addr, EVENT_TRIGGER_PUSHED, json_object_to_json_string(jso));
+		json_object_put(jso);
+		/******* PUSH SVC TO EVENT QUEUE *******/
+
+		
 					
 		if(svc->current_state == STATE_CRITICAL && svc->recovery_outstanding == RECOVERY_DONE) {
 			svc->recovery_outstanding = RECOVERY_OUTSTANDING;	
