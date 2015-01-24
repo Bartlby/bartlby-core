@@ -408,7 +408,7 @@ struct service {
 	int last_state;
 	int current_state;
 	
-	char  new_server_text[2048];
+	char  current_output[2048];
 	char  service_name[2048];
 	
 	char  plugin[2048];

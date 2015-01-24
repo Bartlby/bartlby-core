@@ -60,9 +60,9 @@ void bartlby_check_json(struct service * svc, char * cfgfile) {
 		//_log(LH_MAIN, B_LOG_INFO,"HTTP RETURN DATA: %s", http_out->ptr);
 		jso_in=json_tokener_parse(http_out->ptr);
 		if(json_object_object_get_ex(jso_in, "output", &jso_output)) { 
-			snprintf(svc->new_server_text, 2047, "%s", json_object_get_string(jso_output));
+			snprintf(svc->current_output, 2047, "%s", json_object_get_string(jso_output));
 		} else {
-			snprintf(svc->new_server_text, 2047, "No Output specified");
+			snprintf(svc->current_output, 2047, "No Output specified");
 		}
 		
 		if(json_object_object_get_ex(jso_in, "exit_code", &jso_exitcode)) { 
@@ -84,14 +84,14 @@ void bartlby_check_json(struct service * svc, char * cfgfile) {
 
 	} else {
 		//_log(LH_MAIN, B_LOG_INFO,"HTTP RETURN CODE: %d error: %s", http_out->curl_code, curl_easy_strerror(http_out->curl_code));
-		snprintf(svc->new_server_text, 2048, "http error %d error: %s", http_out->curl_code, curl_easy_strerror(http_out->curl_code));
+		snprintf(svc->current_output, 2048, "http error %d error: %s", http_out->curl_code, curl_easy_strerror(http_out->curl_code));
 		svc->current_state = STATE_CRITICAL;
 	}
 	bartlby_free_http_output(http_out);
 
 
 	
-	bartlby_check_grep_perf_line(svc->new_server_text, svc, cfgfile);
+	bartlby_check_grep_perf_line(svc->current_output, svc, cfgfile);
     return;
 		
 }

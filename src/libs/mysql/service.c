@@ -388,7 +388,7 @@ BARTLBY_SQL_PROTECTION_INIT;
       		
       		
       		
-      		sprintf(svc->new_server_text, "%s", row[7]);
+      		sprintf(svc->current_output, "%s", row[7]);
       		
       		
       		
@@ -833,7 +833,7 @@ BARTLBY_SQL_PROTECTION_INIT;
 	
 	CHECKED_ASPRINTF(&sqlupd, SERVICE_UPDATE_TEXT,
                                         svc->last_check,
-                                        BARTLBY_SQL_PROTECTION(svc->new_server_text),
+                                        BARTLBY_SQL_PROTECTION(svc->current_output),
                                         svc->current_state,
                                         svc->last_notify_send,
                                         svc->last_state_change,
@@ -933,7 +933,7 @@ BARTLBY_SQL_PROTECTION_INIT;
       			} else {
       				sprintf(svcs[i].service_name, "(null)");
       			}
-      			sprintf(svcs[i].new_server_text, "%s", row[7]);
+      			sprintf(svcs[i].current_output, "%s", row[7]);
       			if(row[3] != NULL) {
       				sprintf(svcs[i].plugin, "%s", row[3]);
       				

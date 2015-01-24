@@ -62,7 +62,7 @@ void nrpe_display_license(void)
 }
 void bartlby_check_nrpe(struct service *svc, char *cfgfile, int use_ssl)
 {
-	sprintf(svc->new_server_text, "%s", "NRPE  is expiremental Support ist not compiled in (--enable-nrpe=yes) bartlby-core");
+	sprintf(svc->current_output, "%s", "NRPE  is expiremental Support ist not compiled in (--enable-nrpe=yes) bartlby-core");
 	svc->current_state = STATE_CRITICAL;
 }
 
@@ -163,7 +163,7 @@ void bartlby_check_nrpe(struct service *svc, char *cfgfile, int use_ssl)
 
 		SSL_load_error_strings();
 		if ((ctx = SSL_CTX_new(SSLv23_client_method())) == NULL) {
-			sprintf(svc->new_server_text, "%s", "CHECK_NRPE: Error - could not create SSL context.\n");
+			sprintf(svc->current_output, "%s", "CHECK_NRPE: Error - could not create SSL context.\n");
 			svc->current_state = STATE_CRITICAL;
 		}
 
@@ -182,7 +182,7 @@ void bartlby_check_nrpe(struct service *svc, char *cfgfile, int use_ssl)
 
 
 	if (conn_timedout == 1) {
-		sprintf(svc->new_server_text, "%s", "timed out");
+		sprintf(svc->current_output, "%s", "timed out");
 		svc->current_state = STATE_CRITICAL;
 		close(sd);
 #ifdef HAVE_SSL
@@ -193,7 +193,7 @@ void bartlby_check_nrpe(struct service *svc, char *cfgfile, int use_ssl)
 		return;
 	}
 	if (result != STATE_OK) {
-		sprintf(svc->new_server_text, "%s", "connect failed");
+		sprintf(svc->current_output, "%s", "connect failed");
 		svc->current_state = STATE_CRITICAL;
 		close(sd);
 #ifdef HAVE_SSL
@@ -217,7 +217,7 @@ void bartlby_check_nrpe(struct service *svc, char *cfgfile, int use_ssl)
 
 				if (rc <= 0) {
 
-					sprintf(svc->new_server_text, "%s", "timed out!!");
+					sprintf(svc->current_output, "%s", "timed out!!");
 					svc->current_state = STATE_CRITICAL;
 
 					SSL_shutdown(ssl);
@@ -231,7 +231,7 @@ void bartlby_check_nrpe(struct service *svc, char *cfgfile, int use_ssl)
 				alarm(svc->service_check_timeout);
 
 				if (rc != 1) {
-					sprintf(svc->new_server_text, "%s", "CHECK_NRPE: Error - Could not complete SSL handshake.\n");
+					sprintf(svc->current_output, "%s", "CHECK_NRPE: Error - Could not complete SSL handshake.\n");
 					svc->current_state = STATE_CRITICAL;
 					SSL_shutdown(ssl);
 					SSL_free(ssl);
@@ -240,7 +240,7 @@ void bartlby_check_nrpe(struct service *svc, char *cfgfile, int use_ssl)
 					return;
 				}
 			} else {
-				sprintf(svc->new_server_text, "CHECK_NRPE: Error - Could not create SSL connection structure.\n");
+				sprintf(svc->current_output, "CHECK_NRPE: Error - Could not create SSL connection structure.\n");
 				svc->current_state = STATE_CRITICAL;
 				SSL_shutdown(ssl);
 				SSL_free(ssl);
@@ -281,7 +281,7 @@ void bartlby_check_nrpe(struct service *svc, char *cfgfile, int use_ssl)
 			rc = nrpesendall(sd, (char *)&send_packet, &bytes_to_send);
 			if (conn_timedout == 1) {
 				_log(LH_CHECK, B_LOG_DEBUG, "timeout ok");
-				sprintf(svc->new_server_text, "%s", "timed out1");
+				sprintf(svc->current_output, "%s", "timed out1");
 				svc->current_state = STATE_CRITICAL;
 
 				close(sd);
@@ -297,7 +297,7 @@ void bartlby_check_nrpe(struct service *svc, char *cfgfile, int use_ssl)
 			rc = SSL_write(ssl, &send_packet, bytes_to_send);
 			if (conn_timedout == 1) {
 				_log(LH_CHECK, B_LOG_DEBUG, "timeout ok");
-				sprintf(svc->new_server_text, "%s", "timed out2");
+				sprintf(svc->current_output, "%s", "timed out2");
 				svc->current_state = STATE_CRITICAL;
 				SSL_shutdown(ssl);
 				SSL_free(ssl);
@@ -312,7 +312,7 @@ void bartlby_check_nrpe(struct service *svc, char *cfgfile, int use_ssl)
 
 #endif
 		if (rc == -1) {
-			sprintf(svc->new_server_text, "%s", "CHECK_NRPE: Error sending query to host.\n");
+			sprintf(svc->current_output, "%s", "CHECK_NRPE: Error sending query to host.\n");
 			close(sd);
 			svc->current_state = STATE_CRITICAL;
 			return;
@@ -326,7 +326,7 @@ void bartlby_check_nrpe(struct service *svc, char *cfgfile, int use_ssl)
 
 			if (conn_timedout == 1) {
 				_log(LH_CHECK, B_LOG_DEBUG, "timeout ok");
-				sprintf(svc->new_server_text, "%s", "timed out3");
+				sprintf(svc->current_output, "%s", "timed out3");
 				svc->current_state = STATE_CRITICAL;
 				close(sd);
 				return;
@@ -339,7 +339,7 @@ void bartlby_check_nrpe(struct service *svc, char *cfgfile, int use_ssl)
 			rc = SSL_read(ssl, &receive_packet, bytes_to_recv);
 			if (conn_timedout == 1) {
 				_log(LH_CHECK, B_LOG_DEBUG, "timeout ok");
-				sprintf(svc->new_server_text, "%s", "timed out4");
+				sprintf(svc->current_output, "%s", "timed out4");
 				svc->current_state = STATE_CRITICAL;
 				SSL_shutdown(ssl);
 				SSL_free(ssl);
@@ -361,15 +361,15 @@ void bartlby_check_nrpe(struct service *svc, char *cfgfile, int use_ssl)
 #endif
 		close(sd);
 		if (rc < 0) {
-			sprintf(svc->new_server_text, "%s", "CHECK_NRPE: Error receiving data from daemon.\n");
+			sprintf(svc->current_output, "%s", "CHECK_NRPE: Error receiving data from daemon.\n");
 			svc->current_state = STATE_CRITICAL;
 			return;
 		} else if (rc == 0) {
-			sprintf(svc->new_server_text, "%s", "CHECK_NRPE: Received 0 bytes from daemon.  Check the remote server logs for error messages.\n");
+			sprintf(svc->current_output, "%s", "CHECK_NRPE: Received 0 bytes from daemon.  Check the remote server logs for error messages.\n");
 			svc->current_state = STATE_CRITICAL;
 			return;
 		} else if (bytes_to_recv < sizeof(receive_packet)) {
-			sprintf(svc->new_server_text, "CHECK_NRPE: Receive underflow - only %d bytes received (%ld expected).\n", bytes_to_recv, (unsigned long)sizeof(receive_packet));
+			sprintf(svc->current_output, "CHECK_NRPE: Receive underflow - only %d bytes received (%ld expected).\n", bytes_to_recv, (unsigned long)sizeof(receive_packet));
 			svc->current_state = STATE_CRITICAL;
 			return;
 		}
@@ -378,21 +378,21 @@ void bartlby_check_nrpe(struct service *svc, char *cfgfile, int use_ssl)
 		receive_packet.crc32_value = 0L;
 		calculated_crc32 = calculate_crc32((char *)&receive_packet, sizeof(receive_packet));
 		if (packet_crc32 != calculated_crc32) {
-			sprintf(svc->new_server_text, "%s", "CHECK_NRPE: Response packet had invalid CRC32.\n");
+			sprintf(svc->current_output, "%s", "CHECK_NRPE: Response packet had invalid CRC32.\n");
 			svc->current_state = STATE_CRITICAL;
 			return;
 		}
 
 		/* check packet version */
 		if (ntohs(receive_packet.packet_version) != NRPE_PACKET_VERSION_2) {
-			sprintf(svc->new_server_text, "%s", "CHECK_NRPE: Invalid packet version received from server.\n");
+			sprintf(svc->current_output, "%s", "CHECK_NRPE: Invalid packet version received from server.\n");
 			svc->current_state = STATE_CRITICAL;
 			return;
 		}
 
 		/* check packet type */
 		if (ntohs(receive_packet.packet_type) != RESPONSE_PACKET) {
-			sprintf(svc->new_server_text, "%s", "CHECK_NRPE: Invalid packet type received from server.\n");
+			sprintf(svc->current_output, "%s", "CHECK_NRPE: Invalid packet type received from server.\n");
 			svc->current_state = STATE_CRITICAL;
 			return;
 		}
@@ -403,9 +403,9 @@ void bartlby_check_nrpe(struct service *svc, char *cfgfile, int use_ssl)
 		/* print the output returned by the daemon */
 		receive_packet.buffer[MAX_PACKETBUFFER_LENGTH - 1] = '\x0';
 		if (!strcmp(receive_packet.buffer, "")) {
-			sprintf(svc->new_server_text, "%s", "CHECK_NRPE: No output returned from daemon.\n");
+			sprintf(svc->current_output, "%s", "CHECK_NRPE: No output returned from daemon.\n");
 		} else {
-			sprintf(svc->new_server_text, "%s", receive_packet.buffer);
+			sprintf(svc->current_output, "%s", receive_packet.buffer);
 		}
 
 
@@ -471,7 +471,7 @@ int my_nrpe_connect(char *host_name,int port,int *sd,char *proto, struct service
 
         hp=gethostbyname((const char *)host_name);
         if(hp==NULL){
-            sprintf(svc->new_server_text, "Invalid host name '%s'\n",host_name);
+            sprintf(svc->current_output, "Invalid host name '%s'\n",host_name);
             svc->current_state=STATE_CRITICAL;
             return STATE_UNKNOWN;
                 }
@@ -481,7 +481,7 @@ int my_nrpe_connect(char *host_name,int port,int *sd,char *proto, struct service
 
 
     if(((ptrp=getprotobyname(proto)))==NULL){
-        sprintf(svc->new_server_text, "Cannot map \"%s\" to protocol number\n",proto);
+        sprintf(svc->current_output, "Cannot map \"%s\" to protocol number\n",proto);
         svc->current_state=STATE_CRITICAL;
         return STATE_UNKNOWN;
             }
@@ -489,7 +489,7 @@ int my_nrpe_connect(char *host_name,int port,int *sd,char *proto, struct service
 
     *sd=socket(PF_INET,(!strcmp(proto,"udp"))?SOCK_DGRAM:SOCK_STREAM,ptrp->p_proto);
     if(*sd<0){
-        sprintf(svc->new_server_text, "Socket creation failed\n");
+        sprintf(svc->current_output, "Socket creation failed\n");
         svc->current_state=STATE_CRITICAL;
         return STATE_UNKNOWN;
             }
@@ -499,19 +499,19 @@ int my_nrpe_connect(char *host_name,int port,int *sd,char *proto, struct service
     if(result<0){
         switch(errno){
         case ECONNREFUSED:
-            sprintf(svc->new_server_text, "Connection refused by host (nrpe)\n");
+            sprintf(svc->current_output, "Connection refused by host (nrpe)\n");
             svc->current_state=STATE_CRITICAL;
             break;
         case ETIMEDOUT:
-            sprintf(svc->new_server_text, "Timeout while attempting connection\n");
+            sprintf(svc->current_output, "Timeout while attempting connection\n");
             svc->current_state=STATE_CRITICAL;
             break;
         case ENETUNREACH:
-            sprintf(svc->new_server_text, "Network is unreachable\n");
+            sprintf(svc->current_output, "Network is unreachable\n");
             svc->current_state=STATE_CRITICAL;
             break;
         default:
-            sprintf(svc->new_server_text, "Connection refused or timed out\n");
+            sprintf(svc->current_output, "Connection refused or timed out\n");
             svc->current_state=STATE_CRITICAL;
         }
 

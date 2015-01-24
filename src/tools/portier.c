@@ -71,7 +71,7 @@ void bartlby_portier_exec_trigger_line(char * cfgfile, const char * execline, co
 
 void bartlby_portier_set_svc_state(long service_id, char * service_text, long current_state,long last_notify_send,long last_state_change,long service_ack_current,long service_retain_current,long handled, long last_check);
 
-void bartlby_portier_orch_service_status(char * cfgfile, long service_id, int handled, long service_retain_current, int service_ack_current, int last_check, char * new_server_text, int current_state, int last_notify_send, int last_state_change, char * pw, int orch_id);
+void bartlby_portier_orch_service_status(char * cfgfile, long service_id, int handled, long service_retain_current, int service_ack_current, int last_check, char * current_output, int current_state, int last_notify_send, int last_state_change, char * pw, int orch_id);
 
 void bartlby_portier_log_line(char * cfgfile, const char * log_line, long time_stamp, const char * passwd);
 
@@ -382,7 +382,7 @@ void bartlby_portier_submit_trap(const char * trap_data) {
 
 					svc->last_state=svc->current_state;
 					svc->current_state=status;
-					snprintf(svc->new_server_text,1020, "%s", status_to_use);
+					snprintf(svc->current_output,1020, "%s", status_to_use);
 					svc->last_check=time(NULL);
 
 
@@ -526,7 +526,7 @@ void bartlby_show_error(int code, char * msg, int http) {
     
 
 }
-void bartlby_portier_orch_service_status(char * cfgfile, long service_id, int handled, long service_retain_current, int service_ack_current, int last_check, char * new_server_text, int current_state, int last_notify_send, int last_state_change, char * pw, int orch_id) {
+void bartlby_portier_orch_service_status(char * cfgfile, long service_id, int handled, long service_retain_current, int service_ack_current, int last_check, char * current_output, int current_state, int last_notify_send, int last_state_change, char * pw, int orch_id) {
 	char * portier_passwd;
 	int svc_found=0;
 	int x;
@@ -570,7 +570,7 @@ void bartlby_portier_orch_service_status(char * cfgfile, long service_id, int ha
 	svcmap[x].last_state_change=last_state_change;
 	svcmap[x].last_orch_sync=time(NULL);
 	svcmap[x].is_gone=0;
-	strncpy(svcmap[x].new_server_text, new_server_text, 2047);
+	strncpy(svcmap[x].current_output, current_output, 2047);
 
 	jso = json_object_new_object();
 	json_object_object_add(jso, "error_code", json_object_new_int(0));
@@ -601,7 +601,7 @@ void bartlby_portier_submit_passive_result(long service_id, int status, const ch
 		if(svcmap[x].service_type == SVC_TYPE_PASSIVE) {
 			svcmap[x].last_state=svcmap[x].current_state;
 			svcmap[x].current_state=status;
-			sprintf(svcmap[x].new_server_text, "%s", message);
+			sprintf(svcmap[x].current_output, "%s", message);
 			svcmap[x].last_check=time(NULL);
 			
 			jso = json_object_new_object();
@@ -1020,7 +1020,7 @@ int main(int argc, char ** argv) {
 				 	"service_retain_current": 48, 
 				 	"service_ack_current": 0,
 				 	"last_check": 1409335896,
-				 	"new_server_text":
+				 	"current_output":
 				 	 "Passive Service has been timed out",
 				 	  "current_state": 2, 
 				 	  "last_notify_send": 1409175456,
@@ -1036,7 +1036,7 @@ int main(int argc, char ** argv) {
 							json_object_object_get_ex(jso_in, "service_retain_current", &jsoo[2]) &&
 							json_object_object_get_ex(jso_in, "service_ack_current", &jsoo[3]) &&
 							json_object_object_get_ex(jso_in, "last_check", &jsoo[4]) &&
-							json_object_object_get_ex(jso_in, "new_server_text", &jsoo[5]) &&
+							json_object_object_get_ex(jso_in, "current_output", &jsoo[5]) &&
 							json_object_object_get_ex(jso_in, "current_state", &jsoo[6]) &&
 							json_object_object_get_ex(jso_in, "last_notify_send", &jsoo[7]) &&
 							json_object_object_get_ex(jso_in, "last_state_change", &jsoo[8]) &&

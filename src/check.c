@@ -85,7 +85,7 @@ void bartlby_check_eventhandler(struct service * svc, char * cfgfile) {
 	}
 	if(eventhandler_called == 1) {
 		
-		_log(LH_CHECK, B_LOG_HASTO,"@EV-HANDLER@%ld|%d|%s:%d/%s|%s|(%s)-%s", svc->service_id, svc->current_state, svc->srv->server_name, svc->srv->client_port, svc->service_name, state_level, event_service.plugin, event_service.new_server_text);
+		_log(LH_CHECK, B_LOG_HASTO,"@EV-HANDLER@%ld|%d|%s:%d/%s|%s|(%s)-%s", svc->service_id, svc->current_state, svc->srv->server_name, svc->srv->client_port, svc->service_name, state_level, event_service.plugin, event_service.current_output);
 		//
 	}
 	
@@ -161,8 +161,8 @@ void bartlby_fin_service(struct service * svc, void * SOHandle, void * shm_addr,
 		svc->last_state=svc->current_state;
 		svc->last_state_change=time(NULL);
 		do_log=1;
-		//bartlby_push_event(EVENT_STATUS_CHANGED, "Service-Changed;%d;%s:%d/%s;%d;%s", svc->service_id, svc->srv->server_name, svc->srv->client_port, svc->service_name, svc->current_state, svc->new_server_text);
-		bartlby_push_event(EVENT_STATUS_CHANGED, "{\"type\":\"Service-Changed\",\"service_id\":%d,\"server_and_service_name\":\"%s:%d/%s\",\"current_state\":%d,\"current_output\":\"%s\"}",svc->service_id, svc->srv->server_name, svc->srv->client_port, svc->service_name, svc->current_state, svc->new_server_text);
+		//bartlby_push_event(EVENT_STATUS_CHANGED, "Service-Changed;%d;%s:%d/%s;%d;%s", svc->service_id, svc->srv->server_name, svc->srv->client_port, svc->service_name, svc->current_state, svc->current_output);
+		bartlby_push_event(EVENT_STATUS_CHANGED, "{\"type\":\"Service-Changed\",\"service_id\":%d,\"server_and_service_name\":\"%s:%d/%s\",\"current_state\":%d,\"current_output\":\"%s\"}",svc->service_id, svc->srv->server_name, svc->srv->client_port, svc->service_name, svc->current_state, svc->current_output);
 		bartlby_callback(EXTENSION_CALLBACK_STATE_CHANGED, svc);
 
 	}
@@ -170,9 +170,9 @@ void bartlby_fin_service(struct service * svc, void * SOHandle, void * shm_addr,
 	//rename notify_last_state to last_hard_state !? would make much more sense :D
 	
 	if(svc->service_retain_current == svc->service_retain && svc->current_state != svc->notify_last_state) {
-		//bartlby_push_event(EVENT_TRIGGER_PUSHED, "Trigger-Pushed;%d;%s:%d/%s;%d;%s", svc->service_id, svc->srv->server_name, svc->srv->client_port, svc->service_name, svc->current_state, svc->new_server_text);
+		//bartlby_push_event(EVENT_TRIGGER_PUSHED, "Trigger-Pushed;%d;%s:%d/%s;%d;%s", svc->service_id, svc->srv->server_name, svc->srv->client_port, svc->service_name, svc->current_state, svc->current_output);
 		do_log=2;
-		bartlby_push_event(EVENT_TRIGGER_PUSHED, "{\"type\":\"Trigger-Pushed\",\"service_id\":%d,\"server_and_service_name\":\"%s:%d/%s\",\"current_state\":%d,\"current_output\":\"%s\"}",svc->service_id, svc->srv->server_name, svc->srv->client_port, svc->service_name, svc->current_state, svc->new_server_text);
+		bartlby_push_event(EVENT_TRIGGER_PUSHED, "{\"type\":\"Trigger-Pushed\",\"service_id\":%d,\"server_and_service_name\":\"%s:%d/%s\",\"current_state\":%d,\"current_output\":\"%s\"}",svc->service_id, svc->srv->server_name, svc->srv->client_port, svc->service_name, svc->current_state, svc->current_output);
 					
 		if(svc->current_state == STATE_CRITICAL && svc->recovery_outstanding == RECOVERY_DONE) {
 			svc->recovery_outstanding = RECOVERY_OUTSTANDING;	
@@ -198,7 +198,7 @@ void bartlby_fin_service(struct service * svc, void * SOHandle, void * shm_addr,
 	
 	}
 	if(do_log > 0) {
-		log_line=remove_nl_copy(svc->new_server_text);
+		log_line=remove_nl_copy(svc->current_output);
 		switch(do_log) {
 			case 1:
 				_log(LH_CHECK, B_LOG_HASTO,"@LOG@%ld|%d|%s:%d/%s|%s|SOFT", svc->service_id, svc->current_state, svc->srv->server_name, svc->srv->client_port, svc->service_name, log_line);
@@ -327,7 +327,7 @@ void bartlby_check_service(struct service * svc, void * shm_addr, void * SOHandl
 		
 		if(svc->service_passive_timeout > 0 && pdiff >= svc->service_passive_timeout) {
 			
-			sprintf(svc->new_server_text, "%s", PASSIVE_TIMEOUT);
+			sprintf(svc->current_output, "%s", PASSIVE_TIMEOUT);
 			if(pdiff >= svc->service_passive_timeout * 2) {
 				svc->current_state=STATE_CRITICAL;
 			} else {
@@ -337,7 +337,7 @@ void bartlby_check_service(struct service * svc, void * shm_addr, void * SOHandl
 			
 		}
 		//_log("PASSIVE_CHECK %d->%d", svc->service_passive_timeout, svc->service_id);
-		bartlby_check_grep_perf_line(svc->new_server_text, svc, cfgfile);
+		bartlby_check_grep_perf_line(svc->current_output, svc, cfgfile);
 		
 		bartlby_fin_service(svc, SOHandle,shm_addr,cfgfile);
 		return;	
@@ -397,7 +397,7 @@ void bartlby_check_service(struct service * svc, void * shm_addr, void * SOHandl
 		return;
 	} else {
 		_log(LH_CHECK, B_LOG_CRIT,"Undefined service check type: %d", svc->service_type);
-		sprintf(svc->new_server_text, "undefined service type (%d)", svc->service_type);
+		sprintf(svc->current_output, "undefined service type (%d)", svc->service_type);
 		svc->current_state=STATE_CRITICAL;
 	}
 	
