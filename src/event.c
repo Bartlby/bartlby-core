@@ -87,7 +87,7 @@ void bartlby_event_init(void * bartlby_address) {
 	_log(LH_EVNT, B_LOG_INFO,"Init event queue done %d messages available", x);
 }
 
-int bartlby_push_event(char * cfgfile,  void * bartlby_address, int event_id, const char * str,  ...) {
+int bartlby_push_event(char * cfgfile,  void * bartlby_address, int event_id, const char * str) {
 //	printf("LOG: %s\n", str);
 
 	struct btl_event * evs;
@@ -98,7 +98,7 @@ int bartlby_push_event(char * cfgfile,  void * bartlby_address, int event_id, co
 	evs=bartlby_SHM_EventMap(bartlby_address);
 
 	
-	va_list argzeiger;
+	
 	char * sem_name;
 	sem_t * sem_id;
 	int x;
@@ -111,13 +111,12 @@ int bartlby_push_event(char * cfgfile,  void * bartlby_address, int event_id, co
 	sem_id=sem_open(sem_name, O_CREAT, 0755, 1);
 	sem_wait(sem_id);
 		
- 	va_start(argzeiger,str);
  	x=hdr->cur_event_index;
  	evs[x].evnt_id=event_id;
  	evs[x].evnt_time=time(NULL);
  	bartlby_callback(EXTENSION_CALLBACK_EVENT_PUSHED, &evs[x]);
-   	vsnprintf(evs[x].evnt_message, 900, str, argzeiger);
-   	va_end(argzeiger);
+   	snprintf(evs[x].evnt_message, 900, str);
+   	
 
 	if((hdr->cur_event_index+1) == EVENT_QUEUE_MAX) {
 		//_log("Event: %d will reach maximum", (hdr->cur_event_index+1));

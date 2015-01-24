@@ -706,7 +706,7 @@ ssize_t recvall(int _socket, char* buffer, int max_len,int flags);
 //EVNT's
 void bartlby_event_init(void * bartlby_address);
 struct btl_event * bartlby_SHM_EventMap(void * shm_addr);
-int bartlby_push_event(char * cfgfile,  void * bartlby_address, int event_id, const char * str,  ...);
+int bartlby_push_event(char * cfgfile,  void * bartlby_address, int event_id, const char * str);
 
 void * bartlby_event_queue_get_hardcopy(void * bartlby_address);
 void * bartlby_event_queue_set_hardcopy(void * bartlby_address, void * hardcopy, int event_queue_last);
