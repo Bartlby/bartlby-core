@@ -100,10 +100,9 @@ void sched_write_back_all(char * cfgfile, void * shm_addr, void * SOHandle) {
 	int x;
 	
 	struct service * services;
-	struct server * servers;
-	struct trap * traps;
+	
 	int (*doUpdate)(struct service *,char *);
-	int (*doUpdateServer)(struct server *, char *);
+	
 
 
 	//int (*doUpdateTrap)(struct trap *, char *);
@@ -112,12 +111,9 @@ void sched_write_back_all(char * cfgfile, void * shm_addr, void * SOHandle) {
 	
 	gshm_hdr=bartlby_SHM_GetHDR(shm_addr); //just to be sure ;)
 	services=bartlby_SHM_ServiceMap(shm_addr);
-	servers=bartlby_SHM_ServerMap(shm_addr);
-	traps=bartlby_SHM_TrapMap(shm_addr);
+	
 	
 	LOAD_SYMBOL(doUpdate,SOHandle, "doUpdate");
-	LOAD_SYMBOL(doUpdateServer,SOHandle, "doUpdateServer");
-	//LOAD_SYMBOL(doUpdateTrap, SOHandle, "doUpdateTrap")
 	
 
 	for(x=0; x<gshm_hdr->svccount; x++) {
@@ -159,7 +155,7 @@ void sched_write_back_all(char * cfgfile, void * shm_addr, void * SOHandle) {
 
 void sched_wait_for_childs() {
 	int childstatus;
-	int x;
+	
 
 	if(sched_mode == SCHED_MODE_FORK) {
 		while(waitpid(-1, &childstatus, WNOHANG ) > 0 );	
@@ -174,12 +170,12 @@ catches fork childs
 */
 void sched_reaper(int sig) {
 	int childstatus;
-	int childpid;
+	
 	if (sig != SIGCHLD && sig != SIGCLD) {
 		_log(LH_SCHED, B_LOG_CRIT,"reaper: bad signal %d\n", sig);
    	} else {
 
-		childpid = waitpid(-1, &childstatus, WNOHANG | WUNTRACED);
+		waitpid(-1, &childstatus, WNOHANG | WUNTRACED);
 		
 		
 	}
@@ -589,9 +585,9 @@ checks if a service is required to check or not
 
 
 int sched_check_waiting(void * shm_addr, struct service * svc, char * cfg, void * SOHandle, int sched_pause) {
-	int cur_time;
+	
 	long my_diff;
-	int kill_diff;
+	
 	
 	struct timeval cur_tv;
 	
@@ -600,7 +596,6 @@ int sched_check_waiting(void * shm_addr, struct service * svc, char * cfg, void 
 	
 	usleep(g_micros_before_after_check);
 	
-	cur_time=time(NULL);
 	gettimeofday(&cur_tv, NULL);
 	
 	
@@ -736,7 +731,7 @@ if any of these chain members does not match - service lcheck (for next round di
 
 void sched_definitiv_running() {
 	int definitiv_running=0;
-	int x=0;
+	
 	int y=0;
 	
 	//Loop threw services to see how many threads are running, and call the "check timeout" function to maybe kill a long runnning thread
@@ -764,12 +759,12 @@ void sched_kill_all_workers() {
 
 void sched_wait_open(int timeout, int fasten) {
 	int x;
-	int y;
+	
 	
 	int olim;
 	
 	
-	y=0;
+	
 	x=0;
 	olim=3000;
 	
@@ -860,7 +855,7 @@ void sig_cont_handler(int sig) {
 
 }
 void sched_run_worker() {
-	int i;
+	
 	prctl(PR_SET_NAME, "bartlby worker");
 	prctl(PR_SET_DUMPABLE, 1);
 	signal(SIGCONT, sig_cont_handler);
@@ -1068,7 +1063,7 @@ int schedule_loop(char * cfgfile, void * shm_addr, void * SOHandle) {
 	
 	struct timeval  stat_round_start, stat_round_end, run_c_start, run_c_end;
 	
-	char * i_am_a_slave;
+	
 	char * cfg_mps;
 		
 

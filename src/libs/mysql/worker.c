@@ -681,13 +681,13 @@ BARTLBY_SQL_PROTECTION_INIT;
               sprintf(svcs[i].api_pubkey, "%s", row[18]);
                 
             } else {
-              sprintf(svcs[i].api_pubkey, ""); 
+              sprintf(svcs[i].api_pubkey, " "); 
             }
             if(row[19] != NULL) {
               sprintf(svcs[i].api_privkey, "%s", row[19]);
                 
             } else {
-              sprintf(svcs[i].api_privkey, ""); 
+              sprintf(svcs[i].api_privkey, " "); 
             }
             svcs[i].api_enabled=atoi(row[20]);
 

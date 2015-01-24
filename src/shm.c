@@ -297,10 +297,9 @@ struct servicegroup * bartlby_SHM_ServiceGroupMap(void * shm_addr) {
 
 struct servergroup * bartlby_SHM_ServerGroupMap(void * shm_addr) {
 	//Is beyond the events
-	struct shm_header * hdr;
+	
 	struct btl_event * evmap;
 	
-	hdr=bartlby_SHM_GetHDR(shm_addr);
 	evmap=bartlby_SHM_EventMap(shm_addr);
 	
 	
@@ -322,13 +321,11 @@ struct btl_event * bartlby_SHM_EventMap(void * shm_addr) {
 struct server * bartlby_SHM_ServerMap(void * shm_addr) {
 	//Is beyond the 3 integers :-)
 	struct shm_header * hdr;
-	struct service * svcmap;
+	
 	struct downtime * dtmap;
 	
 	hdr=bartlby_SHM_GetHDR(shm_addr);
 	
-	svcmap=bartlby_SHM_ServiceMap(shm_addr);
-	//wrkmap=(struct worker *)(void*)&svcmap[hdr->svccount];
 	dtmap=bartlby_SHM_DowntimeMap(shm_addr);
 	
 	return (struct server *)(void *)&dtmap[hdr->dtcount+1];
@@ -337,13 +334,11 @@ struct server * bartlby_SHM_ServerMap(void * shm_addr) {
 struct downtime * bartlby_SHM_DowntimeMap(void * shm_addr) {
 	//Is beyond the 3 integers :-)
 	struct shm_header * hdr;
-	struct service * svcmap;
+	
 	struct worker * wrkmap;
 	
 	hdr=bartlby_SHM_GetHDR(shm_addr);
 	
-	svcmap=bartlby_SHM_ServiceMap(shm_addr);
-	//wrkmap=(struct worker *)(void*)&svcmap[hdr->svccount];
 	wrkmap=bartlby_SHM_WorkerMap(shm_addr);
 	
 	return (struct downtime *)(void *)&wrkmap[hdr->wrkcount+1];
