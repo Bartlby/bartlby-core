@@ -38,7 +38,7 @@ json_object * bartlby_service_to_json(struct service * svc) {
 	json_object_object_add(jso_out, "server_id", json_object_new_int64(svc->srv->server_id));
 	json_object_object_add(jso_out, "plugin", json_object_new_string(svc->plugin));
 	json_object_object_add(jso_out, "plugin_arguments", json_object_new_string(svc->plugin_arguments));
-	json_object_object_add(jso_out, "new_server_text", json_object_new_string(svc->new_server_text));
+	json_object_object_add(jso_out, "current_output", json_object_new_string(svc->current_output));
 	json_object_object_add(jso_out, "current_state", json_object_new_int64(svc->current_state));
 	
 

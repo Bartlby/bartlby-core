@@ -222,7 +222,7 @@ void str_mysql_safe(char * str) {
 	}	
 }
 void service_mysql_safe(struct service * svc) {
-	str_mysql_safe(svc->new_server_text);	
+	str_mysql_safe(svc->current_output);	
 	str_mysql_safe(svc->service_name);
 	//str_mysql_safe(svc->srv->server_name);
 	//str_mysql_safe(svc->srv->client_ip);
@@ -412,7 +412,7 @@ void bartlby_replace_svc_in_str(char * str, struct service * svc, int max) {
 	str_replace(str,"$SERVICE_PLUGIN$", svc->plugin, max); 
   str_replace(str,"$SERVER$",  svc->srv->server_name, max);
   str_replace(str,"$SERVER_NAME$",  svc->srv->server_name, max);
-  str_replace(str,"$MESSAGE$",  svc->new_server_text, max);
+  str_replace(str,"$MESSAGE$",  svc->current_output, max);
   str_replace(str,"$SERVICE_LAST_STATE_CHANGE$", last_state_change , max);
 	
 	setenv("SERVICE", svc->service_name, 1);
@@ -420,7 +420,7 @@ void bartlby_replace_svc_in_str(char * str, struct service * svc, int max) {
 	setenv("READABLE_STATE", human_state, 1);
 	setenv("READABLE_LAST", human_state_last, 1);
 	setenv("VERSION", VERSION, 1);
-	setenv("MESSAGE",  svc->new_server_text, 1);
+	setenv("MESSAGE",  svc->current_output, 1);
 	setenv("SERVER_ID",  server_id, 1);
 	setenv("SERVICE_ID", service_id, 1);
 	setenv("SERVICE_NAME",  svc->service_name, 1);
@@ -536,7 +536,7 @@ int bartlby_agent_tcp_my_connect(char *host_name,int port,int *sd,char *proto, s
 	
 	 result = getaddrinfo(host_name, ipvservice, &hints, &res);
 	 if(result < 0) {
-	 		sprintf(svc->new_server_text, "getaddrinfo failed on '%s' - '%s'\n", host_name, gai_strerror(result));
+	 		sprintf(svc->current_output, "getaddrinfo failed on '%s' - '%s'\n", host_name, gai_strerror(result));
 			svc->current_state=STATE_CRITICAL;
 			return STATE_CRITICAL;
 	}
@@ -565,17 +565,17 @@ int bartlby_agent_tcp_my_connect(char *host_name,int port,int *sd,char *proto, s
 	
 	switch(errno){  
 		case ECONNREFUSED:
-			sprintf(svc->new_server_text, "Connection refused by host (global.c)\n");
+			sprintf(svc->current_output, "Connection refused by host (global.c)\n");
 			svc->current_state=STATE_CRITICAL;
 			return STATE_CRITICAL;
 			break;
 		case ETIMEDOUT:
-			sprintf(svc->new_server_text, "Timeout while attempting connection\n");
+			sprintf(svc->current_output, "Timeout while attempting connection\n");
 			svc->current_state=STATE_CRITICAL;
 			return STATE_CRITICAL;
 			break;
 		case ENETUNREACH:
-			sprintf(svc->new_server_text, "Network is unreachable\n");
+			sprintf(svc->current_output, "Network is unreachable\n");
 			svc->current_state=STATE_CRITICAL;
 			return STATE_CRITICAL;
 			break;

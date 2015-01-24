@@ -61,7 +61,7 @@ void bartlby_check_active(struct service * svc, char * cfgfile) {
 
 	if(sigemptyset(&act1.sa_mask) < 0) {
 
-		sprintf(svc->new_server_text, "%s", ALARM_ERROR);
+		sprintf(svc->current_output, "%s", ALARM_ERROR);
 		svc->current_state=STATE_CRITICAL;
 
 		return;
@@ -76,7 +76,7 @@ void bartlby_check_active(struct service * svc, char * cfgfile) {
 
 	if(sigaction(SIGALRM, &act1, &oact1) < 0) {
 
-		sprintf(svc->new_server_text, "%s", ALARM_ERROR);
+		sprintf(svc->current_output, "%s", ALARM_ERROR);
 		svc->current_state=STATE_CRITICAL;
 
 		return;
@@ -90,13 +90,13 @@ void bartlby_check_active(struct service * svc, char * cfgfile) {
 	result = bartlby_agent_tcp_connect(svc->srv->client_ip,svc->srv->client_port,&client_socket, svc);
 	
 	if(connection_timed_out == 1) {
-		sprintf(svc->new_server_text, "%s", "timed out");
+		sprintf(svc->current_output, "%s", "timed out");
 		svc->current_state=STATE_CRITICAL;
 		close(client_socket);	
 		return;
 	}
 	if(result != STATE_OK) {
-		sprintf(svc->new_server_text, "%s", "connect failed");
+		sprintf(svc->current_output, "%s", "connect failed");
 		svc->current_state=STATE_CRITICAL;
 		close(client_socket);
 		return;
@@ -115,7 +115,7 @@ void bartlby_check_active(struct service * svc, char * cfgfile) {
 	if(connection_timed_out == 1 || result < 0) {
 		
 		
-		sprintf(svc->new_server_text, "%s", CONN_ERROR);
+		sprintf(svc->current_output, "%s", CONN_ERROR);
 		svc->current_state=STATE_CRITICAL;
 		free(client_request);
 		close(client_socket);
@@ -148,10 +148,10 @@ void bartlby_check_active(struct service * svc, char * cfgfile) {
 	if(connection_timed_out == 1 || sum_rmessage <= 0) {
 		
 		if(connection_timed_out == 1) {
-			sprintf(svc->new_server_text, "%s", TIMEOUT_ERROR);
+			sprintf(svc->current_output, "%s", TIMEOUT_ERROR);
 		} else if(sum_rmessage <= 0) {
 			_log(LH_CHECK, B_LOG_CRIT, "%d recv error() '%s'", return_bytes, rmessage);
-			sprintf(svc->new_server_text, "%s %d", RECV_ERROR, return_bytes);
+			sprintf(svc->current_output, "%s %d", RECV_ERROR, return_bytes);
 		} 
 		svc->current_state=STATE_CRITICAL;
 		free(rmessage);
@@ -205,9 +205,9 @@ void bartlby_action_handle_reply(struct service * svc, char * rmessage, char * c
    				if(data_is_ok == 1) {
    					
    					//Multiline support
-   					if(strlen(svc->new_server_text) + strlen(curr_line) + 2 <= 1023) {
-   						strcat(svc->new_server_text, "\n");
-   						strcat(svc->new_server_text, curr_line);
+   					if(strlen(svc->current_output) + strlen(curr_line) + 2 <= 1023) {
+   						strcat(svc->current_output, "\n");
+   						strcat(svc->current_output, curr_line);
    					} else {
    						//_log("BUFFER TO LARGE");
    						break;
@@ -229,7 +229,7 @@ void bartlby_action_handle_reply(struct service * svc, char * rmessage, char * c
 	
 	if(data_is_ok != 1) {
 		//Maybe we did'nt receive any data like 0|Result\n
-		sprintf(svc->new_server_text, "%s (1)", PROTOCOL_ERROR);
+		sprintf(svc->current_output, "%s (1)", PROTOCOL_ERROR);
 		svc->current_state=STATE_CRITICAL;	
 	}
 	
@@ -265,14 +265,14 @@ int bartlby_action_handle_reply_line(struct service * svc, char * line, char * c
         	
        	return_token = strtok(NULL, "|");
        	if(return_token != NULL) {
-       		sprintf(svc->new_server_text, "%s", return_token);
+       		sprintf(svc->current_output, "%s", return_token);
        		//see if we have nagios plugin perf-data
        		return_token = strtok(NULL, "|");
        		if(return_token != NULL) {
        				//append the nagiosperfdata after the normal output 
-       				if(strlen(svc->new_server_text) + strlen(return_token) + 5 <= 1023) {
-       					strcat(svc->new_server_text, " - |");
-       					strcat(svc->new_server_text, return_token);
+       				if(strlen(svc->current_output) + strlen(return_token) + 5 <= 1023) {
+       					strcat(svc->current_output, " - |");
+       					strcat(svc->current_output, return_token);
        				} else {
        					_debug("Buffer overflow!!! strcat");
        				}
@@ -280,14 +280,14 @@ int bartlby_action_handle_reply_line(struct service * svc, char * line, char * c
        		
        	} else {
        		
-       		sprintf(svc->new_server_text, "(empty output)");
+       		sprintf(svc->current_output, "(empty output)");
        		
        	}	
         free(line_dup);
         return 1;
        } else {
        	free(line_dup);
-       	sprintf(svc->new_server_text, PROTOCOL_ERROR);
+       	sprintf(svc->current_output, PROTOCOL_ERROR);
        	svc->current_state=STATE_CRITICAL;
      	return 1;
      }

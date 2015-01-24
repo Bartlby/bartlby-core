@@ -239,7 +239,7 @@ void sched_kill_runaaway(void * shm_addr, struct service *  svc, char * cfg, voi
 	}
 		
 	//service timed out
-	sprintf(svc->new_server_text, "%s", "in-core time out");
+	sprintf(svc->current_output, "%s", "in-core time out");
 	svc->current_state=STATE_CRITICAL;
 	
 	//on failure re-calc a new interval
@@ -647,7 +647,7 @@ if any of these chain members does not match - service lcheck (for next round di
 					//downtimed
 					//If we are in downtime :)
 						svc->current_state = STATE_DOWNTIME;
-						sprintf(svc->new_server_text, "%s", "Service is in Downtime");
+						sprintf(svc->current_output, "%s", "Service is in Downtime");
 						bartlby_fin_service(svc,SOHandle,shm_addr,cfg);		
 						sched_reschedule(svc);
 						return -1;

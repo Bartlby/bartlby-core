@@ -70,7 +70,7 @@ void bartlby_check_v2(struct service * svc, char * cfgfile, int use_ssl) {
 		
 		
     if((ctx=SSL_CTX_new(SSLv23_client_method()))==NULL){
-			sprintf(svc->new_server_text, "%s", "AgentV2: Error - could not create SSL context.");
+			sprintf(svc->current_output, "%s", "AgentV2: Error - could not create SSL context.");
        		svc->current_state=STATE_CRITICAL;
        		_log(LH_CHECK, B_LOG_CRIT,"SSL Error %s", ERR_error_string(ERR_get_error(), NULL));
 		}
@@ -84,13 +84,13 @@ void bartlby_check_v2(struct service * svc, char * cfgfile, int use_ssl) {
 	result=bartlby_agent_tcp_connect(svc->srv->client_ip,svc->srv->client_port,&sd, svc);
 	
 	if(conn_timedout == 1) {
-		sprintf(svc->new_server_text, "%s", "timed out");
+		sprintf(svc->current_output, "%s", "timed out");
 		svc->current_state=STATE_CRITICAL;	
 		close(sd);
 		return;
 	}
 	if(result != STATE_OK) {
-		sprintf(svc->new_server_text, "%s", "connect failed");	
+		sprintf(svc->current_output, "%s", "connect failed");	
 		svc->current_state=STATE_CRITICAL;
 		close(sd);
 		return;
@@ -109,7 +109,7 @@ void bartlby_check_v2(struct service * svc, char * cfgfile, int use_ssl) {
 			alarm(svc->service_check_timeout);
 				
 			if(rc !=1){
-				sprintf(svc->new_server_text, "%s", "AgentV2: Error - Could not complete SSL handshake.");
+				sprintf(svc->current_output, "%s", "AgentV2: Error - Could not complete SSL handshake.");
 					_log(LH_CHECK, B_LOG_CRIT,"SSL_error: %s", ERR_error_string(ERR_get_error(), NULL));
      		         		svc->current_state=STATE_CRITICAL;
      		         		SSL_shutdown(ssl);
@@ -119,7 +119,7 @@ void bartlby_check_v2(struct service * svc, char * cfgfile, int use_ssl) {
      		         		return;
 			}
 		} else {
-			sprintf(svc->new_server_text,"AgentV2: Error - Could not create SSL connection structure."); 
+			sprintf(svc->current_output,"AgentV2: Error - Could not create SSL connection structure."); 
 			svc->current_state=STATE_CRITICAL;
 			_log(LH_CHECK, B_LOG_CRIT,"%s", ERR_error_string(ERR_get_error(), NULL));
 			SSL_shutdown(ssl);
@@ -172,7 +172,7 @@ void bartlby_check_v2(struct service * svc, char * cfgfile, int use_ssl) {
 #endif
 	if(conn_timedout == 1) {
 		_log(LH_CHECK, B_LOG_DEBUG,"V2: timeout ok");
-		sprintf(svc->new_server_text, "%s", "V2 timed out2");
+		sprintf(svc->current_output, "%s", "V2 timed out2");
 		svc->current_state=STATE_CRITICAL;	
 		close(sd);
 		return;
@@ -181,7 +181,7 @@ void bartlby_check_v2(struct service * svc, char * cfgfile, int use_ssl) {
        	rc=-1;
 
 	if(rc==-1){
-		sprintf(svc->new_server_text, "%s", "AgentV2: Error sending to host");
+		sprintf(svc->current_output, "%s", "AgentV2: Error sending to host");
 		close(sd);
 		svc->current_state=STATE_CRITICAL;
 		return;
@@ -207,7 +207,7 @@ void bartlby_check_v2(struct service * svc, char * cfgfile, int use_ssl) {
 
        if(conn_timedout == 1) {
 		_log(LH_CHECK, B_LOG_DEBUG,"timeout ok");
-		sprintf(svc->new_server_text, "%s", "timed out4");
+		sprintf(svc->current_output, "%s", "timed out4");
 		svc->current_state=STATE_CRITICAL;	
 		close(sd);
 		return;
@@ -226,15 +226,15 @@ void bartlby_check_v2(struct service * svc, char * cfgfile, int use_ssl) {
 	close(sd);
 
 	if(rc<0){
-		sprintf(svc->new_server_text, "%s", "AgentV2: Error receiving data from agent");
+		sprintf(svc->current_output, "%s", "AgentV2: Error receiving data from agent");
 		svc->current_state=STATE_CRITICAL;
 		return;
 	}else if(rc==0){
-		sprintf(svc->new_server_text,"%s", "AgentV2: Received 0 bytes from agent");
+		sprintf(svc->current_output,"%s", "AgentV2: Received 0 bytes from agent");
 		svc->current_state=STATE_CRITICAL;
 		return;
 	}else if(bytes_to_recv<sizeof(receive_packet)){
-		sprintf(svc->new_server_text, "AgentV2: Receive underflow - only %d bytes received (%ld expected).\n",bytes_to_recv,(unsigned long)sizeof(receive_packet));
+		sprintf(svc->current_output, "AgentV2: Receive underflow - only %d bytes received (%ld expected).\n",bytes_to_recv,(unsigned long)sizeof(receive_packet));
 		svc->current_state=STATE_CRITICAL;
 		return;
 	}
@@ -243,7 +243,7 @@ void bartlby_check_v2(struct service * svc, char * cfgfile, int use_ssl) {
 	receive_packet.crc32_value=0L;
 	calculated_crc32=agent_v2_calculate_crc32((char *)&receive_packet,sizeof(receive_packet));
 	if(packet_crc32!=calculated_crc32){
-		sprintf(svc->new_server_text,"%s", "AgentV2: Response packet had invalid CRC32.");
+		sprintf(svc->current_output,"%s", "AgentV2: Response packet had invalid CRC32.");
 		svc->current_state=STATE_CRITICAL;
 		
 		return;
@@ -254,7 +254,7 @@ void bartlby_check_v2(struct service * svc, char * cfgfile, int use_ssl) {
 	
 	/* check packet type */
 	if(ntohs(receive_packet.packet_type)!=AGENT_V2_RETURN_PACKET){
-		sprintf(svc->new_server_text,"%s","AgentV2: Invalid packet type received from server.");
+		sprintf(svc->current_output,"%s","AgentV2: Invalid packet type received from server.");
 		svc->current_state=STATE_CRITICAL;
 		return;
 	}
@@ -265,9 +265,9 @@ void bartlby_check_v2(struct service * svc, char * cfgfile, int use_ssl) {
 	/* print the output returned by the daemon */
 	receive_packet.output[2048-1]='\x0';
 	if(!strcmp(receive_packet.output,"")) {
-		sprintf(svc->new_server_text,"%s","AgentV2: No output returned from agent");
+		sprintf(svc->current_output,"%s","AgentV2: No output returned from agent");
 	} else {
-		sprintf(svc->new_server_text,"%s",receive_packet.output);
+		sprintf(svc->current_output,"%s",receive_packet.output);
 	}
 
 	switch ((int16_t)receive_packet.exit_code) {

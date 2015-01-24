@@ -46,7 +46,7 @@ void bartlby_check_group(struct service * svc, void * shm_addr) {
 	if(svc->service_var[0] == '\0')  {
 		
 		
-		sprintf(svc->new_server_text, "%s", GROUP_WITHOUT_PARMS);
+		sprintf(svc->current_output, "%s", GROUP_WITHOUT_PARMS);
 		svc->current_state=STATE_CRITICAL;	
 	} else {
 		strcpy(tmp_svcvar, svc->service_var);
@@ -67,14 +67,14 @@ void bartlby_check_group(struct service * svc, void * shm_addr) {
 			}	
 			if(svg == NULL) { 
 				
-				sprintf(svc->new_server_text, "%s (Service: %d not found)", GROUP_CRITICAL, svc_id);
+				sprintf(svc->current_output, "%s (Service: %d not found)", GROUP_CRITICAL, svc_id);
 				svc->current_state=STATE_CRITICAL;
 				return;
 			}
 			
 			if(bartlby_is_in_downtime(shm_addr, svg) > 0 && svg->current_state == state) {
 				//_log("Service: is not %d\n", svg->current_state );
-				sprintf(svc->new_server_text, "%s %s:%d/%s - %d", GROUP_CRITICAL, svg->srv->server_name, svg->srv->client_port, svg->service_name, state);
+				sprintf(svc->current_output, "%s %s:%d/%s - %d", GROUP_CRITICAL, svg->srv->server_name, svg->srv->client_port, svg->service_name, state);
 				svc->current_state=STATE_CRITICAL;
 				
 				return;	
@@ -84,7 +84,7 @@ void bartlby_check_group(struct service * svc, void * shm_addr) {
 			
 		}
 		
-		sprintf(svc->new_server_text, "%s", GROUP_OK);
+		sprintf(svc->current_output, "%s", GROUP_OK);
 		svc->current_state=STATE_OK;
 	}
 		

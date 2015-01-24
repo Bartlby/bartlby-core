@@ -317,7 +317,7 @@ int bartlby_portier_send_svc_status(char * passive_host, int passive_port, char 
 	json_object_object_add(jso_out, "service_retain_current", json_object_new_int(svc->service_retain_current));
 	json_object_object_add(jso_out, "service_ack_current", json_object_new_int(svc->service_ack_current));
 	json_object_object_add(jso_out, "last_check", json_object_new_int(svc->last_check));
-	json_object_object_add(jso_out, "new_server_text", json_object_new_string(svc->new_server_text));
+	json_object_object_add(jso_out, "current_output", json_object_new_string(svc->current_output));
 	json_object_object_add(jso_out, "current_state", json_object_new_int(svc->current_state));
 	json_object_object_add(jso_out, "last_notify_send", json_object_new_int(svc->last_notify_send));
 	json_object_object_add(jso_out, "last_state_change", json_object_new_int(svc->last_state_change));

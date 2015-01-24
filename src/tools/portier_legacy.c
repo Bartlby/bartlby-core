@@ -302,12 +302,12 @@ int main(int argc, char ** argv) {
 							if(svcmap[x].service_type == SVC_TYPE_PASSIVE) {
 								svcmap[x].last_state=svcmap[x].current_state;
 								svcmap[x].current_state=passive_state;
-								sprintf(svcmap[x].new_server_text, "%s", passive_text);
+								sprintf(svcmap[x].current_output, "%s", passive_text);
 								svcmap[x].last_check=time(NULL);
 								
 								
 								passive_beauty=bartlby_beauty_state(svcmap[x].current_state);
-								sprintf(svc_out, "+PASSIVOK (%d) %ld : %s (%s)\n", x, svcmap[x].service_id, passive_beauty, svcmap[x].new_server_text);
+								sprintf(svc_out, "+PASSIVOK (%d) %ld : %s (%s)\n", x, svcmap[x].service_id, passive_beauty, svcmap[x].current_output);
 								free(passive_beauty);
 							} else {
 								sprintf(svc_out, "-3 Service is not of type 'PASSIVE'");	

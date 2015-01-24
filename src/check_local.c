@@ -51,7 +51,7 @@ void bartlby_check_local(struct service * svc, char * cfgfile) {
 	
 	if(sigaction(SIGALRM, &act1, &oact1) < 0) {
 		
-		sprintf(svc->new_server_text, "%s", ALARM_ERROR);
+		sprintf(svc->current_output, "%s", ALARM_ERROR);
 		svc->current_state=STATE_CRITICAL;
 				
 		return;
@@ -61,7 +61,7 @@ void bartlby_check_local(struct service * svc, char * cfgfile) {
 	plugin_dir=getConfigValue("agent_plugin_dir", cfgfile);
         if(plugin_dir == NULL) {
         	
-        	sprintf(svc->new_server_text, "Plugin dir failed 'agent_plugin_dir' not set");
+        	sprintf(svc->current_output, "Plugin dir failed 'agent_plugin_dir' not set");
 		svc->current_state=STATE_CRITICAL;		  	
 		return;
         }
@@ -71,7 +71,7 @@ void bartlby_check_local(struct service * svc, char * cfgfile) {
 	
 	if(stat(file_request, &plg_stat) < 0) {
 		//oops file is not here
-		sprintf(svc->new_server_text, "Plugin does not exist in %s",file_request );
+		sprintf(svc->current_output, "Plugin does not exist in %s",file_request );
 		svc->current_state=STATE_CRITICAL;		  	
 		free(plugin_dir);
 		free(file_request);	
@@ -112,7 +112,7 @@ void bartlby_check_local(struct service * svc, char * cfgfile) {
 		if(connection_timed_out == 1) {
 			//alarm has reached
 			
-			sprintf(svc->new_server_text, "Timed out");
+			sprintf(svc->current_output, "Timed out");
 			svc->current_state=STATE_CRITICAL;
 			return;
 				
@@ -129,7 +129,7 @@ void bartlby_check_local(struct service * svc, char * cfgfile) {
 		free(rmessage);
 		
 	} else {
-		sprintf(svc->new_server_text, "popen failed on (%s)", file_request);
+		sprintf(svc->current_output, "popen failed on (%s)", file_request);
 		svc->current_state=STATE_CRITICAL;
 	}	
 	free(file_request);

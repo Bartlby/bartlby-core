@@ -32,7 +32,7 @@ $Author$
 
 #ifndef SSH_ADDON
 void bartlby_check_ssh(struct service * svc, char * cfgfile) {
-	sprintf(svc->new_server_text, "%s", "SSH Support ist not compiled in (--enable-ssh=yes) bartlby-core");
+	sprintf(svc->current_output, "%s", "SSH Support ist not compiled in (--enable-ssh=yes) bartlby-core");
 	svc->current_state = STATE_CRITICAL;
 }
 
@@ -61,7 +61,7 @@ void bartlby_check_ssh(struct service * svc, char * cfgfile) {
 	
 	my_ssh_session = ssh_new();
 	if (my_ssh_session == NULL) {
-		sprintf(svc->new_server_text, "connect failed");
+		sprintf(svc->current_output, "connect failed");
     goto safe_free;
 		return;
   }
@@ -75,7 +75,7 @@ void bartlby_check_ssh(struct service * svc, char * cfgfile) {
   
  	rc = ssh_connect(my_ssh_session);
   if (rc != SSH_OK)   {
-   	sprintf(svc->new_server_text, "Connect to server failed username: '%s'", svc->srv->server_ssh_username);
+   	sprintf(svc->current_output, "Connect to server failed username: '%s'", svc->srv->server_ssh_username);
 		svc->current_state = STATE_CRITICAL;
     goto safe_free;
 		return;
@@ -83,21 +83,21 @@ void bartlby_check_ssh(struct service * svc, char * cfgfile) {
    ssh_set_blocking(my_ssh_session, 1);
    pkey=privatekey_from_file(my_ssh_session, svc->srv->server_ssh_keyfile,SSH_KEYTYPE_RSA, svc->srv->server_ssh_passphrase);  //ONLY RSA KEYS WILL WORK
    if(pkey == NULL) {
-   	 	sprintf(svc->new_server_text, "failed to load private key '%s'", svc->srv->server_ssh_keyfile);
+   	 	sprintf(svc->current_output, "failed to load private key '%s'", svc->srv->server_ssh_keyfile);
 			svc->current_state = STATE_CRITICAL;
       goto safe_free;
 			return;
 	 }
    pubkey=publickey_from_privatekey(pkey);
    if(pubkey == NULL) {
-   		sprintf(svc->new_server_text, "could not get public key from private key '%s'", svc->srv->server_ssh_keyfile);
+   		sprintf(svc->current_output, "could not get public key from private key '%s'", svc->srv->server_ssh_keyfile);
 			svc->current_state = STATE_CRITICAL;
       goto safe_free;
 			return;
 	 }
    pubstring = publickey_to_string(pubkey);
    if(pubstring == NULL) {
-   		sprintf(svc->new_server_text, "could not convert public key to string from private key '%s'", svc->srv->server_ssh_keyfile);
+   		sprintf(svc->current_output, "could not convert public key to string from private key '%s'", svc->srv->server_ssh_keyfile);
 			svc->current_state = STATE_CRITICAL;
       goto safe_free;
 			return;
@@ -110,7 +110,7 @@ void bartlby_check_ssh(struct service * svc, char * cfgfile) {
    
    
    if(rc != SSH_AUTH_SUCCESS) {
-   		sprintf(svc->new_server_text, "authentication failed using private key '%s' user: '%s' return code: %d error-msg: %s", svc->srv->server_ssh_keyfile, svc->srv->server_ssh_username, rc, ssh_get_error(my_ssh_session));
+   		sprintf(svc->current_output, "authentication failed using private key '%s' user: '%s' return code: %d error-msg: %s", svc->srv->server_ssh_keyfile, svc->srv->server_ssh_username, rc, ssh_get_error(my_ssh_session));
 			svc->current_state = STATE_CRITICAL;
       goto safe_free;
 			return;
@@ -121,7 +121,7 @@ void bartlby_check_ssh(struct service * svc, char * cfgfile) {
    
     if (channel == NULL) {
         
-        sprintf(svc->new_server_text, "SSH Channel open failed");
+        sprintf(svc->current_output, "SSH Channel open failed");
 				svc->current_state = STATE_CRITICAL;
         goto safe_free;
 				return;
@@ -201,7 +201,7 @@ failed:
     ssh_disconnect(my_ssh_session);
     ssh_free(my_ssh_session);
     
-    sprintf(svc->new_server_text, "SSH Communication failed");
+    sprintf(svc->current_output, "SSH Communication failed");
 		svc->current_state = STATE_CRITICAL;
 		return;
 }
