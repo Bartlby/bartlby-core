@@ -137,7 +137,7 @@
 #define REL_NAME_INT "Insomnia"
 #define REL_NAME REL_NAME_INT " - rev:" __GIT_VERSION
 //#define VERSION  "1.4.0"
-#define EXPECTCORE 1600000
+#define EXPECTCORE 1600001
 
 #define MAX_CCACHE 1024
 #define MAX_CCACHE_KEY 1024
@@ -579,7 +579,7 @@ struct downtime {
 
 struct btl_event {
 	long evnt_id;
-	char evnt_message[1024];
+	char evnt_message[4096];
 	int evnt_time;
 		
 }eb;
