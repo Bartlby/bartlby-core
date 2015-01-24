@@ -26,12 +26,55 @@ $Author$
 
 
 
-struct btl_event * evs;
-struct shm_header * hdr;
+
+
+
+void * bartlby_event_queue_set_hardcopy(void * bartlby_address, void * hardcopy, int event_queue_last) {
+	long event_queue_size;
+	struct btl_event * ev_temp;
+	struct shm_header * hdr_temp;
+
+	ev_temp=bartlby_SHM_EventMap(bartlby_address);
+	hdr_temp=bartlby_SHM_GetHDR(bartlby_address);
+
+	event_queue_size=sizeof(struct btl_event)*EVENT_QUEUE_MAX;
+	_log(LH_EVNT, B_LOG_DEBUG,"EVENT QUEUE: SET HARDCOPY: %d", event_queue_size);
+	memcpy(ev_temp, hardcopy, event_queue_size);
+	free(hardcopy);
+	hdr_temp->cur_event_index=event_queue_last;
+	
+	return NULL;
+}
+
+
+void * bartlby_event_queue_get_hardcopy(void * bartlby_address) {
+
+	void * return_hardcopy;
+	
+	long event_queue_size;
+	struct btl_event * ev_temp;
+	
+
+	ev_temp=bartlby_SHM_EventMap(bartlby_address);
+	
+	event_queue_size=sizeof(struct btl_event)*NOTIFICATION_LOG_MAX;
+	_log(LH_EVNT, B_LOG_DEBUG,"EVENT QUEUE: GET HARDCOPY: %d", event_queue_size);
+	return_hardcopy  = malloc(event_queue_size);
+	memcpy(return_hardcopy, ev_temp, event_queue_size);
+
+	return return_hardcopy;
+
+
+}
+
 
 void bartlby_event_init(void * bartlby_address) {
 	int x;
-	
+		
+	struct btl_event * evs;
+	struct shm_header * hdr;
+
+
 	hdr=bartlby_SHM_GetHDR(bartlby_address);
 	evs=bartlby_SHM_EventMap(bartlby_address);
 	hdr->cur_event_index=0;
@@ -44,11 +87,39 @@ void bartlby_event_init(void * bartlby_address) {
 	_log(LH_EVNT, B_LOG_INFO,"Init event queue done %d messages available", x);
 }
 
-int bartlby_push_event(int event_id, const char * str,  ...) {
+int bartlby_push_event(char * cfgfile,  void * bartlby_address, int event_id, const char * str,  ...) {
 //	printf("LOG: %s\n", str);
+
+	struct btl_event * evs;
+	struct shm_header * hdr;
+
+
+	hdr=bartlby_SHM_GetHDR(bartlby_address);
+	evs=bartlby_SHM_EventMap(bartlby_address);
+
 	
-	
-	if((hdr->cur_event_index+1) >= EVENT_QUEUE_MAX) {
+	va_list argzeiger;
+	char * sem_name;
+	sem_t * sem_id;
+	int x;
+
+	sem_name=getConfigValue("event_queue_sem_name", cfgfile);
+	if(sem_name == NULL) {
+		sem_name=strdup("event_queue_sem_name_generic");
+		
+	}
+	sem_id=sem_open(sem_name, O_CREAT, 0755, 1);
+	sem_wait(sem_id);
+		
+ 	va_start(argzeiger,str);
+ 	x=hdr->cur_event_index;
+ 	evs[x].evnt_id=event_id;
+ 	evs[x].evnt_time=time(NULL);
+ 	bartlby_callback(EXTENSION_CALLBACK_EVENT_PUSHED, &evs[x]);
+   	vsnprintf(evs[x].evnt_message, 900, str, argzeiger);
+   	va_end(argzeiger);
+
+	if((hdr->cur_event_index+1) == EVENT_QUEUE_MAX) {
 		//_log("Event: %d will reach maximum", (hdr->cur_event_index+1));
 		hdr->cur_event_index=0;	
 	} else {
@@ -56,20 +127,9 @@ int bartlby_push_event(int event_id, const char * str,  ...) {
 		//_log("NEW CID: %d", hdr->cur_event_index);
 	}
 
-	va_list argzeiger;
+	sem_post(sem_id);
+	free(sem_name);
 	
-		
- 	va_start(argzeiger,str);
- 	
- 	evs[hdr->cur_event_index].evnt_id=event_id;
- 	evs[hdr->cur_event_index].evnt_time=time(NULL);
- 	
-   	bartlby_callback(EXTENSION_CALLBACK_EVENT_PUSHED, &evs[hdr->cur_event_index]);
-   	vsnprintf(evs[hdr->cur_event_index].evnt_message, 900, str, argzeiger);
-   	
-   	//_log("Event pushed: index=>%d id=>%d, Message=>'%s'", hdr->cur_event_index, evs[hdr->cur_event_index].evnt_id, evs[hdr->cur_event_index].evnt_message);
-   	
-   	va_end(argzeiger);
    	
    	
    	return 1;   
