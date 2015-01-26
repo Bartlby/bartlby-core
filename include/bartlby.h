@@ -299,6 +299,7 @@ struct sched_worker {
 	int shutdown;
 	struct tms timing;
 	int idx;
+	long svc_id;
 
 
 } astt;
