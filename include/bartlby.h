@@ -345,6 +345,7 @@ struct shm_header {
 	struct notification_log_entry notification_log[NOTIFICATION_LOG_MAX];
 	long notification_log_current_top;	
 	time_t notification_log_aggregate_last_run;
+	int sched_workers_count;
 	
 };
 
