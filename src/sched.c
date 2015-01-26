@@ -876,7 +876,7 @@ void sig_cont_handler(int sig) {
 }
 void sched_run_worker( int idx ) {
 	
-	prctl(PR_SET_NAME, "bartlby worker");
+	prctl(PR_SET_NAME, "bartlby_worker");
 	prctl(PR_SET_DUMPABLE, 1);
 	signal(SIGCONT, sig_cont_handler);
 	while(1) {
