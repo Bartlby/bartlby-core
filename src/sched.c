@@ -887,6 +887,7 @@ void sched_run_worker( int idx ) {
 			sched_do_now(gshm_hdr->worker_threads[idx].svc, gConfig, gshm_hdr, gSOHandle);
 			times(&gshm_hdr->worker_threads[idx].timing);
 			gshm_hdr->worker_threads[idx].svc=NULL;
+			gshm_hdr->worker_threads[idx].svc_id=-1;
 			gshm_hdr->worker_threads[idx].idle=1;
 
 		}
@@ -931,6 +932,7 @@ void sched_init_workers() {
 			gshm_hdr->worker_threads[x].pid=sched_fork_worker(x);
 			gshm_hdr->worker_threads[x].start_time=time(NULL);
 			gshm_hdr->worker_threads[x].svc=NULL;
+			gshm_hdr->worker_threads[x].svc_id=-1;
 			gshm_hdr->worker_threads[x].idle=1;
 			gshm_hdr->worker_threads[x].idx=x;
 
@@ -951,6 +953,7 @@ void sched_run_check(struct service * svc, char * cfgfile, void * shm_addr, void
     
     if(sched_mode == SCHED_MODE_WORKER) {
     	gshm_hdr->worker_threads[worker_slot].svc=svc;
+    	gshm_hdr->worker_threads[worker_slot].svc_id=svc->service_id;
     	kill(gshm_hdr->worker_threads[worker_slot].pid, SIGCONT);
     	return;
     }
@@ -1055,6 +1058,7 @@ void sched_check_for_dead_workers() {
 				gshm_hdr->worker_threads[x].pid=sched_fork_worker(x);
 				gshm_hdr->worker_threads[x].start_time=time(NULL);
 				gshm_hdr->worker_threads[x].svc=NULL;
+				gshm_hdr->worker_threads[x].svc_id=-1;
 				gshm_hdr->worker_threads[x].idle=1;
 				gshm_hdr->worker_threads[x].idx=x;
 
