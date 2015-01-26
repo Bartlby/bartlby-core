@@ -160,6 +160,10 @@ void sched_wait_for_childs() {
 		while(waitpid(-1, &childstatus, WNOHANG ) > 0 );	
 	}
 
+	if(sched_mode == SCHED_MODE_WORKER) {
+		while(waitpid(-1, &childstatus, WNOHANG ) > 0 );	
+	}
+
 }
 
 /*
