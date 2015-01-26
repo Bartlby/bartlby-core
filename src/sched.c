@@ -1192,7 +1192,7 @@ int schedule_loop(char * cfgfile, void * shm_addr, void * SOHandle) {
 	
 	cfg_sched_mode = getConfigValue("sched_mode", cfgfile);
 	
-
+	gshm_hdr->sched_workers_count=-1;
 	if(cfg_sched_mode == NULL) {
 		sched_mode=SCHED_MODE_FORK;
 		_log(LH_SCHED, B_LOG_DEBUG,"Defaulting sched mode to SCHED_MODE_FORK");
@@ -1211,6 +1211,7 @@ int schedule_loop(char * cfgfile, void * shm_addr, void * SOHandle) {
 				_log(LH_SCHED, B_LOG_INFO,"Using %d workers", sched_worker_count);
 				free(cfg_sched_worker_count);
 			}
+			gshm_hdr->sched_workers_count=sched_worker_count;
 			_log(LH_SCHED, B_LOG_DEBUG,"USING WORKER MODE");
 		}
 		if(sched_mode == SCHED_MODE_FORK) {
