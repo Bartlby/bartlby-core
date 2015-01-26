@@ -808,6 +808,8 @@ void sched_wait_open(int timeout, int fasten) {
 void sched_do_now(struct service * svc, char * cfgfile , void * shm_addr, void * SOHandle)  {
 	struct timeval check_start, check_end;
 	int ct, expt;
+
+	signal(SIGCHLD,SIG_DFL);
 	
 	gshm_hdr->current_running++;
 	
