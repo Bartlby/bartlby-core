@@ -870,6 +870,7 @@ void sched_do_now(struct service * svc, char * cfgfile , void * shm_addr, void *
 	} 
 	usleep(g_micros_before_after_check);
 	
+	signal(SIGCHLD, sched_reaper);
 	
 }
 void sig_cont_handler(int sig) {
