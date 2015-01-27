@@ -288,14 +288,22 @@ then
 	echo "--------------------------------------------------------------";
 	echo "";
 	echo "";
+
+if [ "x$BARTLBY_ENV_AUTO_INSTALL" = "x" ];
+then
+
+
 	mysqldiff  --host=$MYSQL_HOST --user=$MYSQL_USER --password=$MYSQL_PASSWORD db:$MYSQL_DB $BARTLBY_HOME/mysql.shema
 	echo -n "Apply Patch [y/n]";
-  read stopit;
-  if [ "$stopit" != "n" ];
-  then
-  	 mysqldiff  --host=$MYSQL_HOST --user=$MYSQL_USER --password=$MYSQL_PASSWORD db:$MYSQL_DB $BARTLBY_HOME/mysql.shema |$MYSQL_COMMAND -D $MYSQL_DB
-   	echo "DB Patching done";
-  fi;
+	read stopit;
+  	if [ "$stopit" != "n" ];
+  	then
+  	 	mysqldiff  --host=$MYSQL_HOST --user=$MYSQL_USER --password=$MYSQL_PASSWORD db:$MYSQL_DB $BARTLBY_HOME/mysql.shema |$MYSQL_COMMAND -D $MYSQL_DB
+   		echo "DB Patching done";
+  	fi;
+else
+	mysqldiff  --host=$MYSQL_HOST --user=$MYSQL_USER --password=$MYSQL_PASSWORD db:$MYSQL_DB $BARTLBY_HOME/mysql.shema |$MYSQL_COMMAND -D $MYSQL_DB	
+fi;
 
 	start_it_up;	
 	exit;
