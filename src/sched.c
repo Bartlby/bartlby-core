@@ -882,7 +882,7 @@ void sig_cont_handler(int sig) {
 
 }
 void sched_run_worker( int idx ) {
-	
+	struct rusage r_usage;
 	prctl(PR_SET_NAME, "bartlby_worker");
 	prctl(PR_SET_DUMPABLE, 1);
 	signal(SIGCONT, sig_cont_handler);
@@ -893,6 +893,10 @@ void sched_run_worker( int idx ) {
 			
 			sched_do_now(gshm_hdr->worker_threads[idx].svc, gConfig, gshm_hdr, gSOHandle);
 			times(&gshm_hdr->worker_threads[idx].timing);
+
+			getrusage(RUSAGE_SELF,&r_usage);
+			
+			gshm_hdr->worker_threads[idx].memory_used =  r_usage.ru_maxrss;
 			gshm_hdr->worker_threads[idx].svc=NULL;
 			gshm_hdr->worker_threads[idx].svc_id=-1;
 			gshm_hdr->worker_threads[idx].idle=1;
@@ -940,6 +944,7 @@ void sched_init_workers() {
 			gshm_hdr->worker_threads[x].start_time=time(NULL);
 			gshm_hdr->worker_threads[x].svc=NULL;
 			gshm_hdr->worker_threads[x].svc_id=-1;
+			gshm_hdr->worker_threads[x].memory_used=0;
 			gshm_hdr->worker_threads[x].idle=1;
 			gshm_hdr->worker_threads[x].idx=x;
 
@@ -1066,6 +1071,7 @@ void sched_check_for_dead_workers() {
 				gshm_hdr->worker_threads[x].start_time=time(NULL);
 				gshm_hdr->worker_threads[x].svc=NULL;
 				gshm_hdr->worker_threads[x].svc_id=-1;
+				gshm_hdr->worker_threads[x].memory_used=0;
 				gshm_hdr->worker_threads[x].idle=1;
 				gshm_hdr->worker_threads[x].idx=x;
 
