@@ -252,6 +252,11 @@ void bartlby_init(void) {
 	#ifdef WITH_NRPE
 	_log(LH_MAIN, B_LOG_INFO,"NRPE Support compiled in");
 	#endif
+
+	#ifdef LUA_ADDON
+	_log(LH_MAIN, B_LOG_INFO,"Lua Support compiled in version: %s", LUA_RELEASE);
+	#endif
+
 	#ifdef HAVE_DEBUG
 	_log(LH_MAIN, B_LOG_INFO,"DEBUGING ENABLED");
 	_debug("TEST DEBUG MESSAGE");
