@@ -51,6 +51,18 @@ void bartlby_mysql_safe_init(struct mysql_buffers_list ** curr, struct mysql_buf
   *head=(*curr);
 
 }
+
+void BTL_removeChar(char *str, char garbage) {
+
+    char *src, *dst;
+    for (src = dst = str; *src != '\0'; src++) {
+        *dst = *src;
+        if (*dst != garbage) dst++;
+    }
+    *dst = '\0';
+}
+
+
 void bartlby_mysql_safe_free(struct mysql_buffers_list * head) {
   struct mysql_buffers_list * curr, *t;
 

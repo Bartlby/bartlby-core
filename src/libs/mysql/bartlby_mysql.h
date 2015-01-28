@@ -6,7 +6,7 @@ struct mysql_buffers_list {
 char * bartlby_mysql_safe(MYSQL * mysql, struct mysql_buffers_list ** bartlby_protection_buff_list, char * value);
 void bartlby_mysql_safe_free(struct mysql_buffers_list * head);
 void bartlby_mysql_safe_init(struct mysql_buffers_list ** curr, struct mysql_buffers_list ** head);
-
+void BTL_removeChar(char *str, char garbage);
 
 
 
@@ -67,6 +67,13 @@ void bartlby_mysql_safe_init(struct mysql_buffers_list ** curr, struct mysql_buf
 #define BARTLBY_MYSQL_CLOSE(mysql) mysql_close(mysql); \
                                    mysql_library_end(); \
                                    BARTLBY_SQL_PROTECTION_FREE;
+
+
+#define BARTLBY_STRIPSLASHES(result, row) int btl_strip_num = mysql_num_fields(result); \
+                                          int btl_num_iter = 0; \
+                                          for ( btl_num_iter = 0; btl_num_iter < btl_strip_num; btl_num_iter++) { \
+                                            BTL_removeChar(row[btl_num_iter], '\\'); \
+                                          }
 
 
 int GetServerById(long server_id, struct server * svc, char * config);
