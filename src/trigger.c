@@ -529,6 +529,13 @@ void bartlby_trigger(struct service * svc, char * cfgfile, void * shm_addr, int 
 	wrkmap=bartlby_SHM_WorkerMap(shm_addr);
 	srvmap=bartlby_SHM_ServerMap(shm_addr);
 	
+
+	if(svc->handled == SERVICE_HANDLED) {
+		_log(LH_TRIGGER, B_LOG_DEBUG,"@NOT-EXT@%ld|%d|%d|||%s:%d/%s|'(Service is handled notification suppressed)'", svc->service_id, svc->last_state ,svc->current_state, svc->srv->server_name, svc->srv->client_port, svc->service_name);
+		return;
+	}
+
+
 	if(do_check == 1) {
 		if(bartlby_trigger_chk(svc) == FL) {
 			return;	
