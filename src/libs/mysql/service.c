@@ -88,6 +88,7 @@
 
 #define ADD_SERVICE "insert into services \
                               ( \
+                                service_last_check, \
                                 server_id, \
                                 service_plugin, \
                                 service_name, \
@@ -122,6 +123,7 @@
                                 notify_super_users \
                               )  \
                         values( \
+                          NOW(), \
                           %ld, \
                           '%s', \
                           '%s', \
