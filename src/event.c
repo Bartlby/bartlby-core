@@ -115,7 +115,7 @@ int bartlby_push_event(char * cfgfile,  void * bartlby_address, int event_id, co
  	evs[x].evnt_id=event_id;
  	evs[x].evnt_time=time(NULL);
  	bartlby_callback(EXTENSION_CALLBACK_EVENT_PUSHED, &evs[x]);
-   	snprintf(evs[x].evnt_message, 4095, str);
+   	snprintf(evs[x].evnt_message, 4095,"%s", str);
    	
 
 	if((hdr->cur_event_index+1) == EVENT_QUEUE_MAX) {
