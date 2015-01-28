@@ -1,3 +1,4 @@
+
 AC_DEFUN([AC_CHECK_LIBMYSQLCLIENT], [
   AC_MSG_CHECKING(for MySQL Client support)
 
@@ -388,6 +389,78 @@ dnl Check for ssl library.
   	AC_MSG_ERROR([Unable to locate -lssl -lcrypto. OpenSSL support is currently required.])
   	
   fi
+
+
+
+# LUA
+
+AC_MSG_CHECKING(for liblua5.2 support)
+
+AC_ARG_ENABLE(
+    lua,
+    [  --enable-lua  enable LUA support],
+    WITH_LUA="$enableval", WITH_LUA="no")
+
+if test "$WITH_LUA" = "yes"; then
+  AC_MSG_RESULT(yes)
+  AC_ARG_WITH(lua-include-dir,
+    AC_HELP_STRING(
+      [--with-lua-include-dir],
+      [LUA include base directory [[/usr/(local/)include]]]),
+    [lua_include_dir=$withval])
+  AC_ARG_WITH(lua-lib-dir,
+    AC_HELP_STRING(
+      [--with-lua-lib-dir],
+      [LUA library directory [[/usr/(local/)lib]]]),
+    [lua_lib_dir=$withval])
+    
+    
+  # Determe LIBLUA INCDIR
+  LUA_INCDIR="/usr/include/lua5.2"
+  if test "x$lua_include_dir" != "x"; then
+         test -f $lua_include_dir/lualib.h && LUA_INCDIR="${lua_include_dir}/"
+  fi
+
+  
+  LUA_LIBDIR=" "
+  if test "x$lua_lib_dir" != "x"; then
+    test -f $lua_lib_dir/liblua5.2.a  && LUA_LIBDIR="-L${lua_lib_dir}"
+  fi
+  
+  if test -z "$LUA_INCDIR"; then
+    if test "x$lua_include_dir" != "x";then
+      AC_MSG_ERROR(Cannot find LUA headers under $lua_include_dir)
+    else
+      AC_MSG_ERROR(Cannot find LUA headers.  Use --with-lua-include-dir= to specify non-default path.)
+    fi
+  fi
+  
+  if test -z "$LUA_LIBDIR"; then
+    if test "x$lua_lib_dir" != "x";then
+      AC_MSG_ERROR(Cannot find LUA libraries under $lua_lib_dir)
+    else
+      AC_MSG_ERROR(Cannot find LUA libraries.  Use --with-lua-lib-dir= to specify non-default path.)
+    fi
+  fi
+
+  AC_CHECK_LIB(lua5.2,luaL_openlibs,lua_lib_found=yes,lua_lib_found=no)
+
+  if test "$lua_lib_found" = "yes" ; 
+  then
+    LUA_ADDON="-DLUA_ADDON -I$LUA_INCDIR"
+    LUA_FLAG="-llua5.2"
+    AC_SUBST(LUA_LIBDIR)
+    AC_SUBST(LUA_INCDIR)
+    AC_SUBST(LUA_ADDON)
+    AC_SUBST(LUA_FLAG)
+  else
+    AC_MSG_ERROR([Lua5.2 lib not found])
+  fi;
+else
+  AC_MSG_RESULT(no)
+fi; 
+
+
 
 
 

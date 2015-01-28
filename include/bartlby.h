@@ -5,6 +5,14 @@
 #define _GNU_SOURCE
 #endif
 
+
+#ifdef LUA_ADDON
+#include "lua.h"
+#include "lualib.h"
+#include "lauxlib.h"
+#endif
+
+
 #include <arpa/inet.h>
 #include <ctype.h>
 #include <dirent.h>

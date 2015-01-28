@@ -1,5 +1,5 @@
 ./autogen.sh
-./configure --enable-nrpe --enable-ssl --prefix=$PWD/installation --with-user=travis
+./configure --enable-ssh  --enable-nrpe --enable-ssl --enable-lua --prefix=$PWD/installation --with-user=travis
 make
 make install
 ls -l $PWD/installation
