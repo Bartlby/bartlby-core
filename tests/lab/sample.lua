@@ -10,3 +10,5 @@ function bartlby_service_finish_hook(svc_obj, svc_table)
 end
 
 
+print("MAIN")
+return 22
