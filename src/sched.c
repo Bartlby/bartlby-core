@@ -831,8 +831,8 @@ void sched_do_now(struct service * svc, char * cfgfile , void * shm_addr, void *
 	if(ct > expt && svc->service_type != SVC_TYPE_PASSIVE) {
 		// service check has delayed
 		svc->delay_time.sum += ct - expt;
-		svc->delay_time.counter++;
 	}
+	svc->delay_time.counter++;
 					
 
 
