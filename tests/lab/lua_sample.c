@@ -18,6 +18,7 @@ static int lua_print(lua_State *L) {
 	 for (i=1; i <= nargs; ++i) {
 		printf("LUA: %s\n",  lua_tostring(L, i));
     }	
+    return 0;
     
 }
 static int lua_bartlby_service_set_status(lua_State *L) {
