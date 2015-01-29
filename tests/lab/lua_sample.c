@@ -39,7 +39,7 @@ int main ( int argc, char *argv[] )
 {
 	int res;
 	lua_State* L;
-
+	
 
 	struct service svc = {
 		.service_id=322,
@@ -56,8 +56,13 @@ int main ( int argc, char *argv[] )
 	lua_register(L, "print", lua_print);
 
 
+
 	/* run the script */
-	luaL_dostring(L, "dofile('sample.lua')");
+	luaL_dostring(L, "return dofile('sample.lua')");
+
+
+	res = lua_tonumber(L, -1);
+	printf("Script ended with %d\n", res);
 
 
 	/* the function name */
@@ -82,19 +87,18 @@ int main ( int argc, char *argv[] )
 		
 	
 	
-	
-	lua_call(L, 2, 1);
+	if(lua_pcall(L, 2, 1, 0) != 0 ) {
+		
+		printf("error running function `bartlby_service_finish_hook': %s\n", lua_tostring(L, -1));
+
+	} else {
+		/* get the result */	
+		res = (int)lua_tonumber(L, -1);
+		lua_pop(L, 1);
+		printf("HOOK ended with %d\n", res);
+	}
 
 
-
-	
-
-	
-
-	/* get the result */	
-	res = (int)lua_tonumber(L, -1);
-	lua_pop(L, 1);
-	printf("SCRIPT ended with %d", res);
 	/* print the result */
 	
 
