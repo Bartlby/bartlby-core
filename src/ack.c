@@ -71,6 +71,7 @@ void bartlby_check_sirene(char * configfile, void * bartlby_address) {
 	svc.current_state=STATE_SIRENE;
 	//svc.client_port=0;
 	svc.last_state=STATE_SIRENE;
+	svc.handled = SERVICE_UNHANDLED;
 	
 	_log(LH_PERF, B_LOG_CRIT,"!!! System is in sirene Mode !!!!");
 	bartlby_trigger(&svc,configfile, bartlby_address, 0, 0);
