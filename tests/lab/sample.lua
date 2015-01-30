@@ -11,4 +11,13 @@ end
 
 
 print("MAIN")
+
+local f = io.popen("ls")
+for line in f:lines() do
+        print("F:" .. line)
+end
+f:close()
+
+
+
 return 22
