@@ -60,7 +60,9 @@
                                 orch_id, \
                                 usid, \
                                 prio, \
-                                notify_super_users \
+                                notify_super_users, \
+                                script, \
+                                script_enabled \
                             from services svc %s  \
                             ORDER BY RAND()"
 
@@ -120,7 +122,9 @@
                                 orch_id, \
                                 usid, \
                                 prio, \
-                                notify_super_users \
+                                notify_super_users, \
+                                script, \
+                                script_enabled \
                               )  \
                         values( \
                           NOW(), \
@@ -155,7 +159,9 @@
                           '%d', \
                           '%s', \
                           %d, \
-                          %d \
+                          %d, \
+                          '%s', \
+                          '%d' \
                     )"
 
 
@@ -195,7 +201,9 @@
                           orch_id=%d,   \
                           usid='%s', \
                           prio=%d, \
-                          notify_super_users=%d \
+                          notify_super_users=%d, \
+                          script='%s', \
+                          script_enabled=%d \
                       where \
                         service_id=%ld"
 
@@ -238,7 +246,9 @@
                             orch_id,   \
                             usid, \
                             prio, \
-                            notify_super_users \
+                            notify_super_users, \
+                            script, \
+                            script_enabled \
                         from  \
                             services svc  \
                         where service_id=%ld"
@@ -344,11 +354,20 @@ BARTLBY_SQL_PROTECTION_INIT;
           
           svc->prio=atoi(row[37]);
           svc->notify_super_users=atoi(row[38]);
+          svc->script_enabled=atoi(row[40]);
 
 
       		svc->last_state=atoi(row[2]);
       		svc->current_state=atoi(row[2]);
       		
+
+          if(row[39] != NULL) {
+            sprintf(svc->script, "%s", row[39]);
+          } else {
+            sprintf(svc->script, " ");
+          }
+
+
       		
       		n_srv=malloc(sizeof(struct server));
       		GetServerById(svc->server_id, n_srv, config);
@@ -618,6 +637,8 @@ BARTLBY_SQL_PROTECTION_INIT;
                                   BARTLBY_SQL_PROTECTION(svc->usid),
                                   svc->prio,
                                   svc->notify_super_users,
+                                  BARTLBY_SQL_PROTECTION(svc->script),
+                                  svc->script_enabled,
                                 	svc->service_id
                                 	
                                 	
@@ -782,7 +803,9 @@ BARTLBY_SQL_PROTECTION_INIT;
                               svc->orch_id,
                               BARTLBY_SQL_PROTECTION(svc->usid),
                               svc->prio,
-                              svc->notify_super_users
+                              svc->notify_super_users,
+                              BARTLBY_SQL_PROTECTION(svc->script),
+                              svc->script_enabled
                             	);
                             	
 	//Log("dbg", sqlupd);
@@ -924,10 +947,23 @@ BARTLBY_SQL_PROTECTION_INIT;
 
             svcs[i].prio=atoi(row[37]);
             svcs[i].notify_super_users=atoi(row[38]);
+            svcs[i].script_enabled=atoi(row[40]);
+
+
             
       			svcs[i].last_state=atoi(row[2]);
       			svcs[i].current_state=atoi(row[2]);
       			svcs[i].servicegroup_counter=0;
+
+
+
+            if(row[39] != NULL) {
+              sprintf(svcs[i].script, "%s", row[39]);
+              
+            } else {
+              sprintf(svcs[i].script, "");
+            }
+
       			
       			if(row[1] != NULL) {
       				sprintf(svcs[i].service_name, "%s", row[1]);

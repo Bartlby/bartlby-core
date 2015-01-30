@@ -86,6 +86,8 @@ CREATE TABLE `services` (
   `usid` varchar(100) NOT NULL default '',
   `prio` int(11) NOT NULL default '50',
   `notify_super_users` int(11) NOT NULL default '1',
+  `script` varchar(2048) NOT NULL default '',
+  `script_enabled` int(1) NOT NULL default '0',
   PRIMARY KEY  (`service_id`),
   KEY `service_id` (`service_id`),
   KEY `service_id_2` (`service_id`,`server_id`)

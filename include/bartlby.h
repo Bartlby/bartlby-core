@@ -501,6 +501,9 @@ struct service {
 	char usid[50];
 	int prio;
 	int notify_super_users;
+
+	char script[2048];
+	int script_enabled;
 };
 
 struct servicegroup {
