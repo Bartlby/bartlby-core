@@ -26,7 +26,7 @@ $Author$
 #include <bartlby.h>
 
 
-static char * log_handles[] = {"DEBUG", "TRIGGER", "SCHED", "CHECK", "MAIN", "SHM", "DAEMON", "PERF", "ACK", "EVNT", "EXT", "NOTIFYLOG", "LIB", "PORTIER", "MOD", "ORCH"};
+static char * log_handles[] = {"DEBUG", "TRIGGER", "SCHED", "CHECK", "MAIN", "SHM", "DAEMON", "PERF", "ACK", "EVNT", "EXT", "NOTIFYLOG", "LIB", "PORTIER", "MOD", "ORCH", "LUA"};
 static char * log_levels[] = {"DEBUG", "INFO", "WARN", "CRIT", "HASTO"};
 
 
