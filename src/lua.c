@@ -21,7 +21,9 @@ $Author$
 
 
 SAMPLE LUA SCRIPT:
-
+*  if main script returns <0 no hook will be fired
+* if you need a larger script do
+		return dofile('/path/to/script/script.lua')
 
 function bartlby_service_finish_hook(svc_obj, svc_table) 
 	print("######## HOOK CALLED - Start")
@@ -36,7 +38,7 @@ function bartlby_service_finish_hook(svc_obj, svc_table)
 	print("######## HOOK CALLED - END")
 	return r
 end
-
+return 1
 
 
 
@@ -50,17 +52,17 @@ end
 
 
 #ifndef LUA_ADDON
-int bartlby_finish_script(struct service * svc){
+int bartlby_finish_script(struct service * svc, char * script){
 	return 0;
 } 
 #else
-int bartlby_lua_finish_hook(struct service * svc, lua_State *L) {
+int bartlby_lua_finish_hook(struct service * svc,char * script, lua_State *L) {
 
 	int script_return;
 	int hook_end = -1;
 	/* run the script svc->lua_script */
-	if(luaL_dostring(L, "return dofile('sample.lua')") != 0) {
-		_log(LH_LUA, B_LOG_CRIT, "LUA Failed to call script");
+	if(luaL_dostring(L, script) != 0) {
+		_log(LH_LUA, B_LOG_CRIT, "LUA Failed to call script %s", script);
 		return -1;
 	}
 
@@ -151,12 +153,14 @@ static int lua_bartlby_service_set_status(lua_State *L) {
 			case STATE_WARNING:
 			case STATE_CRITICAL:
 				svc->current_state=status;
+			break;
 			default:
 				svc->current_state=STATE_UNKOWN;
 			break;
 		}
 	}
 		
+	
 	lua_pushnumber(L, svc->current_state);
 	return 1;
 }
@@ -186,10 +190,10 @@ void bartlby_lua_finish(lua_State * L) {
 
 }
 
-int bartlby_finish_script(struct service * svc) {
+int bartlby_finish_script(struct service * svc, char * script) {
 	int rtc;
 	lua_State * L=bartlby_lua_init();
-	rtc=bartlby_lua_finish_hook(svc, L);
+	rtc=bartlby_lua_finish_hook(svc,script, L);
 	bartlby_lua_finish(L);
 	return rtc;
 
