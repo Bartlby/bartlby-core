@@ -69,6 +69,7 @@
 #define LH_PORTIER 13
 #define LH_MOD 14
 #define LH_ORCH 15
+#define LH_LUA 16
 
 	
 #define B_LOG_DEBUG 0
@@ -799,6 +800,9 @@ int bartlby_trigger_per_worker(char * cfgfile, char * trigger_name, struct shm_h
 traps
 */
 int bartlby_submit_trap(const char * trap_data, void * bartlby_address, char * cfgfile);
+/* lua */
+int bartlby_finish_script(struct service * svc);
+
 
 /*
 PORTIER
