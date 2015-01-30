@@ -93,7 +93,9 @@ struct service dummy_service = {
 	.last_orch_sync = 9999,
 	.usid = "USID",
 	.prio = 100,
-	.notify_super_users = 0	
+	.notify_super_users = 0,	
+	.script="",
+	.script_enabled=0	
 };
 
 

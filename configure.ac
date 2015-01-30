@@ -443,18 +443,42 @@ if test "$WITH_LUA" = "yes"; then
     fi
   fi
 
-  AC_CHECK_LIB(lua5.2,luaL_openlibs,lua_lib_found=yes,lua_lib_found=no)
 
-  if test "$lua_lib_found" = "yes" ; 
+  AC_MSG_CHECKING(for luajit)
+  AC_ARG_ENABLE(
+    luajit,
+    [  --enable-luajit  enable LuaJIT],
+    WITH_LUAJIT="yes", WITH_LUAJIT="no")
+
+  lua_lib_found="no";
+    
+  AC_CHECK_LIB(lua5.2,luaL_openlibs,lua_lib_found="lua5.2",lua_lib_found=$lua_lib_found)
+
+  if test "$WITH_LUAJIT" != "no"; then
+    
+    AC_CHECK_LIB(luajit-5.1,luaL_openlibs,lua_lib_found="luajit-5.1",lua_lib_found=$lua_lib_found)
+    
+  else 
+    AC_MSG_RESULT(no)
+  fi;
+  
+  LUA_FLAG="-l$lua_lib_found"
+
+
+
+
+  if test "$lua_lib_found" != "no" ; 
   then
     LUA_ADDON="-DLUA_ADDON -I$LUA_INCDIR"
-    LUA_FLAG="-llua5.2"
+    
+    
+    
     AC_SUBST(LUA_LIBDIR)
     AC_SUBST(LUA_INCDIR)
     AC_SUBST(LUA_ADDON)
     AC_SUBST(LUA_FLAG)
   else
-    AC_MSG_ERROR([Lua5.2 lib not found])
+    AC_MSG_ERROR([$lua_lib_found no Lua library found, install liblua5.2-dev or download and install LuaJIT and install it and enable it with --enable-luajit])
   fi;
 else
   AC_MSG_RESULT(no)
