@@ -22,6 +22,7 @@ extern struct testcase_t trap_tests[];
 extern struct testcase_t servicegroup_tests[];
 extern struct testcase_t servergroup_tests[];
 extern struct testcase_t cleanup_tests[];
+extern struct testcase_t lua_tests[];
 
 struct testgroup_t groups[] = {
 	{ "core/", core_tests },
@@ -32,6 +33,7 @@ struct testgroup_t groups[] = {
 	{ "traps/", trap_tests},
 	{ "servicegroups/", servicegroup_tests},
 	{ "servergroups/", servergroup_tests},
+	{ "lua/", lua_tests},
 	{ "cleanup/", cleanup_tests},
 	END_OF_GROUPS
 };
