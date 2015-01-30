@@ -961,7 +961,7 @@ BARTLBY_SQL_PROTECTION_INIT;
               sprintf(svcs[i].script, "%s", row[39]);
               
             } else {
-              sprintf(svcs[i].script, "");
+              sprintf(svcs[i].script, " ");
             }
 
       			
