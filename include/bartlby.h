@@ -796,6 +796,11 @@ int bartlby_trigger_escalation(struct worker *w, struct service * svc, int stand
 int bartlby_trigger_per_worker(char * cfgfile, char * trigger_name, struct shm_header *hdr, struct worker * wrk, struct server * srvmap, int do_check, struct service * svc, char * find_trigger, int standby_workers_only, char * full_path, int upstream_enabled, int upstream_has_local_users, char * notify_msg, int received_via);
 
 /*
+traps
+*/
+int bartlby_submit_trap(const char * trap_data, void * bartlby_address, char * cfgfile);
+
+/*
 PORTIER
 */
 int bartlby_portier_connect(char *host_name,int port, int spool, char * cfgfile);
