@@ -9,6 +9,7 @@ extern char * dlmsg;
 
 
 extern struct service dummy_service;
+extern struct server dummy_server;
 
 
 #define TEST_LUA_SCRIPT " \
@@ -24,7 +25,7 @@ void test_lua_finish_hook(void *data) {
 
 	int rtc;
 	
-
+	dummy_service.srv=&dummy_server;
 	dummy_service.current_state=1;
 	rtc=bartlby_finish_script(&dummy_service, TEST_LUA_SCRIPT);
 	TT_DECLARE("INFO",(".. LUA SCRIPT RETURN %d ", rtc));
