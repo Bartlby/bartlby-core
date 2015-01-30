@@ -126,11 +126,11 @@ static int lua_bartlby_service_set_output(lua_State *L) {
 
 	if(svc == NULL) {
 		lua_pushnumber(L, -1);
-		return 1;
+		return -1;
 	}
 	if(output == NULL) {
 		lua_pushnumber(L, -1);
-		return 1;
+		return -2;
 	}
 	snprintf(svc->current_output,1024, "%s", output);
 	
@@ -149,18 +149,23 @@ static int lua_bartlby_service_set_status(lua_State *L) {
 	svc=lua_touserdata(L, 1);
 	status=lua_tonumber(L, 2);
 
-	if(svc != NULL) {
-		switch(status) {
-			case STATE_OK:
-			case STATE_WARNING:
-			case STATE_CRITICAL:
-				svc->current_state=status;
-			break;
-			default:
-				svc->current_state=STATE_UNKOWN;
-			break;
-		}
+	if(svc == NULL) {
+		lua_pushnumber(L, -1);
+		return -1;
 	}
+	
+	
+	switch(status) {
+		case STATE_OK:
+		case STATE_WARNING:
+		case STATE_CRITICAL:
+			svc->current_state=status;
+		break;
+		default:
+			svc->current_state=STATE_UNKOWN;
+		break;
+	}
+	
 	
 	_log(LH_LUA, B_LOG_DEBUG, "SYS: set state %d",svc->current_state);
 	
