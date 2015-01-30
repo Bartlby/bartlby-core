@@ -106,7 +106,7 @@ static int lua_print(lua_State *L) {
 	int nargs = lua_gettop(L);
 
 	 for (i=1; i <= nargs; ++i) {
-	 	_log(LH_LUA, B_LOG_DEBUG, "LUA OUT: %s",lua_tostring(L, i));
+	 	_log(LH_LUA, B_LOG_DEBUG, "USR: %s",lua_tostring(L, i));
     }	
     return 0;
     
@@ -133,7 +133,9 @@ static int lua_bartlby_service_set_output(lua_State *L) {
 		return 1;
 	}
 	snprintf(svc->current_output,1024, "%s", output);
-		
+	
+	_log(LH_LUA, B_LOG_DEBUG, "SYS: set output %s", svc->current_output);
+
 	lua_pushnumber(L, 1);
 	return 1;
 }
@@ -159,7 +161,8 @@ static int lua_bartlby_service_set_status(lua_State *L) {
 			break;
 		}
 	}
-		
+	
+	_log(LH_LUA, B_LOG_DEBUG, "SYS: set state %d",svc->current_state);
 	
 	lua_pushnumber(L, svc->current_state);
 	return 1;
@@ -192,9 +195,15 @@ void bartlby_lua_finish(lua_State * L) {
 
 int bartlby_finish_script(struct service * svc, char * script) {
 	int rtc;
+
+	_log(LH_LUA, B_LOG_DEBUG, "Start LUA Script from %s/%s (%ld)", svc->srv->server_name, svc->service_name, svc->service_id);
+
 	lua_State * L=bartlby_lua_init();
 	rtc=bartlby_lua_finish_hook(svc,script, L);
 	bartlby_lua_finish(L);
+
+	_log(LH_LUA, B_LOG_DEBUG, "End LUA Script from %s/%s (%ld)", svc->srv->server_name, svc->service_name, svc->service_id);
+
 	return rtc;
 
 }

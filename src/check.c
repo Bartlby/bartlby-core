@@ -157,6 +157,12 @@ void bartlby_fin_service(struct service * svc, void * SOHandle, void * shm_addr,
 	do_log=0;
 	
 
+	if(svc->script_enabled == 1 && strlen(svc->script) > 3) {
+		bartlby_finish_script(svc, svc->script);
+	}
+
+
+
 	if(svc->current_state != svc->last_state) {
 		svc->service_retain_current=0;
 		svc->last_state=svc->current_state;
