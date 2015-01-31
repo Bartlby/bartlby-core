@@ -159,6 +159,7 @@ void bartlby_fin_service(struct service * svc, void * SOHandle, void * shm_addr,
 
 	if(svc->script_enabled == 1 && strlen(svc->script) > 3) {
 		bartlby_finish_script(svc, svc->script);
+		bartlby_callback(EXTENSION_CALLBACK_SCRIPT_FIRED, svc);
 	}
 
 
@@ -255,6 +256,7 @@ void bartlby_fin_service(struct service * svc, void * SOHandle, void * shm_addr,
 			}
 
 		}
+		bartlby_callback(EXTENSION_CALLBACK_WEBHOOKS_FIRED, svc);
 		
 	}
 	
