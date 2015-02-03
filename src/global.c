@@ -33,6 +33,44 @@ static char * log_levels[] = {"DEBUG", "INFO", "WARN", "CRIT", "HASTO"};
 char config_file[255];
 
 
+
+
+
+             
+
+void dump_svc(struct service * svc) {
+	int x;
+
+#undef BARTLBY_FIELD_LONG	
+#undef BARTLBY_FIELD_LONG_SIZE
+#undef BARTLBY_FIELD_INT
+#undef BARTLBY_FIELD_CHAR_SIZE
+#undef BARTLBY_FIELD_TIMEVAL
+#undef BARTLBY_FIELD_PERFSTAT
+#undef BARTLBY_FIELD_SNMPI
+#undef BARTLBY_FIELD_SPROCESS
+#undef BARTLBY_FIELD_SERVER_P
+#undef BARTLBY_FIELD_SERVICEGROUP_SIZE	
+
+#define BARTLBY_FIELD_LONG(name) printf("service.%s is %ld\n", #name, svc->name);
+#define BARTLBY_FIELD_LONG_SIZE(name, size) for(x=0; x<size; x++) printf("\tservice.%s[%d] is %ld\n", #name,x, svc->name[x]);
+#define BARTLBY_FIELD_INT(name) printf("service.%s is %d\n", #name, svc->name);
+#define BARTLBY_FIELD_CHAR_SIZE(name, size) printf("service.%s is %s\n", #name, svc->name);
+#define BARTLBY_FIELD_TIMEVAL(name) printf("service.%s is %p\n", #name, &svc->name);
+#define BARTLBY_FIELD_PERFSTAT(name) printf("service.%s is %p\n", #name, &svc->name);
+#define BARTLBY_FIELD_SNMPI(name) printf("service.%s is %p\n", #name, &svc->name);
+#define BARTLBY_FIELD_SPROCESS(name) printf("service.%s is %p\n", #name, &svc->name);
+#define BARTLBY_FIELD_SERVER_P(name) printf("service.%s is %p\n", #name, &svc->name);
+#define BARTLBY_FIELD_SERVICEGROUP_SIZE(name,size) for(x=0; x<svc->servicegroup_counter; x++) printf("\tservice.%s[%d] is %p\n", #name,x, &svc->name[x]);
+        
+	//--- "iterate" over all the fields of the structure
+                    
+	X_SERVICE_FIELDS
+
+
+}
+
+
 void trim(char * const a)
 {
     char *p = a, *q = a;
