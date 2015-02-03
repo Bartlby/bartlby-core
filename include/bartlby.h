@@ -79,6 +79,19 @@
 #define B_LOG_HASTO 4
 
 
+#define BARTLBY_FIELD_LONG(name) long name;
+#define BARTLBY_FIELD_LONG_SIZE(name, size) long name[size];
+#define BARTLBY_FIELD_INT(name) int name;
+#define BARTLBY_FIELD_CHAR_SIZE(name, size) char name[size];
+#define BARTLBY_FIELD_TIMEVAL(name) struct timeval name;
+#define BARTLBY_FIELD_PERFSTAT(name) struct perf_statistic name;
+#define BARTLBY_FIELD_SNMPI(name) struct snmpi name;
+#define BARTLBY_FIELD_SPROCESS(name) struct sprocess name;
+#define BARTLBY_FIELD_SERVER_P(name) struct server * name;
+#define BARTLBY_FIELD_SERVICEGROUP_SIZE(name,size) struct servicegroup * name[size];
+      
+
+
 
 #define CHECKED_ASPRINTF(...)                                       \
     if (asprintf( __VA_ARGS__ ) == -1) {                             \
@@ -416,96 +429,68 @@ struct trap {
     char trap_last_data[2048];
 } zzk;
 
-struct service {
-	long service_id;
-	long server_id;
-	int last_state;
-	int current_state;
-	
-	char  current_output[2048];
-	char  service_name[2048];
-	
-	char  plugin[2048];
-	char  plugin_arguments[2048];
-	long check_interval;
-	long check_interval_original;
-	int last_check;
-	struct timeval lcheck;
-	
-	/*Time stuff*/
-	
-	char service_exec_plan[2048];
-	
-	/*Notify things*/
-	int notify_enabled;
-	int last_notify_send;
-	int last_state_change;
-	long flap_count;
-	
-	int service_active;
-	
-	char  service_var[2048];
-	int service_type;
-	long service_passive_timeout;
-	
-	int notify_last_state;
-	
-	long service_check_timeout;
-	
-	
-	
-	int service_ack_enabled;
-	int service_ack_current;
-	
-	
-	long service_retain;
-	long service_retain_current;
-	
-	
-	
-	struct perf_statistic pstat;
-	struct perf_statistic delay_time;
-	
-	int do_force;
-	
-	struct snmpi snmp_info;
-	
-	int recovery_outstanding; //Flag to see if recover is waiting
-	
-	struct sprocess process;
-	
-	long flap_seconds;
-	
-	struct server * srv;
-	long srv_place;
-	
-	int is_server_dead;
-	
-	/**/
-	long renotify_interval; // interval to renotify
-	long escalate_divisor; //
+  
 
-	int is_gone;
-	
-	
-	struct servicegroup * servicegroups[MAX_GROUP_MEMBERS];
-	long servicegroup_counter;
-	long servicegroup_place[MAX_GROUP_MEMBERS];
-	
-	long fires_events;
-	
-	char enabled_triggers[512];
 
-	int handled;
-	int orch_id;
-	int last_orch_sync;
+#define X_SERVICE_FIELDS \
+        BARTLBY_FIELD_LONG(service_id) \
+        BARTLBY_FIELD_LONG(server_id) \
+        BARTLBY_FIELD_INT(last_state) \
+        BARTLBY_FIELD_INT(current_state) \
+        BARTLBY_FIELD_CHAR_SIZE(current_output,2048) \
+        BARTLBY_FIELD_CHAR_SIZE(service_name,2048) \
+        BARTLBY_FIELD_CHAR_SIZE(plugin,2048) \
+        BARTLBY_FIELD_CHAR_SIZE(plugin_arguments, 2048) \
+        BARTLBY_FIELD_LONG(check_interval) \
+        BARTLBY_FIELD_LONG(check_interval_original) \
+        BARTLBY_FIELD_INT(last_check) \
+        BARTLBY_FIELD_TIMEVAL(lcheck) \
+        BARTLBY_FIELD_CHAR_SIZE(service_exec_plan,2048) \
+        BARTLBY_FIELD_INT(notify_enabled) \
+        BARTLBY_FIELD_INT(last_notify_send) \
+        BARTLBY_FIELD_INT(last_state_change) \
+        BARTLBY_FIELD_LONG(flap_count) \
+        BARTLBY_FIELD_INT(service_active) \
+        BARTLBY_FIELD_CHAR_SIZE(service_var,2048) \
+        BARTLBY_FIELD_INT(service_type) \
+        BARTLBY_FIELD_LONG(service_passive_timeout) \
+        BARTLBY_FIELD_INT(notify_last_state) \
+        BARTLBY_FIELD_LONG(service_check_timeout) \
+        BARTLBY_FIELD_INT(service_ack_enabled) \
+        BARTLBY_FIELD_INT(service_ack_current) \
+        BARTLBY_FIELD_LONG(service_retain) \
+        BARTLBY_FIELD_LONG(service_retain_current) \
+        BARTLBY_FIELD_PERFSTAT(pstat) \
+        BARTLBY_FIELD_PERFSTAT(delay_time) \
+        BARTLBY_FIELD_INT(do_force) \
+        BARTLBY_FIELD_SNMPI(snmp_info) \
+        BARTLBY_FIELD_INT(recovery_outstanding) \
+        BARTLBY_FIELD_SPROCESS(process) \
+        BARTLBY_FIELD_LONG(flap_seconds) \
+        BARTLBY_FIELD_SERVER_P(srv) \
+        BARTLBY_FIELD_LONG(srv_place) \
+        BARTLBY_FIELD_INT(is_server_dead) \
+        BARTLBY_FIELD_LONG(renotify_interval) \
+        BARTLBY_FIELD_LONG(escalate_divisor) \
+        BARTLBY_FIELD_INT( is_gone) \
+        BARTLBY_FIELD_SERVICEGROUP_SIZE(servicegroups, MAX_GROUP_MEMBERS) \
+        BARTLBY_FIELD_LONG(servicegroup_counter) \
+        BARTLBY_FIELD_LONG_SIZE(servicegroup_place, MAX_GROUP_MEMBERS) \
+        BARTLBY_FIELD_LONG(fires_events) \
+        BARTLBY_FIELD_CHAR_SIZE(enabled_triggers,512) \
+        BARTLBY_FIELD_INT(handled) \
+        BARTLBY_FIELD_INT(orch_id) \
+        BARTLBY_FIELD_INT(last_orch_sync) \
+        BARTLBY_FIELD_CHAR_SIZE(usid, 50) \
+        BARTLBY_FIELD_INT(prio) \
+        BARTLBY_FIELD_INT(notify_super_users) \
+        BARTLBY_FIELD_CHAR_SIZE(script, 2048) \
+        BARTLBY_FIELD_INT(script_enabled) \
 
-	char usid[50];
-	int prio;
-	int notify_super_users;
+    
 
-	char script[2048];
-	int script_enabled;
+struct service{	
+        X_SERVICE_FIELDS
 };
 
 struct servicegroup {

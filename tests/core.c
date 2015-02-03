@@ -7,7 +7,8 @@
 extern char * dlmsg;
 	//DEFINE SAMPLE DATA:
 
-
+extern struct service dummy_service;
+extern struct server dummy_server;
 
 
 /// TEST FUNCTIONS
@@ -56,7 +57,14 @@ void test_core_sql(void *data) {
 
 
 }
-
+void test_structs(void *data) {
+	(void)data;
+	//tt_int_op(sizeof(struct service), ==, sizeof(struct service_old));
+	//dummy_service.srv=&dummy_server;
+	//dump_svc(&dummy_service);
+	end:
+	;
+}
 void test_shm_so(void *data) {
 	(void)data;
 	void * SOHandle;
@@ -88,5 +96,6 @@ void test_shm_so(void *data) {
 //TINYTEST SETUP
 struct testcase_t core_tests[] = {
 	{ "shm_and_lib", test_shm_so, },
+	{ "structs", test_structs, },
 	END_OF_TESTCASES
 };
