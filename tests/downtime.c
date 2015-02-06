@@ -45,7 +45,7 @@ void test_downtime_lib(void *data) {
 	struct downtime modified_object;
 	struct downtime returned_object;
 
-
+	long rtcn;
 	struct downtime * srvmap;
 	
 	srvmap=NULL;
@@ -54,7 +54,7 @@ void test_downtime_lib(void *data) {
 	int (*DeleteDowntime)(long downtime_id, char *);
 	int (*GetDowntimeById)(long, struct downtime *, char * );
 	long (*DowntimeChangeId)(long, long, char*);
-	int (*GetDowntimeMap)(struct downtime*, char*, int);
+	long (*GetDowntimeMap)(struct downtime*, char*, int);
 	
 
 
@@ -127,10 +127,10 @@ void test_downtime_lib(void *data) {
 
 	/*** DOWNTIMEMAP **/
 	srvmap = malloc(sizeof(struct downtime)*(shm_hdr->dtcount+2));
-	rtc=GetDowntimeMap(srvmap, CONFIG, TEST_ORCH_ID);
-	tt_int_op(rtc, >, 0);
+	rtcn=GetDowntimeMap(srvmap, CONFIG, TEST_ORCH_ID);
+	tt_int_op(rtcn, >, 0);
 	lrtc=-1;
-	for(x=0; x<rtc; x++) {
+	for(x=0; x<rtcn; x++) {
 		if(srvmap[x].downtime_id==object_id) {
 			lrtc = 1;
 		}

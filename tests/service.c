@@ -122,7 +122,7 @@ void test_service_lib(void *data) {
 	int (*DeleteService)(long service_id, char *);
 	int (*GetServiceById)(long, struct service *, char * );
 	long (*ServiceChangeId)(long, long, char*);
-	int (*GetServiceMap)(struct service*, char*, int);
+	long (*GetServiceMap)(struct service*, char*, int);
 	int (*doUpdate)(struct service*, char*);
 	int (*UpdateServiceInterval)(struct service *, char *);
 
@@ -131,6 +131,7 @@ void test_service_lib(void *data) {
 	long object_id=-1;
 	long lrtc=-1;
 	int x;
+	long rtcn;
 
 	long NN=999;
 
@@ -198,11 +199,11 @@ void test_service_lib(void *data) {
 
 	/*** serviceMAP **/
 	svcmap = malloc(sizeof(struct service)*(shm_hdr->svccount+2));
-	rtc=GetServiceMap(svcmap, CONFIG, TEST_ORCH_ID);
-	tt_int_op(rtc, >, 0);
+	rtcn=GetServiceMap(svcmap, CONFIG, TEST_ORCH_ID);
+	tt_int_op(rtcn, >, 0);
 	
 	lrtc=-1;
-	for(x=0; x<=rtc; x++) {
+	for(x=0; x<=rtcn; x++) {
 		if(svcmap[x].service_id==object_id) {
 			lrtc = 1;
 		}
