@@ -570,7 +570,7 @@ BARTLBY_SQL_PROTECTION_INIT;
         return 1;
 
 }
-int GetServerMap(struct server * srv, char * config, int orch_id) {
+long GetServerMap(struct server * srv, char * config, int orch_id) {
 	
 	MYSQL *mysql;
 	MYSQL_ROW  row;
@@ -580,7 +580,7 @@ int GetServerMap(struct server * srv, char * config, int orch_id) {
 	char * mysql_user = getConfigValue("mysql_user", config);
 	char * mysql_pw = getConfigValue("mysql_pw", config);
 	char * mysql_db = getConfigValue("mysql_db", config);
-	int i=0;
+	long i=0;
 	
 	char * sql, *where;
 
