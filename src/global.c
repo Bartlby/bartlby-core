@@ -89,7 +89,7 @@ char *remove_nl_copy(char *s) {
 	}
 	p = strdup(s);
 	for (i=0 ; i<strlen(p) ; i++)
-    		if (p[i]=='\n')
+    		if (p[i]=='\n' || p[i] == ';' || p[i] == '\t')
         		p[i]=' ';
 
 	return p;
@@ -396,12 +396,9 @@ int _log(int handle, int severity, const char * str,  ...) {
 	
 	if(severity == B_LOG_HASTO)  {
 		va_start(argzeiger,str);
-
 		CHECKED_VASPRINTF(&upstream_line, str, argzeiger);
-		
 		bartlby_orchestra_upstream_log(config_file, upstream_line);
 		free(upstream_line);
-		
 		va_end(argzeiger);
 	}
 
