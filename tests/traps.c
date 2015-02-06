@@ -57,7 +57,7 @@ void test_trap_lib(void *data) {
 	struct trap modified_object;
 	struct trap returned_object;
 
-
+	long rtcn=-1;
 	struct trap * srvmap;
 	
 	srvmap=NULL;
@@ -66,7 +66,7 @@ void test_trap_lib(void *data) {
 	int (*DeleteTrap)(long trap_id, char *);
 	int (*GetTrapById)(long, struct trap *, char * );
 	long (*TrapChangeId)(long, long, char*);
-	int (*GetTrapMap)(struct trap*, char*, int);
+	long (*GetTrapMap)(struct trap*, char*, int);
 	
 
 
@@ -140,10 +140,10 @@ void test_trap_lib(void *data) {
 
 	/*** TRAPMAP **/
 	srvmap = malloc(sizeof(struct trap)*(shm_hdr->trapcount+2));
-	rtc=GetTrapMap(srvmap, CONFIG, TEST_ORCH_ID);
-	tt_int_op(rtc, >, 0);
+	rtcn=GetTrapMap(srvmap, CONFIG, TEST_ORCH_ID);
+	tt_int_op(rtcn, >, 0);
 	lrtc=-1;
-	for(x=0; x<rtc; x++) {
+	for(x=0; x<rtcn; x++) {
 		if(srvmap[x].trap_id==object_id) {
 			lrtc = 1;
 		}

@@ -70,13 +70,14 @@ void test_worker_lib(void *data) {
 	int (*DeleteWorker)(long worker_id, char *);
 	int (*GetWorkerById)(long, struct worker *, char * );
 	long (*WorkerChangeId)(long, long, char*);
-	int (*GetWorkerMap)(struct worker*, char*, int);
+	long (*GetWorkerMap)(struct worker*, char*, int);
 
 
 
 	int rtc=-1;
 	long object_id=-1;
 	long lrtc=-1;
+	long rtcn=-1;
 	long NN=-1;
 	int x;
 	struct shm_header * shm_hdr;
@@ -141,10 +142,10 @@ void test_worker_lib(void *data) {
 
 	/*** WORKERMAP **/
 	wrkmap = malloc(sizeof(struct worker)*(shm_hdr->wrkcount+2));
-	rtc=GetWorkerMap(wrkmap, CONFIG, TEST_ORCH_ID);
-	tt_int_op(rtc, >, 0);
+	rtcn=GetWorkerMap(wrkmap, CONFIG, TEST_ORCH_ID);
+	tt_int_op(rtcn, >, 0);
 	lrtc=-1;
-	for(x=0; x<rtc; x++) {
+	for(x=0; x<rtcn; x++) {
 		if(wrkmap[x].worker_id==object_id) {
 			lrtc = 1;
 		}

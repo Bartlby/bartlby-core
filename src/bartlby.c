@@ -40,13 +40,13 @@ char * (*gGetAutor)();
 char * (*gGetVersion)();
 char * (*gGetName)();
 long   (*gExpectVersion)();
-int (*gGetServiceMap)(struct service *, char *, int);
-int (*gGetServerMap)(struct server *, char *, int);
-int (*gGetWorkerMap)(struct worker *,char *,int);
-int (*gGetDowntimeMap)(struct downtime *, char *,int);
-int (*gGetServerGroupMap)(struct servergroup *, char *,int);
-int (*gGetServiceGroupMap)(struct servicegroup *, char *,int);
-int (*gGetTrapMap)(struct trap *, char *,int);
+long (*gGetServiceMap)(struct service *, char *, int);
+long (*gGetServerMap)(struct server *, char *, int);
+long (*gGetWorkerMap)(struct worker *,char *,int);
+long (*gGetDowntimeMap)(struct downtime *, char *,int);
+long (*gGetServerGroupMap)(struct servergroup *, char *,int);
+long (*gGetServiceGroupMap)(struct servicegroup *, char *,int);
+long (*gGetTrapMap)(struct trap *, char *,int);
 
 void (*gDataLibInit)(char *, int);
 
@@ -67,13 +67,13 @@ int global_startup_time;
 
 int gshm_id;
 void * gBartlby_address;
-int gshm_svc_cnt;
-int gshm_wrk_cnt;
-int gshm_dt_cnt;
-int gshm_srv_cnt;
-int gshm_srvgrp_cnt;
-int gshm_svcgrp_cnt;
-int gshm_trap_cnt;
+long gshm_svc_cnt;
+long gshm_wrk_cnt;
+long gshm_dt_cnt;
+long gshm_srv_cnt;
+long gshm_srvgrp_cnt;
+long gshm_svcgrp_cnt;
+long gshm_trap_cnt;
 
 long gSHMSize;
 

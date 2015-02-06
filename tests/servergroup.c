@@ -45,7 +45,7 @@ void test_servergroup_lib(void *data) {
 
 	struct servergroup modified_object;
 	struct servergroup returned_object;
-
+	long rtcn;
 
 	struct servergroup * srvmap;
 	
@@ -55,7 +55,7 @@ void test_servergroup_lib(void *data) {
 	int (*DeleteServerGroup)(long servergroup_id, char *);
 	int (*GetServergroupById)(long, struct servergroup *, char * );
 	long (*ServerGroupChangeId)(long, long, char*);
-	int (*GetServerGroupMap)(struct servergroup*, char*, int);
+	long (*GetServerGroupMap)(struct servergroup*, char*, int);
 	
 
 
@@ -131,10 +131,10 @@ void test_servergroup_lib(void *data) {
 
 	/*** SERVERGROUPMAP **/
 	srvmap = malloc(sizeof(struct servergroup)*(shm_hdr->srvgroupcount+2));
-	rtc=GetServerGroupMap(srvmap, CONFIG, TEST_ORCH_ID);
-	tt_int_op(rtc, >, 0);
+	rtcn=GetServerGroupMap(srvmap, CONFIG, TEST_ORCH_ID);
+	tt_int_op(rtcn, >, 0);
 	lrtc=-1;
-	for(x=0; x<rtc; x++) {
+	for(x=0; x<rtcn; x++) {
 		if(srvmap[x].servergroup_id==object_id) {
 			lrtc = 1;
 		}

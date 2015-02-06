@@ -56,7 +56,7 @@ void test_servicegroup_lib(void *data) {
 	int (*DeleteServiceGroup)(long servicegroup_id, char *);
 	int (*GetsServicegroupById)(long, struct servicegroup *, char * );
 	long (*ServiceGroupChangeId)(long, long, char*);
-	int (*GetServiceGroupMap)(struct servicegroup*, char*, int);
+	long (*GetServiceGroupMap)(struct servicegroup*, char*, int);
 	
 
 
@@ -64,6 +64,7 @@ void test_servicegroup_lib(void *data) {
 	long object_id=-1;
 	long lrtc=-1;
 	long NN=-1;
+	long rtcn=-1;
 	int x;
 	struct shm_header * shm_hdr;
 
@@ -127,10 +128,10 @@ void test_servicegroup_lib(void *data) {
 
 	/*** SERVICEGROUPMAP **/
 	srvmap = malloc(sizeof(struct servicegroup)*(shm_hdr->svcgroupcount+2));
-	rtc=GetServiceGroupMap(srvmap, CONFIG, TEST_ORCH_ID);
-	tt_int_op(rtc, >, 0);
+	rtcn=GetServiceGroupMap(srvmap, CONFIG, TEST_ORCH_ID);
+	tt_int_op(rtcn, >, 0);
 	lrtc=-1;
-	for(x=0; x<rtc; x++) {
+	for(x=0; x<rtcn; x++) {
 		if(srvmap[x].servicegroup_id==object_id) {
 			lrtc = 1;
 		}

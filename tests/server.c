@@ -79,13 +79,14 @@ void test_server_lib(void *data) {
 	int (*DeleteServer)(long server_id, char *);
 	int (*GetServerById)(long, struct server *, char * );
 	long (*ServerChangeId)(long, long, int, char*);
-	int (*GetServerMap)(struct server*, char*, int);
+	long (*GetServerMap)(struct server*, char*, int);
 	int (*doUpdateServer)(struct server*, char *);
 
 
 	int rtc=-1;
 	long object_id=-1;
 	long lrtc=-1;
+	long rtcn=-1;	
 	long NN=-1;
 	int x;
 	struct shm_header * shm_hdr;
@@ -149,10 +150,10 @@ void test_server_lib(void *data) {
 
 	/*** SERVERMAP **/
 	srvmap = malloc(sizeof(struct server)*(shm_hdr->srvcount+2));
-	rtc=GetServerMap(srvmap, CONFIG, TEST_ORCH_ID);
-	tt_int_op(rtc, >, 0);
+	rtcn=GetServerMap(srvmap, CONFIG, TEST_ORCH_ID);
+	tt_int_op(rtcn, >, 0);
 	lrtc=-1;
-	for(x=0; x<rtc; x++) {
+	for(x=0; x<rtcn; x++) {
 		if(srvmap[x].server_id==object_id) {
 			lrtc = 1;
 		}
