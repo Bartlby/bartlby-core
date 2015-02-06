@@ -79,17 +79,7 @@
 #define B_LOG_HASTO 4
 
 
-#define BARTLBY_FIELD_LONG(name) long name;
-#define BARTLBY_FIELD_LONG_SIZE(name, size) long name[size];
-#define BARTLBY_FIELD_INT(name) int name;
-#define BARTLBY_FIELD_CHAR_SIZE(name, size) char name[size];
-#define BARTLBY_FIELD_TIMEVAL(name) struct timeval name;
-#define BARTLBY_FIELD_PERFSTAT(name) struct perf_statistic name;
-#define BARTLBY_FIELD_SNMPI(name) struct snmpi name;
-#define BARTLBY_FIELD_SPROCESS(name) struct sprocess name;
-#define BARTLBY_FIELD_SERVER_P(name) struct server * name;
-#define BARTLBY_FIELD_SERVICEGROUP_SIZE(name,size) struct servicegroup * name[size];
-      
+#include "bartlby_shm.h"
 
 
 
@@ -250,8 +240,6 @@
 #define PROTOCOL_ERROR "Protocol Error"
 #define TIMEOUT_ERROR "Recv() timedout"
 
-#define MAX_GROUP_MEMBERS 512
-#define GROUP_MEMBER_STR_LENGTH 2048
 
 
 
@@ -273,7 +261,20 @@
 #define BARTLBY_OBJECT_OUT_OF_SYNC 3
 
 
+#define NOTIFICATION_VIA_LOCAL 1
+#define NOTIFICATION_VIA_UPSTREAM 2
 
+
+#define BARTLBY_HTTP_FINE CURLE_OK
+
+#define AGENT_V2_SENT_PACKET 1
+#define AGENT_V2_RETURN_PACKET 2
+
+#define PORTIER_SVCLIST_PACKET 1
+#define PORTIER_RESULT_PACKET 2
+#define PORTIER_REQUEST_PACKET 3
+
+    
 
 #define LOAD_SYMBOL(x,y,z) 	x=dlsym(y, z); \
     	if((dlmsg=dlerror()) != NULL) { \
@@ -284,313 +285,19 @@
 
 
 
-struct shm_counter {
-	long worker;
-	long services;
-	long downtimes;
-	long servers;	
-	long servergroups;
-	long servicegroups;
-	long traps;
+
+
+struct ext_notify {
+	struct service * svc;	
+	struct worker * wrk;
+	char * trigger;
 };
-
-struct perf_statistic {
-	long sum;
-	long counter;	
-};
-
-
-struct snmpi {
-	char community[512];
-	int version;
-	char objid[1024];
-	long warn;
-	long crit;
-	long type;
-	char textmatch[1024];
-};
-struct sprocess {
-	int start_time;
-	int pid;
-		
-};
-
-struct sched_worker {
-	int pid;
-	struct service * svc;
-	int start_time;
-	int  idle;
-	int shutdown;
-	struct tms timing;
-	int idx;
-	long svc_id;
-	long memory_used;
-
-
-} astt;
-
-struct notification_log_entry {
-	int notification_valid; //-1 invalid == end of list
-	long worker_id; //Worker id
-	long service_id; //Service_id
-	int state; //State
-	int aggregated; //Default -1 > 0 - this notification has already been aggregated
-	char trigger_name[512];
-	int type; // 0 if it was a normal notification, 1 = it was a escalation notification to the standby's
-	time_t time;
-	int aggregation_interval;
-	int received_via;
-};
-#define NOTIFICATION_LOG_MAX 512
-#define NOTIFICATION_VIA_LOCAL 1
-#define NOTIFICATION_VIA_UPSTREAM 2
-
-
-
-struct shm_header {
-	long size_of_structs;
-	long thrdcount;
-	long svccount;
-	long wrkcount;
-	long srvcount;
-	long srvgroupcount;
-	long svcgroupcount;
-	long trapcount;
-	long current_running;
-	char  version[50];
-	int do_reload;
-	int last_replication;
-	int startup_time;
-	long dtcount;
-	int sirene_mode;
-	struct perf_statistic pstat;
-	int cur_event_index;
-	long checks_performed;
-	int checks_performed_time;
-	struct  sched_worker worker_threads[50];
-	struct notification_log_entry notification_log[NOTIFICATION_LOG_MAX];
-	long notification_log_current_top;	
-	time_t notification_log_aggregate_last_run;
-	int sched_workers_count;
-	
-};
-
-struct server {
-	long server_id;
-	char  client_ip[2048];
-	char  server_name[2048];
-	char server_icon[1024];
-	int server_enabled;
-	int client_port;
-	int server_dead;
-	int server_notify;
-	long server_flap_seconds;
-	int flap_count;
-	int last_notify_send;
-	
-	struct service * dead_marker;
-	int is_gone;
-	
-	struct servergroup * servergroups[MAX_GROUP_MEMBERS];
-	long servergroup_counter;
-	long servergroup_place[MAX_GROUP_MEMBERS];
-	
-	char server_ssh_keyfile[512];
-	char server_ssh_passphrase[512];
-	char server_ssh_username[512];
-	
-	char enabled_triggers[512];
-	int default_service_type;
-	int orch_id;
-	char exec_plan[2048];
-	char web_hooks[1024];
-	char json_endpoint[256];
-	int web_hooks_level;
-} xxyz;
-
-
-struct trap {
-    long trap_id;
-    char trap_name[512];
-    char trap_catcher[512];
-    char trap_status_text[512];
-    char trap_status_ok[512];
-    char trap_status_warning[512];
-    char trap_status_critical[512];
-    long trap_service_id;
-    long service_shm_place;
-    int trap_fixed_status;
-    int trap_prio;
-    int trap_is_final;
-    int orch_id;
-    int is_gone;
-    int matched;
-    int trap_last_match;
-    char trap_last_data[2048];
-} zzk;
-
-  
-
-
-#define X_SERVICE_FIELDS \
-        BARTLBY_FIELD_LONG(service_id) \
-        BARTLBY_FIELD_LONG(server_id) \
-        BARTLBY_FIELD_INT(last_state) \
-        BARTLBY_FIELD_INT(current_state) \
-        BARTLBY_FIELD_CHAR_SIZE(current_output,2048) \
-        BARTLBY_FIELD_CHAR_SIZE(service_name,2048) \
-        BARTLBY_FIELD_CHAR_SIZE(plugin,2048) \
-        BARTLBY_FIELD_CHAR_SIZE(plugin_arguments, 2048) \
-        BARTLBY_FIELD_LONG(check_interval) \
-        BARTLBY_FIELD_LONG(check_interval_original) \
-        BARTLBY_FIELD_INT(last_check) \
-        BARTLBY_FIELD_TIMEVAL(lcheck) \
-        BARTLBY_FIELD_CHAR_SIZE(service_exec_plan,2048) \
-        BARTLBY_FIELD_INT(notify_enabled) \
-        BARTLBY_FIELD_INT(last_notify_send) \
-        BARTLBY_FIELD_INT(last_state_change) \
-        BARTLBY_FIELD_LONG(flap_count) \
-        BARTLBY_FIELD_INT(service_active) \
-        BARTLBY_FIELD_CHAR_SIZE(service_var,2048) \
-        BARTLBY_FIELD_INT(service_type) \
-        BARTLBY_FIELD_LONG(service_passive_timeout) \
-        BARTLBY_FIELD_INT(notify_last_state) \
-        BARTLBY_FIELD_LONG(service_check_timeout) \
-        BARTLBY_FIELD_INT(service_ack_enabled) \
-        BARTLBY_FIELD_INT(service_ack_current) \
-        BARTLBY_FIELD_LONG(service_retain) \
-        BARTLBY_FIELD_LONG(service_retain_current) \
-        BARTLBY_FIELD_PERFSTAT(pstat) \
-        BARTLBY_FIELD_PERFSTAT(delay_time) \
-        BARTLBY_FIELD_INT(do_force) \
-        BARTLBY_FIELD_SNMPI(snmp_info) \
-        BARTLBY_FIELD_INT(recovery_outstanding) \
-        BARTLBY_FIELD_SPROCESS(process) \
-        BARTLBY_FIELD_LONG(flap_seconds) \
-        BARTLBY_FIELD_SERVER_P(srv) \
-        BARTLBY_FIELD_LONG(srv_place) \
-        BARTLBY_FIELD_INT(is_server_dead) \
-        BARTLBY_FIELD_LONG(renotify_interval) \
-        BARTLBY_FIELD_LONG(escalate_divisor) \
-        BARTLBY_FIELD_INT( is_gone) \
-        BARTLBY_FIELD_SERVICEGROUP_SIZE(servicegroups, MAX_GROUP_MEMBERS) \
-        BARTLBY_FIELD_LONG(servicegroup_counter) \
-        BARTLBY_FIELD_LONG_SIZE(servicegroup_place, MAX_GROUP_MEMBERS) \
-        BARTLBY_FIELD_LONG(fires_events) \
-        BARTLBY_FIELD_CHAR_SIZE(enabled_triggers,512) \
-        BARTLBY_FIELD_INT(handled) \
-        BARTLBY_FIELD_INT(orch_id) \
-        BARTLBY_FIELD_INT(last_orch_sync) \
-        BARTLBY_FIELD_CHAR_SIZE(usid, 50) \
-        BARTLBY_FIELD_INT(prio) \
-        BARTLBY_FIELD_INT(notify_super_users) \
-        BARTLBY_FIELD_CHAR_SIZE(script, 2048) \
-        BARTLBY_FIELD_INT(script_enabled) \
-
-    
-
-struct service{	
-        X_SERVICE_FIELDS
-};
-
-struct servicegroup {
-	long servicegroup_id;
-	char servicegroup_name[1024];
-	int servicegroup_notify;
-	int servicegroup_active;
-	char servicegroup_members[GROUP_MEMBER_STR_LENGTH];
-	
-	int servicegroup_dead;
-	struct service * dead_marker;
-	
-	char enabled_triggers[512];
-	int orch_id;
-};
-
-struct servergroup {
-	long servergroup_id;
-	char servergroup_name[1024];
-	int servergroup_notify;
-	int servergroup_active;
-	char servergroup_members[GROUP_MEMBER_STR_LENGTH];
-	int servergroup_dead;
-	struct service * dead_marker;
-	char enabled_triggers[512];
-	int orch_id;
-};
-
-
 struct service_sort {
 	struct service * svc;	
 };
 struct sched_worker_sort {
 	struct sched_worker * th;
 };
-
-
-struct worker {
-	char name[2048];
-	char  mail[2048];
-	char  icq[2048];
-	
-	
-	long worker_id;
-	int active;
-	char notify_plan[2048];
-	char password[2048];
-	
-	int escalation_count;
-	int escalation_time;
-	char notify_levels[20];
-	char enabled_triggers[2048];
-	char t[500];
-	long escalation_limit;
-	long escalation_minutes;
-	int is_gone;
-
-	char  visible_services[2048];
-	char  visible_servers[2048];
-	char  selected_services[2048];
-	char  selected_servers[2048];
-	int  notification_aggregation_interval;
-	int is_super_user;
-
-	int orch_id;
-
-	char api_pubkey[255];
-	char api_privkey[255];
-	int api_enabled;
-}sa;
-
-
-struct downtime {
-	long downtime_id;
-	int downtime_type;
-	int downtime_from;
-	int downtime_to;
-	char downtime_notice[2048];
-	int service_id;
-	
-	int is_gone;
-
-	int orch_id;
-	
-}sb;
-
-struct btl_event {
-	long evnt_id;
-	char evnt_message[4096];
-	int evnt_time;
-		
-}eb;
-struct ext_notify {
-	struct service * svc;	
-	struct worker * wrk;
-	char * trigger;
-} ty;
-
-
-
 typedef struct v2_packet_struct{
 
 	u_int32_t crc32_value;
@@ -625,14 +332,7 @@ struct http_output {
 	int curl_code;
 } iiiip;
 
-#define BARTLBY_HTTP_FINE CURLE_OK
 
-#define AGENT_V2_SENT_PACKET 1
-#define AGENT_V2_RETURN_PACKET 2
-
-#define PORTIER_SVCLIST_PACKET 1
-#define PORTIER_RESULT_PACKET 2
-#define PORTIER_REQUEST_PACKET 3
 
 
 char * getConfigValue_ex(const char * key, const char * fname, int cache);
