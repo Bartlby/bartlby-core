@@ -364,7 +364,7 @@ int replication_go(char *, void *, void *);
 
 //SHM
 
-int GetDowntimeMap(struct downtime * svcs, char * config, int orch_id);
+long GetDowntimeMap(struct downtime * svcs, char * config, int orch_id);
 struct service * bartlby_SHM_ServiceMap(void *);
 struct sched_threads * bartlby_SHM_ThreadMap(void * shm_addr);
 struct downtime * bartlby_SHM_DowntimeMap(void * shm_addr);
