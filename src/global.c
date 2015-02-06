@@ -65,7 +65,7 @@ void dump_svc(struct service * svc) {
         
 	//--- "iterate" over all the fields of the structure
                     
-	X_SERVICE_FIELDS
+	BARTLBY_SERVICE_FIELDS
 
 
 }
