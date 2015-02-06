@@ -299,6 +299,8 @@ int _log(int handle, int severity, const char * str,  ...) {
 	char * find_severity;
 	char * find_handle;
 
+	char * tmp;
+
 	char * upstream_line;
 
 	time(&tnow);
@@ -362,21 +364,27 @@ int _log(int handle, int severity, const char * str,  ...) {
 	
  	va_start(argzeiger,str);
 	if(strcmp(logfile, "/dev/stdout") == 0) {
-		fprintf(stderr, "%02d.%02d.%02d %02d:%02d:%02d;[%d];", tmnow->tm_mday,tmnow->tm_mon + 1,tmnow->tm_year + 1900, tmnow->tm_hour, tmnow->tm_min, tmnow->tm_sec, getpid());
-		vfprintf(stderr, str, argzeiger);
-		fprintf(stderr, ";%s/%s\n",log_handles[handle], log_levels[severity]);
+
+		CHECKED_VASPRINTF(&upstream_line, str, argzeiger);
+		tmp=remove_nl_copy(upstream_line);
+		fprintf(stderr, "%02d.%02d.%02d %02d:%02d:%02d;[%d];%s;%s/%s\n", tmnow->tm_mday,tmnow->tm_mon + 1,tmnow->tm_year + 1900, tmnow->tm_hour, tmnow->tm_min, tmnow->tm_sec, getpid(), tmp, log_handles[handle], log_levels[severity]);
+		free(tmp);
+		free(upstream_line);
+
+
 	} else {
 		fp=fopen(logfile, "a");   	
 		if(fp == NULL) {
 			perror(logfile);
 			exit(1);	
 		}
-		fprintf(fp, "%02d.%02d.%02d %02d:%02d:%02d;[%d];", tmnow->tm_mday,tmnow->tm_mon + 1,tmnow->tm_year + 1900, tmnow->tm_hour, tmnow->tm_min, tmnow->tm_sec, getpid());
-		vfprintf(fp, str, argzeiger);
-		fprintf(fp, ";%s/%s\n",log_handles[handle], log_levels[severity]);
-		//vprintf(string,argzeiger);
-		//fflush(pos2_log_file);
+		CHECKED_VASPRINTF(&upstream_line, str, argzeiger);
+		tmp=remove_nl_copy(upstream_line);
+		fprintf(fp, "%02d.%02d.%02d %02d:%02d:%02d;[%d];%s;%s/%s\n", tmnow->tm_mday,tmnow->tm_mon + 1,tmnow->tm_year + 1900, tmnow->tm_hour, tmnow->tm_min, tmnow->tm_sec, getpid(), tmp, log_handles[handle], log_levels[severity]);
 		fclose(fp);
+		free(tmp);
+		free(upstream_line);
+		
 	}
    	
   
