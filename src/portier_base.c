@@ -338,7 +338,7 @@ int bartlby_portier_send_svc_status(char * passive_host, int passive_port, char 
 	return 0;
 }
 
-int bartlby_portier_send_trigger(char * passive_host, int passive_port, int to_standbys,char * trigger_name, char * execline, struct service * svc, int node_id, char * portier_passwd, char * cfgfile) {
+int bartlby_portier_send_trigger(char * passive_host, int passive_port, int type_of_notification,struct trigger * trig, struct service * svc, int node_id, char * portier_passwd, char * cfgfile) {
 	
 	int client_socket;
 	struct sigaction act1, oact1;
@@ -390,35 +390,14 @@ int bartlby_portier_send_trigger(char * passive_host, int passive_port, int to_s
 		if(svc != NULL) {
 			jso_out = json_object_new_object();
 			json_object_object_add(jso_out, "method", json_object_new_string("exec_trigger"));
-			json_object_object_add(jso_out, "standby_workers_only", json_object_new_int(to_standbys));
-			json_object_object_add(jso_out, "execline", json_object_new_string(execline));
-			json_object_object_add(jso_out, "trigger_name", json_object_new_string(trigger_name));
+			json_object_object_add(jso_out, "type_of_notification", json_object_new_int(type_of_notification));
+			json_object_object_add(jso_out, "trigger_id", json_object_new_int64(trig->trigger_id));
 			json_object_object_add(jso_out, "service_id", json_object_new_int64(svc->service_id));
-			json_object_object_add(jso_out, "server_id", json_object_new_int64(svc->server_id));
-			json_object_object_add(jso_out, "notifiy_last_state", json_object_new_int(svc->notify_last_state));
-			json_object_object_add(jso_out, "current_state", json_object_new_int(svc->current_state));
-			json_object_object_add(jso_out, "recovery_outstanding", json_object_new_int(svc->recovery_outstanding));
-			json_object_object_add(jso_out, "node_id", json_object_new_int(node_id));
-			json_object_object_add(jso_out, "passwd", json_object_new_string(portier_passwd));
-			json_object_object_add(jso_out, "service_name", json_object_new_string(svc->service_name));
-			json_object_object_add(jso_out, "notify_super_users", json_object_new_int(svc->notify_super_users));
 			
 			bartlby_portier_send_no_result(jso_out, client_socket, do_spool);
 
 			json_object_put(jso_out);			
-		} else {
-			jso_out = json_object_new_object();
-			json_object_object_add(jso_out, "method", json_object_new_string("exec_trigger_line"));
-			json_object_object_add(jso_out, "execline", json_object_new_string(execline));
-			json_object_object_add(jso_out, "passwd", json_object_new_string(portier_passwd));
-			
-			bartlby_portier_send_no_result(jso_out, client_socket, do_spool);
-
-			json_object_put(jso_out);	
-
-
-
-		}
+		} 
 
 	bartlby_portier_disconnect(client_socket,do_spool);
 

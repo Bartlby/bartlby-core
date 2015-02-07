@@ -57,29 +57,61 @@ void test_core_sql(void *data) {
 
 
 }
-void test_structs(void *data) {
+void test_notifications(void *data) {
 	(void)data;
-	/*
-	tt_int_op(sizeof(struct service), ==, sizeof(struct service_old));
-	tt_int_op(sizeof(struct shm_counter), ==, sizeof(struct shm_counter_old));
-	tt_int_op(sizeof(struct perf_statistic), ==, sizeof(struct perf_statistic_old));
-	tt_int_op(sizeof(struct snmpi), ==, sizeof(struct snmpi_old));
-	tt_int_op(sizeof(struct sprocess), ==, sizeof(struct sprocess_old));
-	tt_int_op(sizeof(struct sched_worker), ==, sizeof(struct sched_worker_old));
-	tt_int_op(sizeof(struct notification_log_entry), ==, sizeof(struct notification_log_entry_old));
-	tt_int_op(sizeof(struct shm_header), ==, sizeof(struct shm_header_old));
-	tt_int_op(sizeof(struct server), ==, sizeof(struct server_old));
-	tt_int_op(sizeof(struct trap), ==, sizeof(struct trap_old));
-	tt_int_op(sizeof(struct servicegroup), ==, sizeof(struct servicegroup_old));
-	tt_int_op(sizeof(struct servergroup), ==, sizeof(struct servergroup_old));
+		void * SOHandle;
+		void * bartlby_address;
+		struct shm_header *hdr;
 
-	tt_int_op(sizeof(struct worker), ==, sizeof(struct worker_old));
-	tt_int_op(sizeof(struct downtime), ==, sizeof(struct downtime_old));
-	tt_int_op(sizeof(struct btl_event), ==, sizeof(struct btl_event_old));
-	*/
+		SOHandle = bartlby_get_sohandle(CONFIG);
+		bartlby_address=bartlby_get_shm(CONFIG);
+		hdr = bartlby_SHM_GetHDR(bartlby_address);
 
-	//dummy_service.srv=&dummy_server;
-	//dump_svc(&dummy_service);
+/*
+
+##### SIRENE
+		do_check = 0
+		type_of_notification = -1
+
+		#NORMAL (first) notification
+		do_check = 1
+		type_of_notification = 0
+
+		# RE-NOTIFICATION (2nd)
+		do_check = 1
+		type_of_notification = 2 
+
+		# escalation message (sends notify to standby workers)
+		do_check = 1
+		type_of_notification =  1
+
+*/	
+		int x;
+		set_cfg(CONFIG);
+		dummy_service.srv = &dummy_server;
+		dummy_service.notify_enabled = 1;
+		dummy_server.server_notify = 1;
+		dummy_service.notify_super_users=1;
+		dummy_service.service_id=4;
+		bartlby_trigger( &dummy_service, CONFIG, bartlby_address, 0, NOTIFICATION_TYPE_SIRENE, NULL, NULL, "SIRENE");
+		bartlby_trigger( &dummy_service, CONFIG, bartlby_address, 1, NOTIFICATION_TYPE_NORMAL,NULL, NULL, NULL);
+		bartlby_trigger( &dummy_service, CONFIG, bartlby_address, 1, NOTIFICATION_TYPE_ESCALATION,NULL, NULL, NULL);
+		bartlby_trigger( &dummy_service, CONFIG, bartlby_address, 1, NOTIFICATION_TYPE_RENOTIFY,NULL, NULL, NULL);
+	
+
+		bartlby_SHM_link_services_servers(bartlby_address, CONFIG, SOHandle);
+
+		bartlby_notification_log_aggregate(bartlby_address, hdr, CONFIG);
+
+
+		fprintf(stderr, "DUMPING NOTIFY LOG:\n");
+		for(x=0; x<NOTIFICATION_LOG_MAX; x++) {
+			if(hdr->notification_log[x].notification_valid != -1) {
+				fprintf(stderr, "%ld;%ld;%d;%d\n", hdr->notification_log[x].worker_id, hdr->notification_log[x].trigger_id,hdr->notification_log[x].type, hdr->notification_log[x].aggregated);
+				hdr->notification_log[x].notification_valid=-1;
+			}
+		}
+	
 	end:
 	;
 }
@@ -114,6 +146,6 @@ void test_shm_so(void *data) {
 //TINYTEST SETUP
 struct testcase_t core_tests[] = {
 	{ "shm_and_lib", test_shm_so, },
-	{ "structs", test_structs, },
+	{ "trigger", test_notifications,TT_OFF_BY_DEFAULT },
 	END_OF_TESTCASES
 };

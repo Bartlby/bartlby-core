@@ -52,6 +52,17 @@
 #include <curl/curl.h>
 
 
+#define NOTIFICATION_TYPE_SIRENE  -1
+#define NOTIFICATION_TYPE_NORMAL 0
+#define NOTIFICATION_TYPE_RENOTIFY 2
+#define NOTIFICATION_TYPE_ESCALATION 1
+#define NOTIFICATION_TYPE_AGGREGATE 3
+
+#define TRIGGER_TYPE_LOCAL 1
+#define TRIGGER_TYPE_BASHBLOCK 2
+#define TRIGGER_TYPE_WEBHOOK 3
+#define TRIGGER_TYPE_LUA 4
+
 /* Log Handles */
 #define LH_DEBUG 0
 #define LH_TRIGGER 1
@@ -149,7 +160,7 @@
 #define REL_NAME_INT "Insomnia"
 #define REL_NAME REL_NAME_INT " - rev:" __GIT_VERSION
 //#define VERSION  "1.4.0"
-#define EXPECTCORE 1600001
+#define EXPECTCORE 1600002
 
 #define MAX_CCACHE 1024
 #define MAX_CCACHE_KEY 1024
@@ -372,6 +383,7 @@ struct shm_header * bartlby_SHM_GetHDR(void *);
 struct worker * bartlby_SHM_WorkerMap(void * shm_addr);
 struct server * bartlby_SHM_ServerMap(void * shm_addr);
 struct trap * bartlby_SHM_TrapMap(void * shm_addr);
+struct trigger * bartlby_SHM_TriggerMap(void * shm_addr);
 struct servicegroup * bartlby_SHM_ServiceGroupMap(void * shm_addr);
 struct servergroup * bartlby_SHM_ServerGroupMap(void * shm_addr);
 
@@ -381,7 +393,16 @@ void bartlby_perf_track(struct service * svc,char * return_buffer, int return_by
 int bartlby_core_perf_track(struct shm_header * hdr, struct service * svc, int type, int time);
 long bartlby_milli_timediff(struct timeval end, struct timeval start);
 
-void bartlby_trigger(struct service * svc, char * cfgfile, void * shm_addr, int do_check, int standby_workers_only);
+void bartlby_trigger( struct service * svc,
+						  char * cfgfile,
+						  void * shm_addr,
+						  int do_check,
+						  int type_of_notification,
+						  struct worker * specific_worker,
+						  struct trigger * specific_trigger,
+						  char * prebuilt_message
+						  );
+
 //Global :-)
 int _log(int handle, int severity, const char * str,  ...);
 
@@ -457,13 +478,13 @@ void bartlby_orchestra_check_timeouts(struct service * svcmap,struct shm_header 
 void bartlby_orchestra_send_svc(char * cfg, struct service * svc);
 void bartlby_orchestra_upstream_log(char * cfg, char * log_line);
 //Notification Log
-int bartlby_notification_log_last_notification_state(struct shm_header * shmhdr, char * cfgfile, long svc_id, long worker_id, char * trigger_name);
+int bartlby_notification_log_last_notification_state(struct shm_header * shmhdr, char * cfgfile, long svc_id, long worker_id, struct trigger * trig);
 void * bartlby_notification_log_set_hardcopy(struct shm_header * shmhdr, void * hardcopy, long notification_log_current_top, time_t notification_log_last_run);
 void * bartlby_notification_log_get_hardcopy(struct shm_header * shmhdr);
 void bartlby_notification_log_finish(struct shm_header * shmhdr);
 void bartlby_notification_log_init(struct shm_header * shmhdr);
-void bartlby_notification_log_add(struct shm_header * shmhdr, char * cfgfile, long worker_id, long service_id, int state, int type, int aggregation_interval, char * trigger_name, int received_via);
-void bartlby_notification_log_aggregate(struct shm_header *shmdr, char * cfgfile);
+void bartlby_notification_log_add(struct shm_header * shmhdr, char * cfgfile, long worker_id, long service_id, int state, int type, int aggregation_interval, struct trigger * trig, int received_via);
+void bartlby_notification_log_aggregate(void * bartlby_address, struct shm_header *shmdr, char * cfgfile);
 void bartlby_notification_log_debug(struct shm_header * shmhdr);
 
 /*** HTTP REQUEST STUFF **/
@@ -480,11 +501,27 @@ json_object * bartlby_service_to_json(struct service * svc);
 int bartlby_servicegroup_has_trigger(struct service * svc, char * trigger);
 int bartlby_servergroup_has_trigger(struct server * srv, char * trigger);
 int bartlby_trigger_worker_level(struct worker * w,  struct service * svc, int node_id);
-void bartlby_trigger_upstream(char * cfgfile, int has_local_users, int to_standbys, char * trigger_name, char * cmdl, struct service * svc);
+void bartlby_trigger_upstream(char * cfgfile, int has_local_users, int type_of_notification, struct trigger * trig, struct service * svc);
 int bartlby_worker_has_service(struct worker * w, struct service * svc, char * cfgfile, int node_id);
 int bartlby_trigger_escalation(struct worker *w, struct service * svc, int standby_workers_only, int node_id);
 
-int bartlby_trigger_per_worker(char * cfgfile, char * trigger_name, struct shm_header *hdr, struct worker * wrk, struct server * srvmap, int do_check, struct service * svc, char * find_trigger, int standby_workers_only, char * full_path, int upstream_enabled, int upstream_has_local_users, char * notify_msg, int received_via);
+int bartlby_trigger_per_worker(char * cfgfile,
+									void * shm_addr,
+									struct worker * wrk,
+									struct trigger * trig,
+									struct service * svc,
+									int type_of_notification,
+									int do_check,
+									int received_via,
+									int upstream_enabled,
+									int upstream_has_local_users,
+									char * find_trigger,
+									char * prebuilt_message);
+
+
+struct service *  bartlby_notification_log_get_service(void * bartlby_address, long service_id);
+struct trigger *  bartlby_notification_log_get_trigger(void * bartlby_address, long trigger_id);
+
 
 /*
 traps
@@ -495,10 +532,16 @@ int bartlby_finish_script(struct service * svc, char * script);
 
 
 /*
+trigger
+*/
+
+void bartlby_trigger_local(struct service *svc, struct worker *wrk, struct trigger *trig, char *msg);
+
+/*
 PORTIER
 */
 int bartlby_portier_connect(char *host_name,int port, int spool, char * cfgfile);
-int bartlby_portier_send_trigger(char * passive_host, int passive_port, int to_standbys,char * trigger_name, char * execline, struct service * svc, int node_id, char * portier_passwd, char * cfgfile);
+int bartlby_portier_send_trigger(char * passive_host, int passive_port, int type_of_notification,struct trigger * trig, struct service * svc, int node_id, char * portier_passwd, char * cfgfile);
 int bartlby_portier_send_svc_status(char * passive_host, int passive_port, char * passwd, struct service * svc, char * cfgfile);
 int bartlby_portier_send(json_object * obj, int sock, int spool);
 void bartlby_portier_disconnect(int sock, int spool);

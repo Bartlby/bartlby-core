@@ -1343,7 +1343,7 @@ int schedule_loop(char * cfgfile, void * shm_addr, void * SOHandle) {
 
 		if(notification_aggregate_interval > 0 && time(NULL)-gshm_hdr->notification_log_aggregate_last_run >= notification_aggregate_interval) {
 			_log(LH_SCHED, B_LOG_DEBUG,"AGGREGATION RUN");
-			bartlby_notification_log_aggregate(gshm_hdr, cfgfile);
+			bartlby_notification_log_aggregate(shm_addr, gshm_hdr, cfgfile);
 		} 
 		bartlby_orchestra_check_timeouts(services, gshm_hdr, cfgfile, shm_addr, SOHandle);
 		

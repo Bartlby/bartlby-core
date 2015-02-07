@@ -139,6 +139,17 @@ CREATE TABLE `traps` (
 )  ;
 
 
+CREATE TABLE `triggers` (
+  `trigger_id` int(12) NOT NULL auto_increment,
+  `trigger_name` varchar(1024) NOT NULL default '',
+  `trigger_enabled`  int(1) NOT NULL default '0',
+  `trigger_type`  int(1) NOT NULL default '1',
+  `trigger_data` varchar(1024) NOT NULL default '',
+  `trigger_execplan` varchar(1024) NOT NULL default '',
+  `orch_id` int(11) NOT NULL default '0',
+  PRIMARY KEY  (`trigger_id`)
+)  ;
+
 
 CREATE TABLE `servicegroups` (
   `servicegroup_id` int(12) NOT NULL auto_increment,
@@ -164,5 +175,8 @@ CREATE TABLE `servergroups` (
 )  ;
 
 insert into workers(worker_name, worker_mail,password, is_super_user) VALUES('admin', 'bartlby-default@januschka.com', '5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8', 1);
-
-
+INSERT INTO `triggers` VALUES ('','EMAIL',1,1,'mail.sh','',0);
+INSERT INTO `triggers` VALUES ('','ICQ',0,1,'icq.sh','',0);
+INSERT INTO `triggers` VALUES ('','JABBER',0,1,'jabber.sh','',0);
+INSERT INTO `triggers` VALUES ('','PUSH',0,1,'push.sh','',0);
+INSERT INTO `triggers` VALUES ('','SMS',0,1,'sms.sh','',0);

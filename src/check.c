@@ -203,7 +203,7 @@ void bartlby_fin_service(struct service * svc, void * SOHandle, void * shm_addr,
 			svc->recovery_outstanding = RECOVERY_OUTSTANDING;	
 		}
 		
-		bartlby_trigger(svc, cfgfile, shm_addr, 1, 0);
+		bartlby_trigger(svc, cfgfile, shm_addr, 1, NOTIFICATION_TYPE_NORMAL, NULL, NULL, NULL);
 		svc->notify_last_state=svc->current_state;
 		
 		if(svc->current_state == STATE_OK && svc->recovery_outstanding == RECOVERY_OUTSTANDING) {
@@ -274,7 +274,7 @@ void bartlby_fin_service(struct service * svc, void * SOHandle, void * shm_addr,
 	//if ( (svc->service_retain_current >= svc->service_retain) && ( svc->current_state == STATE_CRITICAL )  && ( svc->renotify_interval > 0 ) && ( (time(NULL)-svc->last_notify_send) >= svc->renotify_interval ) ) {
 	if ( (svc->service_retain_current >= svc->service_retain) && ( svc->current_state == STATE_CRITICAL )  && ( svc->renotify_interval > 0 ) && ( svc->service_retain_current % svc->renotify_interval == 0 ) ) {
 		_log(LH_CHECK, B_LOG_CRIT,"re-notify	 for %s:%d/%s", svc->srv->server_name,svc->srv->client_port, svc->service_name);
-		bartlby_trigger(svc, cfgfile, shm_addr, 1, 2);
+		bartlby_trigger(svc, cfgfile, shm_addr, 1, NOTIFICATION_TYPE_RENOTIFY, NULL, NULL, NULL);
 		svc->notify_last_state=svc->current_state;
 		
 	}
@@ -285,7 +285,7 @@ void bartlby_fin_service(struct service * svc, void * SOHandle, void * shm_addr,
 	
 	if ( (svc->service_retain_current >= svc->service_retain) && ( svc->current_state == STATE_CRITICAL )  && ( svc->escalate_divisor > 0 ) && ( svc->service_retain_current % svc->escalate_divisor == 0 ) ) {
 		_log(LH_CHECK, B_LOG_CRIT,"escalate to standby workers	 for %s:%d/%s", svc->srv->server_name,svc->srv->client_port, svc->service_name);
-		bartlby_trigger(svc, cfgfile, shm_addr, 1, 1);
+		bartlby_trigger(svc, cfgfile, shm_addr, 1,  NOTIFICATION_TYPE_ESCALATION, NULL, NULL, NULL);
 		
 		
 	}

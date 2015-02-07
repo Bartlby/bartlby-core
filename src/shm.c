@@ -270,6 +270,19 @@ void bartlby_SHM_link_services_servers(void * shm_addr, char * cfgfile, void * S
 	
 }
 
+struct trigger * bartlby_SHM_TriggerMap(void * shm_addr) {
+	//Is beyond the servergroups
+	struct shm_header * hdr;
+	struct trap * trapmap;
+	
+	hdr=bartlby_SHM_GetHDR(shm_addr);
+	trapmap=bartlby_SHM_TrapMap(shm_addr);
+	
+	
+	return (struct trigger *)(void *)&trapmap[hdr->trapcount+1];
+}
+
+
 struct trap * bartlby_SHM_TrapMap(void * shm_addr) {
 	//Is beyond the servergroups
 	struct shm_header * hdr;

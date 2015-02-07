@@ -67,8 +67,8 @@ void bartlby_portier_submit_passive_result(long service_id, int status, const ch
 void bartlby_portier_find_server_id(const char * server_name);
 void bartlby_portier_find_services(long server_id);
 void bartlby_portier_get_plugin_info(long service_id);
-void bartlby_portier_exec_trigger(char * cfgfile, int standby_workers_only, const char * execline, const char * trigger_name, int service_id, int server_id, int notify_last_state, int current_state, int recovery_outstanding, int node_id, const char * passwd, const char * service_name, int notify_super_users);
-void bartlby_portier_exec_trigger_line(char * cfgfile, const char * execline, const char * passwd);
+void bartlby_portier_exec_trigger(char * cfgfile, int notification_type,  int trigger_id, int service_id);
+
 
 void bartlby_portier_set_svc_state(long service_id, char * service_text, long current_state,long last_notify_send,long last_state_change,long service_ack_current,long service_retain_current,long handled, long last_check);
 
@@ -102,168 +102,43 @@ void bartlby_portier_log_line(char * cfgfile, const char * log_line, long time_s
 
 }
 
-void bartlby_portier_exec_trigger_line(char * cfgfile, const char * execline, const char * passwd) {
+
+
+void bartlby_portier_exec_trigger(char * cfgfile, int notification_type,  int trigger_id, int service_id) {
 
 	
-	char * portier_passwd;
 	
 	
-	FILE * ptrigger;
-	char trigger_return[1024] = {0};
-	json_object * jso;
-
-	portier_passwd=getConfigValue("portier_password", cfgfile);
-	if(portier_passwd == NULL) {
-		bartlby_show_error(-222, "Portier Passwd unset", is_http);
-		return;
-	}
-
-	if(portier_passwd != NULL && strcmp(passwd, portier_passwd) == 0) {
-		ptrigger=popen(execline, "r");
-		if(ptrigger != NULL) {
-			connection_timed_out=0;
-			alarm(CONN_TIMEOUT);
-			if(fgets(trigger_return, 1024, ptrigger) != NULL) {
-				trigger_return[strlen(trigger_return)-1]='\0';
-				connection_timed_out=0;
-				alarm(0);
-			}
-			if(ptrigger != NULL) {
-				pclose(ptrigger);
-			}
-			      						
-		} 
-		jso = json_object_new_object();
-		json_object_object_add(jso,"error_code", json_object_new_int(0));
-		json_object_object_add(jso,"error_msg", json_object_new_string("DONE"));
-		json_object_object_add(jso,"execline", json_object_new_string(execline));
-		json_object_object_add(jso,"output", json_object_new_string(trigger_return));
 	
-		printf("%s\n", json_object_to_json_string(jso));
-
-		json_object_put(jso);
-	      							
-	
-	} else {
-		bartlby_show_error(-113, "Auth Failed", is_http);
-	}
-	free(portier_passwd);
-	return;
-
-
-}
-
-void bartlby_portier_exec_trigger(char * cfgfile, int standby_workers_only, const char * execline, const char * trigger_name, int service_id, int server_id, int notify_last_state, int current_state, int recovery_outstanding, int node_id, const char * passwd, const char * service_name, int notify_super_users) {
-
-	struct service local_svc;
-	int trigger_fine = 0;
-	char * portier_passwd;
-	char * find_trigger, * full_path, * trigger_dir;
-	struct stat finfo;
-	char * base_dir;
-	int x;
-	
-	char trigger_return[1024];
 	
 	json_object * jso;
 
-//NOTIFICATION UPSTREAM
-	char * cfg_upstream_enabled;
-	char * cfg_upstream_has_local_users;
-	
-
-	int upstream_enabled;
-	int upstream_has_local_users;
-	
-
-	cfg_upstream_enabled = getConfigValue("upstream_enabled", cfgfile);
-	cfg_upstream_has_local_users = getConfigValue("upstream_has_local_users", cfgfile);
-	
-
-	
-	if(cfg_upstream_enabled == NULL) {
-		cfg_upstream_enabled=strdup("false");	
-	}
-	if(strcmp(cfg_upstream_enabled, "true") == 0) {
-		upstream_enabled=1; 
-	} else {
-		upstream_enabled=0;
-	}
-	if(cfg_upstream_has_local_users == NULL) {
-		cfg_upstream_has_local_users=strdup("false");	
-	}
-	if(strcmp(cfg_upstream_has_local_users, "true") == 0) {
-		upstream_has_local_users=1;
-	} else {
-		upstream_has_local_users=0;
-	}
-	free(cfg_upstream_enabled);
-	free(cfg_upstream_has_local_users);
-//NOTIFICATION UPSTREAM
-
-	portier_passwd=getConfigValue("portier_password", cfgfile);
-	if(portier_passwd == NULL) {
-		bartlby_show_error(-222, "Portier Passwd unset", is_http);
-		return;
-	}
+	struct trigger * trig;
+	struct service * svc;
 
 
-	local_svc.server_id=server_id;
-	local_svc.service_id=service_id;
-	local_svc.notify_last_state=notify_last_state;
-	local_svc.recovery_outstanding=recovery_outstanding;
-	local_svc.current_state=current_state;
-	local_svc.srv_place=-1;
-	local_svc.notify_super_users=notify_super_users;
-	
-	strncpy(local_svc.service_name, (char*)service_name,1024);
-	
-	if(portier_passwd != NULL && strcmp(passwd, portier_passwd) == 0) {
-		trigger_fine=1;	
-	}
-	
-	free(portier_passwd);
+	svc=bartlby_notification_log_get_service(bartlby_address, service_id);
+	trig=bartlby_notification_log_get_trigger(bartlby_address, trigger_id);
 
-	if(trigger_fine != 1) {
-		bartlby_show_error(-223, "Param Error", is_http);
-		return;
-	}
 
-	trigger_dir=getConfigValue("trigger_dir", cfgfile);
-	if(trigger_dir == NULL) {
-			bartlby_show_error(-224, "Trigger Dir unset in CFG", is_http);
-			return;
-	}
-	CHECKED_ASPRINTF(&find_trigger, "|%s|" , trigger_name);
-	CHECKED_ASPRINTF(&full_path, "%s/%s", trigger_dir, trigger_name);
-	if(lstat(full_path, &finfo) < 0) {
-		bartlby_show_error(-225, "Stat failed on trigger dir", is_http);
-		free(find_trigger);
-		free(full_path);
-		free(trigger_dir);
-		return;
-	}
-	base_dir = getConfigValue("basedir", cfgfile);
-	if(base_dir == NULL) {
-		base_dir=strdup("/");
-	}
-	if(setenv("BARTLBY_HOME", base_dir,1) == 0) {
-	} 
-			
-	for(x=0; x<shm_hdr->wrkcount; x++) {
-		if(bartlby_trigger_per_worker(cfgfile, (char*)trigger_name, shm_hdr, &wrkmap[x], srvmap, 1, &local_svc, find_trigger, standby_workers_only, full_path, upstream_enabled, upstream_has_local_users, (char*)execline, NOTIFICATION_VIA_UPSTREAM) == -2) continue;
-	}
-	free(base_dir);
-	free(find_trigger);	
-	free(trigger_dir);
+
+	bartlby_trigger(svc,
+						  cfgfile,
+						  bartlby_address,
+						  0,
+						  notification_type,
+						  NULL,
+						  trig,
+						  NULL
+						  ); 
+
+
+
 
 
 	jso = json_object_new_object();
 	json_object_object_add(jso,"error_code", json_object_new_int(0));
-	json_object_object_add(jso,"trigger", json_object_new_string(trigger_name));
-	json_object_object_add(jso,"output", json_object_new_string(trigger_return));
-	json_object_object_add(jso,"error_msg", json_object_new_string(trigger_return));
-	json_object_object_add(jso,"notify_super_users", json_object_new_int(notify_super_users));
+	json_object_object_add(jso,"trigger", json_object_new_int64(trigger_id));
 	
 	printf("%s\n", json_object_to_json_string(jso));
 
@@ -534,10 +409,11 @@ int main(int argc, char ** argv) {
 	int error;
 
 //#define CMD_L_D
+
 #ifndef CMD_L_D
 #define ARGV_IDX 0
 #else
-#define ARGV_IDX 0
+#define ARGV_IDX 1
 #endif
 
 
@@ -786,33 +662,14 @@ int main(int argc, char ** argv) {
 				 >> {"error_code": 0, "trigger": "bartlby_load.sh", "output": "Sent SMS" }
 				 */
 				 if(strcmp(json_object_get_string(jso_method), "exec_trigger") == 0) {
-					if( json_object_object_get_ex(jso_in, "standby_workers_only", &jsoo[0]) &&
-						json_object_object_get_ex(jso_in, "execline", &jsoo[1]) &&
-						json_object_object_get_ex(jso_in, "trigger_name", &jsoo[2]) &&
-						json_object_object_get_ex(jso_in, "service_id", &jsoo[3]) &&
-						json_object_object_get_ex(jso_in, "server_id", &jsoo[4]) &&
-						json_object_object_get_ex(jso_in, "notifiy_last_state", &jsoo[5]) &&
-						json_object_object_get_ex(jso_in, "current_state", &jsoo[6]) &&
-						json_object_object_get_ex(jso_in, "recovery_outstanding", &jsoo[7]) &&
-						json_object_object_get_ex(jso_in, "node_id", &jsoo[8]) &&
-						json_object_object_get_ex(jso_in, "passwd", &jsoo[9]) &&
-						json_object_object_get_ex(jso_in, "service_name", &jsoo[10]) &&
-						json_object_object_get_ex(jso_in, "notify_super_users", &jsoo[11])
-						) {
+					if( json_object_object_get_ex(jso_in, "type_of_notification", &jsoo[0]) &&
+						json_object_object_get_ex(jso_in, "trigger_id", &jsoo[2]) &&
+						json_object_object_get_ex(jso_in, "service_id", &jsoo[3])) {
 							
 							bartlby_portier_exec_trigger(cfgfile, 
 														json_object_get_int(jsoo[0]),
-														json_object_get_string(jsoo[1]),
-														json_object_get_string(jsoo[2]),
-														json_object_get_int64(jsoo[3]),
-														json_object_get_int64(jsoo[4]),
-														json_object_get_int(jsoo[5]),
-														json_object_get_int(jsoo[6]),
-														json_object_get_int(jsoo[7]),
-														json_object_get_int(jsoo[8]),
-														json_object_get_string(jsoo[9]),
-														json_object_get_string(jsoo[10]),
-														json_object_get_int(jsoo[11])
+														json_object_get_int64(jsoo[2]),
+														json_object_get_int64(jsoo[3])
 														);
 			
 							PORTIER_CLEANUP;
@@ -820,40 +677,7 @@ int main(int argc, char ** argv) {
 					}
 
 				 }
-				 /*
-				 METHOD: exec_trigger_line
-				 NOTE: THIS IS PW PROTECTED
-				 PURPOSE: Executre a full prebuilt trigger line
-				 ON-ERROR: error_code < 0 and "error_msg" set to a text
-				 << {"method": "exec_trigger", 
-				 	 "standby_workers_only": 0,
-				 	 "execline": "a b c",
-				 	 "trigger_name": "mail.sh",
-				 	 "service_id": 9,
-				 	 "server_id": 2,
-				 	 "notifiy_last_state": 2,
-				 	 "current_state": 0,
-				 	 "recovery_outstanding": 0,
-				 	 "node_id": 0,
-				 	 "passwd": "password"
-				 	}
-				 >> {"error_code": 0, "execline": "/opt/bartlby/trigger/bartlby_load.sh", "output": "Sent SMS" }
-				 */
-				 if(strcmp(json_object_get_string(jso_method), "exec_trigger_line") == 0) {
-						if(	json_object_object_get_ex(jso_in, "execline", &jsoo[0]) &&
-							json_object_object_get_ex(jso_in, "passwd", &jsoo[1])
-						) {
-							
-							bartlby_portier_exec_trigger_line(cfgfile, 
-														json_object_get_string(jsoo[0]),
-														json_object_get_string(jsoo[1])														
-														);
-			
-							PORTIER_CLEANUP;
-
-					}
-
-				 }
+				
 				 /*
 				 METHOD: orch_log
 				 NOTE: THIS IS PW PROTECTED
@@ -972,6 +796,7 @@ int main(int argc, char ** argv) {
 	return 0;
 
 }
+
 
 
 

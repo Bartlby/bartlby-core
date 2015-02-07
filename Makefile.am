@@ -5,7 +5,7 @@ ACLOCAL_AMFLAGS = ${ACLOCAL_FLAGS}
 
 noinst_HEADERS = include/bartlby.h
 
-CORE_SOURCES=src/config.c src/global.c src/sched.c src/shm.c src/check.c src/trigger.c src/daemon.c src/replication.c src/perf.c src/downtime.c src/ack.c src/event.c src/check_snmp.c src/ src/ext.c src/orchestra.c src/check_active_v2.c src/check_active.c src/check_local.c src/check_group.c src/check_nrpe.c src/check_ssh.c src/notification_log.c src/portier_base.c src/compat.c src/http.c src/check_json.c src/webhooks.c src/json.c src/trap.c src/lua.c
+CORE_SOURCES=src/config.c src/global.c src/sched.c src/shm.c src/check.c src/trigger.c src/daemon.c src/replication.c src/perf.c src/downtime.c src/ack.c src/event.c src/check_snmp.c src/ src/ext.c src/orchestra.c src/check_active_v2.c src/check_active.c src/check_local.c src/check_group.c src/check_nrpe.c src/check_ssh.c src/notification_log.c src/portier_base.c src/compat.c src/http.c src/check_json.c src/webhooks.c src/json.c src/trap.c src/lua.c src/trigger_local.c
 
 
 
@@ -47,7 +47,7 @@ bartlby_portier_LDFLAGS = -pthread -Wl,--no-as-needed -pthread
 bartlby_portier_CFLAGS = $(AM_CFLAGS) $(NRPE_ADDON) $(SSL_ADDON) $(SNMP_ADDON) $(SSH_ADDON) $(JSON_ADDON) $(CURL_ADDON) $(LUA_ADDON) $(GIT_VERSION)
 
 lib_LTLIBRARIES = mysql.la
-nodist_mysql_la_SOURCES =  src/libs/mysql/traps.c src/libs/mysql/worker.c src/libs/mysql/server.c src/libs/mysql/service.c src/libs/mysql/downtime.c src/libs/mysql/servergroup.c src/libs/mysql/servicegroup.c src/libs/mysql/mysql.c 
+nodist_mysql_la_SOURCES =  src/libs/mysql/traps.c src/libs/mysql/worker.c src/libs/mysql/server.c src/libs/mysql/service.c src/libs/mysql/downtime.c src/libs/mysql/servergroup.c src/libs/mysql/servicegroup.c  src/libs/mysql/triggers.c src/libs/mysql/mysql.c  
 mysql_la_LIBADD = $(LIB_MYSQL)  
 mysql_la_LDFLAGS = -avoid-version -module -Wl,--export-dynamic  -Wl,--whole-archive,libbartlby.a,--no-whole-archive  
 mysql_la_CFLAGS = $(AM_CFLAGS)  $(NRPE_ADDON) $(OPENSSL_ADDON)  $(SNMP_ADDON) $(SSH_ADDON) $(JSON_ADDON) $(CURL_ADDON) $(LUA_ADDON) $(GIT_VERSION) -g
@@ -90,7 +90,7 @@ MAINTAINERCLEANFILES = Makefile.in aclocal.m4 compile \
 
 
 test:
-	cd tests && $(MAKE) && ./bartlby_test && ./untested_functions.sh
+	cd tests && $(MAKE)  all  && ./bartlby_test $(TEST_CASE)
 	
 
 install-data-hook:

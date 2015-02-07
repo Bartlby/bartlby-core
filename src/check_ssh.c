@@ -41,7 +41,7 @@ void bartlby_check_ssh(struct service * svc, char * cfgfile) {
 void bartlby_check_ssh(struct service * svc, char * cfgfile) {
 	
 	ssh_session my_ssh_session;
-  ssh_channel channel;
+  ssh_channel channel=NULL;
   ssh_private_key pkey;
 	ssh_public_key pubkey;
 	ssh_string pubstring;
@@ -123,7 +123,7 @@ void bartlby_check_ssh(struct service * svc, char * cfgfile) {
         
         sprintf(svc->current_output, "SSH Channel open failed");
 				svc->current_state = STATE_CRITICAL;
-        goto safe_free;
+        if(my_ssh_session != NULL) { ssh_disconnect(my_ssh_session); ssh_free(my_ssh_session); }
 				return;
 	 }
 
@@ -168,6 +168,7 @@ void bartlby_check_ssh(struct service * svc, char * cfgfile) {
     
     
     channel_close(channel);
+
    
     
     
@@ -189,10 +190,9 @@ void bartlby_check_ssh(struct service * svc, char * cfgfile) {
  
 
 safe_free:
-  if(channel != NULL) channel_close(channel);
-  if(channel != NULL) channel_free(channel);
-  if(my_ssh_session != NULL) ssh_disconnect(my_ssh_session);
-  if(my_ssh_session != NULL) ssh_free(my_ssh_session);
+  if(channel != NULL)  { channel_close(channel); channel_free(channel); }
+  if(my_ssh_session != NULL) { ssh_disconnect(my_ssh_session); ssh_free(my_ssh_session); }
+  
   return;
 
 failed:

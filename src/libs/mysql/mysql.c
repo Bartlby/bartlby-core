@@ -37,6 +37,7 @@ static int db_is_connected=0;
 #define COUNT_SERVERGROUPS "select count(1) from servergroups"
 #define COUNT_SERVICEGROUPS "select count(1) from servicegroups"
 #define COUNT_TRAPS "select count(1) from traps"
+#define COUNT_TRIGGERS "select count(1) from triggers"
 
 
 #define TEST_SQL "select a='%s' b='%s' from test"
@@ -133,6 +134,9 @@ BARTLBY_SQL_PROTECTION_INIT;
   mysql_query(mysql, "delete from servicegroups where orch_id = 999");
   CHK_ERR(mysql,NULL);
   mysql_query(mysql, "delete from servergroups where orch_id = 999");
+  CHK_ERR(mysql,NULL);
+
+  mysql_query(mysql, "delete from triggers where orch_id = 999");
   CHK_ERR(mysql,NULL);
 
 
@@ -421,7 +425,28 @@ BARTLBY_SQL_PROTECTION_INIT;
      }
           
      mysql_free_result(res);     
+
+
+   //COUNT TRIGGERS
+     mysql_query(mysql, COUNT_TRIGGERS);
+     CHK_ERR_NULL(mysql,shmc);
+     res = mysql_store_result(mysql);
+     CHK_ERR_NULL(mysql,shmc);
      
+     
+     if(mysql_num_rows(res) > 0) {
+      row=mysql_fetch_row(res);
+
+      if(row[0] != NULL) {
+        shmc->triggers = atol(row[0]);
+      }
+      
+      
+     } else {
+      shmc->triggers = 0; 
+     }
+          
+     mysql_free_result(res);         
      
 	BARTLBY_MYSQL_CLOSE(mysql);
 	free(mysql_host);

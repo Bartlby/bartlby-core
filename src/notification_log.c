@@ -45,6 +45,7 @@ IDEA:
 
 struct trigger_aggregate {
 	char trigger_name[512];
+	long trigger_id;
 	int notification_count;
 	struct trigger_aggregate * next;
 	struct trigger_aggregate * prev;
@@ -114,11 +115,11 @@ void * bartlby_notification_log_worker_exists(struct worker_aggregate * head, in
 	return NULL;
 }
 
-void * bartlby_notification_log_trigger_exists(struct trigger_aggregate * head, char * trigger_name) {
+void * bartlby_notification_log_trigger_exists(struct trigger_aggregate * head, long  trigger_id) {
 	struct trigger_aggregate * cur;
 	cur=head;
 	while(cur != NULL) {
-		if(strcmp(cur->trigger_name, trigger_name) == 0 ) {
+		if(cur->trigger_id == trigger_id) {
 			return cur;
 		}
 		cur=cur->next;
@@ -141,7 +142,7 @@ void * bartlby_notification_log_service_exists(struct service_aggregate * head, 
 }
 
 
-struct trigger_aggregate * bartlby_notification_log_add_trigger(struct trigger_aggregate * head, char * trigger_name) {
+struct trigger_aggregate * bartlby_notification_log_add_trigger(struct trigger_aggregate * head, long trigger_id) {
 	struct trigger_aggregate * current;
 	current = head;
 	 while (current->next != NULL) {
@@ -149,7 +150,8 @@ struct trigger_aggregate * bartlby_notification_log_add_trigger(struct trigger_a
     }
     current->next = malloc(sizeof(struct trigger_aggregate));
     
-    sprintf(current->next->trigger_name, "%s", trigger_name);
+    //sprintf(current->next->trigger_name, "%s", trigger_name);
+    current->next->trigger_id = trigger_id;
     current->next->next = NULL;
     current->next->prev=current;
 
@@ -212,7 +214,8 @@ struct worker_aggregate * bartlby_notification_log_add_worker(struct worker_aggr
 	trigger_list->next=NULL;
 	trigger_list->prev=NULL;
 	trigger_list->notification_count=0;
-	sprintf(trigger_list->trigger_name, "null");
+	//sprintf(trigger_list->trigger_name, "null");
+	trigger_list->trigger_id=-1;
 	
 
 	//svc_list->trigger_list_head=trigger_list;
@@ -225,23 +228,13 @@ struct worker_aggregate * bartlby_notification_log_add_worker(struct worker_aggr
 //HELPERS
 
 
-
-int bartlby_notification_log_last_notification_state(struct shm_header * shmhdr,char * cfgfile,  long svc_id, long worker_id, char * trigger_name) {
-	/*
-		input svc_id
-		get last notification sent to svc_id - by walking threw array starting at current_top
-		return int state
-
-
-		this FIXES BUG with warning(no notify)->critical(notify)->warning(no-notify)->critical(again a notify) - bug
-
-	*/
+int bartlby_notification_log_last_notification_state(struct shm_header * shmhdr,char * cfgfile,  long svc_id, long worker_id, struct trigger * trig) {
 	int x;
 	time_t max_ts, max_state;
 	max_ts=0;
 	max_state=-1;
 	for(x=0; x<NOTIFICATION_LOG_MAX; x++) {
-		if(shmhdr->notification_log[x].notification_valid != -1 && shmhdr->notification_log[x].service_id == svc_id && shmhdr->notification_log[x].worker_id == worker_id && shmhdr->notification_log[x].type == 0 && strcmp(shmhdr->notification_log[x].trigger_name, trigger_name) == 0) {
+		if(shmhdr->notification_log[x].notification_valid != -1 && shmhdr->notification_log[x].service_id == svc_id && shmhdr->notification_log[x].worker_id == worker_id && shmhdr->notification_log[x].type == 0 && shmhdr->notification_log[x].trigger_id ==  trig->trigger_id) {
 			if(shmhdr->notification_log[x].time > max_ts) {
 				_log(LH_NOTIFYLOG, B_LOG_DEBUG,"FOUND x:%d WORKER_ID: %ld SERVICE_ID: %ld - state %d",x, shmhdr->notification_log[x].worker_id, shmhdr->notification_log[x].service_id, shmhdr->notification_log[x].state);
 				max_ts=shmhdr->notification_log[x].time;
@@ -253,6 +246,8 @@ int bartlby_notification_log_last_notification_state(struct shm_header * shmhdr,
 
 
 }
+
+
 void * bartlby_notification_log_set_hardcopy(struct shm_header * shmhdr, void * hardcopy, long notification_log_current_top, time_t notification_log_last_run) {
 	/*
 		memcpy hardcopy into shmhdr->notification_log
@@ -313,8 +308,7 @@ void bartlby_notification_log_init(struct shm_header * shmhdr) {
 	}
 	_log(LH_NOTIFYLOG, B_LOG_INFO,"Initialized Empty Notification Log");
 }
-
-void bartlby_notification_log_add(struct shm_header * shmhdr, char * cfgfile, long worker_id, long service_id, int state, int type, int aggregation_interval, char * trigger_name, int received_via) {
+void bartlby_notification_log_add(struct shm_header * shmhdr, char * cfgfile, long worker_id, long service_id, int state, int type, int aggregation_interval, struct trigger * trig, int received_via) {
 
 	//Add One entry
 	//Aquire Semaphore
@@ -345,7 +339,8 @@ void bartlby_notification_log_add(struct shm_header * shmhdr, char * cfgfile, lo
 	shmhdr->notification_log[x].service_id=service_id;
 	shmhdr->notification_log[x].state=state;
 	shmhdr->notification_log[x].aggregated=0;
-	sprintf(shmhdr->notification_log[x].trigger_name, "%s", trigger_name);
+
+	shmhdr->notification_log[x].trigger_id=trig->trigger_id;
 	shmhdr->notification_log[x].time = time(NULL);
 	shmhdr->notification_log[x].type=type;
 	shmhdr->notification_log[x].aggregation_interval=aggregation_interval;
@@ -364,25 +359,64 @@ void bartlby_notification_log_add(struct shm_header * shmhdr, char * cfgfile, lo
 	
 
 }
-struct service *  bartlby_notification_log_get_service(struct shm_header * shmhdr, long service_id) {
+
+struct server *  bartlby_notification_log_get_server(void * bartlby_address, long server_id) {
+	int x;
+	struct server * srvmap;
+	struct shm_header *shmhdr;
+
+	shmhdr = bartlby_SHM_GetHDR(bartlby_address);
+	srvmap=bartlby_SHM_ServerMap(bartlby_address);
+
+	for(x=0; x<shmhdr->srvcount; x++) {
+		if(srvmap[x].server_id == server_id) {
+			return &srvmap[x];
+		}		
+	}
+	
+	return NULL;
+}
+
+struct service *  bartlby_notification_log_get_service(void * bartlby_address, long service_id) {
 	int x;
 	struct service * svcmap;
+	struct shm_header *shmhdr;
 
-	svcmap=bartlby_SHM_ServiceMap(shmhdr);
+	shmhdr = bartlby_SHM_GetHDR(bartlby_address);
+	svcmap=bartlby_SHM_ServiceMap(bartlby_address);
 
 	for(x=0; x<shmhdr->svccount; x++) {
 		if(svcmap[x].service_id == service_id) {
 			return &svcmap[x];
 		}		
 	}
+	
 	return NULL;
 }
 
-struct worker *  bartlby_notification_log_get_worker(struct shm_header * shmhdr, int worker_id) {
+struct trigger *  bartlby_notification_log_get_trigger(void * bartlby_address, long trigger_id) {
+	int x;
+	struct trigger * triggermap;
+	struct shm_header *shmhdr;
+
+	shmhdr = bartlby_SHM_GetHDR(bartlby_address);
+	triggermap=bartlby_SHM_TriggerMap(bartlby_address);
+
+	for(x=0; x<shmhdr->triggercount; x++) {
+		if(triggermap[x].trigger_id == trigger_id) {
+			return &triggermap[x];
+		}		
+	}
+	return NULL;
+}
+
+struct worker *  bartlby_notification_log_get_worker(void * bartlby_address, int worker_id) {
 	int x;
 	struct worker * wrkmap;
+	struct shm_header *shmhdr;
 
-	wrkmap=bartlby_SHM_WorkerMap(shmhdr);
+	shmhdr = bartlby_SHM_GetHDR(bartlby_address);
+	wrkmap=bartlby_SHM_WorkerMap(bartlby_address);
 
 	for(x=0; x<shmhdr->wrkcount; x++) {
 		if(wrkmap[x].worker_id == worker_id) {
@@ -391,7 +425,7 @@ struct worker *  bartlby_notification_log_get_worker(struct shm_header * shmhdr,
 	}
 	return NULL;
 }
-void bartlby_notification_log_aggregate(struct shm_header *shmhdr, char * cfgfile) {
+void bartlby_notification_log_aggregate(void * bartlby_address, struct shm_header *shmhdr, char * cfgfile) {
 	// Looop threw msg log starting from notification_log_current_top
 	// if aggregate <= 0 - do aggregation
 	//Group user, svc, trigger name - and call bartlby_trigger() with a custom msg e.g.:
@@ -412,18 +446,19 @@ void bartlby_notification_log_aggregate(struct shm_header *shmhdr, char * cfgfil
 	struct service_aggregate * s;
 	struct trigger_aggregate * t;
 
-	char * exec_str;
-	char * trigger_dir;
+	//char * exec_str;
+	
 
 	char  notify_msg[5000];
-	int connection_timed_out;
-	FILE * ptrigger;
+	//int connection_timed_out;
+	//FILE * ptrigger;
 
-	char trigger_return[1024];
+	//char trigger_return[1024];
 	
 	char * tmpstr;
 
 	struct worker * wrkmap;
+	struct trigger * trig;
 
 	long okcount=0;
 	long warncount=0;
@@ -433,38 +468,20 @@ void bartlby_notification_log_aggregate(struct shm_header *shmhdr, char * cfgfil
 	int still_broken_count=0;
 
 	struct service * csvc;
-
-
-	//UPSTREAM NOTIFICATIONS:
-	char * cfg_upstream_enabled;
 	
-	
-
-	int upstream_enabled;
-	
-
-	cfg_upstream_enabled = getConfigValue("upstream_enabled", cfgfile);
-	
-
-	
-	if(cfg_upstream_enabled == NULL) {
-		cfg_upstream_enabled=strdup("false");	
-	}
-	if(strcmp(cfg_upstream_enabled, "true") == 0) {
-		upstream_enabled=1;
-	} else {
-		upstream_enabled=0;
-	}
-	free(cfg_upstream_enabled);
-	///UPSTEAM NOTIFICATIONS
 
 
 	
-	trigger_dir=getConfigValue("trigger_dir", cfgfile);
+
+
+	
+	
 	head = NULL;
 
 	for(x=0; x<NOTIFICATION_LOG_MAX; x++) {
-		if(shmhdr->notification_log[x].type != 3 && shmhdr->notification_log[x].aggregation_interval > 0 && shmhdr->notification_log[x].aggregated == 0  && shmhdr->notification_log[x].notification_valid != -1 ) {
+		
+		if(shmhdr->notification_log[x].type != NOTIFICATION_TYPE_AGGREGATE && shmhdr->notification_log[x].aggregation_interval > 0 && shmhdr->notification_log[x].aggregated == 0  && shmhdr->notification_log[x].notification_valid != -1 ) {
+				
 			if(head == NULL ) {
 				head = malloc(sizeof(struct worker_aggregate));
 				head->next=NULL;
@@ -478,9 +495,10 @@ void bartlby_notification_log_aggregate(struct shm_header *shmhdr, char * cfgfil
 				w = bartlby_notification_log_add_worker(head, shmhdr->notification_log[x].worker_id);	
 				
 			}
-			t = bartlby_notification_log_trigger_exists(w->trigger_list_head, shmhdr->notification_log[x].trigger_name);
+			
+			t = bartlby_notification_log_trigger_exists(w->trigger_list_head, shmhdr->notification_log[x].trigger_id);
 			if(t == NULL) {
-				t = bartlby_notification_log_add_trigger(w->trigger_list_head, shmhdr->notification_log[x].trigger_name);
+				t = bartlby_notification_log_add_trigger(w->trigger_list_head, shmhdr->notification_log[x].trigger_id);
 				
 			}
 			
@@ -518,22 +536,23 @@ void bartlby_notification_log_aggregate(struct shm_header *shmhdr, char * cfgfil
 	current = head;
 	if(found > 0) {
 		while(current != NULL) {
-				//_log("DOING WORKER: %d", current->worker_id);
+				
 				t=current->trigger_list_head;
 				while(t != NULL) {
-					if(strcmp(t->trigger_name, "null") != 0) {
+					if(t->trigger_id != -1) {
 						//_log("\t Trigger: %s Count: %d", t->trigger_name, t->notification_count);
 						
 
 						//Send Aggregated Notification
-						wrkmap=bartlby_notification_log_get_worker(shmhdr, current->worker_id);
+						wrkmap=bartlby_notification_log_get_worker(bartlby_address, current->worker_id);
+						trig=bartlby_notification_log_get_trigger(bartlby_address, t->trigger_id);
 						///////////
 						okcount=0;
 						critcount=0;
 						warncount=0;
 						othercount=0;
 						//BUILD MSG:
-						sprintf(notify_msg, "%d Notifications happened in the aggregation window \\n", t->notification_count);
+						sprintf(notify_msg, "%d Notifications happened in the aggregation window \n", t->notification_count);
 						s=t->service_list_head;
 						while(s != NULL) {
 							if(s->service_id != -1) {
@@ -545,7 +564,7 @@ void bartlby_notification_log_aggregate(struct shm_header *shmhdr, char * cfgfil
 							}
 							s=s->next;					
 						}
-						CHECKED_ASPRINTF(&tmpstr, "%ld OK, %ld Warning, %ld Critical, %ld Other \\n", okcount, warncount, critcount, othercount);
+						CHECKED_ASPRINTF(&tmpstr, "%ld OK, %ld Warning, %ld Critical, %ld Other \n", okcount, warncount, critcount, othercount);
 						strncat(notify_msg, tmpstr, sizeof(notify_msg) - strlen(notify_msg) - 1);
 
 						free(tmpstr);
@@ -558,7 +577,7 @@ void bartlby_notification_log_aggregate(struct shm_header *shmhdr, char * cfgfil
 								//_log("\t\t Service: State Changes: %d -  id: %d OK: %d WARN: %d CRIT:%d OTHER: %d", s->state_changes, s->service_id, s->states[0], s->states[1], s->states[2], s->states[3]);
 								csvc=bartlby_notification_log_get_service(shmhdr, s->service_id);
 								if(csvc->current_state != 0) {
-									CHECKED_ASPRINTF(&tmpstr, "%s/%s (%d)\\n", csvc->srv->server_name, csvc->service_name, csvc->current_state);
+									CHECKED_ASPRINTF(&tmpstr, "%s/%s (%d)\n", csvc->srv->server_name, csvc->service_name, csvc->current_state);
 									strncat(notify_msg, tmpstr, sizeof(notify_msg) - strlen(notify_msg) - 1);
 									free(tmpstr);
 									still_broken_count++;
@@ -576,55 +595,10 @@ void bartlby_notification_log_aggregate(struct shm_header *shmhdr, char * cfgfil
 						}
 
 
-
-
-
-
-						CHECKED_ASPRINTF(&exec_str, "%s/%s \"%s\" \"%s\" \"%s\" \"%s\"", trigger_dir, t->trigger_name, wrkmap->mail,wrkmap->icq,wrkmap->name, notify_msg);
-
-
-						_log(LH_NOTIFYLOG, B_LOG_DEBUG,"@NOT-AGGREGATE@: %s for Worker '%s' Notifications original: %d - %s",t->trigger_name,  wrkmap->name, t->notification_count, notify_msg);
-						
-						if(upstream_enabled == 1) {
-							_log(LH_NOTIFYLOG, B_LOG_DEBUG,"@AGG-UPSTREAM-NOT-USER@ - TRIGGER: %s  local_users: %d  to-standbys:%d cmdline `%s'", t->trigger_name,  1, 0, exec_str);
-							bartlby_trigger_upstream(cfgfile, 1, 0, t->trigger_name, exec_str, NULL);
-							free(exec_str);
-							t=t->next;
-							continue;
-						}
 						
 
-
-
-
-						ptrigger=popen(exec_str, "r");
-						if(ptrigger != NULL) {
-							connection_timed_out=0;
-							alarm(CONN_TIMEOUT);
-							if(fgets(trigger_return, 1024, ptrigger) != NULL) {
-								trigger_return[strlen(trigger_return)-1]='\0';
-								//_log("@NOT-EXT@%ld|%d|%d|%s|%s|%s:%d/%s|'%s'", svc->service_id, svc->last_state ,svc->current_state,t->trigger_name,wrkmap[x].name, svc->srv->server_name, svc->srv->client_port, svc->service_name, trigger_return);
-								
-    						} else {
-    							//_log("@NOT-EXT@%ld|%d|%d|%s|%s|%s:%d/%s|'(empty output)'", svc->service_id, svc->last_state ,svc->current_state,entry->d_name,wrkmap[x].name, svc->srv->server_name, svc->srv->client_port, svc->service_name);
-    						}
-      								
-    						if(connection_timed_out == 1) {
-    							//_log("@NOT-EXT@%ld|%d|%d|%s|%s|%s:%d/%s|'(timed out)'", svc->service_id, svc->last_state ,svc->current_state,entry->d_name,wrkmap[x].name, svc->srv->server_name, svc->srv->client_port, svc->service_name);
-    						}
-    						connection_timed_out=0;
-							alarm(0);
-							if(ptrigger != NULL) {
-      							pclose(ptrigger);
-      						}
-      					} else {
-      						//_log("@NOT-EXT@%ld|%d|%d|%s|%s|%s:%d/%s|'(failed %s)'", svc->service_id, svc->last_state ,svc->current_state,entry->d_name,wrkmap[x].name, svc->srv->server_name, svc->srv->client_port, svc->service_name, full_path);	
-      					}
-						free(exec_str);
 						
-						/////
-
-
+						bartlby_trigger(NULL,cfgfile, bartlby_address, 0, NOTIFICATION_TYPE_AGGREGATE, wrkmap, trig, notify_msg); 
 
 
 						
@@ -636,7 +610,7 @@ void bartlby_notification_log_aggregate(struct shm_header *shmhdr, char * cfgfil
 		}
 	}
 
-	free(trigger_dir);
+	//free(trigger_dir);
 
 
 

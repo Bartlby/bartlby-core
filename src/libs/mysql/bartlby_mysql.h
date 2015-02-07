@@ -10,7 +10,7 @@ void BTL_removeChar(char *str, char garbage);
 
 
 
-#define BARTLBY_SQL_PROTECTION_FREE bartlby_mysql_safe_free(bartlby_protection_bartlby_protection_buff_list_head)
+#define BARTLBY_SQL_PROTECTION_FREE bartlby_mysql_safe_free(bartlby_protection_bartlby_protection_buff_list_head);
 
 #define CHK_FREE_CRED if(mysql_user != NULL) { free(mysql_user); } \
 					   if(mysql_pw != NULL) { free(mysql_pw); } \
@@ -59,7 +59,7 @@ void BTL_removeChar(char *str, char garbage);
 
 #define BARTLBY_SQL_PROTECTION_INIT struct mysql_buffers_list * bartlby_protection_buff_list; \
                                     struct mysql_buffers_list * bartlby_protection_bartlby_protection_buff_list_head; \
-                                    bartlby_mysql_safe_init(&bartlby_protection_buff_list, &bartlby_protection_bartlby_protection_buff_list_head)
+                                    bartlby_mysql_safe_init(&bartlby_protection_buff_list, &bartlby_protection_bartlby_protection_buff_list_head);
 
 #define BARTLBY_SQL_PROTECTION(value) bartlby_mysql_safe(mysql, &bartlby_protection_buff_list, value)
                         
