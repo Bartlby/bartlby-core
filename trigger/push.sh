@@ -7,6 +7,13 @@
 # smstools - http://smstools.meinemullemaus.de/
 #############
 
+
+MESSAGE=$(cat)
+SUBJ="bartlby notify: ${BARTLBY_TRIGGER_SVC_SRV_NAME} / ${BARTLBY_TRIGGER_SVC_NAME} : ${BARTLBY_TRIGGER_SVC_CURRENT_STATE_READABLE} ";
+
+
+
+
 BARTLBY_HTDOCS=/var/www/htdocs/bartlby.krone.at/
 
 
@@ -19,33 +26,21 @@ BARTLBY_HTDOCS=/var/www/htdocs/bartlby.krone.at/
 #####
 
 PRIO=0;
-if [ "$READABLE_STATE"  != "OK" ];
+if [ "$BARTLBY_TRIGGER_SVC_CURRENT_STATE_READABLE"  != "OK" ];
 then
 	PRIO=2;
 fi;
 
-APK=$(echo -n ${3}_PusherAPIKey|md5sum|awk '{print $1}');
+APK=$(echo -n ${BARTLBY_TRIGGER_WRK_NAME}_PusherAPIKey|md5sum|awk '{print $1}');
 TEMPAPIKEY=$(cat $BARTLBY_HTDOCS/store/Pusher/$APK);
 
 OSS=$(echo $TEMPAPIKEY|awk '{ split($0, a, "-"); print a[1] }');
 APIKEY=$(echo $TEMPAPIKEY|awk '{ split($0, a, "-"); print a[2] }');
 echo $TEMPAPIKEY;
 
+MSG=$MESSAGE;
 
 
-SUBJ="${BARTLBY_CURR_HOST} / ${BARTLBY_CURR_SERVICE} : ${READABLE_STATE} ";
-MSG=$(echo -e $4);
-
-INETCONN=$(/opt/bartlby/bin/bartlby_shmt  /opt/bartlby/etc/bartlby.cfg list|grep 6479|awk '{ split($0, a, ";"); print a[5] }');
-
-if [ "$INETCONN" != "0" ];
-then
-	echo "DOIN SMS leitung down";
-
-	/opt/bartlby/trigger/sms.sh "$1" "$2" "$3" "$4" 2>&1; 
-	exit;
-
-fi;
 
 if [ "$OSS" = "IOS" ];
 then
