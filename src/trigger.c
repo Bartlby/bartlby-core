@@ -200,10 +200,10 @@ int bartlby_trigger_per_worker(char * cfgfile,
 
 					
 
-					if(type_of_notification != NOTIFICATION_TYPE_AGGREGATE) {					
+					if(svc != NULL && type_of_notification != NOTIFICATION_TYPE_AGGREGATE) {					
 						_log(LH_TRIGGER, B_LOG_HASTO,"@NOT@%ld|%d|%d|%s|%s|%s:%d/%s (%d)", svc->service_id, svc->last_state ,svc->current_state,trig->trigger_name,wrk->name, srv_name ,srv_port, svc->service_name, wrk->notification_aggregation_interval);
 					} else {
-						_log(LH_TRIGGER, B_LOG_HASTO,"@AGG@%s|%s|Aggregated Message %s",trig->trigger_name, wrk->name,  prebuilt_message);
+						_log(LH_TRIGGER, B_LOG_HASTO,"@AGG@%s|%s|%s",trig->trigger_name, wrk->name,  prebuilt_message);
 					}
 					
 

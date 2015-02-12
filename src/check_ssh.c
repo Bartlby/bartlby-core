@@ -41,7 +41,7 @@ void bartlby_check_ssh(struct service * svc, char * cfgfile) {
 void bartlby_check_ssh(struct service * svc, char * cfgfile) {
 	
 	ssh_session my_ssh_session;
-  ssh_channel channel=NULL;
+  ssh_channel channel;
   ssh_private_key pkey;
 	ssh_public_key pubkey;
 	ssh_string pubstring;
