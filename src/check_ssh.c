@@ -38,10 +38,13 @@ void bartlby_check_ssh(struct service * svc, char * cfgfile) {
 
 #else
 
+#define SSH_KICK_SESSION  if(my_ssh_session != NULL) { ssh_disconnect(my_ssh_session); ssh_free(my_ssh_session); };
+
+
 void bartlby_check_ssh(struct service * svc, char * cfgfile) {
 	
 	ssh_session my_ssh_session;
-  ssh_channel channel=NULL;
+  ssh_channel channel;
   ssh_private_key pkey;
 	ssh_public_key pubkey;
 	ssh_string pubstring;
@@ -76,7 +79,7 @@ void bartlby_check_ssh(struct service * svc, char * cfgfile) {
   if (rc != SSH_OK)   {
    	sprintf(svc->current_output, "Connect to server failed username: '%s'", svc->srv->server_ssh_username);
 		svc->current_state = STATE_CRITICAL;
-    if(my_ssh_session != NULL) { ssh_disconnect(my_ssh_session); ssh_free(my_ssh_session); }
+    SSH_KICK_SESSION;
 		return;
   }
    ssh_set_blocking(my_ssh_session, 1);
@@ -84,21 +87,21 @@ void bartlby_check_ssh(struct service * svc, char * cfgfile) {
    if(pkey == NULL) {
    	 	sprintf(svc->current_output, "failed to load private key '%s'", svc->srv->server_ssh_keyfile);
 			svc->current_state = STATE_CRITICAL;
-      if(my_ssh_session != NULL) { ssh_disconnect(my_ssh_session); ssh_free(my_ssh_session); }
+      SSH_KICK_SESSION
 			return;
 	 }
    pubkey=publickey_from_privatekey(pkey);
    if(pubkey == NULL) {
    		sprintf(svc->current_output, "could not get public key from private key '%s'", svc->srv->server_ssh_keyfile);
 			svc->current_state = STATE_CRITICAL;
-      if(my_ssh_session != NULL) { ssh_disconnect(my_ssh_session); ssh_free(my_ssh_session); }
+      SSH_KICK_SESSION
 			return;
 	 }
    pubstring = publickey_to_string(pubkey);
    if(pubstring == NULL) {
    		sprintf(svc->current_output, "could not convert public key to string from private key '%s'", svc->srv->server_ssh_keyfile);
 			svc->current_state = STATE_CRITICAL;
-      if(my_ssh_session != NULL) { ssh_disconnect(my_ssh_session); ssh_free(my_ssh_session); }
+      SSH_KICK_SESSION
 			return;
 	 	
    }
@@ -111,7 +114,7 @@ void bartlby_check_ssh(struct service * svc, char * cfgfile) {
    if(rc != SSH_AUTH_SUCCESS) {
    		sprintf(svc->current_output, "authentication failed using private key '%s' user: '%s' return code: %d error-msg: %s", svc->srv->server_ssh_keyfile, svc->srv->server_ssh_username, rc, ssh_get_error(my_ssh_session));
 			svc->current_state = STATE_CRITICAL;
-      if(my_ssh_session != NULL) { ssh_disconnect(my_ssh_session); ssh_free(my_ssh_session); }
+      SSH_KICK_SESSION
 			return;
 	 	
    }
@@ -122,7 +125,7 @@ void bartlby_check_ssh(struct service * svc, char * cfgfile) {
         
         sprintf(svc->current_output, "SSH Channel open failed");
 				svc->current_state = STATE_CRITICAL;
-        if(my_ssh_session != NULL) { ssh_disconnect(my_ssh_session); ssh_free(my_ssh_session); }
+        SSH_KICK_SESSION
 				return;
 	 }
 
@@ -188,11 +191,6 @@ void bartlby_check_ssh(struct service * svc, char * cfgfile) {
   	return;
  
 
-safe_free:
-  if(channel != NULL)  { channel_close(channel); channel_free(channel); }
-  if(my_ssh_session != NULL) { ssh_disconnect(my_ssh_session); ssh_free(my_ssh_session); }
-  
-  return;
 
 failed:
 		channel_close(channel);
