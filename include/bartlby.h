@@ -52,16 +52,8 @@
 #include <curl/curl.h>
 
 
-#define NOTIFICATION_TYPE_SIRENE  -1
-#define NOTIFICATION_TYPE_NORMAL 0
-#define NOTIFICATION_TYPE_RENOTIFY 2
-#define NOTIFICATION_TYPE_ESCALATION 1
-#define NOTIFICATION_TYPE_AGGREGATE 3
 
-#define TRIGGER_TYPE_LOCAL 1
-#define TRIGGER_TYPE_BASHBLOCK 2
-#define TRIGGER_TYPE_WEBHOOK 3
-#define TRIGGER_TYPE_LUA 4
+
 
 /* Log Handles */
 #define LH_DEBUG 0
@@ -492,10 +484,12 @@ struct http_output * bartlby_http_post_request(char *url, char *body, long timeo
 void bartlby_free_http_output(struct http_output * s);
 
 /**WEBHOOKS **/
-void bartlby_call_webhooks(char * cfg, struct service * svc, int hard);
+void bartlby_call_webhooks(char * cfg, struct service * svc, int timeout, char * hooks_in, json_object * additional_json);
 
 /**** JSON **/
 json_object * bartlby_service_to_json(struct service * svc);
+json_object * bartlby_trigger_to_json(struct trigger * trig);
+
 
 /*** TRIGGER*/
 int bartlby_servicegroup_has_trigger(struct service * svc, char * trigger);
@@ -534,8 +528,9 @@ int bartlby_finish_script(struct service * svc, char * script);
 /*
 trigger
 */
-
-void bartlby_trigger_local(struct service *svc, struct worker *wrk, struct trigger *trig, char *msg);
+void bartlby_call_single_webhook(char * cfg,char * endpoint,  json_object * jso_out, int timeout);
+void bartlby_trigger_local(char * cfgfile, struct service *svc, struct worker *wrk, struct trigger *trig, char *msg);
+void bartlby_trigger_webhooks(char * cfgfile, struct service *svc, struct worker *wrk, struct trigger *trig, char *msg);
 
 /*
 PORTIER

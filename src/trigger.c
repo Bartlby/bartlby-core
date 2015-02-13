@@ -27,9 +27,15 @@ $Author$
 #define FL 0
 #define TR 1
 
+//#define TRIGGER_DEBUG
+//#define TRIGGER_DEBUG_LOG
 
 #ifdef TRIGGER_DEBUG
-#define trigger_debug(format, ...) fprintf(stderr, format, ##__VA_ARGS__);
+#define trigger_debug(format, ...) fprintf(stderr,format, ##__VA_ARGS__);
+	#ifdef TRIGGER_DEBUG_LOG
+		#undef trigger_debug
+		#define trigger_debug(format, ...) _debug(format, ##__VA_ARGS__); 
+	#endif
 #else
 #define trigger_debug(format, ...) ;
 #endif
@@ -80,7 +86,7 @@ char * bartlby_trigger_get_message(struct service * svc, struct worker * wrk, st
 	return strdup("DEFAULT MSG");
 }
 
-void bartlby_trigger_wrap(struct service * svc, struct worker * wrk, struct trigger * trig, char * prebuilt_message) {
+void bartlby_trigger_wrap(char * cfgfile, struct service * svc, struct worker * wrk, struct trigger * trig, char * prebuilt_message) {
 
 	int has_to_free_message = 0;
 	if(prebuilt_message == NULL) {
@@ -91,8 +97,11 @@ void bartlby_trigger_wrap(struct service * svc, struct worker * wrk, struct trig
 
 	switch(trig->trigger_type) {
 		case TRIGGER_TYPE_LOCAL:
-			bartlby_trigger_local(svc, wrk, trig, prebuilt_message);
+			bartlby_trigger_local(cfgfile, svc, wrk, trig, prebuilt_message);
 		break;	
+		case TRIGGER_TYPE_WEBHOOKS:
+			bartlby_trigger_webhooks(cfgfile,svc,wrk,trig,prebuilt_message);
+		break;
 		default:
 			_debug("Trigger type: %d is unkown -> Name: %s, ID:%ld", trig->trigger_type, trig->trigger_name, trig->trigger_id);
 			
@@ -236,7 +245,7 @@ int bartlby_trigger_per_worker(char * cfgfile,
 					}*/
 
 					
-					bartlby_trigger_wrap(svc, wrk, trig, prebuilt_message);
+					bartlby_trigger_wrap(cfgfile, svc, wrk, trig, prebuilt_message);
 					trigger_debug("\t+NOTIFICATION SENT!\n");
 						
 			} else {
@@ -697,14 +706,17 @@ void bartlby_trigger( struct service * svc,
 		if(do_check == 1) {
 			if(bartlby_servergroup_has_trigger(svc->srv, find_trigger) != 1) {
 				free(find_trigger);
+				trigger_debug("\t-- SERVERGROUP MISSING TRIGGER\n");
 				continue;
 			}
 			if(bartlby_servicegroup_has_trigger(svc, find_trigger) != 1) {
+				trigger_debug("\t-- SERVICEGROUP MISSING TRIGGER\n");
 				free(find_trigger);
 				continue;
 			}
 				
 			if(strlen(svc->srv->enabled_triggers) > 2 && strstr(svc->srv->enabled_triggers, find_trigger) == NULL) {
+				trigger_debug("\t-- SERVER MISSING TRIGGER\n");
 				free(find_trigger);
 				continue;
 			}

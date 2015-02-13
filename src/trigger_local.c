@@ -32,7 +32,7 @@ static void trigger_conn_timeout(int signo) { //TIMEOUT HANDLER FOR trigger.sh
  	connection_timed_out = 1;
 }
 
-void bartlby_trigger_local(struct service *svc, struct worker *wrk, struct trigger *trig, char *msg)
+void bartlby_trigger_local(char * cfgfile, struct service *svc, struct worker *wrk, struct trigger *trig, char *msg)
 {
 	FILE * ptrigger;
 	char trigger_return[1024];

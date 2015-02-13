@@ -25,7 +25,19 @@ $Author$
 
 #include <bartlby.h>
 
+json_object * bartlby_trigger_to_json(struct trigger * trig) {
+	//Caller has to free
+	json_object * jso_out;
+	jso_out = json_object_new_object();
 
+	json_object_object_add(jso_out, "trigger_id", json_object_new_int64(trig->trigger_id));
+	json_object_object_add(jso_out, "trigger_name", json_object_new_string(trig->trigger_name));
+	
+
+	return jso_out;
+
+
+}
 
 json_object * bartlby_service_to_json(struct service * svc) {
 	//Caller has to free

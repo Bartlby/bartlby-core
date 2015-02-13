@@ -240,18 +240,18 @@ void bartlby_fin_service(struct service * svc, void * SOHandle, void * shm_addr,
 		//FIRE Web Hooks?
 		if(svc->srv->web_hooks_level == 3) {
 			//HOOKS ON BOTH
-			bartlby_call_webhooks(cfgfile, svc,3);
+			bartlby_call_webhooks(cfgfile, svc,svc->service_check_timeout, svc->srv->web_hooks, NULL);
 		} else {
 			if(svc->srv->web_hooks_level == 1) {
 				//ONLY HARD
 				if(do_log == 2) {
-					bartlby_call_webhooks(cfgfile, svc,1);	
+					bartlby_call_webhooks(cfgfile, svc,svc->service_check_timeout, svc->srv->web_hooks, NULL);	
 				}
 			}
 			if(svc->srv->web_hooks_level == 2) {
 				if(do_log == 1) {
 					//ONLY SOFT
-					bartlby_call_webhooks(cfgfile, svc,0);
+					bartlby_call_webhooks(cfgfile, svc,svc->service_check_timeout, svc->srv->web_hooks, NULL);
 				}
 			}
 

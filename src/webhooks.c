@@ -25,16 +25,16 @@ $Author$
 
 #include <bartlby.h>
 
-void bartlby_call_single_webhook(char * cfg,char * endpoint,  struct service * svc) {
-	json_object * jso_out, *jso_in, *jso_hook_status;
+void bartlby_call_single_webhook(char * cfg,char * endpoint,  json_object * jso_out, int timeout) {
+	json_object * jso_in, *jso_hook_status;
 	const char * json_payload;
 	struct http_output * http_out;
 
 
-	jso_out = bartlby_service_to_json(svc);
+	
 	json_payload = json_object_to_json_string(jso_out);
 	
-	http_out=bartlby_http_post_request(endpoint, (char *)json_payload, svc->service_check_timeout); 
+	http_out=bartlby_http_post_request(endpoint, (char *)json_payload, timeout); 
 	
 	
 	if(http_out->curl_code == BARTLBY_HTTP_FINE) {
@@ -52,10 +52,10 @@ void bartlby_call_single_webhook(char * cfg,char * endpoint,  struct service * s
 		
 	}
 	bartlby_free_http_output(http_out);
-	json_object_put(jso_out);
+	
 }
 
-void bartlby_call_webhooks(char * cfg, struct service * svc, int hard) {
+void bartlby_call_webhooks(char * cfg, struct service * svc, int timeout, char * hook_in, json_object * additional_json) {
 	/*
 		hard:
 			0 = BOTH
@@ -68,25 +68,42 @@ void bartlby_call_webhooks(char * cfg, struct service * svc, int hard) {
 	char * url;
 	int x = 0;
 	char * work_hooks;
+	json_object * jso_out;
 	
 
-	if(strlen(svc->srv->web_hooks) < 3) return;
+	if(strlen(hook_in) < 3) return;
 
 
 
 
-  	work_hooks=strdup(svc->srv->web_hooks);
+  	work_hooks=strdup(hook_in);
 	
 	 while ((token = strsep (&work_hooks, "\n")) != NULL) {
 	 	url=strdup(token);
 	 	trim(url);
 	 	if(strlen(url) > 3) {
-	 		//_debug("CALL WEBHOOK (%d): '%s' ",x, url);
-			bartlby_call_single_webhook(cfg, url, svc);
+	 		jso_out = json_object_new_object();
+	 		if(svc != NULL) {
+	 			json_object_object_add(jso_out, "service",  bartlby_service_to_json(svc));
+	 		} 
+	 		if(additional_json != NULL) {
+	 			json_object_object_add(jso_out, "additional", additional_json);
+	 		}
+	 		json_object_object_add(jso_out, "webhook",  json_object_new_int64(1));
+
+	 		
+	 		
+	 		
+			bartlby_call_single_webhook(cfg, url, jso_out, timeout);
+
+			//if(additional_json == NULL) {
+			json_object_put(jso_out);	
+			//} 
 		}
       	x++;
       	free(url);
   	}
+  	
 	free(work_hooks);
 
 	
