@@ -33,9 +33,7 @@ void bartlby_call_single_webhook(char * cfg,char * endpoint,  json_object * jso_
 
 	
 	json_payload = json_object_to_json_string(jso_out);
-	
 	http_out=bartlby_http_post_request(endpoint, (char *)json_payload, timeout); 
-	
 	
 	if(http_out->curl_code == BARTLBY_HTTP_FINE) {
 		
@@ -43,7 +41,7 @@ void bartlby_call_single_webhook(char * cfg,char * endpoint,  json_object * jso_
 		if(json_object_object_get_ex(jso_in, "hook_status", &jso_hook_status)) { 
 			_log(LH_MAIN, B_LOG_DEBUG, "Hook fired and status %ld", json_object_get_int64(jso_hook_status));
 		} else {
-			_log(LH_MAIN, B_LOG_DEBUG, "Hook fired without status code");
+			_log(LH_MAIN, B_LOG_DEBUG, "Hook fired without status code payload: %s - return payload", json_payload);
 		}
 		json_object_put(jso_in);
 	} else {
@@ -78,34 +76,33 @@ void bartlby_call_webhooks(char * cfg, struct service * svc, int timeout, char *
 
   	work_hooks=strdup(hook_in);
 	
+  	//BUILD A JSON OBJECT -  With Service + additional data
+  	jso_out = json_object_new_object();
+	json_object_object_add(jso_out, "webhook",  json_object_new_string("webhook"));
+	if(svc != NULL) {
+		json_object_object_add(jso_out, "service",  bartlby_service_to_json(svc));
+	} 
+	if(additional_json != NULL) {
+		json_object_object_add(jso_out, "additional", additional_json);
+	}
+	json_object_object_add(jso_out, "webhook",  json_object_new_int64(1));
+	//BUILD A JSON OBJECT -  With Service + additional data
+
+
+
 	 while ((token = strsep (&work_hooks, "\n")) != NULL) {
 	 	url=strdup(token);
 	 	trim(url);
+	 	
 	 	if(strlen(url) > 3) {
-	 		jso_out = json_object_new_object();
-	 		if(svc != NULL) {
-	 			json_object_object_add(jso_out, "service",  bartlby_service_to_json(svc));
-	 		} 
-	 		if(additional_json != NULL) {
-	 			json_object_object_add(jso_out, "additional", additional_json);
-	 		}
-	 		json_object_object_add(jso_out, "webhook",  json_object_new_int64(1));
-
-	 		
-	 		
-	 		
 			bartlby_call_single_webhook(cfg, url, jso_out, timeout);
-
-			//if(additional_json == NULL) {
-			json_object_put(jso_out);	
-			//} 
 		}
       	x++;
       	free(url);
   	}
   	
 	free(work_hooks);
-
+	json_object_put(jso_out);
 	
 
 }

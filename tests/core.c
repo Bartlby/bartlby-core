@@ -108,7 +108,7 @@ void test_notifications(void *data) {
 		for(x=0; x<NOTIFICATION_LOG_MAX; x++) {
 			if(hdr->notification_log[x].notification_valid != -1) {
 				fprintf(stderr, "%ld;%ld;%d;%d\n", hdr->notification_log[x].worker_id, hdr->notification_log[x].trigger_id,hdr->notification_log[x].type, hdr->notification_log[x].aggregated);
-				hdr->notification_log[x].notification_valid=-1;
+				//hdr->notification_log[x].notification_valid=-1;
 			}
 		}
 	
