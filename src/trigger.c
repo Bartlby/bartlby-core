@@ -27,7 +27,7 @@ $Author$
 #define FL 0
 #define TR 1
 
-#define TRIGGER_DEBUG
+//#define TRIGGER_DEBUG
 //#define TRIGGER_DEBUG_LOG
 
 #ifdef TRIGGER_DEBUG
@@ -378,7 +378,7 @@ int bartlby_trigger_escalation(struct worker *w, struct service * svc, int stand
 }
 
 int bartlby_trigger_enabled(struct service *svc) {
-	
+	if(svc == NULL) return TR;
 	if(sched_servergroup_notify(svc->srv) == 0) {
 		_log(LH_TRIGGER, B_LOG_DEBUG,"@NOT-EXT@%ld|%d|%d|||%s:%d/%s|'(Notifications disabled on this servergroup)'", svc->service_id, svc->last_state ,svc->current_state, svc->srv->server_name, svc->srv->client_port, svc->service_name);
 		return FL;
@@ -677,9 +677,11 @@ void bartlby_trigger( struct service * svc,
 
 
 	trigger_debug("##SITUATION: %d/%d\n", do_check, type_of_notification);
-	if(svc != NULL && svc->handled == SERVICE_HANDLED) {
-		trigger_debug("\t--SERVICE_HANDLED SKIP NOTIFICATION\n");
-		return;
+	if(svc != NULL) {
+		if(svc->handled == SERVICE_HANDLED) {
+			trigger_debug("\t--SERVICE_HANDLED SKIP NOTIFICATION\n");
+			return;
+		}
 	}
 
 

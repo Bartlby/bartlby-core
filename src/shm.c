@@ -78,6 +78,7 @@ void bartlby_SHM_link_services_servers(void * shm_addr, char * cfgfile, void * S
 				
 				svcmap[x].srv=&srvmap[y];
 				svcmap[x].srv_place=y;
+				/* coverity[dont_call] */
 				svcmap[x].check_interval_original += 1+(int) (500.0*rand()/(RAND_MAX+1.0));
 				
 			

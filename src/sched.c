@@ -247,6 +247,7 @@ void sched_kill_runaaway(void * shm_addr, struct service *  svc, char * cfg, voi
 	svc->current_state=STATE_CRITICAL;
 	
 	//on failure re-calc a new interval
+	/* coverity[dont_call] */
 	rnd_intv=1+(rand() % 10);
 	svc->check_interval_original += rnd_intv;
 	_log(LH_SCHED, B_LOG_DEBUG,"bumped intervall: %d", rnd_intv);

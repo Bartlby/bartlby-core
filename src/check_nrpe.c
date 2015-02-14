@@ -679,6 +679,7 @@ void randomize_buffer(char *buffer, int buffer_size)
 
 	srand(seed);
 	for (x = 0; x < buffer_size; x++) {
+		/* coverity[dont_call] */
 		buffer[x] = (int)'0' + (int)(72.0 * rand() / (RAND_MAX + 1.0));
 	}
 

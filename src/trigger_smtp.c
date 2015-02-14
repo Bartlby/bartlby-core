@@ -80,13 +80,11 @@ void bartlby_trigger_smtp(char *cfgfile, struct service *svc, struct worker *wrk
 	}
 	fprintf(stderr,"SMTP OPTIONS: %s", json_object_to_json_string(smtp_options));
 
-	json_object_object_get_ex(smtp_options, "from", &tmp_options[3]);
-	if (!tmp_options[3]) {
+	if(!json_object_object_get_ex(smtp_options, "from", &tmp_options[3])) {
 		_debug("SMTP FROM not set");
 		return;
 	}
-	json_object_object_get_ex(smtp_options, "url", &tmp_options[2]);
-	if (!tmp_options[2]) {
+	if(!json_object_object_get_ex(smtp_options, "url", &tmp_options[2])) {
 		_debug("SMTP url not set error out");
 		return;
 	}
@@ -158,6 +156,8 @@ void bartlby_trigger_smtp(char *cfgfile, struct service *svc, struct worker *wrk
 		curl_easy_setopt(curl, CURLOPT_MAIL_RCPT, recipients);
 
 		curl_easy_setopt(curl, CURLOPT_READFUNCTION, payload_source);
+		//Hint for coverity
+		/* coverity[bad_sizeof] */
 		curl_easy_setopt(curl, CURLOPT_READDATA, &upload_ctx);
 		curl_easy_setopt(curl, CURLOPT_UPLOAD, 1L);
 
