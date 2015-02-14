@@ -93,7 +93,7 @@ void test_notifications(void *data) {
 		dummy_server.server_notify = 1;
 		dummy_service.notify_super_users=1;
 		dummy_service.service_id=4;
-		bartlby_trigger( &dummy_service, CONFIG, bartlby_address, 0, NOTIFICATION_TYPE_SIRENE, NULL, NULL, "SIRENE");
+		bartlby_trigger( NULL, CONFIG, bartlby_address, 0, NOTIFICATION_TYPE_SIRENE, NULL, NULL, "SIRENE");
 		bartlby_trigger( &dummy_service, CONFIG, bartlby_address, 1, NOTIFICATION_TYPE_NORMAL,NULL, NULL, NULL);
 		bartlby_trigger( &dummy_service, CONFIG, bartlby_address, 1, NOTIFICATION_TYPE_ESCALATION,NULL, NULL, NULL);
 		bartlby_trigger( &dummy_service, CONFIG, bartlby_address, 1, NOTIFICATION_TYPE_RENOTIFY,NULL, NULL, NULL);

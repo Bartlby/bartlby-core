@@ -27,7 +27,7 @@ $Author$
 #define FL 0
 #define TR 1
 
-//#define TRIGGER_DEBUG
+#define TRIGGER_DEBUG
 //#define TRIGGER_DEBUG_LOG
 
 #ifdef TRIGGER_DEBUG
@@ -101,6 +101,9 @@ void bartlby_trigger_wrap(char * cfgfile, struct service * svc, struct worker * 
 		break;	
 		case TRIGGER_TYPE_WEBHOOKS:
 			bartlby_trigger_webhooks(cfgfile,svc,wrk,trig,prebuilt_message);
+		break;
+		case TRIGGER_TYPE_SMTP:
+			bartlby_trigger_smtp(cfgfile,svc,wrk,trig,prebuilt_message);
 		break;
 		default:
 			_debug("Trigger type: %d is unkown -> Name: %s, ID:%ld", trig->trigger_type, trig->trigger_name, trig->trigger_id);

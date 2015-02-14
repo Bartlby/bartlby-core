@@ -120,7 +120,9 @@ int service_is_in_time(const char * time_plan) {
 	struct tm fromcheck, tocheck = {0};       
 	int fromts, tots;
 	char in_or_out;
-	
+	char * otmp;
+	char * otmp1;
+
 	int min,hour, min1,hour1;
 	int cur_ts;
 	
@@ -137,6 +139,8 @@ int service_is_in_time(const char * time_plan) {
 	tmnow = localtime(&tnow);
 	
 	tmp = strdup(time_plan);
+	otmp = tmp;
+
 	token = strtok(tmp, "|");
 	while(token != NULL) {
 		sprintf(idx, "%c", *token);
@@ -152,6 +156,7 @@ int service_is_in_time(const char * time_plan) {
 			ttok = token+2;
 			//now check threw the timeranges
 			tmp1 = strdup(ttok);
+			otmp1=tmp1;
 			token1=strtok(tmp1, ",");
 			while(token1 != NULL) {
 				if(sscanf(token1, "%d:%d-%d:%d", &hour,&min, &hour1, &min1) == 4) {
@@ -198,7 +203,7 @@ int service_is_in_time(const char * time_plan) {
 				token1 = strtok(NULL, ",");	
 			}
 			
-			free(tmp1);
+			free(otmp1);
 			
 			
 		}
@@ -213,7 +218,7 @@ int service_is_in_time(const char * time_plan) {
 		
 	}
 	
-	free(tmp);	
+	free(otmp);	
 	
 	
 	return rt;	

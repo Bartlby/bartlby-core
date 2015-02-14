@@ -531,6 +531,7 @@ trigger
 void bartlby_call_single_webhook(char * cfg,char * endpoint,  json_object * jso_out, int timeout);
 void bartlby_trigger_local(char * cfgfile, struct service *svc, struct worker *wrk, struct trigger *trig, char *msg);
 void bartlby_trigger_webhooks(char * cfgfile, struct service *svc, struct worker *wrk, struct trigger *trig, char *msg);
+void bartlby_trigger_smtp(char * cfgfile, struct service *svc, struct worker *wrk, struct trigger *trig, char *msg);
 
 /*
 PORTIER
