@@ -685,7 +685,7 @@ void bartlby_trigger( struct service * svc,
 	}
 
 
-	if(do_check == 1) {
+	if(do_check == 1 && svc != NULL) {
 		if(bartlby_trigger_enabled(svc) == FL) {
 			trigger_debug("\t-- SKIP - do check\n");
 			return;	
@@ -708,7 +708,7 @@ void bartlby_trigger( struct service * svc,
 		
 		CHECKED_ASPRINTF(&find_trigger, "|%ld|" , triggermap[x].trigger_id);
 		
-		if(do_check == 1) {
+		if(do_check == 1 && svc != NULL) {
 			if(bartlby_servergroup_has_trigger(svc->srv, find_trigger) != 1) {
 				free(find_trigger);
 				trigger_debug("\t-- SERVERGROUP MISSING TRIGGER\n");
@@ -728,7 +728,7 @@ void bartlby_trigger( struct service * svc,
 		}			
 
 		
-		if(upstream_enabled == 1 && upstream_has_local_users == 0) {
+		if(upstream_enabled == 1 && upstream_has_local_users == 0 && svc != NULL) {
 				_debug("@UPSTREAM-NOT-TOP@ - TRIGGER: %s  local_users: %d  type_of_notification:%d", triggermap[x].trigger_name,  upstream_has_local_users, type_of_notification);
 				svc->last_notify_send=time(NULL);
 				svc->srv->last_notify_send=time(NULL);
