@@ -27,7 +27,7 @@ $Author$
 #define FL 0
 #define TR 1
 
-#define TRIGGER_DEBUG
+//#define TRIGGER_DEBUG
 //#define TRIGGER_DEBUG_LOG
 
 #ifdef TRIGGER_DEBUG
@@ -42,7 +42,7 @@ $Author$
 
 
 void bartlby_trigger_setup_env(struct service * svc, struct worker * wrk) {
-
+	//FIXME - potential error: svc->srv maybe unset (during portier call)
 	char * current_state;
 	char * svc_id;
 	char * srv_id;
@@ -685,10 +685,12 @@ void bartlby_trigger( struct service * svc,
 			trigger_debug("\t--SERVICE_HANDLED SKIP NOTIFICATION\n");
 			return;
 		}
-		if(bartlby_trigger_script(svc, svc->script) < 0) {
-			trigger_debug("\t-- LUA Script canceld notification\n");
-			return;
+		if(svc->script_enabled == 1 && strlen(svc->script) > 3) {
+			if(bartlby_trigger_script(svc, svc->script) < 0) {
+				trigger_debug("\t-- LUA Script canceld notification\n");
+				return;
 
+			}
 		}
 	}
 
@@ -737,6 +739,7 @@ void bartlby_trigger( struct service * svc,
 
 		
 		if(upstream_enabled == 1 && upstream_has_local_users == 0 && svc != NULL) {
+				//FIXME - maybe svc->srv points to nothing (portier call)
 				_debug("@UPSTREAM-NOT-TOP@ - TRIGGER: %s  local_users: %d  type_of_notification:%d", triggermap[x].trigger_name,  upstream_has_local_users, type_of_notification);
 				svc->last_notify_send=time(NULL);
 				svc->srv->last_notify_send=time(NULL);
