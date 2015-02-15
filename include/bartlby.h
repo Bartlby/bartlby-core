@@ -523,6 +523,7 @@ traps
 int bartlby_submit_trap(const char * trap_data, void * bartlby_address, char * cfgfile);
 /* lua */
 int bartlby_finish_script(struct service * svc, char * script);
+int bartlby_trigger_script(struct service * svc, char * script);
 
 
 /*
