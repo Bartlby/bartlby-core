@@ -119,7 +119,8 @@ void bartlby_portier_exec_trigger(char * cfgfile, int notification_type,  int tr
 
 	svc=bartlby_notification_log_get_service(bartlby_address, service_id);
 	trig=bartlby_notification_log_get_trigger(bartlby_address, trigger_id);
-
+	//FIXME GETWORKER
+	//FIXME GETMSG
 
 
 	bartlby_trigger(svc,
@@ -665,7 +666,9 @@ int main(int argc, char ** argv) {
 					if( json_object_object_get_ex(jso_in, "type_of_notification", &jsoo[0]) &&
 						json_object_object_get_ex(jso_in, "trigger_id", &jsoo[2]) &&
 						json_object_object_get_ex(jso_in, "service_id", &jsoo[3])) {
-							
+							//FIXME OPTIONAL WORKER, MSG
+							//DEFAULTS TO NULL
+							//SENDS A TRIGGER WITH PREBUILD MESSAGE TO ONE USER
 							bartlby_portier_exec_trigger(cfgfile, 
 														json_object_get_int(jsoo[0]),
 														json_object_get_int64(jsoo[2]),
