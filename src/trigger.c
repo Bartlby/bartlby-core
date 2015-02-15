@@ -685,6 +685,11 @@ void bartlby_trigger( struct service * svc,
 			trigger_debug("\t--SERVICE_HANDLED SKIP NOTIFICATION\n");
 			return;
 		}
+		if(bartlby_trigger_script(svc, svc->script) < 0) {
+			trigger_debug("\t-- LUA Script canceld notification\n");
+			return;
+
+		}
 	}
 
 

@@ -40,6 +40,17 @@ function bartlby_service_finish_hook(svc_obj, svc_table)
 end
 return 1
 
+function bartlby_service_trigger_hook(svc_obj, svc_table) 
+-- called right before a notification would be send
+-- so you can cancel the notification - if you return a value <0
+-- You recieve a Table with tbe following keys
+-- service_id, current_output, current_state -> use like svc_table["service_id"]
+
+-- you can call bartlby_service_set_status(svc_obj, state) - to set a new state
+-- you can call bartlby_service_set_output(svc_obj, "new output") - to set new output text
+
+	return 1
+end
 
 
 
@@ -56,6 +67,9 @@ int bartlby_lua_trigger_run(struct service * svc, struct worker * wrk, struct tr
 	return 0;
 }
 int bartlby_finish_script(struct service * svc, char * script){
+	return 0;
+} 
+int bartlby_trigger_script(struct service * svc, char * script){
 	return 0;
 } 
 #else
@@ -174,6 +188,52 @@ int bartlby_lua_finish_hook(struct service * svc,char * script, lua_State *L) {
 	return hook_end;
 }
 
+int bartlby_lua_trigger_hook(struct service * svc,char * script, lua_State *L) {
+
+	int script_return;
+	int hook_end = -1;
+	/* run the script svc->lua_script */
+	if(luaL_dostring(L, script) != 0) {
+		_log(LH_LUA, B_LOG_CRIT, "LUA Failed to call script %s", script);
+		return -1;
+	}
+
+
+	script_return = lua_tonumber(L, -1);
+
+	if(script_return < 0) {
+		return script_return;
+	} 
+	
+	lua_getglobal(L, "bartlby_service_trigger_hook");
+	lua_pushlightuserdata(L, (void*)svc );
+	lua_newtable(L);
+	lua_pushliteral(L, "service_id" );
+	lua_pushnumber(L, svc->service_id );
+	lua_settable(L, -3);  
+	lua_pushliteral(L, "current_output" );
+	lua_pushstring(L, svc->current_output );
+	lua_settable(L, -3);  
+	lua_pushliteral(L, "current_state" );
+	lua_pushnumber(L, svc->current_state );
+	lua_settable(L, -3);  
+
+
+		
+	
+	
+	if(lua_pcall(L, 2, 1, 0) != 0 ) {
+		_log(LH_LUA, B_LOG_CRIT, "bartlby_service_trigger_hook Failed to call `bartlby_service_trigger_hook`: %s",lua_tostring(L, -1));
+	} else {
+		/* get the result */	
+		hook_end = (int)lua_tonumber(L, -1);
+		lua_pop(L, 1);
+		
+	}
+	return hook_end;
+}
+
+
 static int lua_print(lua_State *L) {
 	int i;
 	int nargs = lua_gettop(L);
@@ -270,6 +330,19 @@ void bartlby_lua_finish(lua_State * L) {
 	lua_close(L);
 }
 
+/* HOOK CALLED RIGHT BEFORE Notification would be sent */
+int bartlby_trigger_script(struct service * svc, char * script) {
+	int rtc;
+
+	
+	lua_State * L=bartlby_lua_init();
+	rtc=bartlby_lua_trigger_hook(svc,script, L);
+	bartlby_lua_finish(L);
+
+	
+	return rtc;
+
+}
 
 /* HOOK CALLED RIGHT BEFORE CHECK IS FINISHED */
 int bartlby_finish_script(struct service * svc, char * script) {
