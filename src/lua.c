@@ -52,10 +52,83 @@ return 1
 
 
 #ifndef LUA_ADDON
+int bartlby_lua_trigger_run(struct service * svc, struct worker * wrk, struct trigger * trig, char * script) {
+	return 0;
+}
 int bartlby_finish_script(struct service * svc, char * script){
 	return 0;
 } 
 #else
+int bartlby_lua_trigger(struct service * svc, struct worker * wrk, struct trigger * trig, char * script,char * msg, lua_State *L) {
+	int script_return;
+	int hook_end = -1;
+	/* run the script svc->lua_script */
+	if(luaL_dostring(L, script) != 0) {
+		_log(LH_LUA, B_LOG_CRIT, "bartlby_trigger LUA Failed to call script %s", script);
+		return -1;
+	}
+
+
+	script_return = lua_tonumber(L, -1);
+
+	if(script_return < 0) {
+		return script_return;
+	} 
+	
+	lua_getglobal(L, "bartlby_trigger");
+	
+
+	lua_newtable(L);
+	lua_pushliteral(L, "worker_name" );
+	lua_pushstring(L, wrk->name );
+	lua_settable(L, -3);  
+	lua_pushliteral(L, "worker_mail" );
+	lua_pushstring(L, wrk->mail );
+	lua_settable(L, -3);  
+	lua_pushliteral(L, "worker_id" );
+	lua_pushnumber(L, wrk->worker_id );
+	lua_settable(L, -3);  
+
+	lua_newtable(L);
+	if(svc != NULL) {
+		lua_pushliteral(L, "service_id" );
+		lua_pushnumber(L, svc->service_id );
+		lua_settable(L, -3);  
+		lua_pushliteral(L, "service_name" );
+		lua_pushstring(L, svc->service_name );
+		lua_settable(L, -3);  
+		lua_pushliteral(L, "server_name" );
+		lua_pushstring(L, svc->srv->server_name );
+		lua_settable(L, -3);  
+
+		lua_pushliteral(L, "current_output" );
+		lua_pushstring(L, svc->current_output );
+		lua_settable(L, -3);  
+		lua_pushliteral(L, "last_state" );
+		lua_pushnumber(L, svc->last_state );
+		lua_settable(L, -3);  
+		
+		lua_pushliteral(L, "current_state" );
+		lua_pushnumber(L, svc->current_state );
+		lua_settable(L, -3);  
+
+	}
+
+	lua_pushstring(L, msg );
+
+	//call bartlby_trigger(wrk_table,svc_table, msg)
+	
+	if(lua_pcall(L, 3, 1, 0) != 0 ) {
+		_log(LH_LUA, B_LOG_CRIT, "LUA Failed to call `bartlby_trigger`: %s",lua_tostring(L, -1));
+	} else {
+		/* get the result */	
+		hook_end = (int)lua_tonumber(L, -1);
+		lua_pop(L, 1);
+		_log(LH_LUA, B_LOG_DEBUG, "bartlby_trigger Ended with: %d",hook_end);
+	}
+	return hook_end;
+
+}
 int bartlby_lua_finish_hook(struct service * svc,char * script, lua_State *L) {
 
 	int script_return;
@@ -195,9 +268,10 @@ lua_State * bartlby_lua_init() {
 
 void bartlby_lua_finish(lua_State * L) {
 	lua_close(L);
-
 }
 
+
+/* HOOK CALLED RIGHT BEFORE CHECK IS FINISHED */
 int bartlby_finish_script(struct service * svc, char * script) {
 	int rtc;
 
@@ -212,5 +286,24 @@ int bartlby_finish_script(struct service * svc, char * script) {
 	return rtc;
 
 }
+
+/* CALLED from triggers.c -> a trigger in pure lua */
+
+int bartlby_lua_trigger_run(struct service * svc, struct worker * wrk, struct trigger * trig, char * script, char * msg) {
+	int rtc;
+
+	
+	//_log(LH_LUA, B_LOG_DEBUG, "Start LUA Script (trigger) from %s/%s (%ld)", svc->srv->server_name, svc->service_name, svc->service_id);
+	lua_State * L=bartlby_lua_init();
+	rtc=bartlby_lua_trigger(svc,wrk, trig, script,msg,  L);
+	bartlby_lua_finish(L);
+
+	//_log(LH_LUA, B_LOG_DEBUG, "End LUA Script from (trigger) %s/%s (%ld)", svc->srv->server_name, svc->service_name, svc->service_id);
+
+	return rtc;
+
+}
+
+
 
 #endif

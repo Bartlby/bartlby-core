@@ -2,5 +2,5 @@ all:
 	gcc -g -O0 -I/usr/include/json -l json  -o json_sample json_sample.c
 	gcc -g -O0 -I/usr/include/lua5.2/ -llua5.2 -o lua_sample lua_sample.c
 	gcc -O0 -g  -I/usr/local/include/luajit-2.0/ -lluajit-5.1 -o luajit_sample lua_sample.c
-	gcc -O0 -g  -I/usr/local/include -I/usr/include/json -ljson -lcurl -o smtp_sample smtp_sample.c
+	
 
