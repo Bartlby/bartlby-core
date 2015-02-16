@@ -116,6 +116,8 @@ void bartlby_portier_exec_trigger(char * cfgfile, int notification_type,  int tr
 	struct trigger * trig;
 	struct service * svc;
 	struct worker * wrk;
+	struct service * svc_p;
+
 
 	svc=bartlby_notification_log_get_service(bartlby_address, service_id);
 	trig=bartlby_notification_log_get_trigger(bartlby_address, trigger_id);
@@ -129,10 +131,13 @@ void bartlby_portier_exec_trigger(char * cfgfile, int notification_type,  int tr
 		memcpy(&svc_copy, svc, sizeof(struct service));
 		memcpy(&srv_copy, &srvmap[svc->srv_place], sizeof(struct server));
 		svc_copy.srv = &srv_copy;
+		svc_p = &svc_copy;
+	} else {
+		svc_p=NULL;
 	}
 
 
-	bartlby_trigger(&svc_copy,
+	bartlby_trigger(svc_p,
 						  cfgfile,
 						  bartlby_address,
 						  0,
