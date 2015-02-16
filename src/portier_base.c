@@ -393,6 +393,7 @@ int bartlby_portier_send_trigger(char * passive_host, int passive_port, int type
 			json_object_object_add(jso_out, "type_of_notification", json_object_new_int(type_of_notification));
 			json_object_object_add(jso_out, "trigger_id", json_object_new_int64(trig->trigger_id));
 			json_object_object_add(jso_out, "service_id", json_object_new_int64(svc->service_id));
+			json_object_object_add(jso_out, "worker_id", json_object_new_int64(-1));
 			
 			bartlby_portier_send_no_result(jso_out, client_socket, do_spool);
 

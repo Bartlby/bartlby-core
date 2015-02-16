@@ -410,7 +410,7 @@ struct trigger *  bartlby_notification_log_get_trigger(void * bartlby_address, l
 	return NULL;
 }
 
-struct worker *  bartlby_notification_log_get_worker(void * bartlby_address, int worker_id) {
+struct worker *  bartlby_notification_log_get_worker(void * bartlby_address, long worker_id) {
 	int x;
 	struct worker * wrkmap;
 	struct shm_header *shmhdr;

@@ -67,7 +67,7 @@ void bartlby_portier_submit_passive_result(long service_id, int status, const ch
 void bartlby_portier_find_server_id(const char * server_name);
 void bartlby_portier_find_services(long server_id);
 void bartlby_portier_get_plugin_info(long service_id);
-void bartlby_portier_exec_trigger(char * cfgfile, int notification_type,  int trigger_id, int service_id);
+void bartlby_portier_exec_trigger(char * cfgfile, int notification_type,  int trigger_id, int service_id, int worker_id, const char * msg);
 
 
 void bartlby_portier_set_svc_state(long service_id, char * service_text, long current_state,long last_notify_send,long last_state_change,long service_ack_current,long service_retain_current,long handled, long last_check);
@@ -104,7 +104,7 @@ void bartlby_portier_log_line(char * cfgfile, const char * log_line, long time_s
 
 
 
-void bartlby_portier_exec_trigger(char * cfgfile, int notification_type,  int trigger_id, int service_id) {
+void bartlby_portier_exec_trigger(char * cfgfile, int notification_type,  int trigger_id, int service_id, int worker_id, const char * msg) {
 
 	
 	
@@ -115,32 +115,44 @@ void bartlby_portier_exec_trigger(char * cfgfile, int notification_type,  int tr
 
 	struct trigger * trig;
 	struct service * svc;
-
+	struct worker * wrk;
 
 	svc=bartlby_notification_log_get_service(bartlby_address, service_id);
 	trig=bartlby_notification_log_get_trigger(bartlby_address, trigger_id);
-	//FIXME GETWORKER
-	//FIXME GETMSG
+	wrk=bartlby_notification_log_get_worker(bartlby_address, worker_id);
+	
+
+	struct service svc_copy;
+	struct server srv_copy;
+
+	if(svc != NULL) {
+		memcpy(&svc_copy, svc, sizeof(struct service));
+		memcpy(&srv_copy, &srvmap[svc->srv_place], sizeof(struct server));
+		svc_copy.srv = &srv_copy;
+	}
 
 
-	bartlby_trigger(svc,
+	bartlby_trigger(&svc_copy,
 						  cfgfile,
 						  bartlby_address,
 						  0,
 						  notification_type,
-						  NULL,
+						  wrk,
 						  trig,
-						  NULL
+						  (char*)msg
 						  ); 
 
 
 
+	
 
 
 	jso = json_object_new_object();
 	json_object_object_add(jso,"error_code", json_object_new_int(0));
 	json_object_object_add(jso,"trigger", json_object_new_int64(trigger_id));
-	
+	if(svc != NULL) {
+		json_object_object_add(jso,"svc", bartlby_service_to_json(&svc_copy));
+	}
 	printf("%s\n", json_object_to_json_string(jso));
 
 	json_object_put(jso);
@@ -665,14 +677,20 @@ int main(int argc, char ** argv) {
 				 if(strcmp(json_object_get_string(jso_method), "exec_trigger") == 0) {
 					if( json_object_object_get_ex(jso_in, "type_of_notification", &jsoo[0]) &&
 						json_object_object_get_ex(jso_in, "trigger_id", &jsoo[2]) &&
-						json_object_object_get_ex(jso_in, "service_id", &jsoo[3])) {
-							//FIXME OPTIONAL WORKER, MSG
-							//DEFAULTS TO NULL
-							//SENDS A TRIGGER WITH PREBUILD MESSAGE TO ONE USER
+						json_object_object_get_ex(jso_in, "service_id", &jsoo[3]) &&
+						json_object_object_get_ex(jso_in, "worker_id", &jsoo[4])) {
+
+							const char * msg = NULL;
+							if(json_object_object_get_ex(jso_in, "message", &jsoo[5])) {
+								msg = json_object_get_string(jsoo[5]);
+							}	
+							
 							bartlby_portier_exec_trigger(cfgfile, 
 														json_object_get_int(jsoo[0]),
 														json_object_get_int64(jsoo[2]),
-														json_object_get_int64(jsoo[3])
+														json_object_get_int64(jsoo[3]),
+														json_object_get_int64(jsoo[4]),
+														msg
 														);
 			
 							PORTIER_CLEANUP;

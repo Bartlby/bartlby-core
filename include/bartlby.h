@@ -515,6 +515,7 @@ int bartlby_trigger_per_worker(char * cfgfile,
 
 struct service *  bartlby_notification_log_get_service(void * bartlby_address, long service_id);
 struct trigger *  bartlby_notification_log_get_trigger(void * bartlby_address, long trigger_id);
+struct worker *  bartlby_notification_log_get_worker(void * bartlby_address, long worker_id);
 
 
 /*
