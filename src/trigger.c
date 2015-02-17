@@ -23,7 +23,7 @@ $Author$
 
 #include <bartlby.h>
 
-#define DEFAULT_NOTIFY_MSG "State Change ($READABLE_STATE$)\\n*********** $PROGNAME$ $VERSION$ ********************\\n[  Server: $SERVER$, Service: $SERVICE$, State: $READABLE_STATE$]\\n%$MESSAGE$"
+#define DEFAULT_NOTIFY_MSG "State Change ($READABLE_STATE$)\n*********** $PROGNAME$ $VERSION$ ********************\n[  Server: $SERVER$, Service: $SERVICE$, State: $READABLE_STATE$]\n$MESSAGE$"
 #define FL 0
 #define TR 1
 
@@ -81,19 +81,40 @@ void bartlby_trigger_setup_env(struct service * svc, struct worker * wrk) {
 
 
 }
-char * bartlby_trigger_get_message(struct service * svc, struct worker * wrk, struct trigger * trig) {
-	return strdup("DEFAULT MSG");
+char * bartlby_trigger_get_message(char * cfgfile, struct service * svc, struct worker * wrk, struct trigger * trig) {
+	char * cfg_trigger_msg;
+	char * notify_msg;
+
+	if(svc == NULL) return strdup("SVC EMPTY");
+	cfg_trigger_msg=getConfigValue("trigger_msg", cfgfile);
+
+	if(cfg_trigger_msg == NULL) {
+		cfg_trigger_msg=strdup(DEFAULT_NOTIFY_MSG);	
+	}
+
+
+	notify_msg=malloc(2048);
+	snprintf(notify_msg,1024, "%s", cfg_trigger_msg);
+	bartlby_replace_svc_in_str(notify_msg, svc, 2047);
+	
+	
+	
+	free(cfg_trigger_msg);
+
+	trigger_debug("%s\n", notify_msg);
+
+	return notify_msg;
 }
 
 void bartlby_trigger_wrap(char * cfgfile, struct service * svc, struct worker * wrk, struct trigger * trig, char * prebuilt_message) {
 
 	int has_to_free_message = 0;
 	if(prebuilt_message == NULL) {
-		prebuilt_message=bartlby_trigger_get_message(svc, wrk, trig);
+		prebuilt_message=bartlby_trigger_get_message(cfgfile, svc, wrk, trig);
 		has_to_free_message=1;
 	}
 	if(svc != NULL) bartlby_trigger_setup_env(svc, wrk);
-
+	trigger_debug("MSG: %s", prebuilt_message);
 	switch(trig->trigger_type) {
 		case TRIGGER_TYPE_LOCAL:
 			bartlby_trigger_local(cfgfile, svc, wrk, trig, prebuilt_message);
@@ -641,7 +662,7 @@ void bartlby_trigger( struct service * svc,
 	char * cfg_upstream_enabled;
 	char * cfg_upstream_has_local_users;
 	
-
+	int lua_return;
 	int upstream_enabled;
 	int upstream_has_local_users;
 	
@@ -684,11 +705,17 @@ void bartlby_trigger( struct service * svc,
 			trigger_debug("\t--SERVICE_HANDLED SKIP NOTIFICATION\n");
 			return;
 		}
+		lua_return=0;
 		if(svc->script_enabled == 1 && strlen(svc->script) > 3) {
-			if(bartlby_trigger_script(svc, svc->script) < 0) {
+			lua_return=bartlby_trigger_script(svc, svc->script);
+			if(lua_return == -1) {
 				trigger_debug("\t-- LUA Script canceld notification\n");
 				return;
 
+			}
+			if(lua_return == -2) {
+				//Passthrough this trigger msg
+				type_of_notification=NOTIFICATION_TYPE_AGGREGATE;
 			}
 		}
 	}
