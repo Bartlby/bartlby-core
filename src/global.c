@@ -438,7 +438,7 @@ void bartlby_replace_svc_in_str(char * str, struct service * svc, int max) {
 	char * human_state, * human_state_last;
 	char * server_id, * service_id;
 	char * last_state_change;
-	
+	char line_break[5] = "\n";
 	
 	
 	CHECKED_ASPRINTF(&last_state_change, "%d", svc->last_state_change);
@@ -448,7 +448,7 @@ void bartlby_replace_svc_in_str(char * str, struct service * svc, int max) {
 	human_state=bartlby_beauty_state(svc->current_state);
 	human_state_last=bartlby_beauty_state(svc->last_state);
 	
-	
+	str_replace(str,"\\n", line_break, max);
 	str_replace(str,"$READABLE_STATE$", human_state, max); 
 	str_replace(str,"$READABLE_LAST$", human_state_last, max); 
 	str_replace(str,"$PROGNAME$", PROGNAME, max); 
