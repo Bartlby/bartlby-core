@@ -141,7 +141,7 @@ void bartlby_trigger_smtp(char *cfgfile, struct service *svc, struct worker *wrk
 		}
 
 		if(json_object_object_get_ex(smtp_options, "timeout", &tmp_options[4])) {
-			curl_easy_setopt(curl, CURLOPT_TIMEOUT, json_object_get_int64(tmp_options[4]));
+			curl_easy_setopt(curl, CURLOPT_TIMEOUT, (long)json_object_get_int64(tmp_options[4]));
 		} else {
 			curl_easy_setopt(curl, CURLOPT_TIMEOUT, 10);
 		}

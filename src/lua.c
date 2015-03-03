@@ -63,7 +63,7 @@ end
 
 
 #ifndef LUA_ADDON
-int bartlby_lua_trigger_run(struct service * svc, struct worker * wrk, struct trigger * trig, char * script) {
+int bartlby_lua_trigger_run(struct service * svc, struct worker * wrk, struct trigger * trig, char * script, char * msg) {
 	return 0;
 }
 int bartlby_finish_script(struct service * svc, char * script){
