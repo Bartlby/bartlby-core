@@ -24,7 +24,7 @@ extern char * dlmsg;
 	struct worker dummy_worker = {
 		.name="unit-tester",
 		.mail="unit@test.com",
-		.icq="000000",
+		.mobilenr="000000",
 		.worker_id=999,
 		.active=0,
 		.notify_plan=" ",

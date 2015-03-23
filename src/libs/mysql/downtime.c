@@ -343,7 +343,7 @@ BARTLBY_SQL_PROTECTION_INIT;
             }
             
             if(row[4] != NULL) {
-              //svcs[i].icq=malloc(strlen(row[1])*sizeof(char)+2);
+              
               sprintf(svcs->downtime_notice, "%s", row[4]);
             } else {
               sprintf(svcs->downtime_notice, "(null)");             
@@ -456,7 +456,6 @@ BARTLBY_SQL_PROTECTION_INIT;
       			}
       			
       			if(row[4] != NULL) {
-      				//svcs[i].icq=malloc(strlen(row[1])*sizeof(char)+2);
       				sprintf(svcs[i].downtime_notice, "%s", row[4]);
       			} else {
       				sprintf(svcs[i].downtime_notice, "(null)");     				

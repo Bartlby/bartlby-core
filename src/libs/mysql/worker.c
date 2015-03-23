@@ -21,7 +21,7 @@
 
 
  #define WORKER_SELECTOR "select worker_mail, \
-                               worker_icq, \
+                               worker_mobilenr, \
                                visible_services, \
                                notify_levels, \
                                worker_active, \
@@ -47,7 +47,7 @@
 #define ADD_WORKER    "INSERT INTO workers \
                           ( \
                             worker_mail, \
-                            worker_icq, \
+                            worker_mobilenr, \
                             notify_levels, \
                             worker_active, \
                             worker_name, \
@@ -95,7 +95,7 @@
 #define UPDATE_WORKER "update workers \
                           set \
                             worker_mail='%s', \
-                            worker_icq='%s', \
+                            worker_mobilenr='%s', \
                             notify_levels='%s', \
                             worker_active=%d, \
                             worker_name='%s', \
@@ -120,7 +120,7 @@
 
 #define WORKER_SEL "select  \
                           worker_mail, \
-                          worker_icq, \
+                          worker_mobilenr, \
                           visible_services, \
                           notify_levels, \
                           worker_active, \
@@ -234,9 +234,9 @@ BARTLBY_SQL_PROTECTION_INIT;
       			sprintf(svc->mail, "(null)");
       		}
       		if(row[1] != NULL) {
-      			sprintf(svc->icq, "%s", row[1]);	
+      			sprintf(svc->mobilenr, "%s", row[1]);	
       		} else {
-      			sprintf(svc->icq, "(null)");	
+      			sprintf(svc->mobilenr, "(null)");	
       		}
       		if(row[2] != NULL) {
       			sprintf(svc->visible_services, "%s", row[2]);	
@@ -370,7 +370,7 @@ BARTLBY_SQL_PROTECTION_INIT;
 	
 	CHECKED_ASPRINTF(&sqlupd, UPDATE_WORKER, 
                                   BARTLBY_SQL_PROTECTION(svc->mail),
-                                  BARTLBY_SQL_PROTECTION(svc->icq),
+                                  BARTLBY_SQL_PROTECTION(svc->mobilenr),
                                   BARTLBY_SQL_PROTECTION(svc->notify_levels),
                                   svc->active,
                                   BARTLBY_SQL_PROTECTION(svc->name),
@@ -492,7 +492,7 @@ BARTLBY_SQL_PROTECTION_INIT;
 	
 	CHECKED_ASPRINTF(&sqlupd, ADD_WORKER,
                                   BARTLBY_SQL_PROTECTION(svc->mail),
-                                  BARTLBY_SQL_PROTECTION(svc->icq),
+                                  BARTLBY_SQL_PROTECTION(svc->mobilenr),
                                   BARTLBY_SQL_PROTECTION(svc->notify_levels),
                                   svc->active,
                                   BARTLBY_SQL_PROTECTION(svc->name),
@@ -597,10 +597,10 @@ BARTLBY_SQL_PROTECTION_INIT;
                         }	
       			
       			if(row[1] != NULL) {
-      				//svcs[i].icq=malloc(strlen(row[1])*sizeof(char)+2);
-      				sprintf(svcs[i].icq, "%s", row[1]);
+      				
+      				sprintf(svcs[i].mobilenr, "%s", row[1]);
       			} else {
-      				sprintf(svcs[i].icq, "(null)");     				
+      				sprintf(svcs[i].mobilenr, "(null)");     				
       			}
       			
       			
