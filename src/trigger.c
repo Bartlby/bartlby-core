@@ -68,6 +68,7 @@ void bartlby_trigger_setup_env(struct service * svc, struct worker * wrk) {
 
 	setenv("BARTLBY_TRIGGER_WRK_EMAIL", wrk->mail,1);
 	setenv("BARTLBY_TRIGGER_WRK_NAME", wrk->name,1);
+	setenv("BARTLBY_TRIGGER_WRK_MOBILENR", wrk->mobilenr,1);
 	
 
 	setenv("BARTLBY_TRIGGER_SVC_CURRENT_STATE_READABLE", human_state, 1);

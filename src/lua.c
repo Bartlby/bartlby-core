@@ -98,6 +98,11 @@ int bartlby_lua_trigger(struct service * svc, struct worker * wrk, struct trigge
 	lua_settable(L, -3);  
 	lua_pushliteral(L, "worker_mail" );
 	lua_pushstring(L, wrk->mail );
+
+	lua_settable(L, -3);  
+	lua_pushliteral(L, "mobilenr" );
+	lua_pushstring(L, wrk->mobilenr );
+
 	lua_settable(L, -3);  
 	lua_pushliteral(L, "worker_id" );
 	lua_pushnumber(L, wrk->worker_id );
