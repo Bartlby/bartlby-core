@@ -50,6 +50,7 @@
 #include <json.h>
 #include <regex.h>
 #include <curl/curl.h>
+#include <clib_buffer.h>
 
 
 
