@@ -7,7 +7,6 @@ make CFLAGS=-DCONFIG=\\\"$CFG_DIR/etc/bartlby.cfg\\\"
 EE=$?
 if [ $EE != 0 ];
 then
-	cat /home/travis/build/Bartlby/bartlby-core/cov-int/build-log.txt
 	echo "TEST COMPILE FAILED";
 	exit $EE;
 fi;
