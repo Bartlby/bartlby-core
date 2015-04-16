@@ -2,10 +2,11 @@ GIT_DESCR = $(shell sh -c 'git describe --abbrev=4 --always | sed s/^v//')
 GIT_VERSION = -D__GIT_VERSION=\"$(GIT_DESCR)\"
 AUTOMAKE_OPTIONS = subdir-objects 
 ACLOCAL_AMFLAGS = ${ACLOCAL_FLAGS}
+AM_CFLAGS=-I$(top_srcdir)/src/buffer/
 
 noinst_HEADERS = include/bartlby.h
 
-CORE_SOURCES=src/config.c src/global.c src/sched.c src/shm.c src/check.c src/trigger.c src/daemon.c src/replication.c src/perf.c src/downtime.c src/ack.c src/event.c src/check_snmp.c src/ src/ext.c src/orchestra.c src/check_active_v2.c src/check_active.c src/check_local.c src/check_group.c src/check_nrpe.c src/check_ssh.c src/notification_log.c src/portier_base.c src/compat.c src/http.c src/check_json.c src/webhooks.c src/json.c src/trap.c src/lua.c src/trigger_local.c src/trigger_webhooks.c src/trigger_smtp.c src/trigger_lua.c src/buffer/buffer.c
+CORE_SOURCES=src/config.c src/global.c src/sched.c src/shm.c src/check.c src/trigger.c src/daemon.c src/replication.c src/perf.c src/downtime.c src/ack.c src/event.c src/check_snmp.c src/ src/ext.c src/orchestra.c src/check_active_v2.c src/check_active.c src/check_local.c src/check_group.c src/check_nrpe.c src/check_ssh.c src/notification_log.c src/portier_base.c src/compat.c src/http.c src/check_json.c src/webhooks.c src/json.c src/trap.c src/lua.c src/trigger_local.c src/trigger_webhooks.c src/trigger_smtp.c src/trigger_lua.c src/buffer/clib_buffer.c
 
 
 
