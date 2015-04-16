@@ -1,7 +1,7 @@
 all: bartlby_test
 
 .c.o:
-	gcc -I../src/buffer/  -I../include/ -I/usr/include/curl -I/usr/include/json $(CFLAGS)    -g -c $<
+	gcc -I../src/deps/  -I../include/ -I/usr/include/curl -I/usr/include/json $(CFLAGS)    -g -c $<
 
 tinytest.o: tinytest.h
 

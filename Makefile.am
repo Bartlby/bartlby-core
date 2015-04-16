@@ -2,11 +2,12 @@ GIT_DESCR = $(shell sh -c 'git describe --abbrev=4 --always | sed s/^v//')
 GIT_VERSION = -D__GIT_VERSION=\"$(GIT_DESCR)\"
 AUTOMAKE_OPTIONS = subdir-objects 
 ACLOCAL_AMFLAGS = ${ACLOCAL_FLAGS}
-AM_CFLAGS=-I$(top_srcdir)/src/buffer/
+AM_CFLAGS=-Isrc/deps/
+CLIB_DEPS = src/deps/buffer/clib_buffer.c
 
 noinst_HEADERS = include/bartlby.h
 
-CORE_SOURCES=src/config.c src/global.c src/sched.c src/shm.c src/check.c src/trigger.c src/daemon.c src/replication.c src/perf.c src/downtime.c src/ack.c src/event.c src/check_snmp.c src/ src/ext.c src/orchestra.c src/check_active_v2.c src/check_active.c src/check_local.c src/check_group.c src/check_nrpe.c src/check_ssh.c src/notification_log.c src/portier_base.c src/compat.c src/http.c src/check_json.c src/webhooks.c src/json.c src/trap.c src/lua.c src/trigger_local.c src/trigger_webhooks.c src/trigger_smtp.c src/trigger_lua.c src/buffer/clib_buffer.c
+CORE_SOURCES=$(CLIB_DEPS) src/config.c src/global.c src/sched.c src/shm.c src/check.c src/trigger.c src/daemon.c src/replication.c src/perf.c src/downtime.c src/ack.c src/event.c src/check_snmp.c src/ src/ext.c src/orchestra.c src/check_active_v2.c src/check_active.c src/check_local.c src/check_group.c src/check_nrpe.c src/check_ssh.c src/notification_log.c src/portier_base.c src/compat.c src/http.c src/check_json.c src/webhooks.c src/json.c src/trap.c src/lua.c src/trigger_local.c src/trigger_webhooks.c src/trigger_smtp.c src/trigger_lua.c 
 
 
 
@@ -88,7 +89,6 @@ MAINTAINERCLEANFILES = Makefile.in aclocal.m4 compile \
             install-sh ltmain.sh missing \
             include/config.h.in include/config.h.in~ configure m4/libtool.m4 m4/ltoptions.m4 \
             m4/ltsugar.m4 m4/ltversion.m4 m4/lt~obsolete.m4
-
 
 test:
 	cd tests && $(MAKE)  all  && ./bartlby_test $(TEST_CASE)
