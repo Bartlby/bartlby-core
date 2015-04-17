@@ -425,6 +425,7 @@ struct worker *  bartlby_notification_log_get_worker(void * bartlby_address, lon
 	}
 	return NULL;
 }
+
 void bartlby_notification_log_aggregate(void * bartlby_address, struct shm_header *shmhdr, char * cfgfile) {
 	// Looop threw msg log starting from notification_log_current_top
 	// if aggregate <= 0 - do aggregation
@@ -466,8 +467,12 @@ void bartlby_notification_log_aggregate(void * bartlby_address, struct shm_heade
 	long othercount=0;
 
 	int still_broken_count=0;
+	int recovered_count=0;
 
 	struct service * csvc;
+
+	char * beauty_state;
+	char * beauty_state_old;
 	
 
 
@@ -542,7 +547,11 @@ void bartlby_notification_log_aggregate(void * bartlby_address, struct shm_heade
 					if(t->trigger_id != -1) {
 						//_log("\t Trigger: %s Count: %d", t->trigger_name, t->notification_count);
 						
+						clib_buffer_t * outgoing_message; //HOLDS THE OUTGOING MESSAGE
+						
 
+						outgoing_message = clib_buffer_new();
+						
 						//Send Aggregated Notification
 						wrkmap=bartlby_notification_log_get_worker(bartlby_address, current->worker_id);
 						trig=bartlby_notification_log_get_trigger(bartlby_address, t->trigger_id);
@@ -552,7 +561,12 @@ void bartlby_notification_log_aggregate(void * bartlby_address, struct shm_heade
 						warncount=0;
 						othercount=0;
 						//BUILD MSG:
-						sprintf(notify_msg, "%d Notifications happened in the aggregation window \n", t->notification_count);
+
+						
+						//CHECKED_ASPRINTF(&tmpstr, "%d Notifications happened in the aggregation window \n", t->notification_count);
+						//clib_buffer_append(outgoing_message, tmpstr);
+						//free(tmpstr);
+
 						s=t->service_list_head;
 						while(s != NULL) {
 							if(s->service_id != -1) {
@@ -565,11 +579,11 @@ void bartlby_notification_log_aggregate(void * bartlby_address, struct shm_heade
 							s=s->next;					
 						}
 						CHECKED_ASPRINTF(&tmpstr, "%ld OK, %ld Warning, %ld Critical, %ld Other \n", okcount, warncount, critcount, othercount);
-						strncat(notify_msg, tmpstr, sizeof(notify_msg) - strlen(notify_msg) - 1);
-
+						//strncat(notify_msg, tmpstr, sizeof(notify_msg) - strlen(notify_msg) - 1);
+						clib_buffer_append(outgoing_message, tmpstr);
 						free(tmpstr);
-						strncat(notify_msg, " Still Broken: ", sizeof(notify_msg) - strlen(notify_msg) - 1);
-
+						
+						clib_buffer_append(outgoing_message, "Broken:\n-------------\n");
 						still_broken_count=0;
 						s=t->service_list_head;
 						while(s != NULL) {
@@ -577,28 +591,56 @@ void bartlby_notification_log_aggregate(void * bartlby_address, struct shm_heade
 								//_log("\t\t Service: State Changes: %d -  id: %d OK: %d WARN: %d CRIT:%d OTHER: %d", s->state_changes, s->service_id, s->states[0], s->states[1], s->states[2], s->states[3]);
 								csvc=bartlby_notification_log_get_service(shmhdr, s->service_id);
 								if(csvc->current_state != 0) {
-									CHECKED_ASPRINTF(&tmpstr, "%s/%s (%d)\n", csvc->srv->server_name, csvc->service_name, csvc->current_state);
-									strncat(notify_msg, tmpstr, sizeof(notify_msg) - strlen(notify_msg) - 1);
+									beauty_state=bartlby_beauty_state(csvc->current_state);
+									beauty_state_old=bartlby_beauty_state(csvc->last_state);
+									CHECKED_ASPRINTF(&tmpstr, "%s/%s (%s->%s) \n %s \n-------------\n", csvc->srv->server_name, csvc->service_name,beauty_state_old, beauty_state, csvc->current_output);
+
+									clib_buffer_append(outgoing_message, tmpstr);
 									free(tmpstr);
+									free(beauty_state);
+									free(beauty_state_old);
 									still_broken_count++;
 								}
 								
 							}
 							s=s->next;					
 						}
+
 						if(still_broken_count == 0) {
-							//FIXME LENGTH
-							
-							strncat(notify_msg, "EVERYTHING Recovered", sizeof(notify_msg) - strlen(notify_msg) - 1);
-
-
+							clib_buffer_append(outgoing_message, "No Broken Service right now!\n");
 						}
 
 
+						clib_buffer_append(outgoing_message, "Recovered:\n-------------\n");
+						recovered_count=0;
+						s=t->service_list_head;
+						while(s != NULL) {
+							if(s->service_id != -1) {
+								//_log("\t\t Service: State Changes: %d -  id: %d OK: %d WARN: %d CRIT:%d OTHER: %d", s->state_changes, s->service_id, s->states[0], s->states[1], s->states[2], s->states[3]);
+								csvc=bartlby_notification_log_get_service(shmhdr, s->service_id);
+								if(csvc->current_state == 0) {
+									beauty_state=bartlby_beauty_state(csvc->current_state);
+									beauty_state_old=bartlby_beauty_state(csvc->last_state);
+									CHECKED_ASPRINTF(&tmpstr, "%s/%s (%s->%s) \n %s \n-------------\n", csvc->srv->server_name, csvc->service_name,beauty_state_old, beauty_state, csvc->current_output);
+									clib_buffer_append(outgoing_message, tmpstr);
+									free(tmpstr);
+									free(beauty_state);
+									free(beauty_state_old);
+									recovered_count++;
+								}
+								
+							}
+							s=s->next;					
+						}
+
+						if(recovered_count == 0) {
+							clib_buffer_append(outgoing_message, "No Service Recovered\n");
+						}
 						
 
 						
-						bartlby_trigger(NULL,cfgfile, bartlby_address, 0, NOTIFICATION_TYPE_AGGREGATE, wrkmap, trig, notify_msg); 
+						bartlby_trigger(NULL,cfgfile, bartlby_address, 0, NOTIFICATION_TYPE_AGGREGATE, wrkmap, trig, clib_buffer_string(outgoing_message)); 
+						clib_buffer_free(outgoing_message);
 
 
 						
