@@ -1,3 +1,4 @@
+build/
 tests/lab/json_sample
 tests/lab/lua_sample
 tests/lab/*_sample

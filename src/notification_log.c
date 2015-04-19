@@ -450,7 +450,6 @@ void bartlby_notification_log_aggregate(void * bartlby_address, struct shm_heade
 	//char * exec_str;
 	
 
-	char  notify_msg[5000];
 	//int connection_timed_out;
 	//FILE * ptrigger;
 

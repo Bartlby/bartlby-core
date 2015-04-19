@@ -3,7 +3,7 @@ GIT_VERSION = -D__GIT_VERSION=\"$(GIT_DESCR)\"
 AUTOMAKE_OPTIONS = subdir-objects 
 ACLOCAL_AMFLAGS = ${ACLOCAL_FLAGS}
 AM_CFLAGS=-Isrc/deps/
-CLIB_DEPS = src/deps/buffer/clib_buffer.c
+CLIB_DEPS = src/deps/buffer/clib_buffer.c src/deps/progress/progress.c
 
 noinst_HEADERS = include/bartlby.h
 
