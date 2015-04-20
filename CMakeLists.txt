@@ -1,7 +1,7 @@
 #cmake -DPLUGIN_DIR="/opt/bartlby-agent/plugins/" -DBARTLBY_USER="root" -DMYSQL_HOST="localhost" -DMYSQL_USER=root -DMYSQL_PASS="123" -DMYSQL_DB=bartlby -DCMAKE_INSTALL_PREFIX:PATH=/opt/bartlby ..
 
 cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
-project(bartlby)
+project(bartlby-core)
 
 include(cmake/findssl.cmake)
 include(cmake/findmysql.cmake)
@@ -158,10 +158,16 @@ file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/include/bartlby_v2_dh.h ${_dha})
 
 include(cmake/findgit.cmake)
 
+set(prefix ${CMAKE_INSTALL_PREFIX})
+
 configure_file(include/config.h.cmake include/config.h)
+configure_file(postinstall-pak.in postinstall-pak @ONLY)
+
 
 INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/bartlby.cfg DESTINATION etc/)
-INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/bartlby.startup DESTINATION etc/)
+INSTALL(FILES  ${CMAKE_CURRENT_BINARY_DIR}/bartlby.startup 
+		 PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_WRITE GROUP_EXECUTE WORLD_READ WORLD_WRITE WORLD_EXECUTE
+		 DESTINATION etc/)
 INSTALL(FILES mysql.shema DESTINATION ${CMAKE_INSTALL_PREFIX})
 
 install(TARGETS bartlby mysql libbartlby bartlby_portier bartlby_portier_legacy
@@ -174,9 +180,25 @@ INSTALL(CODE "FILE(MAKE_DIRECTORY ${CMAKE_INSTALL_PREFIX}/contrib)")
 INSTALL(DIRECTORY perf trigger DESTINATION ${CMAKE_INSTALL_PREFIX}) 
 
 
-set(prefix ${CMAKE_INSTALL_PREFIX})
+
 configure_file(  bartlby.cfg.cmake bartlby.cfg)
-configure_file(bartlby.startup.cmake bartlby.startup @ONLY )
+configure_file(bartlby.startup.cmake bartlby.startup  @ONLY )
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR}/include/ include/ src/deps/ ${JSON_INCLUDE_DIRS} ${MySQL_INCLUDE_DIR} ${OPENSSL_INCLUDE_DIRS} ${CURL_INCLUDE_DIRS}   ${LUA_INCLUDE_DIR} ${LIBSSH_INCLUDE_DIRS})
+
+
+
+set(CPACK_GENERATOR "DEB")
+set(CPACK_PACKAGE_VERSION_MAJOR ${BARTLBY_MAJOR_VERSION})
+set(CPACK_PACKAGE_VERSION_MINOR ${BARTLBY_MINOR_VERSION})
+
+set(CPACK_PACKAGE_VERSION_PATCH
+				"0~git-${GIT_VERSION}")
+
+set (CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
+set(CPACK_PACKAGE_DESCRIPTION "Bartlby Core")
+set(CPACK_PACKAGE_CONTACT "Helmut Januschka <helmut@januschka.com>")
+set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA postinst-pak)
+
+include(CPack)
 
