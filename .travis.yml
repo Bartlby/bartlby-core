@@ -18,7 +18,7 @@ addons:
       name: "Bartlby/bartlby-core"
       description: "Bartlby Core"
     notification_email: helmut@januschka.com
-    build_command_prepend: make clean; ./configure --enable-nrpe --enable-ssl --enable-lua --enable-ssh --prefix=$PWD/installation --with-user=travis
+    build_command_prepend: cd build
     build_command:   make clean all 
     branch_pattern: coverity_scan
 
