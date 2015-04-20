@@ -68,11 +68,11 @@ check_library_exists(${JSON_LIBRARY}   json_object_object_get_ex    ""   JSON_OL
 check_library_exists(${JSON_LIBRARY}   json_object_new_int64    ""   JSON_OLD64)
 
 
-if(NOT DEFINED JSON_OLD)
+if(NOT  JSON_OLD)
 	add_definitions(-DNEEDS_JSON_GET_EX)
 ENDIF()
 
-if(NOT DEFINED JSON_OLD64)
+if(NOT  JSON_OLD64)
 	add_definitions(-DNEEDS_JSON_INT64)
 ENDIF()
 
