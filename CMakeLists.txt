@@ -1,6 +1,10 @@
 cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 project(bartlby)
 
+if(APPLE)
+    set(CMAKE_MACOSX_RPATH ON)
+endif()
+
 set(BARTLBY_MAJOR_VERSION 1)
 set(BARTLBY_MINOR_VERSION 6)
 set(BARTLBY_PATCH_VERSION 5)
@@ -14,7 +18,7 @@ SET(CLIB_DEPS
 
 	
 
- set(CMAKE_C_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror")
+ set(CMAKE_C_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
 
 add_definitions(-DWITH_NRPE)
 
@@ -68,7 +72,7 @@ SET(MYSQL_SOURCES
 		src/libs/mysql/mysql.c
 		)
 
-set(LIB_LINK  ${LUA_LIBRARY}  ${OPENSSL_LIBRARIES} 	${CURL_LIBRARY}  dl		${JSON_LIBRARY} 		${SSH_LIBRARY}	)
+set(LIB_LINK  ${LUA_LIBRARY}  ${OPENSSL_LIBRARIES} 	${CURL_LIBRARY}  dl		${JSON_LIBRARY} 		${SSH_LIBRARY}  	)
 
 
 add_library(libbartlby  ${CLIB_DEPS} ${CORE_SOURCES} )
@@ -79,8 +83,10 @@ target_link_libraries(libbartlby ${LIB_LINK})
 
 
 add_executable(bartlby src/bartlby.c)
+SET_TARGET_PROPERTIES(bartlby PROPERTIES CMAKE_EXE_LINKER_FLAGS "-Wl,--whole-archive -lbartlby -Wl,--no-whole-archive")
 target_link_libraries(bartlby libbartlby)
 target_link_libraries(bartlby ${LIB_LINK})
+
 
 
 add_executable(bartlby_shmt src/tools/shmt.c)
@@ -92,7 +98,7 @@ add_library(mysql SHARED ${MYSQL_SOURCES})
 SET_TARGET_PROPERTIES(mysql PROPERTIES PREFIX "")
 SET_TARGET_PROPERTIES(mysql PROPERTIES CMAKE_EXE_LINKER_FLAGS "-fPIC -Wl,--whole-archive -lbartlby -Wl,--no-whole-archive")
 target_link_libraries(mysql libbartlby)
-target_link_libraries(mysql ${LIB_LINK})
+target_link_libraries(mysql ${LIB_LINK} ${MySQL_LIBRARY} )
 
 
 
@@ -180,32 +186,29 @@ MARK_AS_ADVANCED(
 
 
 
-#find JSON-C
-if (JSON_INCLUDE_DIR AND JSON_LIBRARY)
-  set(JSON_FIND_QUIETLY TRUE)
-endif (JSON_INCLUDE_DIR AND JSON_LIBRARY)
-
-find_path(JSON_INCLUDE_DIR json.h
-  PATHS /usr/include
-  PATH_SUFFIXES json
-)
-
-find_library(JSON_LIBRARY
-  NAMES json
-  PATHS /usr/lib /usr/local/lib
-)
-
-set(JSON_LIBRARIES ${JSON_LIBRARY} )
-
+#find json-c
+find_path(JSON_INCLUDE_DIR NAMES json-c/json.h json/json.h)
+find_library(JSON_LIBRARY NAMES json-c json)
 
 include(FindPackageHandleStandardArgs)
-find_package_handle_standard_args(JSON
-  DEFAULT_MSG
-  JSON_INCLUDE_DIR
-  JSON_LIBRARIES
+find_package_handle_standard_args(JSON DEFAULT_MSG
+ JSON_LIBRARY
+ JSON_INCLUDE_DIR
 )
 
-mark_as_advanced(JSON_INCLUDE_DIR JSON_LIBRARY)
+if(JSON_FOUND)
+  set(JSON_LIBRARIES ${JSON_LIBRARY})
+  # hack to get old and new layout working:
+  set(JSON_INCLUDE_DIRS ${JSON_INCLUDE_DIR}/json-c
+    ${JSON_INCLUDE_DIR}/json)
+endif()
+
+mark_as_advanced(
+  JSON_LIBRARY
+  JSON_INCLUDE_DIR
+)
+
+
 
 if(JSON_INCLUDE_DIR) 
 	add_definitions(-DJSON_ADDON)
@@ -516,6 +519,7 @@ ENDMACRO (CHECK_LIBRARY_EXISTS_CONCAT)
 
 ###CHECK HEADERS
 check_include_file_concat("arpa/inet.h"      HAVE_ARPA_INET_H)
+check_include_file_concat("sys/prctl.h"	  HAVE_PRCTL_H)
 check_include_file_concat("dirent.h"      HAVE_DIRENT_H)
 check_include_file_concat("dlfcn.h"          HAVE_DLFCN_H)
 check_include_file_concat("inttypes.h"       HAVE_INTTYPES_H)
@@ -557,6 +561,11 @@ check_symbol_exists(fork        "unistd.h" HAVE_FORK)
 check_symbol_exists(gethostbyname "netdb.h"         HAVE_GETHOSTBYNAME)
 check_symbol_exists(gettimeofday "sys/time.h"         HAVE_GETTIMEOFDAY)
 
+execute_process( COMMAND openssl dhparam -C 512 
+		 COMMAND awk "/^-----/ {exit} {print}"
+		 OUTPUT_VARIABLE dha)
+file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/include/bartlby_v2_dh.h ${_dha})
+
 
 
 
@@ -576,5 +585,5 @@ endif()
 
 configure_file(include/config.h.cmake include/config.h)
 
-include_directories(${CMAKE_CURRENT_BINARY_DIR}/include/ include/ src/deps/ ${JSON_INCLUDE_DIR} ${MySQL_INCLUDE_DIR} ${OPENSSL_INCLUDE_DIRS} ${CURL_INCLUDE_DIRS}   ${LUA_INCLUDE_DIR} ${LIBSSH_INCLUDE_DIRS})
+include_directories(${CMAKE_CURRENT_BINARY_DIR}/include/ include/ src/deps/ ${JSON_INCLUDE_DIRS} ${MySQL_INCLUDE_DIR} ${OPENSSL_INCLUDE_DIRS} ${CURL_INCLUDE_DIRS}   ${LUA_INCLUDE_DIR} ${LIBSSH_INCLUDE_DIRS})
 

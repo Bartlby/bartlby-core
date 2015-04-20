@@ -884,8 +884,10 @@ void sig_cont_handler(int sig) {
 }
 void sched_run_worker( int idx ) {
 	struct rusage r_usage;
+#ifdef HAVE_PRCTL_H
 	prctl(PR_SET_NAME, "bartlby_worker");
 	prctl(PR_SET_DUMPABLE, 1);
+#endif
 	signal(SIGCONT, sig_cont_handler);
 	while(1) {
 
@@ -928,7 +930,9 @@ int sched_fork_worker(int idx) {
 		_log(LH_SCHED, B_LOG_CRIT,"FORK Error %s", strerror(errno));
 		return -1;
 	} else if(child_pid == 0) {
+		#ifdef HAVE_PRCTL_H
 		prctl(PR_SET_DUMPABLE, 0);
+		#endif
 		setpgid(0,0);
 		sched_run_worker(idx);
 		exit(0);
@@ -987,7 +991,9 @@ void sched_run_check(struct service * svc, char * cfgfile, void * shm_addr, void
 	} else if(child_pid == 0) {
 		
 		setpgid(0,0);
+#ifdef HAVE_PRCTL_H
 		prctl(PR_SET_DUMPABLE, 1);
+#endif
 		
 		
 		sched_do_now(svc, cfgfile, shm_addr, SOHandle);

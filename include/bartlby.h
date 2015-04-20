@@ -43,7 +43,9 @@
 #include <unistd.h>
 #include <unistd.h>
 #include <limits.h>
+#if HAVE_PRCTL_H
 #include <sys/prctl.h>
+#endif
 #include <mysql/mysql.h>
 #include <sys/times.h> 
 #include <semaphore.h>

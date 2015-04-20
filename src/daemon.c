@@ -254,7 +254,9 @@ void bartlby_get_daemon(char * cfgfile) {
 	
 	
 	signal(SIGHUP, SIG_IGN);
+#ifdef HAVE_PRCTL_H
 	prctl(PR_SET_DUMPABLE, 0);
+#endif
 	
 	
 	return;
