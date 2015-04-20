@@ -13,7 +13,7 @@ fi;
 echo "###### UNIT TESTS ##########################"
 
 
-sudo installation/etc/bartlby.startup stop
+installation/etc/bartlby.startup stop
 echo "Version:" 
 installation/bin/bartlby -v
 
