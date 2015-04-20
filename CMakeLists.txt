@@ -155,6 +155,7 @@ set(LIB_LINK  ${LUA_LIBRARY}  ${OPENSSL_LIBRARIES} 	${CURL_LIBRARY}  dl		${JSON_
 #COMPILE TEST BINARY
 set(TEST_CONFIG ${CMAKE_CURRENT_BINARY_DIR}/bartlby.cfg)
 add_executable(bartlby_test EXCLUDE_FROM_ALL ${CLIB_DEPS} ${TEST_SOURCES})
+SET_TARGET_PROPERTIES(bartlby_test                PROPERTIES COMPILE_FLAGS "-Wno-format-extra-args -Wno-missing-braces -Wno-unused-label -Wno-unused-variable")
 SET_TARGET_PROPERTIES(bartlby_test PROPERTIES CMAKE_EXE_LINKER_FLAGS "-Wl,--whole-archive -lbartlby -Wl,--no-whole-archive")
 set_target_properties(bartlby_test PROPERTIES COMPILE_DEFINITIONS CONFIG=\"${TEST_CONFIG}\")
 target_link_libraries(bartlby_test libbartlby)
