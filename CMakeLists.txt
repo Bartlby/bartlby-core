@@ -1,15 +1,37 @@
-#cmake -DPLUGIN_DIR="/opt/bartlby-agent/plugins/" -DBARTLBY_USER="root" -DMYSQL_HOST="localhost" -DMYSQL_USER=root -DMYSQL_PASS="123" -DMYSQL_DB=bartlby -DCMAKE_INSTALL_PREFIX:PATH=/opt/bartlby ..
+#cmake -DPLUGIN_DIR="/opt/bartlby-agent/plugins/" -DBARTLBY_USER="root" -DMYSQL_HOST="localhost" -DMYSQL_USER=root -DMYSQL_PASS="123" -DMYSQL_DB=bartlby -DCMAKE_INSTALL_PREFIX:PATH=/opt/bartlby -DENABLE_SNMP=1  -DENABLE_LUA=1 -DENABLE_SSH=1 ..
 
 cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 project(bartlby-core)
+
+if(APPLE)
+    set(CMAKE_MACOSX_RPATH ON)
+endif()
+
+set(BARTLBY_MAJOR_VERSION 1)
+set(BARTLBY_MINOR_VERSION 6)
+set(BARTLBY_PATCH_VERSION 5)
+set(BARTLBY_VERSION  ${BARTLBY_MAJOR_VERSION}.${BARTLBY_MINOR_VERSION}.${BARTLBY_PATCH_VERSION})
+
+
+
 
 include(cmake/findssl.cmake)
 include(cmake/findmysql.cmake)
 include(cmake/findjson.cmake)
 include(cmake/findcurl.cmake)
-include(cmake/findlua.cmake)
-include(cmake/findsnmp.cmake)
-include(cmake/findssh.cmake)
+
+if(ENABLE_LUA)
+		include(cmake/findlua.cmake)
+ENDIF()
+
+if(ENABLE_SNMP)
+	include(cmake/findsnmp.cmake)
+ENDIF()
+
+if(ENABLE_SSH)
+	include(cmake/findssh.cmake)
+ENDIF()
+
 INCLUDE(CheckIncludeFiles)
 INCLUDE(CheckLibraryExists)
 INCLUDE(CheckSymbolExists)
@@ -17,7 +39,7 @@ INCLUDE(CheckFunctionExists)
 include(cmake/findgeneric.cmake)
 
 
-set(CMAKE_C_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall")
 add_definitions(-DWITH_NRPE)
 
 
@@ -32,21 +54,29 @@ if(JSON_INCLUDE_DIR)
   add_definitions(-DJSON_ADDON)
 ENDIF()
 
+if(NETSNMP_INCLUDE_DIR)
+	add_definitions(-DSNMP_ADDON)
+ENDIF()
+
+
 if(OPENSSL_FOUND)
 add_definitions(-DHAVE_SSL)
 ENDIF()
 
 
+check_library_exists(${JSON_LIBRARY}   json_object_object_get_ex    ""   JSON_OLD)
+check_library_exists(${JSON_LIBRARY}   json_object_new_int64    ""   JSON_OLD64)
 
-if(APPLE)
-    set(CMAKE_MACOSX_RPATH ON)
-endif()
 
-set(BARTLBY_MAJOR_VERSION 1)
-set(BARTLBY_MINOR_VERSION 6)
-set(BARTLBY_PATCH_VERSION 5)
-set(BARTLBY_VERSION
-  ${BARTLBY_MAJOR_VERSION}.${BARTLBY_MINOR_VERSION}.${BARTLBY_PATCH_VERSION})
+if(!JSON_OLD)
+	add_definitions(-DNEEDS_JSON_GET_EX)
+ENDIF()
+
+if(!JSON_OLD64)
+	add_definitions(-DNEEDS_JSON_INT64)
+ENDIF()
+
+
 
 SET(CLIB_DEPS
 			src/deps/buffer/clib_buffer.c
@@ -102,7 +132,7 @@ SET(MYSQL_SOURCES
 		src/libs/mysql/mysql.c
 		)
 
-set(LIB_LINK  ${LUA_LIBRARY}  ${OPENSSL_LIBRARIES} 	${CURL_LIBRARY}  dl		${JSON_LIBRARY} 		${SSH_LIBRARY}  	)
+set(LIB_LINK  ${LUA_LIBRARY}  ${OPENSSL_LIBRARIES} 	${CURL_LIBRARY}  dl		${JSON_LIBRARY} 		${SSH_LIBRARY}  ${NETSNMP_LIBRARIES}	)
 
 
 add_library(libbartlby  ${CLIB_DEPS} ${CORE_SOURCES} )
@@ -184,16 +214,14 @@ INSTALL(DIRECTORY perf trigger DESTINATION ${CMAKE_INSTALL_PREFIX})
 configure_file(  bartlby.cfg.cmake bartlby.cfg)
 configure_file(bartlby.startup.cmake bartlby.startup  @ONLY )
 
-include_directories(${CMAKE_CURRENT_BINARY_DIR}/include/ include/ src/deps/ ${JSON_INCLUDE_DIRS} ${MySQL_INCLUDE_DIR} ${OPENSSL_INCLUDE_DIRS} ${CURL_INCLUDE_DIRS}   ${LUA_INCLUDE_DIR} ${LIBSSH_INCLUDE_DIRS})
+include_directories(${CMAKE_CURRENT_BINARY_DIR}/include/ include/ src/deps/ ${JSON_INCLUDE_DIRS} ${MySQL_INCLUDE_DIR} ${OPENSSL_INCLUDE_DIRS} ${CURL_INCLUDE_DIRS}   ${LUA_INCLUDE_DIR} ${LIBSSH_INCLUDE_DIRS} ${NETSNMP_INCLUDE_DIR})
 
 
 
 set(CPACK_GENERATOR "DEB")
 set(CPACK_PACKAGE_VERSION_MAJOR ${BARTLBY_MAJOR_VERSION})
 set(CPACK_PACKAGE_VERSION_MINOR ${BARTLBY_MINOR_VERSION})
-
-set(CPACK_PACKAGE_VERSION_PATCH
-				"0~git-${GIT_VERSION}")
+set(CPACK_PACKAGE_VERSION_PATCH	"${BARTLBY_PATCH_VERSION}~git-${GIT_VERSION}")
 
 set (CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
 set(CPACK_PACKAGE_DESCRIPTION "Bartlby Core")
