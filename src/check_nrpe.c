@@ -55,7 +55,7 @@ $Author$
 
 
 
-#ifndef WITH_NRPE
+#ifndef NRPE_ADDON
 void nrpe_display_license(void)
 {
 	return;
@@ -72,7 +72,7 @@ static sig_atomic_t conn_timedout = 0;
 static unsigned long crc32_table[256];
 
 
-#ifdef HAVE_SSL
+#ifdef SSL_ADDON
 #include <openssl/dh.h>
 #include <openssl/ssl.h>
 
@@ -122,7 +122,7 @@ unsigned long calculate_crc32(char *buffer, int buffer_size);
 void randomize_buffer(char *buffer, int buffer_size);
 int nrperecvall(int s, char *buf, int *len, int timeout);
 int nrpesendall(int s, char *buf, int *len);
-#ifdef HAVE_SSL
+#ifdef SSL_ADDON
 static int ssl_connect_timeout(SSL *ssl, int tmo);
 static int unblock_socket(int soc);
 static int block_socket(int soc);
@@ -136,7 +136,7 @@ void bartlby_check_nrpe(struct service *svc, char *cfgfile, int use_ssl)
 
 	char query[MAX_INPUT_BUFFER] = "";
 
-#ifdef HAVE_SSL
+#ifdef SSL_ADDON
 
 	SSL_CTX *ctx;
 	SSL *ssl = NULL;
@@ -155,7 +155,7 @@ void bartlby_check_nrpe(struct service *svc, char *cfgfile, int use_ssl)
 	/* generate the CRC 32 table */
 	nrpe_generate_crc32_table();
 
-#ifdef HAVE_SSL
+#ifdef SSL_ADDON
 	/* initialize SSL */
 	if (use_ssl == TRUE) {
 		SSL_library_init();
@@ -185,7 +185,7 @@ void bartlby_check_nrpe(struct service *svc, char *cfgfile, int use_ssl)
 		sprintf(svc->current_output, "%s", "timed out");
 		svc->current_state = STATE_CRITICAL;
 		close(sd);
-#ifdef HAVE_SSL
+#ifdef SSL_ADDON
 		if (use_ssl == TRUE) {
 			SSL_CTX_free(ctx);
 		}
@@ -196,7 +196,7 @@ void bartlby_check_nrpe(struct service *svc, char *cfgfile, int use_ssl)
 		sprintf(svc->current_output, "%s", "connect failed");
 		svc->current_state = STATE_CRITICAL;
 		close(sd);
-#ifdef HAVE_SSL
+#ifdef SSL_ADDON
 		if (use_ssl == TRUE) {
 			SSL_CTX_free(ctx);
 		}
@@ -204,7 +204,7 @@ void bartlby_check_nrpe(struct service *svc, char *cfgfile, int use_ssl)
 		return;
 	}
 	if (result == STATE_OK) {
-#ifdef HAVE_SSL
+#ifdef SSL_ADDON
 		/* do SSL handshake */
 		if (use_ssl == TRUE) {
 			if ((ssl = SSL_new(ctx)) != NULL) {
@@ -289,7 +289,7 @@ void bartlby_check_nrpe(struct service *svc, char *cfgfile, int use_ssl)
 				return;
 			}
 		}
-#ifdef HAVE_SSL
+#ifdef SSL_ADDON
 		else {
 			conn_timedout = 0;
 			alarm(svc->service_check_timeout);
@@ -332,7 +332,7 @@ void bartlby_check_nrpe(struct service *svc, char *cfgfile, int use_ssl)
 				return;
 			}
 		}
-#ifdef HAVE_SSL
+#ifdef SSL_ADDON
 		else {
 			conn_timedout = 0;
 			alarm(svc->service_check_timeout);
@@ -352,7 +352,7 @@ void bartlby_check_nrpe(struct service *svc, char *cfgfile, int use_ssl)
 
 		/* reset timeout */
 		alarm(0);
-#ifdef HAVE_SSL
+#ifdef SSL_ADDON
 		if (use_ssl == TRUE) {
 			SSL_shutdown(ssl);
 			SSL_free(ssl);
@@ -809,7 +809,7 @@ void nrpe_display_license(void)
  * Taken from ssltunnel, (C) Alain Thivillon and Hervé Schauer Consultants
  *
  *------------------------------------------------------------------------*/
-#ifdef HAVE_SSL
+#ifdef SSL_ADDON
 static int ssl_connect_timeout(SSL *ssl, int tmo)
 {
 

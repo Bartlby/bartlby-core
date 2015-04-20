@@ -1,4 +1,4 @@
-#cmake -DPLUGIN_DIR="/opt/bartlby-agent/plugins/" -DBARTLBY_USER="root" -DMYSQL_HOST="localhost" -DMYSQL_USER=root -DMYSQL_PASS="123" -DMYSQL_DB=bartlby -DCMAKE_INSTALL_PREFIX:PATH=/opt/bartlby -DENABLE_SNMP=1  -DENABLE_LUA=1 -DENABLE_SSH=1 ..
+#cmake -DPLUGIN_DIR="/opt/bartlby-agent/plugins/" -DBARTLBY_USER="root" -DMYSQL_HOST="localhost" -DMYSQL_USER=root -DMYSQL_PASS="123" -DMYSQL_DB=bartlby -DCMAKE_INSTALL_PREFIX:PATH=/opt/bartlby -DENABLE_SNMP=1  -DENABLE_LUA=1 -DENABLE_SSH=1 -DFULL_FEATURES=1 ..
 
 cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 project(bartlby-core)
@@ -12,12 +12,23 @@ set(BARTLBY_MINOR_VERSION 6)
 set(BARTLBY_PATCH_VERSION 5)
 set(BARTLBY_VERSION  ${BARTLBY_MAJOR_VERSION}.${BARTLBY_MINOR_VERSION}.${BARTLBY_PATCH_VERSION})
 
+if(FULL_FEATURES)
+	set(ENABLE_SNMP 1)
+	set(ENABLE_SSH 1)
+	set(ENABLE_LUA 1)
+	set(ENABLE_SSL 1)	
+ENDIF()
 
 
 
-include(cmake/findssl.cmake)
+
+if(ENABLE_SSL)
+
+	include(cmake/findssl.cmake)
+ENDIF()
 include(cmake/findmysql.cmake)
 include(cmake/findjson.cmake)
+
 include(cmake/findcurl.cmake)
 
 if(ENABLE_LUA)
@@ -40,12 +51,13 @@ include(cmake/findgeneric.cmake)
 
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall")
-add_definitions(-DWITH_NRPE)
+add_definitions(-DNRPE_ADDON)
 
 
 if (LIBSSH_INCLUDE_DIRS)
 add_definitions(-DSSH_ADDON)
 ENDIF()
+
 if(LUA_INCLUDE_DIR)
 add_definitions(-DLUA_ADDON)
 ENDIF()
@@ -60,7 +72,7 @@ ENDIF()
 
 
 if(OPENSSL_FOUND)
-add_definitions(-DHAVE_SSL)
+add_definitions(-DSSL_ADDON)
 ENDIF()
 
 
@@ -77,6 +89,9 @@ if(NOT  JSON_OLD64)
 ENDIF()
 
 
+if(NOT MySQL_FOUND OR NOT JSON_INCLUDE_DIR OR NOT CURL_FOUND)
+	message( FATAL_ERROR "libjson0/json-c, mysql and CURL are required dependencies" )
+ENDIF()
 
 SET(CLIB_DEPS
 			src/deps/buffer/clib_buffer.c
@@ -256,15 +271,24 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR}/include/ include/ src/deps/ ${JS
 
 
 
+
+message("CONFIG DONE")
+message("------------")
+get_directory_property( DirDefs DIRECTORY ${CMAKE_SOURCE_DIR} COMPILE_DEFINITIONS )
+foreach( d ${DirDefs} )
+    message( STATUS "OPTION: " ${d} )
+endforeach()
+
+
+
+#DEBIAN PACKAGE GENERATION
 set(CPACK_GENERATOR "DEB")
 set(CPACK_PACKAGE_VERSION_MAJOR ${BARTLBY_MAJOR_VERSION})
 set(CPACK_PACKAGE_VERSION_MINOR ${BARTLBY_MINOR_VERSION})
 set(CPACK_PACKAGE_VERSION_PATCH	"${BARTLBY_PATCH_VERSION}~git-${GIT_VERSION}")
-
 set (CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
 set(CPACK_PACKAGE_DESCRIPTION "Bartlby Core")
 set(CPACK_PACKAGE_CONTACT "Helmut Januschka <helmut@januschka.com>")
 set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA postinst-pak)
-
 include(CPack)
 
