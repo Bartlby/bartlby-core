@@ -75,6 +75,8 @@ add_library(libbartlby  ${CLIB_DEPS} ${CORE_SOURCES} )
 SET_TARGET_PROPERTIES(libbartlby PROPERTIES PREFIX "")
 SET_TARGET_PROPERTIES(libbartlby                PROPERTIES COMPILE_FLAGS "-fPIC")
 SET_TARGET_PROPERTIES(libbartlby PROPERTIES CMAKE_EXE_LINKER_FLAGS "-Wl,--whole-archive -lbartlby -Wl,--no-whole-archive")
+target_link_libraries(libbartlby ${LIB_LINK})
+
 
 add_executable(bartlby src/bartlby.c)
 target_link_libraries(bartlby libbartlby)
