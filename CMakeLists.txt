@@ -162,7 +162,14 @@ target_link_libraries(bartlby_test ${LIB_LINK})
 
 
 #RUNS TESTS
+
+cmake_policy(PUSH)
+if(POLICY CMP0037)
+    cmake_policy(SET CMP0037 OLD)
+endif()
 add_custom_target(test bartlby_test)
+cmake_policy(POP)
+
 
 
 add_library(libbartlby  ${CLIB_DEPS} ${CORE_SOURCES} )
