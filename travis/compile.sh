@@ -1,6 +1,6 @@
 mkdir build
 cd build
-cmake -DPLUGIN_DIR="/opt/bartlby-agent/plugins/" -DBARTLBY_USER="travis" -DMYSQL_HOST="localhost" -DMYSQL_USER=root -DMYSQL_PASS="" -DMYSQL_DB=bartlby -DCMAKE_INSTALL_PREFIX:PATH=$PWD/installation -DFULL_FEATURES=1 ..
+cmake -DPLUGIN_DIR="/opt/bartlby-agent/plugins/" -DBARTLBY_USER="travis" -DMYSQL_HOST="localhost" -DMYSQL_USER=root -DMYSQL_PASS="" -DMYSQL_DB=bartlby -DCMAKE_INSTALL_PREFIX:PATH=$PWD/installation -DFULL_FEATURES=1 -DCMAKE_BUILD_TYPE=Debug ..
 make
 make install
 ls -l $PWD/installation

@@ -3,6 +3,26 @@
 cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 project(bartlby-core)
 
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE "Release" CACHE STRING
+      "Choose the type of build, options are: Debug Release"
+      FORCE)
+endif(NOT CMAKE_BUILD_TYPE)
+
+
+message("CMAKE_C_FLAGS_DEBUG is ${CMAKE_C_FLAGS_DEBUG}")
+message("CMAKE_C_FLAGS_RELEASE is ${CMAKE_C_FLAGS_RELEASE}")
+
+message("CMAKE_BUILD_TYPE = ${CMAKE_BUILD_TYPE}")
+IF(CMAKE_BUILD_TYPE MATCHES Debug)
+  message("Debug build.")
+ELSEIF(CMAKE_BUILD_TYPE MATCHES Release)
+  message("Release build.")
+ELSE()
+  message("Some other build type.")
+ENDIF()
+
+
 if(APPLE)
     set(CMAKE_MACOSX_RPATH ON)
 endif()
@@ -11,6 +31,8 @@ set(BARTLBY_MAJOR_VERSION 1)
 set(BARTLBY_MINOR_VERSION 6)
 set(BARTLBY_PATCH_VERSION 5)
 set(BARTLBY_VERSION  ${BARTLBY_MAJOR_VERSION}.${BARTLBY_MINOR_VERSION}.${BARTLBY_PATCH_VERSION})
+
+option(FULL_FEATURES, "Enable all features (requires: libssh, libsnmp libssl, libjson" OFF)
 
 if(FULL_FEATURES)
 	set(ENABLE_SNMP 1)

@@ -138,7 +138,7 @@ void bartlby_check_nrpe(struct service *svc, char *cfgfile, int use_ssl)
 
 #ifdef SSL_ADDON
 
-	SSL_CTX *ctx;
+	SSL_CTX *ctx = NULL;
 	SSL *ssl = NULL;
 #endif
 

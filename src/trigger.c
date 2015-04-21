@@ -159,8 +159,9 @@ int bartlby_trigger_per_worker(char * cfgfile,
 	struct server * srvmap;
 	
 
-	char * srv_name;
+	char * srv_name=NULL;
 	int srv_port;
+
 	
 	
 	
@@ -246,6 +247,7 @@ int bartlby_trigger_per_worker(char * cfgfile,
 					if(svc != NULL) {
 						if(svc->srv_place < 0) {
 							//if it was upstreamed
+							
 							free(srv_name);
 						}
 
@@ -288,6 +290,7 @@ int bartlby_trigger_per_worker(char * cfgfile,
 
 
 }
+
 
 
 

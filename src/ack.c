@@ -65,7 +65,8 @@ void bartlby_check_sirene(char * configfile, void * bartlby_address) {
 	
 	sprintf(svc.srv->client_ip, "0.0.0.0");
 	sprintf(svc.srv->server_name, "CORE");
-	
+	svc.script_enabled=0;
+	sprintf(svc.script, " ");
 	sprintf(svc.service_name, "SIRENE");
 	sprintf(svc.current_output, "Your system is in sirene mode all checks have been disabled please give the UI a bit attention");
 	svc.current_state=STATE_SIRENE;

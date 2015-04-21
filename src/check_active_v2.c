@@ -49,8 +49,8 @@ void bartlby_check_v2(struct service * svc, char * cfgfile, int use_ssl) {
 	int sd;
 	
 #ifdef SSL_ADDON 
-	SSL_CTX *ctx;
-	SSL *ssl;
+	SSL_CTX *ctx=NULL;
+	SSL *ssl=NULL;
 #endif     
 	u_int32_t packet_crc32;
 	u_int32_t calculated_crc32;

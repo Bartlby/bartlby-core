@@ -88,7 +88,7 @@ void bartlby_check_snmp(struct service * svc, char * cfgfile) {
 	snmp_add_null_var(pdu, anOID, anOID_len);
 	status = snmp_synch_response(ss, pdu, &response);
     
-	if (status == STAT_SUCCESS && response->errstat == SNMP_ERR_NOERROR) {
+	if (response && status == STAT_SUCCESS && response->errstat == SNMP_ERR_NOERROR) {
     		/*
     			Logical part
     		
