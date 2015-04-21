@@ -56,6 +56,8 @@ main(int c, const char **v)
 	   "tinytest-demo" and "tinytest-demo .." mean the same thing.
 	*/
 	
+	 printf("TEST USING CONFIG: %s\n", CONFIG);
+
 	return tinytest_main(c, v, groups);
 }	
 
