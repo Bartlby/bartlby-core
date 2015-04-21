@@ -109,7 +109,8 @@ void
 progress_event_listener_free (progress_event_listener_t *listener) {
   if (!listener) return;
   if (listener->data) progress_data_free(listener->data);
-  // if (listener->event) progress_event_free(listener->event);
+  //if (listener->event) progress_event_free(listener->event);
+  //free(listener);
 }
 
 progress_data_t *
@@ -130,7 +131,8 @@ bool
 progress_on (progress_t *progress, progress_event_type_t event, progress_cb_t cb) {
   progress_event_listener_t *listener = progress_event_listener_new(progress_event_new(event), cb);
   if (!listener) return false;
-  progress->listeners[progress->listener_count++] = *listener;
+  memcpy(&progress->listeners[progress->listener_count++], listener, sizeof(progress_event_listener_t));
+  free(listener);
   return true;
 }
 
@@ -179,12 +181,15 @@ progress_change_value (progress_t *progress, int value, bool increment) {
     progress_event_t *event = progress_event_new(PROGRESS_EVENT_START);
     progress_data_t *data = progress_data_new(progress, value);
     progress_emit(progress, event, data);
+    progress_free(progress);
   }
 
   progress->elapsed = difftime(now, progress->start);
   progress_event_t *event = progress_event_new(PROGRESS_EVENT_PROGRESS);
   progress_data_t *data = progress_data_new(progress, value);
   progress_emit(progress, event, data);
+  progress_free(progress);
+
 
   if (progress->value >= progress->total) {
     progress->finished = true;
@@ -192,7 +197,6 @@ progress_change_value (progress_t *progress, int value, bool increment) {
     progress_event_t *event = progress_event_new(PROGRESS_EVENT_END);
     progress_data_t *data = progress_data_new(progress, value);
     progress_emit(progress, event, data);
-    progress_event_free(event);
     progress_free(progress);
   }
 
@@ -252,6 +256,7 @@ progress_free (progress_t *progress) {
   int i;
   for (i = 0; i < progress->listener_count; ++i) {
     progress_event_listener_free(&progress->listeners[i]);
+
   }
 
  // free(progress);
