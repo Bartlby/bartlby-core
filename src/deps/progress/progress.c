@@ -129,7 +129,8 @@ progress_data_free (progress_data_t *data) {
 
 bool
 progress_on (progress_t *progress, progress_event_type_t event, progress_cb_t cb) {
-  progress_event_listener_t *listener = progress_event_listener_new(progress_event_new(event), cb);
+  progress_event_t * ev = progress_event_new(event);
+  progress_event_listener_t *listener = progress_event_listener_new(ev, cb);
   if (!listener) return false;
   memcpy(&progress->listeners[progress->listener_count++], listener, sizeof(progress_event_listener_t));
   free(listener);
@@ -181,14 +182,18 @@ progress_change_value (progress_t *progress, int value, bool increment) {
     progress_event_t *event = progress_event_new(PROGRESS_EVENT_START);
     progress_data_t *data = progress_data_new(progress, value);
     progress_emit(progress, event, data);
-    progress_free(progress);
+    
+    free(event);
+    free(data);
   }
 
   progress->elapsed = difftime(now, progress->start);
   progress_event_t *event = progress_event_new(PROGRESS_EVENT_PROGRESS);
   progress_data_t *data = progress_data_new(progress, value);
   progress_emit(progress, event, data);
-  progress_free(progress);
+
+  free(event);
+  free(data);
 
 
   if (progress->value >= progress->total) {
@@ -197,7 +202,9 @@ progress_change_value (progress_t *progress, int value, bool increment) {
     progress_event_t *event = progress_event_new(PROGRESS_EVENT_END);
     progress_data_t *data = progress_data_new(progress, value);
     progress_emit(progress, event, data);
-    progress_free(progress);
+   
+    free(event);
+    free(data);
   }
 
   return true;
@@ -213,8 +220,8 @@ progress_write (progress_t *progress) {
   double elapsed = progress->elapsed;
   char *fmt = malloc(512 * sizeof(char));
   char *bar = malloc((complete + incomplete) * sizeof(char));
-  char *percent_str = malloc(sizeof(char));
-  char *elapsed_str = malloc(sizeof(char));
+  char *percent_str = malloc(sizeof(char)*20);
+  char *elapsed_str = malloc(sizeof(char)*20);
 
   sprintf(percent_str, "%d%%", percent);
   sprintf(elapsed_str, "%.1fs", elapsed);
@@ -255,11 +262,11 @@ void
 progress_free (progress_t *progress) {
   int i;
   for (i = 0; i < progress->listener_count; ++i) {
-    progress_event_listener_free(&progress->listeners[i]);
+    progress_event_free(progress->listeners[i].event);
 
   }
 
- // free(progress);
+  free(progress);
 }
 
 void
@@ -278,5 +285,3 @@ progress_inspect (progress_t *progress) {
   printf("    .fmt: \"%s\"\n", progress->fmt);
   printf("    .listeners[%d]\n", progress->listener_count);
 }
-
-
