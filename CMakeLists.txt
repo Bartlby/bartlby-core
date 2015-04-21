@@ -270,7 +270,8 @@ configure_file(include/config.h.cmake include/config.h)
 configure_file(postinstall-pak.in postinstall-pak @ONLY)
 
 
-INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/bartlby.cfg DESTINATION etc/)
+INSTALL (SCRIPT cmake/installcfg.cmake ) 
+
 INSTALL(FILES  ${CMAKE_CURRENT_BINARY_DIR}/bartlby.startup 
 		 PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_WRITE GROUP_EXECUTE WORLD_READ WORLD_WRITE WORLD_EXECUTE
 		 DESTINATION etc/)
