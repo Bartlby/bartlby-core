@@ -49,6 +49,8 @@ void bartlby_trigger_setup_env(struct service * svc, struct worker * wrk) {
 	char * human_state;
 	char * human_state_last;
 	
+
+        if(svc != NULL) {
 	human_state=bartlby_beauty_state(svc->current_state);
 	human_state_last=bartlby_beauty_state(svc->last_state);
 
@@ -65,20 +67,27 @@ void bartlby_trigger_setup_env(struct service * svc, struct worker * wrk) {
 	setenv("BARTLBY_TRIGGER_SVC_CURRENT_STATE", current_state,1);
 	setenv("BARTLBY_TRIGGER_SVC_ID", svc_id,1);
 	setenv("BARTLBY_TRIGGER_SRV_ID", srv_id,1);
+	
+	setenv("BARTLBY_TRIGGER_SVC_CURRENT_STATE_READABLE", human_state, 1);
+	setenv("BARTLBY_TRIGGER_SVC_CURRENT_LAST_STATE_READABLE", human_state_last, 1);
 
+	}
+	
+	//AT LEAST WE CAN SET THE WORKER INFO
 	setenv("BARTLBY_TRIGGER_WRK_EMAIL", wrk->mail,1);
 	setenv("BARTLBY_TRIGGER_WRK_NAME", wrk->name,1);
 	setenv("BARTLBY_TRIGGER_WRK_MOBILENR", wrk->mobilenr,1);
 	
 
-	setenv("BARTLBY_TRIGGER_SVC_CURRENT_STATE_READABLE", human_state, 1);
-	setenv("BARTLBY_TRIGGER_SVC_CURRENT_LAST_STATE_READABLE", human_state_last, 1);
+
 	
-	free(current_state);
-	free(svc_id);
-	free(srv_id);
-	free(human_state_last);
-	free(human_state);
+	if(svc != NULL) {
+		free(current_state);
+		free(svc_id);
+		free(srv_id);
+		free(human_state_last);
+		free(human_state);
+	}
 
 
 }
@@ -114,7 +123,7 @@ void bartlby_trigger_wrap(char * cfgfile, struct service * svc, struct worker * 
 		prebuilt_message=bartlby_trigger_get_message(cfgfile, svc, wrk, trig);
 		has_to_free_message=1;
 	}
-	if(svc != NULL) bartlby_trigger_setup_env(svc, wrk);
+	bartlby_trigger_setup_env(svc, wrk);
 	trigger_debug("MSG: %s", prebuilt_message);
 	switch(trig->trigger_type) {
 		case TRIGGER_TYPE_LOCAL:
