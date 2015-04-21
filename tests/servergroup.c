@@ -103,7 +103,7 @@ void test_servergroup_lib(void *data) {
 	dummy_servergroup.servergroup_id=object_id;
 	memcpy(&modified_object,&dummy_servergroup, sizeof(struct servergroup));
 	memcpy(&returned_object,&dummy_servergroup, sizeof(struct servergroup));
-	snprintf(modified_object.servergroup_name,2048, "modified-unit-test");
+	snprintf(modified_object.servergroup_name,1000, "modified-unit-test");
 	rtc=UpdateServerGroup(&modified_object, CONFIG);
 	tt_int_op(rtc, ==, 1);
 	TT_DECLARE("INFO",("... Modified ServerGroup, changed name"));

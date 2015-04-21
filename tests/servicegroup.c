@@ -104,7 +104,7 @@ void test_servicegroup_lib(void *data) {
 	dummy_servicegroup.servicegroup_id=object_id;
 	memcpy(&modified_object,&dummy_servicegroup, sizeof(struct servicegroup));
 	memcpy(&returned_object,&dummy_servicegroup, sizeof(struct servicegroup));
-	snprintf(modified_object.servicegroup_name,2048, "modified-unit-test");
+	snprintf(modified_object.servicegroup_name,1000, "modified-unit-test");
 	rtc=UpdateServiceGroup(&modified_object, CONFIG);
 	tt_int_op(rtc, ==, 1);
 	TT_DECLARE("INFO",("... Modified ServiceGroup, changed name"));
