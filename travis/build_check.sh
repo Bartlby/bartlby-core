@@ -1,25 +1,19 @@
 #!/bin/sh
 
-
+echo "###### UNIT TESTS ##########################"
 CFG_DIR=$PWD/installation;
-cd tests/
-make CFLAGS=-DCONFIG=\\\"$CFG_DIR/etc/bartlby.cfg\\\"
+cd build/
+make test
 EE=$?
 if [ $EE != 0 ];
 then
 	echo "TEST COMPILE FAILED";
 	exit $EE;
 fi;
-
-
-echo "###### UNIT TESTS ##########################"
-sudo ./bartlby_test
-EX=$?;
-#EX=0;
-cd ..
 echo "###### UNIT TESTS ##########################"
 
-sudo installation/etc/bartlby.startup stop
+
+installation/etc/bartlby.startup stop
 echo "Version:" 
 installation/bin/bartlby -v
 

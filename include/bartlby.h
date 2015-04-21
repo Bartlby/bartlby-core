@@ -125,7 +125,7 @@
 #endif
 
 
-#ifdef HAVE_SSL 
+#ifdef SSL_ADDON 
 	#include <openssl/dh.h>
 	#include <openssl/ssl.h>
 	#include <openssl/err.h>

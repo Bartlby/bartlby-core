@@ -246,14 +246,14 @@ void bartlby_init(void) {
 	#ifdef SSH_ADDON
 	_log(LH_MAIN, B_LOG_INFO,"SSH support compiled in");
 	#endif
-	#ifdef HAVE_SSL
+	#ifdef SSL_ADDON
 	_log(LH_MAIN, B_LOG_INFO,"SSL support compiled in");
 	SSL_library_init();
 	SSLeay_add_ssl_algorithms();
 	SSL_load_error_strings();
 	_log(LH_MAIN, B_LOG_INFO,"ssl lib init, ssl_algo, error_strings");	
 	#endif
-	#ifdef WITH_NRPE
+	#ifdef NRPE_ADDON
 	_log(LH_MAIN, B_LOG_INFO,"NRPE Support compiled in");
 	#endif
 

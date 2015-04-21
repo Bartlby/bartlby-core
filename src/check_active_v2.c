@@ -27,7 +27,7 @@ $Author$
 
 #include <bartlby.h>
 
-#ifdef HAVE_SSL
+#ifdef SSL_ADDON
 #include <bartlby_v2_dh.h>
 #endif
 
@@ -48,9 +48,9 @@ void bartlby_check_v2(struct service * svc, char * cfgfile, int use_ssl) {
 	
 	int sd;
 	
-#ifdef HAVE_SSL 
-	SSL_CTX *ctx;
-	SSL *ssl;
+#ifdef SSL_ADDON 
+	SSL_CTX *ctx=NULL;
+	SSL *ssl=NULL;
 #endif     
 	u_int32_t packet_crc32;
 	u_int32_t calculated_crc32;
@@ -65,7 +65,7 @@ void bartlby_check_v2(struct service * svc, char * cfgfile, int use_ssl) {
       /* generate the CRC 32 table */
 	agent_v2_generate_crc32_table();
 	
-#ifdef HAVE_SSL
+#ifdef SSL_ADDON
 	if(use_ssl == 1) {
 		
 		
@@ -96,7 +96,7 @@ void bartlby_check_v2(struct service * svc, char * cfgfile, int use_ssl) {
 		return;
 	}
 	
-#ifdef HAVE_SSL	
+#ifdef SSL_ADDON	
 	if(use_ssl == 1) {
 		/* do SSL handshake */
 		if((ssl=SSL_new(ctx))!=NULL){
@@ -157,7 +157,7 @@ void bartlby_check_v2(struct service * svc, char * cfgfile, int use_ssl) {
 
 	conn_timedout=0;
 	alarm(svc->service_check_timeout);
-#ifdef HAVE_SSL
+#ifdef SSL_ADDON
 	if(use_ssl == 1) {
 		
 		rc=SSL_write(ssl,&send_packet,bytes_to_send);
@@ -167,7 +167,7 @@ void bartlby_check_v2(struct service * svc, char * cfgfile, int use_ssl) {
 		rc=bartlby_tcp_sendall(sd,(char *)&send_packet,&bytes_to_send);
 		
 			
-#ifdef HAVE_SSL
+#ifdef SSL_ADDON
 	}
 #endif
 	if(conn_timedout == 1) {
@@ -191,7 +191,7 @@ void bartlby_check_v2(struct service * svc, char * cfgfile, int use_ssl) {
 	conn_timedout=0;
 	alarm(svc->service_check_timeout);
 	
-#ifdef HAVE_SSL
+#ifdef SSL_ADDON
 	if(use_ssl == 1) {
 		
 		rc=SSL_read(ssl,(char *)&receive_packet,bytes_to_recv);
@@ -201,7 +201,7 @@ void bartlby_check_v2(struct service * svc, char * cfgfile, int use_ssl) {
        
        rc=bartlby_tcp_recvall(sd,(char *)&receive_packet,&bytes_to_recv,svc->service_check_timeout);
        
-#ifdef HAVE_SSL       
+#ifdef SSL_ADDON       
 	}
 #endif
 
@@ -215,7 +215,7 @@ void bartlby_check_v2(struct service * svc, char * cfgfile, int use_ssl) {
 	/* reset timeout */
 	alarm(0);
 
-#ifdef HAVE_SSL 		
+#ifdef SSL_ADDON 		
 	if(use_ssl == 1) {
 		SSL_shutdown(ssl);
 		SSL_free(ssl);

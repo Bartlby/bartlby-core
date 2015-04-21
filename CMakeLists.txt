@@ -1,7 +1,27 @@
-#cmake -DPLUGIN_DIR="/opt/bartlby-agent/plugins/" -DBARTLBY_USER="root" -DMYSQL_HOST="localhost" -DMYSQL_USER=root -DMYSQL_PASS="123" -DMYSQL_DB=bartlby -DCMAKE_INSTALL_PREFIX:PATH=/opt/bartlby -DENABLE_SNMP=1  -DENABLE_LUA=1 -DENABLE_SSH=1 ..
+#cmake -DPLUGIN_DIR="/opt/bartlby-agent/plugins/" -DBARTLBY_USER="root" -DMYSQL_HOST="localhost" -DMYSQL_USER=root -DMYSQL_PASS="123" -DMYSQL_DB=bartlby -DCMAKE_INSTALL_PREFIX:PATH=/opt/bartlby -DENABLE_SNMP=1  -DENABLE_LUA=1 -DENABLE_SSH=1 -DFULL_FEATURES=1 ..
 
 cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 project(bartlby-core)
+
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE "Release" CACHE STRING
+      "Choose the type of build, options are: Debug Release"
+      FORCE)
+endif(NOT CMAKE_BUILD_TYPE)
+
+
+message("CMAKE_C_FLAGS_DEBUG is ${CMAKE_C_FLAGS_DEBUG}")
+message("CMAKE_C_FLAGS_RELEASE is ${CMAKE_C_FLAGS_RELEASE}")
+
+message("CMAKE_BUILD_TYPE = ${CMAKE_BUILD_TYPE}")
+IF(CMAKE_BUILD_TYPE MATCHES Debug)
+  message("Debug build.")
+ELSEIF(CMAKE_BUILD_TYPE MATCHES Release)
+  message("Release build.")
+ELSE()
+  message("Some other build type.")
+ENDIF()
+
 
 if(APPLE)
     set(CMAKE_MACOSX_RPATH ON)
@@ -12,12 +32,25 @@ set(BARTLBY_MINOR_VERSION 6)
 set(BARTLBY_PATCH_VERSION 5)
 set(BARTLBY_VERSION  ${BARTLBY_MAJOR_VERSION}.${BARTLBY_MINOR_VERSION}.${BARTLBY_PATCH_VERSION})
 
+option(FULL_FEATURES, "Enable all features (requires: libssh, libsnmp libssl, libjson" OFF)
+
+if(FULL_FEATURES)
+	set(ENABLE_SNMP 1)
+	set(ENABLE_SSH 1)
+	set(ENABLE_LUA 1)
+	set(ENABLE_SSL 1)	
+ENDIF()
 
 
 
-include(cmake/findssl.cmake)
+
+if(ENABLE_SSL)
+
+	include(cmake/findssl.cmake)
+ENDIF()
 include(cmake/findmysql.cmake)
 include(cmake/findjson.cmake)
+
 include(cmake/findcurl.cmake)
 
 if(ENABLE_LUA)
@@ -40,12 +73,13 @@ include(cmake/findgeneric.cmake)
 
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall")
-add_definitions(-DWITH_NRPE)
+add_definitions(-DNRPE_ADDON)
 
 
 if (LIBSSH_INCLUDE_DIRS)
 add_definitions(-DSSH_ADDON)
 ENDIF()
+
 if(LUA_INCLUDE_DIR)
 add_definitions(-DLUA_ADDON)
 ENDIF()
@@ -60,7 +94,7 @@ ENDIF()
 
 
 if(OPENSSL_FOUND)
-add_definitions(-DHAVE_SSL)
+add_definitions(-DSSL_ADDON)
 ENDIF()
 
 
@@ -68,18 +102,22 @@ check_library_exists(${JSON_LIBRARY}   json_object_object_get_ex    ""   JSON_OL
 check_library_exists(${JSON_LIBRARY}   json_object_new_int64    ""   JSON_OLD64)
 
 
-if(!JSON_OLD)
+if(NOT  JSON_OLD)
 	add_definitions(-DNEEDS_JSON_GET_EX)
 ENDIF()
 
-if(!JSON_OLD64)
+if(NOT  JSON_OLD64)
 	add_definitions(-DNEEDS_JSON_INT64)
 ENDIF()
 
 
+if(NOT MySQL_FOUND OR NOT JSON_INCLUDE_DIR OR NOT CURL_FOUND)
+	message( FATAL_ERROR "libjson0/json-c, mysql and CURL are required dependencies" )
+ENDIF()
 
 SET(CLIB_DEPS
 			src/deps/buffer/clib_buffer.c
+			src/deps/progress/progress.c
 			
 			)
 SET(CORE_SOURCES
@@ -155,6 +193,7 @@ set(LIB_LINK  ${LUA_LIBRARY}  ${OPENSSL_LIBRARIES} 	${CURL_LIBRARY}  dl		${JSON_
 #COMPILE TEST BINARY
 set(TEST_CONFIG ${CMAKE_CURRENT_BINARY_DIR}/bartlby.cfg)
 add_executable(bartlby_test EXCLUDE_FROM_ALL ${CLIB_DEPS} ${TEST_SOURCES})
+SET_TARGET_PROPERTIES(bartlby_test                PROPERTIES COMPILE_FLAGS "-Wno-format-extra-args -Wno-missing-braces -Wno-unused-label -Wno-unused-variable")
 SET_TARGET_PROPERTIES(bartlby_test PROPERTIES CMAKE_EXE_LINKER_FLAGS "-Wl,--whole-archive -lbartlby -Wl,--no-whole-archive")
 set_target_properties(bartlby_test PROPERTIES COMPILE_DEFINITIONS CONFIG=\"${TEST_CONFIG}\")
 target_link_libraries(bartlby_test libbartlby)
@@ -255,15 +294,24 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR}/include/ include/ src/deps/ ${JS
 
 
 
+
+message("CONFIG DONE")
+message("------------")
+get_directory_property( DirDefs DIRECTORY ${CMAKE_SOURCE_DIR} COMPILE_DEFINITIONS )
+foreach( d ${DirDefs} )
+    message( STATUS "OPTION: " ${d} )
+endforeach()
+
+
+
+#DEBIAN PACKAGE GENERATION
 set(CPACK_GENERATOR "DEB")
 set(CPACK_PACKAGE_VERSION_MAJOR ${BARTLBY_MAJOR_VERSION})
 set(CPACK_PACKAGE_VERSION_MINOR ${BARTLBY_MINOR_VERSION})
 set(CPACK_PACKAGE_VERSION_PATCH	"${BARTLBY_PATCH_VERSION}~git-${GIT_VERSION}")
-
 set (CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
 set(CPACK_PACKAGE_DESCRIPTION "Bartlby Core")
 set(CPACK_PACKAGE_CONTACT "Helmut Januschka <helmut@januschka.com>")
 set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA postinst-pak)
-
 include(CPack)
 

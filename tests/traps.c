@@ -114,7 +114,7 @@ void test_trap_lib(void *data) {
 	dummy_trap.trap_id=object_id;
 	memcpy(&modified_object,&dummy_trap, sizeof(struct trap));
 	memcpy(&returned_object,&dummy_trap, sizeof(struct trap));
-	snprintf(modified_object.trap_catcher,2048, "modified-unit-test");
+	snprintf(modified_object.trap_catcher,511, "modified-unit-test");
 	rtc=UpdateTrap(&modified_object, CONFIG);
 	tt_int_op(rtc, ==, 1);
 	TT_DECLARE("INFO",("... Modified Trap, changed name"));
