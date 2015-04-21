@@ -283,7 +283,7 @@ install(TARGETS bartlby mysql libbartlby bartlby_portier bartlby_portier_legacy
 
 INSTALL(CODE "FILE(MAKE_DIRECTORY ${CMAKE_INSTALL_PREFIX}/var/log)") 
 INSTALL(CODE "FILE(MAKE_DIRECTORY ${CMAKE_INSTALL_PREFIX}/contrib)") 
-INSTALL(DIRECTORY perf trigger DESTINATION ${CMAKE_INSTALL_PREFIX}) 
+INSTALL(DIRECTORY perf trigger sbin docs DESTINATION ${CMAKE_INSTALL_PREFIX}) 
 
 
 
