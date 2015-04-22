@@ -455,7 +455,7 @@ void bartlby_notification_log_aggregate(void * bartlby_address, struct shm_heade
 
 	//char trigger_return[1024];
 	
-	char * tmpstr;
+	
 
 	struct worker * wrkmap;
 	struct trigger * trig;
@@ -577,10 +577,8 @@ void bartlby_notification_log_aggregate(void * bartlby_address, struct shm_heade
 							}
 							s=s->next;					
 						}
-						CHECKED_ASPRINTF(&tmpstr, "%ld OK, %ld Warning, %ld Critical, %ld Other \n", okcount, warncount, critcount, othercount);
 						//strncat(notify_msg, tmpstr, sizeof(notify_msg) - strlen(notify_msg) - 1);
-						clib_buffer_append(outgoing_message, tmpstr);
-						free(tmpstr);
+						clib_buffer_appendf(outgoing_message, "Aggregated: %ld OK, %ld Warning, %ld Critical, %ld Other \n", okcount, warncount, critcount, othercount);
 						
 						clib_buffer_append(outgoing_message, "Broken:\n-------------\n");
 						still_broken_count=0;
@@ -592,10 +590,10 @@ void bartlby_notification_log_aggregate(void * bartlby_address, struct shm_heade
 								if(csvc->current_state != 0) {
 									beauty_state=bartlby_beauty_state(csvc->current_state);
 									beauty_state_old=bartlby_beauty_state(csvc->last_state);
-									CHECKED_ASPRINTF(&tmpstr, "%s/%s (%s->%s) \n %s \n-------------\n", csvc->srv->server_name, csvc->service_name,beauty_state_old, beauty_state, csvc->current_output);
+									
 
-									clib_buffer_append(outgoing_message, tmpstr);
-									free(tmpstr);
+									clib_buffer_appendf(outgoing_message, "%s/%s (%s->%s) \n %s \n-------------\n", csvc->srv->server_name, csvc->service_name,beauty_state_old, beauty_state, csvc->current_output);
+									
 									free(beauty_state);
 									free(beauty_state_old);
 									still_broken_count++;
@@ -606,7 +604,7 @@ void bartlby_notification_log_aggregate(void * bartlby_address, struct shm_heade
 						}
 
 						if(still_broken_count == 0) {
-							clib_buffer_append(outgoing_message, "No Broken Service right now!\n");
+							clib_buffer_append(outgoing_message, "No Broken Service in aggregation window!\n");
 						}
 
 
@@ -620,9 +618,9 @@ void bartlby_notification_log_aggregate(void * bartlby_address, struct shm_heade
 								if(csvc->current_state == 0) {
 									beauty_state=bartlby_beauty_state(csvc->current_state);
 									beauty_state_old=bartlby_beauty_state(csvc->last_state);
-									CHECKED_ASPRINTF(&tmpstr, "%s/%s (%s->%s) \n %s \n-------------\n", csvc->srv->server_name, csvc->service_name,beauty_state_old, beauty_state, csvc->current_output);
-									clib_buffer_append(outgoing_message, tmpstr);
-									free(tmpstr);
+									
+									clib_buffer_appendf(outgoing_message, "%s/%s (%s->%s) \n %s \n-------------\n", csvc->srv->server_name, csvc->service_name,beauty_state_old, beauty_state, csvc->current_output);
+									
 									free(beauty_state);
 									free(beauty_state_old);
 									recovered_count++;
@@ -633,7 +631,7 @@ void bartlby_notification_log_aggregate(void * bartlby_address, struct shm_heade
 						}
 
 						if(recovered_count == 0) {
-							clib_buffer_append(outgoing_message, "No Service Recovered\n");
+							clib_buffer_append(outgoing_message, "No Service Recovered in aggregation window\n");
 						}
 						
 

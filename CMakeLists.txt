@@ -210,6 +210,14 @@ add_custom_target(test bartlby_test)
 cmake_policy(POP)
 
 
+add_custom_target(update 
+				 DEPENDS bartlby bartlby_portier bartlby_portier_legacy libbartlby mysql
+				 COMMAND cp -pva bartlby bartlby_portier bartlby_portier_legacy  ${CMAKE_INSTALL_PREFIX}/bin/
+				 COMMAND cp -pva mysql.so  ${CMAKE_INSTALL_PREFIX}/lib/
+
+				 )
+
+
 
 add_library(libbartlby  ${CLIB_DEPS} ${CORE_SOURCES} )
 SET_TARGET_PROPERTIES(libbartlby PROPERTIES PREFIX "")
@@ -284,7 +292,8 @@ install(TARGETS bartlby mysql libbartlby bartlby_portier bartlby_portier_legacy
 
 INSTALL(CODE "FILE(MAKE_DIRECTORY ${CMAKE_INSTALL_PREFIX}/var/log)") 
 INSTALL(CODE "FILE(MAKE_DIRECTORY ${CMAKE_INSTALL_PREFIX}/contrib)") 
-INSTALL(DIRECTORY perf trigger sbin docs DESTINATION ${CMAKE_INSTALL_PREFIX}) 
+INSTALL(DIRECTORY perf trigger sbin FILE_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_WRITE GROUP_EXECUTE WORLD_READ WORLD_WRITE WORLD_EXECUTE DESTINATION ${CMAKE_INSTALL_PREFIX})
+INSTALL(DIRECTORY  docs DESTINATION ${CMAKE_INSTALL_PREFIX}) 
 
 
 
