@@ -275,7 +275,7 @@ include(cmake/findgit.cmake)
 set(prefix ${CMAKE_INSTALL_PREFIX})
 
 configure_file(include/config.h.cmake include/config.h)
-configure_file(postinstall-pak.in postinstall-pak @ONLY)
+configure_file(postinstall-pak.in postinst @ONLY)
 
 
 INSTALL (SCRIPT cmake/installcfg.cmake ) 
@@ -314,6 +314,9 @@ endforeach()
 
 
 
+#include(CPack)
+
+
 #DEBIAN PACKAGE GENERATION
 set(CPACK_GENERATOR "DEB")
 set(CPACK_PACKAGE_VERSION_MAJOR ${BARTLBY_MAJOR_VERSION})
@@ -322,6 +325,31 @@ set(CPACK_PACKAGE_VERSION_PATCH	"${BARTLBY_PATCH_VERSION}~git-${GIT_VERSION}")
 set (CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
 set(CPACK_PACKAGE_DESCRIPTION "Bartlby Core")
 set(CPACK_PACKAGE_CONTACT "Helmut Januschka <helmut@januschka.com>")
-set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA postinst-pak)
+set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA "${CMAKE_CURRENT_BINARY_DIR}/postinst")
+set(CPACK_SET_DESTDIR "ON")
+
+
+
+string(TOLOWER "${CMAKE_PROJECT_NAME}" CPACK_PACKAGE_NAME_LOWERCASE)
+find_program(DPKG_PROGRAM dpkg DOC "dpkg program of Debian-based systems")
+if(DPKG_PROGRAM)
+  execute_process(
+    COMMAND ${DPKG_PROGRAM} --print-architecture
+    OUTPUT_VARIABLE CPACK_DEBIAN_PACKAGE_ARCHITECTURE
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+  )
+  set(CPACK_PACKAGE_FILE_NAME
+"${CPACK_PACKAGE_NAME_LOWERCASE}_${BARTLBY_MAJOR_VERSION}.${BARTLBY_MINOR_VERSION}.${CPACK_PACKAGE_VERSION_PATCH}_${CPACK_DEBIAN_PACKAGE_ARCHITECTURE}")   
+
+else(DPKG_PROGRAM)
+  set(CPACK_PACKAGE_FILE_NAME
+"${CPACK_PACKAGE_NAME_LOWERCASE}_${PROJECT_VERSION}-${PROJECT_VERSION_REVISION}_${CMAKE_SYSTEM_NAME}")
+endif(DPKG_PROGRAM)
+
+
+
+
 include(CPack)
+
+
 
