@@ -145,7 +145,7 @@ void bartlby_check_nrpe(struct service *svc, char *cfgfile, int use_ssl)
 	u_int32_t packet_crc32;
 	u_int32_t calculated_crc32;
 	int16_t result;
-	int rc;
+	int rc=-1;
 	packet send_packet;
 	packet receive_packet;
 	int bytes_to_send;
