@@ -3,5 +3,5 @@
 command -v clib >/dev/null 2>&1 || { git clone https://github.com/clibs/clib.git /tmp/clib && cd /tmp/clib && make && make install;  }
 
 clib install hjanuschka/buffer -o src/deps
-clib install hjanuschka/progress.h -o src/deps
+clib install jwerle/progress.c -o src/deps
 #clib install clibs/list -o src 
