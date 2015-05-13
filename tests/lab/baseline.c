@@ -20,8 +20,14 @@
 //Days to lookback for baseline calculation
 #define DAYS_BACK 7
 
-#define BASE_HISTORY_PATH "/opt/bartlby/var/history/"
+#define BASE_HISTORY_PATH "/tmp/bartlby_test/"
 
+
+#define CHECKED_ASPRINTF(...)                                       \
+    if (asprintf( __VA_ARGS__ ) == -1) {                             \
+       fprintf(stderr, "ASPRINTF FAILED");\
+       exit(1); \
+    }
 
 typedef struct {
         json_object * json_result;
@@ -38,12 +44,77 @@ void baseline_destroy(BASELINE * bsl) {
 
 
 }
+
+void baseline_create_test_data(long svc_id,
+                               char * base_history_path,
+                               float data_points[],
+                               int data_points_len,
+                               char * output_format,
+                               int days_back) {
+    time_t current_midnight;
+    time_t work_on;
+    int i;
+    int x;
+
+    char time_buffer[80];
+    char work_on_file[1024];
+    struct tm * tm_info;
+    char * record_buffer;
+
+    json_object * jso;
+
+    FILE * fp;
+
+    int records_created=0;
+
+    current_midnight=time(NULL);
+
+
+    for(i=days_back; i>0; i--) {
+        work_on = current_midnight-(86400*i);
+        tm_info = localtime ( &work_on );
+        strftime( time_buffer, 80, "%Y.%m.%d", tm_info );
+
+        //FIXME HISTORY FILE PATH!!!! - should be variable
+        sprintf(work_on_file, "%s%d-%s.history",base_history_path, svc_id, time_buffer);
+        fp = fopen(work_on_file, "w");
+
+
+
+
+        for(x=0; x<data_points_len; x++) {
+            fprintf(stderr, "ADD day: %d - point %d\n", i, x);
+
+
+            CHECKED_ASPRINTF(&record_buffer, output_format, data_points[x])
+
+            jso = json_object_new_object();
+			json_object_object_add(jso,"current_state", json_object_new_int(1));
+			json_object_object_add(jso,"last_write", json_object_new_int(work_on+x));
+			json_object_object_add(jso,"output", json_object_new_string(record_buffer));
+
+			fprintf(fp,"%s\n#############REC##############\n", json_object_to_json_string(jso));
+
+			json_object_put(jso);
+            free(record_buffer);
+            records_created++;
+        }
+
+
+        fclose(fp);
+
+
+    }
+    fprintf(stderr,"TEST Records created: %d\n", records_created);
+}
+
 BASELINE * calculate_baseline(long svc_id,
                               BASELINE * result_baseline,
                               int days_back,
                               int time_tolerance,
                               int value_tolerance,
-                              char * base_history_path
+                              char * base_history_path,
+                              char * service_output
                               ) {
 
     json_object * perf_data;
@@ -79,7 +150,7 @@ BASELINE * calculate_baseline(long svc_id,
     baseline_broken_keys=json_object_new_array();
     return_object=json_object_new_object();
     //FIXME GET SERVICE CURRENT OUTPUT
-    perf_data=parse_perf_data("CHECK_ESX3 OK - 'HPS MGMT NODE: 01' mem usage=4075.40 MB(44.99%), overhead=41.57 MB, active=1843.20 MB, swapped=0.00 MB, swapin=0.00 MB, swapout=0.00 MB, memctl=0.00 MB - | mem_usagemb=4075.40MB;; mem_usage=44.99%;; mem_overhead=41.57MB;; mem_active=1843.20MB;; mem_swap=0.00MB;; mem_swapin=0.00MB;; mem_swapout=0.00MB;; mem_memctl=0.00MB;;");
+    perf_data=parse_perf_data(service_output);
 
     if(perf_data != NULL) {
 
@@ -127,9 +198,10 @@ BASELINE * calculate_baseline(long svc_id,
                         if(json_object_get_int64(record_time) >= tolerance_window_start && json_object_get_int64(record_time)  <= tolerance_window_end) {
                             current_record_jso=parse_perf_data((char*)json_object_get_string(record_output));
 
-                            //fprintf(stderr, "JSO: %s\n", json_object_to_json_string(current_record_jso));
+
                             json_object_object_foreach(current_record_jso, key0, val0)
 	                        {
+
                                 data_point=json_object_new_object();
                                 json_object_object_add(data_point, "time", json_object_new_int64(json_object_get_int64(record_time)));
                                 json_object_object_add(data_point, "value", json_object_new_double(json_object_get_double(val0)));
@@ -289,6 +361,7 @@ json_object * parse_perf_data(char * string) {
 
     jso_ret = json_object_new_object();
 
+
     while ((token = strsep (&repos_work_str, " ")) != NULL) {
         if(strlen(token) > 3) {
 
@@ -355,12 +428,23 @@ float standard_deviation(float data[], int n)
 
 int main(int argc, char ** argv) {
     BASELINE bsl;
-    calculate_baseline(8361,
+
+    float  data_points[] = {10,20,30,40,40,30,20,10};
+
+    baseline_create_test_data(8316,
+                                   BASE_HISTORY_PATH,
+                                   data_points,
+                                   8,
+                                   "some plugin output | mem_usage=44.99%;; mem_overhead=41.57MB;; mem_active=1843.20MB;; mem_swap=0.00MB;; mem_swapin=0.00MB;; mem_swapout=0.00MB;; mem_memctl=0.00MB;; test_value=%fMB;;",
+                                   7);
+
+    calculate_baseline(8316,
                        &bsl,
                        DAYS_BACK,
                        TIME_TOLERANCE,
                        VALUE_TOLERANCE,
-                       BASE_HISTORY_PATH);
+                       BASE_HISTORY_PATH,
+                       "some plugin output | mem_usage=44.99%;; mem_overhead=41.57MB;; mem_active=1843.20MB;; mem_swap=0.00MB;; mem_swapin=0.00MB;; mem_swapout=0.00MB;; mem_memctl=0.00MB;; test_value=10.0MB;;");
 
 
 
@@ -371,6 +455,7 @@ int main(int argc, char ** argv) {
         fprintf(stderr, "BASELINE broken\n");
     }
     baseline_destroy(&bsl);
+
 }
 
 
