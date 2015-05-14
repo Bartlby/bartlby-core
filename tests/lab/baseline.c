@@ -1,3 +1,24 @@
+/*
+
+smoothed = 0;
+        while(*(last_values + i) != -1 && i < max_entries) {
+
+            aux = *(last_values + i);
+
+            if (i > 0) {
+                smoothed = smoothed + EXPONENTIALALPHA * (aux - smoothed);
+            } else {
+                smoothed = aux;
+            }
+
+            i++;
+        }
+
+        dv->top = smoothed * tolerance;
+        dv->bottom = smoothed * ( 2 - tolerance);
+#define EXPONENTIALALPHA 0.3
+*/
+
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
 #endif
@@ -9,6 +30,19 @@
 #include <regex.h>
 #include <time.h>
 #include <stdlib.h>
+
+
+
+//SOURCE TYPE 
+
+#define BARTLBY_BASELINE_DS_HISTORY 1
+#define BARTLBY_BASELINE_DS_DB 2
+
+
+// statistic algos
+#define BARTLBY_STATISTIC_STD_DEVIATION 1
+#define BARTLBY_STATISTIC_EXP_SMOOTH 2        
+
 
 
 //seconds for the time window to look at
@@ -30,9 +64,21 @@
     }
 
 typedef struct {
-        json_object * json_result;
-        int baseline_broken;
+    json_object * json_result;
+    int baseline_broken;
 } BASELINE;
+
+
+typedef struct {
+    float top;
+    float bottom;
+    float val;
+    float avg;
+    float sum;
+    char alg_name[80];
+
+} deviation_alg;
+
 
 json_object * parse_perf_data(char * string);
 char *file2str(    const char *path,    unsigned long *file_len_out);
@@ -40,13 +86,13 @@ float standard_deviation(float data[],  int n);
 
 void baseline_destroy(BASELINE * bsl) {
 
-        json_object_put(bsl->json_result);
+    json_object_put(bsl->json_result);
 
 
 }
 
 void baseline_create_test_data(long svc_id,
-                               char * base_history_path,
+                               char * cfg,
                                float data_points[],
                                int data_points_len,
                                char * output_format,
@@ -56,46 +102,49 @@ void baseline_create_test_data(long svc_id,
     int i;
     int x;
 
-    char time_buffer[80];
     char work_on_file[1024];
     struct tm * tm_info;
     char * record_buffer;
+    char time_buffer[80];
 
     json_object * jso;
 
     FILE * fp;
 
-    int records_created=0;
+    int records_created = 0;
 
-    current_midnight=time(NULL);
+    current_midnight = time(NULL);
 
 
-    for(i=days_back; i>0; i--) {
-        work_on = current_midnight-(86400*i);
+    char * base_history_path=BASE_HISTORY_PATH; //FIXME getconfig
+
+
+    for (i = days_back; i > 0; i--) {
+        work_on = current_midnight - (86400 * i);
         tm_info = localtime ( &work_on );
         strftime( time_buffer, 80, "%Y.%m.%d", tm_info );
 
         //FIXME HISTORY FILE PATH!!!! - should be variable
-        sprintf(work_on_file, "%s%d-%s.history",base_history_path, svc_id, time_buffer);
+        sprintf(work_on_file, "%s%d-%s.history", base_history_path, svc_id, time_buffer);
         fp = fopen(work_on_file, "w");
 
 
 
 
-        for(x=0; x<data_points_len; x++) {
-            fprintf(stderr, "ADD day: %d - point %d\n", i, x);
+        for (x = 0; x < data_points_len; x++) {
+            //fprintf(stderr, "ADD day: %d - point %d\n", i, x);
 
 
             CHECKED_ASPRINTF(&record_buffer, output_format, data_points[x])
 
             jso = json_object_new_object();
-			json_object_object_add(jso,"current_state", json_object_new_int(1));
-			json_object_object_add(jso,"last_write", json_object_new_int(work_on+x));
-			json_object_object_add(jso,"output", json_object_new_string(record_buffer));
+            json_object_object_add(jso, "current_state", json_object_new_int(1));
+            json_object_object_add(jso, "last_write", json_object_new_int(work_on + x));
+            json_object_object_add(jso, "output", json_object_new_string(record_buffer));
 
-			fprintf(fp,"%s\n#############REC##############\n", json_object_to_json_string(jso));
+            fprintf(fp, "%s\n#############REC##############\n", json_object_to_json_string(jso));
 
-			json_object_put(jso);
+            json_object_put(jso);
             free(record_buffer);
             records_created++;
         }
@@ -105,7 +154,239 @@ void baseline_create_test_data(long svc_id,
 
 
     }
-    fprintf(stderr,"TEST Records created: %d\n", records_created);
+    fprintf(stderr, "TEST Records created: %d\n", records_created);
+}
+
+
+
+
+void bartlby_baseline_append_day_data_from_stathistory(long svc_id, 
+                                 time_t work_on,
+                                 int tolerance_window_start,
+                                 int tolerance_window_end,
+                                 json_object * last_records,
+                                 char * cfg,
+                                 int source_type) {
+
+
+
+    struct tm * tm_info;
+    char time_buffer[80];
+    char work_on_file[1024];
+
+    char * file_contents;
+    char * file_contents_dup;
+    char * file_contents_record;
+    json_object * file_contents_record_jso;
+    json_object * current_record_jso;
+    char * record_token;
+
+    json_object * data_point;
+
+    char * base_history_path=BASE_HISTORY_PATH; //fixme getconfig
+
+
+
+
+
+    tm_info = localtime ( &work_on );
+    strftime( time_buffer, 80, "%Y.%m.%d", tm_info );
+
+    //FIXME HISTORY FILE PATH!!!! - should be variable
+    sprintf(work_on_file, "%s%d-%s.history", base_history_path, svc_id, time_buffer);
+    //fprintf(stderr, "%s\n", work_on_file);
+
+
+
+    file_contents = file2str(work_on_file, NULL);
+    file_contents_dup = file_contents;
+
+
+
+    while ((record_token = strsep (&file_contents_dup, "#")) != NULL) {
+        if (strlen(record_token) > 4) {
+            file_contents_record_jso = json_tokener_parse(record_token);
+
+
+            json_object * record_time;
+            json_object * record_output;
+            json_object * has_seen_key;
+
+            if (json_object_object_get_ex(file_contents_record_jso, "last_write", &record_time)) {
+                json_object_object_get_ex(file_contents_record_jso, "output", &record_output);
+
+
+
+                if (json_object_get_int64(record_time) >= tolerance_window_start && json_object_get_int64(record_time)  <= tolerance_window_end) {
+                    current_record_jso = parse_perf_data((char*)json_object_get_string(record_output));
+
+
+                    json_object_object_foreach(current_record_jso, key0, val0)
+                    {
+
+                        data_point = json_object_new_object();
+                        json_object_object_add(data_point, "time", json_object_new_int64(json_object_get_int64(record_time)));
+                        json_object_object_add(data_point, "value", json_object_new_double(json_object_get_double(val0)));
+
+
+                        if (json_object_object_get_ex(last_records, key0, &has_seen_key)) {
+                            //alread there
+                            json_object_array_add(has_seen_key, data_point);
+                        } else {
+                            json_object * new_array = json_object_new_array();
+                            json_object_array_add(new_array, data_point);
+                            json_object_object_add(last_records, key0, new_array);
+                        }
+
+                    }
+                    json_object_put(current_record_jso);
+
+
+
+
+                }
+
+
+            }
+
+
+
+
+            json_object_put(file_contents_record_jso);
+        }
+    }
+
+
+    free(file_contents);
+
+
+
+
+
+
+
+
+
+}
+
+void bartlby_baseline_append_day_data(long svc_id, 
+                                 time_t work_on,
+                                 int tolerance_window_start,
+                                 int tolerance_window_end,
+                                 json_object * last_records,
+                                 char * cfg,
+                                 int source_type) {
+
+
+
+    switch(source_type) {
+        case BARTLBY_BASELINE_DS_HISTORY:
+            bartlby_baseline_append_day_data_from_stathistory(svc_id,
+                                                              work_on,
+                                                              tolerance_window_start,
+                                                              tolerance_window_end,
+                                                              last_records,
+                                                              cfg,
+                                                              source_type);
+        break;
+
+        default:
+            //FIXME unable to find data source
+        break;
+
+    }
+
+}
+
+void bartlby_baseline_deviation_exp_smooth(float  baseline_values[], int baseline_value_count, float tolerance, json_object * data_point, deviation_alg * dev, int statistic_algo) {
+
+            double sum;
+            double avg;
+            double top;
+            double bottom;
+            float std_deviation;
+            int x;
+
+
+
+            float smoothed=0;
+            float aux;
+            sum=0;
+            for (x = 0; x < baseline_value_count; x++) {
+                aux = json_object_get_double(json_object_object_get(json_object_array_get_idx(data_point, x), "value"));
+                if(x>0) {
+                    smoothed=smoothed+0.3*(aux - smoothed); //0.3 EXPONENTIALALPHA
+                } else {
+                    smoothed=aux;
+                }
+                sum += aux;
+            }
+            avg = sum / baseline_value_count;
+
+            //fprintf(stderr, "SMOOTHED: %10f\n", smoothed);
+            top = smoothed * 0.3;
+            bottom = smoothed * ( 2 - 0.3);
+
+            if(bottom < 0) bottom=0;
+
+            dev->bottom=top;
+            dev->top=bottom;
+            dev->val=smoothed;
+            dev->sum=sum;
+            dev->avg=avg;
+            sprintf(dev->alg_name, "exponenatial_smooth");
+
+}
+
+void bartlby_baseline_deviation_std(float  baseline_values[], int baseline_value_count, float tolerance, json_object * data_point, deviation_alg * dev, int statistic_algo) {
+
+            double sum;
+            double avg;
+            double top;
+            double bottom;
+            float std_deviation;
+            int x;
+
+            sum = 0;
+            for (x = 0; x < baseline_value_count; x++) {
+                baseline_values[x] = json_object_get_double(json_object_object_get(json_object_array_get_idx(data_point, x), "value"));
+
+                //fprintf(stderr, "KEY: %s VAL:%10f\n", key0, baseline_values[x]);
+                sum += baseline_values[x];
+            }
+            avg = sum / baseline_value_count;
+
+            std_deviation = standard_deviation(baseline_values, baseline_value_count);
+            
+            top = avg + (std_deviation * tolerance);
+            bottom = avg - (std_deviation * tolerance);
+            if (bottom < 0) {
+                bottom = 0;
+            }
+
+
+            dev->bottom=bottom;
+            dev->top=top;
+            dev->val=std_deviation;
+            dev->sum=sum;
+            dev->avg=avg;
+            sprintf(dev->alg_name, "standard_deviation");
+
+            
+
+
+}
+void bartlby_baseline_deviation(float  baseline_values[], int baseline_value_count, float tolerance, json_object * data_point, deviation_alg * dev, int statistic_algo) {
+    switch(statistic_algo) {
+        case BARTLBY_STATISTIC_STD_DEVIATION:
+            bartlby_baseline_deviation_std(baseline_values, baseline_value_count, tolerance, data_point, dev, statistic_algo);
+        break;
+        case BARTLBY_STATISTIC_EXP_SMOOTH:
+            bartlby_baseline_deviation_exp_smooth(baseline_values, baseline_value_count, tolerance, data_point, dev, statistic_algo);
+        break;
+
+
+    }
 }
 
 BASELINE * calculate_baseline(long svc_id,
@@ -113,9 +394,11 @@ BASELINE * calculate_baseline(long svc_id,
                               int days_back,
                               int time_tolerance,
                               int value_tolerance,
-                              char * base_history_path,
-                              char * service_output
-                              ) {
+                              char * service_output,
+                              char * cfg,
+                              int source_type,
+                              int statistic_algo
+                             ) {
 
     json_object * perf_data;
     json_object * last_records;
@@ -125,117 +408,45 @@ BASELINE * calculate_baseline(long svc_id,
     long tolerance_window_end;
     long tolerance_window_start;
 
-
-    char time_buffer[80];
-    char work_on_file[1024];
-    struct tm * tm_info;
-
-    char * file_contents;
-    char * file_contents_dup;
-    char * file_contents_record;
-    json_object * file_contents_record_jso;
-    json_object * current_record_jso;
-    char * record_token;
-
+    
     json_object * return_object;
 
-    int baseline_broken=0;
+    int baseline_broken = 0;
     json_object * baseline_broken_keys;
 
-    json_object * data_point;
+    
     int i;
 
 
 
-    baseline_broken_keys=json_object_new_array();
-    return_object=json_object_new_object();
+    baseline_broken_keys = json_object_new_array();
+    return_object = json_object_new_object();
     //FIXME GET SERVICE CURRENT OUTPUT
-    perf_data=parse_perf_data(service_output);
+    perf_data = parse_perf_data(service_output);
 
-    if(perf_data != NULL) {
+    if (perf_data != NULL) {
 
 
         //GET RECORDS
 
-        current_midnight=time(NULL);
-        last_records=json_object_new_object();
+        current_midnight = time(NULL);
+        last_records = json_object_new_object();
 
-        for(i=days_back; i>0; i--) {
+        for (i = days_back; i > 0; i--) {
             //Walk threw days
-            work_on = current_midnight-(86400*i);
-            tolerance_window_start=work_on-time_tolerance;
-            tolerance_window_end=work_on+time_tolerance;
+            work_on = current_midnight - (86400 * i);
+            tolerance_window_start = work_on - time_tolerance;
+            tolerance_window_end = work_on + time_tolerance;
 
-            tm_info = localtime ( &work_on );
-            strftime( time_buffer, 80, "%Y.%m.%d", tm_info );
-
-            //FIXME HISTORY FILE PATH!!!! - should be variable
-            sprintf(work_on_file, "%s%d-%s.history",base_history_path, svc_id, time_buffer);
-            //fprintf(stderr, "%s\n", work_on_file);
-
-
-
-            file_contents = file2str(work_on_file, NULL);
-            file_contents_dup=file_contents;
-
-
-
-            while ((record_token = strsep (&file_contents_dup, "#")) != NULL) {
-                if(strlen(record_token) > 4) {
-
-                    file_contents_record_jso=json_tokener_parse(record_token);
-
-
-                    json_object * record_time;
-                    json_object * record_output;
-                    json_object * has_seen_key;
-
-                    if(json_object_object_get_ex(file_contents_record_jso, "last_write", &record_time)) {
-                        json_object_object_get_ex(file_contents_record_jso, "output", &record_output);
-
-
-
-                        if(json_object_get_int64(record_time) >= tolerance_window_start && json_object_get_int64(record_time)  <= tolerance_window_end) {
-                            current_record_jso=parse_perf_data((char*)json_object_get_string(record_output));
-
-
-                            json_object_object_foreach(current_record_jso, key0, val0)
-	                        {
-
-                                data_point=json_object_new_object();
-                                json_object_object_add(data_point, "time", json_object_new_int64(json_object_get_int64(record_time)));
-                                json_object_object_add(data_point, "value", json_object_new_double(json_object_get_double(val0)));
-
-
-                                if(json_object_object_get_ex(last_records, key0, &has_seen_key)) {
-                                    //alread there
-                                    json_object_array_add(has_seen_key, data_point);
-                                } else {
-                                    json_object * new_array = json_object_new_array();
-                                    json_object_array_add(new_array, data_point);
-                                    json_object_object_add(last_records, key0, new_array);
-                                }
-
-                            }
-                            json_object_put(current_record_jso);
-
-
-
-
-                        }
-
-
-                    }
-
-
-
-
-                    json_object_put(file_contents_record_jso);
-                }
-            }
-
-
-            free(file_contents);
+            bartlby_baseline_append_day_data(
+                svc_id,
+                work_on,
+                tolerance_window_start,
+                tolerance_window_end,
+                last_records,
+                cfg,
+                source_type
+            );
 
 
 
@@ -249,51 +460,39 @@ BASELINE * calculate_baseline(long svc_id,
             //Check Baseline of value
 
             float * baseline_values;
-            float std_deviation;
             int baseline_value_count;
             int x;
-            double sum;
-            double avg;
-            double top;
-            double bottom;
+            
             float tolerance;
+
+            deviation_alg deviation;
+
             json_object * curr_live_val;
 
-            baseline_value_count = 	json_object_array_length(val0);
+            baseline_value_count =  json_object_array_length(val0);
+            baseline_values = malloc(sizeof(float) * baseline_value_count);
+            tolerance = value_tolerance / 100 + 1;
 
-            baseline_values = malloc(sizeof(float)*baseline_value_count);
-            sum=0;
-            for(x=0; x<baseline_value_count; x++) {
-                baseline_values[x]=json_object_get_double(json_object_object_get(json_object_array_get_idx(val0, x), "value"));
+            bartlby_baseline_deviation(baseline_values, baseline_value_count,tolerance, val0, &deviation, statistic_algo);
 
-                //fprintf(stderr, "KEY: %s VAL:%10f\n", key0, baseline_values[x]);
-                sum += baseline_values[x];
-            }
-            avg=sum/baseline_value_count;
 
-            std_deviation=standard_deviation(baseline_values, baseline_value_count);
-            tolerance=value_tolerance/100+1;
-            top=avg+(std_deviation*tolerance);
-            bottom=avg-(std_deviation*tolerance);
-            if(bottom < 0) {
-                bottom=0;
-            }
+            
             json_object_object_get_ex(perf_data, key0, &curr_live_val);
-//            fprintf(stderr,"STD DEVIATION avg:%10g of key: %s  current: %s is at: %10g top: %10g bottom: %10g\n",avg, key0, json_object_get_string(curr_live_val), std_deviation, top, bottom);
+
 
 
             json_object * baseline_new;
             baseline_new = json_object_new_object();
-            json_object_object_add(baseline_new, "standard_deviation", json_object_new_double(std_deviation));
-            json_object_object_add(baseline_new, "avg", json_object_new_double(avg));
-            json_object_object_add(baseline_new, "top", json_object_new_double(top));
-            json_object_object_add(baseline_new, "bottom", json_object_new_double(bottom));
+            json_object_object_add(baseline_new, deviation.alg_name, json_object_new_double(deviation.val));
+            json_object_object_add(baseline_new, "avg", json_object_new_double(deviation.avg));
+            json_object_object_add(baseline_new, "top", json_object_new_double(deviation.top));
+            json_object_object_add(baseline_new, "bottom", json_object_new_double(deviation.bottom));
             json_object_object_add(baseline_new, "current", json_object_new_double(json_object_get_double(curr_live_val)));
             json_object_object_add(baseline_new, "raw_values", json_object_get(val0));
 
 
-            if(json_object_get_double(curr_live_val) < bottom || json_object_get_double(curr_live_val) > top ) {
-                baseline_broken=1;
+            if (json_object_get_double(curr_live_val) < deviation.bottom || json_object_get_double(curr_live_val) > deviation.top ) {
+                baseline_broken = 1;
                 //fprintf(stderr, "BROKEN for key: %s\n", key0);
                 json_object_array_add(baseline_broken_keys, json_object_new_string(key0));
             }
@@ -312,8 +511,8 @@ BASELINE * calculate_baseline(long svc_id,
         json_object_object_add(return_object, "baseline_broken_keys", baseline_broken_keys);
 
 
-        result_baseline->json_result=return_object;
-        result_baseline->baseline_broken=baseline_broken;
+        result_baseline->json_result = return_object;
+        result_baseline->baseline_broken = baseline_broken;
 
 
         //Cleanup return object - FIXME remove this later
@@ -347,10 +546,10 @@ json_object * parse_perf_data(char * string) {
     regmatch_t pmatch[5];
 
 
-    work_str=strdup(string);
-    repos_work_str=strstr(work_str, "|");
+    work_str = strdup(string);
+    repos_work_str = strstr(work_str, "|");
 
-    if(repos_work_str == NULL) {
+    if (repos_work_str == NULL) {
         return NULL;
     }
 
@@ -363,25 +562,25 @@ json_object * parse_perf_data(char * string) {
 
 
     while ((token = strsep (&repos_work_str, " ")) != NULL) {
-        if(strlen(token) > 3) {
+        if (strlen(token) > 3) {
 
-            ret = regcomp(&regex,"([^=]+)=([0-9.]+)", REG_EXTENDED);
+            ret = regcomp(&regex, "([^=]+)=([0-9.]+)", REG_EXTENDED);
             if (ret != 0) {
-    		          printf("Unable to compile regular expression\n");
-    		          return NULL;
+                printf("Unable to compile regular expression\n");
+                return NULL;
             }
             if (regexec(&regex, token, 5, pmatch, 0) == 0) {
 
                 //FIXME CHECK IF we have atlease 2 groups found - else return null, or skip var
 
                 length = pmatch[1].rm_eo - pmatch[1].rm_so;
-                key_string = malloc((length+1)*sizeof(char));
+                key_string = malloc((length + 1) * sizeof(char));
                 memcpy(key_string, token + pmatch[1].rm_so, length);
                 key_string[length] = 0;
 
 
                 length = pmatch[2].rm_eo - pmatch[2].rm_so;
-                value_string = malloc((length+1)*sizeof(char));
+                value_string = malloc((length + 1) * sizeof(char));
                 memcpy(value_string, token + pmatch[2].rm_so, length);
                 value_string[length] = 0;
 
@@ -412,16 +611,16 @@ json_object * parse_perf_data(char * string) {
 
 float standard_deviation(float data[], int n)
 {
-    float mean=0.0, sum_deviation=0.0;
+    float mean = 0.0, sum_deviation = 0.0;
     int i;
-    for(i=0; i<n;++i)
+    for (i = 0; i < n; ++i)
     {
-        mean+=data[i];
+        mean += data[i];
     }
-    mean=mean/n;
-    for(i=0; i<n;++i)
-    sum_deviation+=(data[i]-mean)*(data[i]-mean);
-    return sqrt(sum_deviation/n);
+    mean = mean / n;
+    for (i = 0; i < n; ++i)
+        sum_deviation += (data[i] - mean) * (data[i] - mean);
+    return sqrt(sum_deviation / n);
 }
 
 
@@ -429,27 +628,31 @@ float standard_deviation(float data[], int n)
 int main(int argc, char ** argv) {
     BASELINE bsl;
 
-    float  data_points[] = {10,20,30,40,40,30,20,10};
+    float  data_points[] = {10, 20, 30, 40, 40, 30, 20, 10};
 
     baseline_create_test_data(8316,
-                                   BASE_HISTORY_PATH,
-                                   data_points,
-                                   8,
-                                   "some plugin output | mem_usage=44.99%;; mem_overhead=41.57MB;; mem_active=1843.20MB;; mem_swap=0.00MB;; mem_swapin=0.00MB;; mem_swapout=0.00MB;; mem_memctl=0.00MB;; test_value=%fMB;;",
-                                   7);
+                              "/opt/bartlby/etc/bartlby.cfg",
+                              data_points,
+                              8,
+                              "some plugin output | mem_usage=44.99%;; mem_overhead=41.57MB;; mem_active=1843.20MB;; mem_swap=0.00MB;; mem_swapin=0.00MB;; mem_swapout=0.00MB;; mem_memctl=0.00MB;; test_value=%fMB;;",
+                              7);
 
     calculate_baseline(8316,
                        &bsl,
                        DAYS_BACK,
                        TIME_TOLERANCE,
                        VALUE_TOLERANCE,
-                       BASE_HISTORY_PATH,
-                       "some plugin output | mem_usage=44.99%;; mem_overhead=41.57MB;; mem_active=1843.20MB;; mem_swap=0.00MB;; mem_swapin=0.00MB;; mem_swapout=0.00MB;; mem_memctl=0.00MB;; test_value=10.0MB;;");
+                       "some plugin output | mem_usage=44.99%;; mem_overhead=41.57MB;; mem_active=1843.20MB;; mem_swap=0.00MB;; mem_swapin=0.00MB;; mem_swapout=0.00MB;; mem_memctl=0.00MB;; test_value=10.0MB;;",
+                       "/opt/bartlby/etc/bartlby.cfg",
+                       BARTLBY_BASELINE_DS_HISTORY,
+                       BARTLBY_STATISTIC_EXP_SMOOTH
+
+                       );
 
 
 
-    printf("\t%s\n", json_object_to_json_string_ext(bsl.json_result,JSON_C_TO_STRING_PRETTY));
-    if(bsl.baseline_broken == 0) {
+    printf("\t%s\n", json_object_to_json_string_ext(bsl.json_result, JSON_C_TO_STRING_PRETTY));
+    if (bsl.baseline_broken == 0) {
         fprintf(stderr, "BASELINE not broken\n");
     } else {
         fprintf(stderr, "BASELINE broken\n");
@@ -517,5 +720,5 @@ char *file2str(
     unsigned long *file_len_out
 )
 {
-    return file2strl(path,NULL);
+    return file2strl(path, NULL);
 }
