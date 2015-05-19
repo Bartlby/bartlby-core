@@ -214,7 +214,7 @@ cmake_policy(POP)
 
 add_custom_target(update 
 				 DEPENDS bartlby bartlby_portier bartlby_portier_legacy libbartlby mysql
-				 COMMAND cp -pva bartlby bartlby_portier bartlby_portier_legacy  ${CMAKE_INSTALL_PREFIX}/bin/
+				 COMMAND cp -pva bartlby bartlby_portier bartlby_shmt bartlby_portier_legacy  ${CMAKE_INSTALL_PREFIX}/bin/
 				 COMMAND cp -pva mysql.so  ${CMAKE_INSTALL_PREFIX}/lib/
 
 				 )
@@ -287,7 +287,7 @@ INSTALL(FILES  ${CMAKE_CURRENT_BINARY_DIR}/bartlby.startup
 		 DESTINATION etc/)
 INSTALL(FILES mysql.shema DESTINATION ${CMAKE_INSTALL_PREFIX})
 
-install(TARGETS bartlby mysql libbartlby bartlby_portier bartlby_portier_legacy
+install(TARGETS bartlby mysql libbartlby bartlby_portier bartlby_portier_legacy bartlby_shmt
         RUNTIME DESTINATION bin
         LIBRARY DESTINATION lib
         ARCHIVE DESTINATION lib)
