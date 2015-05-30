@@ -165,8 +165,8 @@ void bartlby_baseline_append_day_data_from_stathistory(long svc_id,
                                  int tolerance_window_start,
                                  int tolerance_window_end,
                                  json_object * last_records,
-                                 char * cfg,
-                                 int source_type) {
+                                 char * cfg
+                                 ) {
 
 
 
@@ -286,8 +286,8 @@ void bartlby_baseline_append_day_data(long svc_id,
                                                               tolerance_window_start,
                                                               tolerance_window_end,
                                                               last_records,
-                                                              cfg,
-                                                              source_type);
+                                                              cfg
+                                                              );
         break;
 
         default:
@@ -298,7 +298,7 @@ void bartlby_baseline_append_day_data(long svc_id,
 
 }
 
-void bartlby_baseline_deviation_exp_smooth(float  baseline_values[], int baseline_value_count, float tolerance, json_object * data_point, deviation_alg * dev, int statistic_algo) {
+void bartlby_baseline_deviation_exp_smooth(float  baseline_values[], int baseline_value_count, float tolerance, json_object * data_point, deviation_alg * alg_out) {
 
             double sum;
             double avg;
@@ -329,16 +329,16 @@ void bartlby_baseline_deviation_exp_smooth(float  baseline_values[], int baselin
 
             if(bottom < 0) bottom=0;
 
-            dev->bottom=top;
-            dev->top=bottom;
-            dev->val=smoothed;
-            dev->sum=sum;
-            dev->avg=avg;
-            sprintf(dev->alg_name, "exponenatial_smooth");
+            alg_out->bottom=top;
+            alg_out->top=bottom;
+            alg_out->val=smoothed;
+            alg_out->sum=sum;
+            alg_out->avg=avg;
+            sprintf(alg_out->alg_name, "exponenatial_smooth");
 
 }
 
-void bartlby_baseline_deviation_std(float  baseline_values[], int baseline_value_count, float tolerance, json_object * data_point, deviation_alg * dev, int statistic_algo) {
+void bartlby_baseline_deviation_std(float  baseline_values[], int baseline_value_count, float tolerance, json_object * data_point,deviation_alg * alg_out) {
 
             double sum;
             double avg;
@@ -365,24 +365,24 @@ void bartlby_baseline_deviation_std(float  baseline_values[], int baseline_value
             }
 
 
-            dev->bottom=bottom;
-            dev->top=top;
-            dev->val=std_deviation;
-            dev->sum=sum;
-            dev->avg=avg;
-            sprintf(dev->alg_name, "standard_deviation");
+            alg_out->bottom=bottom;
+            alg_out->top=top;
+            alg_out->val=std_deviation;
+            alg_out->sum=sum;
+            alg_out->avg=avg;
+            sprintf(alg_out->alg_name, "standard_deviation");
 
             
 
 
 }
-void bartlby_baseline_deviation(float  baseline_values[], int baseline_value_count, float tolerance, json_object * data_point, deviation_alg * dev, int statistic_algo) {
+void bartlby_baseline_deviation(float  baseline_values[], int baseline_value_count, float tolerance, json_object * data_point, deviation_alg * alg_out, int statistic_algo) {
     switch(statistic_algo) {
         case BARTLBY_STATISTIC_STD_DEVIATION:
-            bartlby_baseline_deviation_std(baseline_values, baseline_value_count, tolerance, data_point, dev, statistic_algo);
+            bartlby_baseline_deviation_std(baseline_values, baseline_value_count, tolerance, data_point, alg_out);
         break;
         case BARTLBY_STATISTIC_EXP_SMOOTH:
-            bartlby_baseline_deviation_exp_smooth(baseline_values, baseline_value_count, tolerance, data_point, dev, statistic_algo);
+            bartlby_baseline_deviation_exp_smooth(baseline_values, baseline_value_count, tolerance, data_point,alg_out);
         break;
 
 
