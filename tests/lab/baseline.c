@@ -30,13 +30,14 @@ smoothed = 0;
 #include <regex.h>
 #include <time.h>
 #include <stdlib.h>
+#include "bartlby.h"
 
 
 
 //SOURCE TYPE 
 
-#define BARTLBY_BASELINE_DS_HISTORY 1
-#define BARTLBY_BASELINE_DS_DB 2
+#define BARTLBY_BARTLBY_BASELINE_DS_HISTORY 1
+#define BARTLBY_BARTLBY_BASELINE_DS_DB 2
 
 
 // statistic algos
@@ -54,19 +55,21 @@ smoothed = 0;
 //Days to lookback for baseline calculation
 #define DAYS_BACK 7
 
+
+//Min Records before a baseline calculation is done
+#define MIN_RECORDS 10
+
+//MAX records to consider in baseline calculation
+#define MAX_RECORDS 100        
+
 #define BASE_HISTORY_PATH "/tmp/bartlby_test/"
 
 
-#define CHECKED_ASPRINTF(...)                                       \
-    if (asprintf( __VA_ARGS__ ) == -1) {                             \
-       fprintf(stderr, "ASPRINTF FAILED");\
-       exit(1); \
-    }
 
 typedef struct {
     json_object * json_result;
     int baseline_broken;
-} BASELINE;
+} BARTLBY_BASELINE;
 
 
 typedef struct {
@@ -84,14 +87,14 @@ json_object * parse_perf_data(char * string);
 char *file2str(    const char *path,    unsigned long *file_len_out);
 float standard_deviation(float data[],  int n);
 
-void baseline_destroy(BASELINE * bsl) {
+void baseline_destroy(BARTLBY_BASELINE * bsl) {
 
     json_object_put(bsl->json_result);
 
 
 }
 
-void baseline_create_test_data(long svc_id,
+void bartlby_baseline_create_test_data(long svc_id,
                                char * cfg,
                                float data_points[],
                                int data_points_len,
@@ -160,7 +163,7 @@ void baseline_create_test_data(long svc_id,
 
 
 
-void bartlby_baseline_append_day_data_from_stathistory(long svc_id, 
+long bartlby_baseline_append_day_data_from_stathistory(long svc_id, 
                                  time_t work_on,
                                  int tolerance_window_start,
                                  int tolerance_window_end,
@@ -169,7 +172,7 @@ void bartlby_baseline_append_day_data_from_stathistory(long svc_id,
                                  ) {
 
 
-
+    long records_found = 0;
     struct tm * tm_info;
     char time_buffer[80];
     char work_on_file[1024];
@@ -218,11 +221,15 @@ void bartlby_baseline_append_day_data_from_stathistory(long svc_id,
 
 
                 if (json_object_get_int64(record_time) >= tolerance_window_start && json_object_get_int64(record_time)  <= tolerance_window_end) {
+                    records_found++;
                     current_record_jso = parse_perf_data((char*)json_object_get_string(record_output));
 
-
-                    json_object_object_foreach(current_record_jso, key0, val0)
+                    json_object_iter iter;
+                    json_object_object_foreachC(current_record_jso, iter)
                     {
+
+                        char * key0=iter.key;
+                        json_object * val0=iter.val;
 
                         data_point = json_object_new_object();
                         json_object_object_add(data_point, "time", json_object_new_int64(json_object_get_int64(record_time)));
@@ -260,7 +267,7 @@ void bartlby_baseline_append_day_data_from_stathistory(long svc_id,
     free(file_contents);
 
 
-
+    return records_found;
 
 
 
@@ -269,7 +276,7 @@ void bartlby_baseline_append_day_data_from_stathistory(long svc_id,
 
 }
 
-void bartlby_baseline_append_day_data(long svc_id, 
+long bartlby_baseline_append_day_data(long svc_id, 
                                  time_t work_on,
                                  int tolerance_window_start,
                                  int tolerance_window_end,
@@ -280,8 +287,8 @@ void bartlby_baseline_append_day_data(long svc_id,
 
 
     switch(source_type) {
-        case BARTLBY_BASELINE_DS_HISTORY:
-            bartlby_baseline_append_day_data_from_stathistory(svc_id,
+        case BARTLBY_BARTLBY_BASELINE_DS_HISTORY:
+            return bartlby_baseline_append_day_data_from_stathistory(svc_id,
                                                               work_on,
                                                               tolerance_window_start,
                                                               tolerance_window_end,
@@ -408,16 +415,39 @@ void bartlby_baseline_deviation(float  baseline_values[], int baseline_value_cou
 
     }
 }
+int bartlby_json_string_in_array(json_object * array, char * str) {
+    int x;
+    json_object * jvalue;
+    //return -1;
+    //FIXME if array is null or not a json return true
 
-BASELINE * calculate_baseline(long svc_id,
-                              BASELINE * result_baseline,
+
+    if(array == 0 || json_object_array_length(array) == 0) return 1;
+
+    for(x=0; x<json_object_array_length(array); x++) {
+        jvalue=json_object_array_get_idx(array, x);
+
+        if(strcmp(str, json_object_get_string(jvalue)) == 0) {
+            return 1;            
+        }
+    }
+
+    return 0;
+
+}
+BARTLBY_BASELINE * bartlby_calculate_baseline(long svc_id,
+                              BARTLBY_BASELINE * result_baseline,
                               int days_back,
                               int time_tolerance,
                               int value_tolerance,
                               char * service_output,
                               char * cfg,
                               int source_type,
-                              int statistic_algo
+                              int statistic_algo,
+                              int min_records,
+                              int max_records,
+                              json_object * include_keys
+
                              ) {
 
     json_object * perf_data;
@@ -437,6 +467,8 @@ BASELINE * calculate_baseline(long svc_id,
     
     int i;
 
+    long record_limiter=0;
+
 
 
     baseline_broken_keys = json_object_new_array();
@@ -453,12 +485,17 @@ BASELINE * calculate_baseline(long svc_id,
         last_records = json_object_new_object();
 
         for (i = days_back; i > 0; i--) {
+
+            if(record_limiter >= max_records) continue;
+
             //Walk threw days
             work_on = current_midnight - (86400 * i);
             tolerance_window_start = work_on - time_tolerance;
             tolerance_window_end = work_on + time_tolerance;
 
-            bartlby_baseline_append_day_data(
+            
+
+            record_limiter += bartlby_baseline_append_day_data(
                 svc_id,
                 work_on,
                 tolerance_window_start,
@@ -471,23 +508,32 @@ BASELINE * calculate_baseline(long svc_id,
 
 
 
+
         }
 
         
-
-        json_object_object_foreach(last_records, key0, val0)
+        json_object_iter iter;
+        json_object_object_foreachC(last_records, iter)
         {
+
+            if(record_limiter <= min_records) continue;
+            
             //Check Baseline of value
 
             float * baseline_values;
             int baseline_value_count;
             int x;
             
+            char * key0=iter.key;
+            json_object * val0=iter.val;
+
             float tolerance;
 
             deviation_alg deviation;
 
-
+            if(!bartlby_json_string_in_array(include_keys, key0)) {
+                continue;
+            } 
             
             json_object * curr_live_val;
 
@@ -657,28 +703,153 @@ float standard_deviation(float data[], int n)
 }
 
 
+BARTLBY_BASELINE * bartlby_check_baseline(struct service * svc, char * config_payload, char * config, void * bartlby_address) {
+    //return NULL if failed
+    json_object * json_config = json_tokener_parse(config_payload);
+
+
+    /*
+        {
+            "alg": "standard_deviation",
+            "time_tolerance": 120,
+            "value_tolerance": 200
+            "days_back": 7,
+            "data_source": "history",
+            "min_records": 20,
+            "max_records": 100,
+            "include_keys": ["load","test_value"]
+        }
+    */
+
+    if(json_config ==  NULL) {
+        return NULL;
+    }
+
+
+    int alg = BARTLBY_STATISTIC_STD_DEVIATION;
+    int time_tolerance = TIME_TOLERANCE;
+    int value_tolerance = VALUE_TOLERANCE;
+    int days_back = DAYS_BACK;
+    int data_source= BARTLBY_BARTLBY_BASELINE_DS_HISTORY;
+    int min_records=20;
+    int max_records=100;
+    int include_keys=-1;
+
+
+    BARTLBY_BASELINE  * bsl;
+
+    json_object * jso_alg, * jso_time_tolerance;
+    json_object * jso_value_tolerance, * jso_days_back;
+    json_object * jso_data_source, *jso_min_records, *jso_max_records;
+    json_object * jso_include_keys  = NULL;
+
+
+    //ALGO
+    if (json_object_object_get_ex(json_config, "alg", &jso_alg)) {
+            if(strcmp(json_object_get_string(jso_alg), "standard_deviation") == 0) {
+                alg = BARTLBY_STATISTIC_STD_DEVIATION;
+            }
+            if(strcmp(json_object_get_string(jso_alg), "exponenatial_smooth") == 0) {
+                alg = BARTLBY_STATISTIC_EXP_SMOOTH;
+            }
+    }
+
+
+    if (json_object_object_get_ex(json_config, "time_tolerance", &jso_time_tolerance)) {
+        if(json_object_get_int64(jso_time_tolerance) > 0) {
+            time_tolerance=json_object_get_int64(jso_time_tolerance);
+        }
+    }
+
+    if (json_object_object_get_ex(json_config, "value_tolerance", &jso_value_tolerance)) {
+        if(json_object_get_int64(jso_value_tolerance) > 0) {
+            value_tolerance=json_object_get_int64(jso_value_tolerance);
+        }
+    }
+
+    if (json_object_object_get_ex(json_config, "days_back", &jso_days_back)) {
+        if(json_object_get_int64(jso_days_back) > 0) {
+            days_back=json_object_get_int64(jso_days_back);
+        }
+    }
+
+   //DATA SOURCE
+    if (json_object_object_get_ex(json_config, "data_source", &jso_data_source)) {
+            if(strcmp(json_object_get_string(jso_data_source), "history") == 0) {
+                data_source = BARTLBY_BARTLBY_BASELINE_DS_HISTORY;
+            }
+            
+    }
+
+    if (json_object_object_get_ex(json_config, "min_records", &jso_min_records)) {
+        if(json_object_get_int64(jso_min_records) > 0) {
+            min_records=json_object_get_int64(jso_min_records);
+        }
+    }
+
+    if (json_object_object_get_ex(json_config, "max_records", &jso_max_records)) {
+        if(json_object_get_int64(jso_max_records) > 0) {
+            max_records=json_object_get_int64(jso_max_records);
+        }
+    }
+
+
+    if (json_object_object_get_ex(json_config, "include_keys", &jso_include_keys)) {
+       include_keys=1;
+    }
+
+    bsl = malloc(sizeof(BARTLBY_BASELINE)*1);
+    bartlby_calculate_baseline(svc->service_id,
+                       bsl,
+                       days_back,
+                       time_tolerance,
+                       value_tolerance,
+                       svc->current_output,
+                       config,
+                       data_source,
+                       alg,
+                       min_records,
+                       max_records,
+                       jso_include_keys
+
+
+                       );
+
+
+
+
+    return bsl;
+}
 
 int main(int argc, char ** argv) {
-    BASELINE bsl;
+    BARTLBY_BASELINE bsl;
 
-    float  data_points[] = {10, 20, 30, 40, 40, 30, 20, 10};
+    float  data_points[] = {10, 20, 30, 30, 40, 30, 20, 10};
 
-    baseline_create_test_data(8316,
+    json_object * include_keys = json_object_new_array();
+    json_object_array_add(include_keys, json_object_new_string("test_value"));
+
+    
+    bartlby_baseline_create_test_data(8316,
                               "/opt/bartlby/etc/bartlby.cfg",
                               data_points,
                               8,
                               "some plugin output | mem_usage=44.99%;; mem_overhead=41.57MB;; mem_active=1843.20MB;; mem_swap=0.00MB;; mem_swapin=0.00MB;; mem_swapout=0.00MB;; mem_memctl=0.00MB;; test_value=%fMB;;",
                               7);
 
-    calculate_baseline(8316,
+    bartlby_calculate_baseline(8316,
                        &bsl,
                        DAYS_BACK,
                        TIME_TOLERANCE,
                        VALUE_TOLERANCE,
-                       "some plugin output | mem_usage=44.99%;; mem_overhead=41.57MB;; mem_active=1843.20MB;; mem_swap=0.00MB;; mem_swapin=0.00MB;; mem_swapout=0.00MB;; mem_memctl=0.00MB;; test_value=10.0MB;;",
+                       "some plugin output | mem_usage=44.99%;; mem_overhead=41.57MB;; mem_active=1843.20MB;; mem_swap=0.00MB;; mem_swapin=0.00MB;; mem_swapout=0.00MB;; mem_memctl=0.00MB;; test_value=20.0MB;;",
                        "/opt/bartlby/etc/bartlby.cfg",
-                       BARTLBY_BASELINE_DS_HISTORY,
-                       BARTLBY_STATISTIC_STD_DEVIATION
+                       BARTLBY_BARTLBY_BASELINE_DS_HISTORY,
+                       BARTLBY_STATISTIC_STD_DEVIATION,
+                       MIN_RECORDS,
+                       MAX_RECORDS,
+                       include_keys
+
 
                        );
 
@@ -686,9 +857,9 @@ int main(int argc, char ** argv) {
 
     printf("\t%s\n", json_object_to_json_string_ext(bsl.json_result, JSON_C_TO_STRING_PRETTY));
     if (bsl.baseline_broken == 0) {
-        fprintf(stderr, "BASELINE not broken\n");
+        fprintf(stderr, "BARTLBY_BASELINE not broken\n");
     } else {
-        fprintf(stderr, "BASELINE broken\n");
+        fprintf(stderr, "BARTLBY_BASELINE broken\n");
     }
     baseline_destroy(&bsl);
 
