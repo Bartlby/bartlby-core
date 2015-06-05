@@ -118,6 +118,7 @@ ENDIF()
 SET(CLIB_DEPS
 			src/deps/buffer/clib_buffer.c
 			src/deps/progress/progress.c
+			src/deps/file2str/file2str.c
 			
 			)
 SET(CORE_SOURCES

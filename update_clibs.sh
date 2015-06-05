@@ -4,4 +4,5 @@ command -v clib >/dev/null 2>&1 || { git clone https://github.com/clibs/clib.git
 
 clib install hjanuschka/buffer -o src/deps
 clib install jwerle/progress.c -o src/deps
+clib install willemt/file2str -o src/deps
 #clib install clibs/list -o src 
