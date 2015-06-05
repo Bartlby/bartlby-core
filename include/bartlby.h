@@ -626,5 +626,20 @@ int32_t json_object_get_int64(struct json_object *obj);
 #endif
 
 
+
+#ifdef NEEDS_JSON_OBJECT_ITER
+struct json_object_iter
+{
+	char *key;
+	struct json_object *val;
+	struct lh_entry *entry;
+};
+#endif
+
+#ifndef json_object_object_foreachC
+#define json_object_object_foreachC(obj,iter)							\
+	for(iter.entry = json_object_get_object(obj)->head; (iter.entry ? (iter.key = (char*)iter.entry->k, iter.val = (struct json_object*)iter.entry->v, iter.entry) : 0); iter.entry = iter.entry->next)
+#endif
+
 void trim(char * const a);
 

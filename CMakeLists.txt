@@ -70,7 +70,7 @@ INCLUDE(CheckLibraryExists)
 INCLUDE(CheckSymbolExists)
 INCLUDE(CheckFunctionExists)
 include(cmake/findgeneric.cmake)
-
+include(CheckStructHasMember)
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall")
 add_definitions(-DNRPE_ADDON)
@@ -101,6 +101,12 @@ ENDIF()
 check_library_exists(${JSON_LIBRARY}   json_object_object_get_ex    ""   JSON_OLD)
 check_library_exists(${JSON_LIBRARY}   json_object_new_int64    ""   JSON_OLD64)
 
+CHECK_STRUCT_HAS_MEMBER("struct json_object_iter" key json/json.h HAVE_JSON_OBJECT_ITER LANGUAGE C)
+
+MESSAGE(STATUS ${HAVE_JSON_OBJECT_ITER})
+if(NOT HAVE_JSON_OBJECT_ITER)
+	add_definitions(-DNEEDS_JSON_OBJECT_ITER)
+ENDIF()
 
 if(NOT  JSON_OLD)
 	add_definitions(-DNEEDS_JSON_GET_EX)
