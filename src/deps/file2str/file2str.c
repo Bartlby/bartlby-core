@@ -51,6 +51,7 @@ char *file2strl(
     bytes_read = fread(contents, file_len, 1, file);
     if(bytes_read == 0 && ferror(file)) {
         fprintf(stderr, "Read error");
+        free(contents);
         fclose(file);
         return NULL;   
     }
