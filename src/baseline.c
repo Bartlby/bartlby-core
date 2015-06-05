@@ -198,6 +198,7 @@ json_object * bartlby_baseline_parse_perf_data(char * string) {
     repos_work_str = strstr(work_str, "|");
 
     if (repos_work_str == NULL) {
+    	free(work_str);
         return NULL;
     }
 
@@ -215,6 +216,7 @@ json_object * bartlby_baseline_parse_perf_data(char * string) {
             ret = regcomp(&regex, "([^=]+)=([0-9.]+)", REG_EXTENDED);
             if (ret != 0) {
                 printf("Unable to compile regular expression\n");
+                free(work_str);
                 return NULL;
             }
             if (regexec(&regex, token, 5, pmatch, 0) == 0) {
@@ -372,32 +374,29 @@ BARTLBY_BASELINE * bartlby_calculate_baseline(long svc_id,
 
 
             
-            json_object_object_get_ex(perf_data, key0, &curr_live_val);
+            if(json_object_object_get_ex(perf_data, key0, &curr_live_val)) {
+
+	            json_object * baseline_new;
+	            baseline_new = json_object_new_object();
+	            json_object_object_add(baseline_new, deviation.alg_name, json_object_new_double(deviation.val));
+	            json_object_object_add(baseline_new, "avg", json_object_new_double(deviation.avg));
+	            json_object_object_add(baseline_new, "top", json_object_new_double(deviation.top));
+	            json_object_object_add(baseline_new, "bottom", json_object_new_double(deviation.bottom));
+	            json_object_object_add(baseline_new, "current", json_object_new_double(json_object_get_double(curr_live_val)));
+	            json_object_object_add(baseline_new, "raw_values", json_object_get(val0));
+
+
+	            if (json_object_get_double(curr_live_val) < deviation.bottom || json_object_get_double(curr_live_val) > deviation.top ) {
+	                baseline_broken = 1;
+	                //fprintf(stderr, "BROKEN for key: %s\n", key0);
+	                json_object_array_add(baseline_broken_keys, json_object_new_string(key0));
+	            }
 
 
 
 
-            json_object * baseline_new;
-            baseline_new = json_object_new_object();
-            json_object_object_add(baseline_new, deviation.alg_name, json_object_new_double(deviation.val));
-            json_object_object_add(baseline_new, "avg", json_object_new_double(deviation.avg));
-            json_object_object_add(baseline_new, "top", json_object_new_double(deviation.top));
-            json_object_object_add(baseline_new, "bottom", json_object_new_double(deviation.bottom));
-            json_object_object_add(baseline_new, "current", json_object_new_double(json_object_get_double(curr_live_val)));
-            json_object_object_add(baseline_new, "raw_values", json_object_get(val0));
-
-
-            if (json_object_get_double(curr_live_val) < deviation.bottom || json_object_get_double(curr_live_val) > deviation.top ) {
-                baseline_broken = 1;
-                //fprintf(stderr, "BROKEN for key: %s\n", key0);
-                json_object_array_add(baseline_broken_keys, json_object_new_string(key0));
-            }
-
-
-
-
-            json_object_object_add(return_object, key0, baseline_new);
-
+	            json_object_object_add(return_object, key0, baseline_new);
+	        }
             free(baseline_values);
 
             //
@@ -466,13 +465,14 @@ void bartlby_baseline_deviation_std(float  baseline_values[], int baseline_value
             //fflush(stderr);
             //exit;
             for (x = 0; x < baseline_value_count; x++) {
-                json_object_object_get_ex(json_object_array_get_idx(data_point, x), "value", &jso_temp);
-                baseline_values[x] = json_object_get_double(jso_temp);
+                if(json_object_object_get_ex(json_object_array_get_idx(data_point, x), "value", &jso_temp)) {
+                	baseline_values[x] = json_object_get_double(jso_temp);
 
-                //fprintf(stderr, "VAL: %02f\n", baseline_values[x]);
-                sum += baseline_values[x];
+                	//fprintf(stderr, "VAL: %02f\n", baseline_values[x]);
+                	sum += baseline_values[x];
 
-                //json_object_put(jso_temp);
+                	//json_object_put(jso_temp);
+                }
             }
             avg = sum / baseline_value_count;
 
@@ -587,43 +587,43 @@ long bartlby_baseline_append_day_data_from_stathistory(long svc_id,
             json_object * has_seen_key;
 
             if (json_object_object_get_ex(file_contents_record_jso, "last_write", &record_time)) {
-                json_object_object_get_ex(file_contents_record_jso, "output", &record_output);
+                if(json_object_object_get_ex(file_contents_record_jso, "output", &record_output)) {
 
 
 
-                if (json_object_get_int64(record_time) >= tolerance_window_start && json_object_get_int64(record_time)  <= tolerance_window_end) {
-                    records_found++;
-                    current_record_jso = bartlby_baseline_parse_perf_data((char*)json_object_get_string(record_output));
+	                if (json_object_get_int64(record_time) >= tolerance_window_start && json_object_get_int64(record_time)  <= tolerance_window_end) {
+	                    records_found++;
+	                    current_record_jso = bartlby_baseline_parse_perf_data((char*)json_object_get_string(record_output));
 
-                    json_object_iter iter;
-                    json_object_object_foreachC(current_record_jso, iter)
-                    {
+	                    json_object_iter iter;
+	                    json_object_object_foreachC(current_record_jso, iter)
+	                    {
 
-                        char * key0=iter.key;
-                        json_object * val0=iter.val;
+	                        char * key0=iter.key;
+	                        json_object * val0=iter.val;
 
-                        data_point = json_object_new_object();
-                        json_object_object_add(data_point, "time", json_object_new_int64(json_object_get_int64(record_time)));
-                        json_object_object_add(data_point, "value", json_object_new_double(json_object_get_double(val0)));
-
-
-                        if (json_object_object_get_ex(last_records, key0, &has_seen_key)) {
-                            //alread there
-                            json_object_array_add(has_seen_key, data_point);
-                        } else {
-                            json_object * new_array = json_object_new_array();
-                            json_object_array_add(new_array, data_point);
-                            json_object_object_add(last_records, key0, new_array);
-                        }
-
-                    }
-                    json_object_put(current_record_jso);
+	                        data_point = json_object_new_object();
+	                        json_object_object_add(data_point, "time", json_object_new_int64(json_object_get_int64(record_time)));
+	                        json_object_object_add(data_point, "value", json_object_new_double(json_object_get_double(val0)));
 
 
+	                        if (json_object_object_get_ex(last_records, key0, &has_seen_key)) {
+	                            //alread there
+	                            json_object_array_add(has_seen_key, data_point);
+	                        } else {
+	                            json_object * new_array = json_object_new_array();
+	                            json_object_array_add(new_array, data_point);
+	                            json_object_object_add(last_records, key0, new_array);
+	                        }
+
+	                    }
+	                    json_object_put(current_record_jso);
 
 
-                }
 
+
+	                }
+	            }
 
             }
 
@@ -665,15 +665,15 @@ void bartlby_baseline_deviation_exp_smooth(float  baseline_values[], int baselin
             json_object * jso_temp;
             sum=0;
             for (x = 0; x < baseline_value_count; x++) {
-                json_object_object_get_ex(json_object_array_get_idx(data_point, x), "value", &jso_temp);
-                aux = json_object_get_double(jso_temp);
-                if(x>0) {
-                    smoothed=smoothed+0.3*(aux - smoothed); //0.3 EXPONENTIALALPHA
-                } else {
-                    smoothed=aux;
-                }
-                sum += aux;
-            //json_object_put(jso_temp);
+                if(json_object_object_get_ex(json_object_array_get_idx(data_point, x), "value", &jso_temp)) {
+                	aux = json_object_get_double(jso_temp);
+                	if(x>0) {
+                    	smoothed=smoothed+0.3*(aux - smoothed); //0.3 EXPONENTIALALPHA
+	                } else {
+	                    smoothed=aux;
+	                }
+	                sum += aux;
+            	}
             }
             avg = sum / baseline_value_count;
 
