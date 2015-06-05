@@ -156,6 +156,7 @@ SET(CORE_SOURCES
 		src/trigger_webhooks.c
 		src/trigger_smtp.c
 		src/trigger_lua.c
+		src/baseline.c
 		)
 
 
@@ -189,8 +190,9 @@ SET(TEST_SOURCES
 		)
 
 find_package (Threads)
+find_library(M_LIB m)
 
-set(LIB_LINK  ${LUA_LIBRARY}  ${OPENSSL_LIBRARIES} 	${CURL_LIBRARY}  dl		${JSON_LIBRARY} 		${SSH_LIBRARY}  ${NETSNMP_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT}	)
+set(LIB_LINK  ${LUA_LIBRARY}  ${OPENSSL_LIBRARIES} 	${CURL_LIBRARY}  dl		${JSON_LIBRARY} 		${SSH_LIBRARY}  ${NETSNMP_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${M_LIB}	)
 
 
 #COMPILE TEST BINARY

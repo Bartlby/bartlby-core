@@ -59,5 +59,26 @@ json_object * bartlby_service_to_json(struct service * svc) {
 
 }
 
+int bartlby_json_string_in_array(json_object * array, char * str) {
+    int x;
+    json_object * jvalue;
+    //return -1;
+    //FIXME if array is null or not a json return true
+
+
+    if(array == 0 || json_object_array_length(array) == 0) return 1;
+
+    for(x=0; x<json_object_array_length(array); x++) {
+        jvalue=json_object_array_get_idx(array, x);
+
+        if(strcmp(str, json_object_get_string(jvalue)) == 0) {
+            return 1;            
+        }
+    }
+
+    return 0;
+
+}
+
 
 

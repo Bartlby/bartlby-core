@@ -43,19 +43,22 @@
 #include <unistd.h>
 #include <unistd.h>
 #include <limits.h>
+
 #if HAVE_PRCTL_H
 #include <sys/prctl.h>
 #endif
+
 #include <mysql/mysql.h>
 #include <sys/times.h> 
 #include <semaphore.h>
 #include <json.h>
 #include <regex.h>
 #include <curl/curl.h>
-
+#include <math.h>
 
 ///CLIB EXTENSIONS
 #include <buffer/clib_buffer.h>
+#include <file2str/file2str.h>
 
 
 
@@ -343,6 +346,21 @@ struct http_output {
 
 
 
+typedef struct {
+    json_object * json_result;
+    int baseline_broken;
+} BARTLBY_BASELINE;
+
+typedef struct {
+    float top;
+    float bottom;
+    float val;
+    float avg;
+    float sum;
+    char alg_name[80];
+
+} deviation_alg;
+
 
 char * getConfigValue_ex(const char * key, const char * fname, int cache);
 char * getConfigValue(char *, char *);
@@ -495,7 +513,7 @@ void bartlby_call_webhooks(char * cfg, struct service * svc, int timeout, char *
 /**** JSON **/
 json_object * bartlby_service_to_json(struct service * svc);
 json_object * bartlby_trigger_to_json(struct trigger * trig);
-
+int bartlby_json_string_in_array(json_object * array, char * str);
 
 /*** TRIGGER*/
 int bartlby_servicegroup_has_trigger(struct service * svc, char * trigger);
@@ -522,6 +540,47 @@ int bartlby_trigger_per_worker(char * cfgfile,
 struct service *  bartlby_notification_log_get_service(void * bartlby_address, long service_id);
 struct trigger *  bartlby_notification_log_get_trigger(void * bartlby_address, long trigger_id);
 struct worker *  bartlby_notification_log_get_worker(void * bartlby_address, long worker_id);
+
+/*
+ baseline
+*/
+
+void bartlby_baseline_destroy(BARTLBY_BASELINE * bsl);
+json_object * bartlby_baseline_parse_perf_data(char * string);
+float bartlby_baseline_standard_deviation(float data[],  int n);
+long  bartlby_baseline_append_day_data_from_stathistory(long svc_id, 
+                                 time_t work_on,
+                                 int tolerance_window_start,
+                                 int tolerance_window_end,
+                                 json_object * last_records,
+                                 char * cfg
+                                 );
+
+long bartlby_baseline_append_day_data(long svc_id, 
+                                 time_t work_on,
+                                 int tolerance_window_start,
+                                 int tolerance_window_end,
+                                 json_object * last_records,
+                                 char * cfg,
+                                 int source_type);
+
+void bartlby_baseline_deviation_exp_smooth(float  baseline_values[], int baseline_value_count, float tolerance, json_object * data_point, deviation_alg * alg_out);
+void bartlby_baseline_deviation_std(float  baseline_values[], int baseline_value_count, float tolerance, json_object * data_point,deviation_alg * alg_out);
+void bartlby_baseline_deviation(float  baseline_values[], int baseline_value_count, float tolerance, json_object * data_point, deviation_alg * alg_out, int statistic_algo);
+
+BARTLBY_BASELINE * bartlby_calculate_baseline(long svc_id,
+                              BARTLBY_BASELINE * result_baseline,
+                              int days_back,
+                              int time_tolerance,
+                              int value_tolerance,
+                              char * service_output,
+                              char * cfg,
+                              int source_type,
+                              int statistic_algo,
+                              int min_records,
+                              int max_records,
+                              json_object * include_keys);
+BARTLBY_BASELINE * bartlby_check_baseline(struct service * svc, char * config_payload, char * config, void * bartlby_address);
 
 
 /*
