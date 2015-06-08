@@ -98,7 +98,7 @@ void bartlby_baseline_create_test_data(long svc_id,
     current_midnight = time(NULL);
 
 
-    char * base_history_path=BASE_HISTORY_PATH; //FIXME getconfig
+    char * base_history_path=BASE_HISTORY_PATH; 
 
 
     for (i = days_back; i > 0; i--) {
@@ -106,7 +106,7 @@ void bartlby_baseline_create_test_data(long svc_id,
         tm_info = localtime ( &work_on );
         strftime( time_buffer, 80, "%Y.%m.%d", tm_info );
 
-        //FIXME HISTORY FILE PATH!!!! - should be variable
+        
         sprintf(work_on_file, "%s%d-%s.history", base_history_path, svc_id, time_buffer);
         fp = fopen(work_on_file, "w");
 
@@ -142,12 +142,10 @@ void bartlby_baseline_create_test_data(long svc_id,
 
 
 int main(int argc, char ** argv) {
-    BARTLBY_BASELINE bsl;
+    BARTLBY_BASELINE * bsl;
 
     float  data_points[] = {10, 20, 30, 30, 40, 30, 20, 10};
 
-    json_object * include_keys = json_object_new_array();
-    json_object_array_add(include_keys, json_object_new_string("test_value"));
 
     
     bartlby_baseline_create_test_data(8316,
@@ -157,31 +155,42 @@ int main(int argc, char ** argv) {
                               "some plugin output | mem_usage=44.99%;; mem_overhead=41.57MB;; mem_active=1843.20MB;; mem_swap=0.00MB;; mem_swapin=0.00MB;; mem_swapout=0.00MB;; mem_memctl=0.00MB;; test_value=%fMB;;",
                               7);
 
-    bartlby_calculate_baseline(8316,
-                       &bsl,
-                       DAYS_BACK,
-                       TIME_TOLERANCE,
-                       VALUE_TOLERANCE,
-                       "some plugin output | mem_usage=44.99%;; mem_overhead=41.57MB;; mem_active=1843.20MB;; mem_swap=0.00MB;; mem_swapin=0.00MB;; mem_swapout=0.00MB;; mem_memctl=0.00MB;; test_value=20.0MB;;",
-                       "/opt/bartlby/etc/bartlby.cfg",
-                       BARTLBY_BARTLBY_BASELINE_DS_HISTORY,
-                       BARTLBY_STATISTIC_STD_DEVIATION,
-                       MIN_RECORDS,
-                       MAX_RECORDS,
-                       include_keys
 
-
-                       );
+    struct service svc;
+    svc.service_id=8316;
+    sprintf(svc.current_output, "some plugin output | mem_usage=44.99%;; mem_overhead=41.57MB;; mem_active=1843.20MB;; mem_swap=0.00MB;; mem_swapin=0.00MB;; mem_swapout=0.00MB;; mem_memctl=0.00MB;; test_value1=20.0MB;;");
+    
+    
+    json_object * cfg_obj;
 
 
 
-    printf("\t%s\n", json_object_to_json_string_ext(bsl.json_result, JSON_C_TO_STRING_PRETTY));
-    if (bsl.baseline_broken == 0) {
+
+    char * jso_config_package = " \
+        { \
+            \"alg\": \"standard_deviation\", \
+            \"time_tolerance\": 120, \
+            \"value_tolerance\": 200, \
+            \"days_back\": 7, \
+            \"data_source\": \"history\", \
+            \"min_records\": 20, \
+            \"max_records\": 100, \
+            \"include_keys\": [\"test_value\"] \
+        } \
+        ";
+
+    
+    bsl=bartlby_check_baseline(&svc, jso_config_package, "/opt/bartlby/etc/bartlby.cfg", NULL);
+    
+
+    
+    printf("\t%s\n", json_object_to_json_string_ext(bsl->json_result, JSON_C_TO_STRING_PRETTY));
+    if (bsl->baseline_broken == 0) {
         fprintf(stderr, "BARTLBY_BASELINE not broken\n");
     } else {
         fprintf(stderr, "BARTLBY_BASELINE broken\n");
     }
-    bartlby_baseline_destroy(&bsl);
+    bartlby_baseline_destroy(bsl);
 
 }
 

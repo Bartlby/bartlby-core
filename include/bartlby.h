@@ -91,6 +91,11 @@
 #define B_LOG_HASTO 4
 
 
+
+#define BARTLBY_BASELINE_BROKEN_TRUE  1
+#define BARTLBY_BASELINE_BROKEN_FALSE 0
+
+
 #include "bartlby_shm.h"
 
 

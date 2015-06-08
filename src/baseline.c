@@ -57,6 +57,9 @@ float bartlby_baseline_standard_deviation(float data[], int n)
 }
 
 
+
+
+
 BARTLBY_BASELINE * bartlby_check_baseline(struct service * svc, char * config_payload, char * config, void * bartlby_address) {
     //return NULL if failed
     json_object * json_config = json_tokener_parse(config_payload);
@@ -79,6 +82,7 @@ BARTLBY_BASELINE * bartlby_check_baseline(struct service * svc, char * config_pa
         return NULL;
     }
 
+   
 
     int alg = BARTLBY_STATISTIC_STD_DEVIATION;
     int time_tolerance = BARTLBY_BASELINE_TIME_TOLERANCE;
@@ -166,8 +170,6 @@ BARTLBY_BASELINE * bartlby_check_baseline(struct service * svc, char * config_pa
                        min_records,
                        max_records,
                        jso_include_keys
-
-
                        );
 
 
@@ -219,9 +221,11 @@ json_object * bartlby_baseline_parse_perf_data(char * string) {
                 free(work_str);
                 return NULL;
             }
-            if (regexec(&regex, token, 5, pmatch, 0) == 0) {
+            if (regexec(&regex, token, 3, pmatch, 0) == 0) {
 
-                //FIXME CHECK IF we have atlease 2 groups found - else return null, or skip var
+                 if (pmatch[1].rm_so == (size_t)-1) continue;
+            	 if (pmatch[2].rm_so == (size_t)-1) continue;
+
 
                 length = pmatch[1].rm_eo - pmatch[1].rm_so;
                 key_string = malloc((length + 1) * sizeof(char));
@@ -254,7 +258,7 @@ json_object * bartlby_baseline_parse_perf_data(char * string) {
     }
     free(work_str);
 
-    //fprintf(stderr, "JSON %s", json_object_to_json_string(jso_ret));
+    
     return jso_ret;
 
 }
@@ -297,7 +301,6 @@ BARTLBY_BASELINE * bartlby_calculate_baseline(long svc_id,
 
     baseline_broken_keys = json_object_new_array();
     return_object = json_object_new_object();
-    //FIXME GET SERVICE CURRENT OUTPUT
     perf_data = bartlby_baseline_parse_perf_data(service_output);
 
     if (perf_data != NULL) {
@@ -355,6 +358,8 @@ BARTLBY_BASELINE * bartlby_calculate_baseline(long svc_id,
 
             deviation_alg deviation;
 
+            
+
             if(!bartlby_json_string_in_array(include_keys, key0)) {
                 continue;
             } 
@@ -366,9 +371,10 @@ BARTLBY_BASELINE * bartlby_calculate_baseline(long svc_id,
             tolerance = value_tolerance / 100 + 1;
 
 
-            //printf("\t%s\n", json_object_to_json_string_ext(val0, JSON_C_TO_STRING_PRETTY));
             
             
+            
+	        	
 
             bartlby_baseline_deviation(baseline_values, baseline_value_count,tolerance, val0, &deviation, statistic_algo);
 
@@ -388,7 +394,7 @@ BARTLBY_BASELINE * bartlby_calculate_baseline(long svc_id,
 
 	            if (json_object_get_double(curr_live_val) < deviation.bottom || json_object_get_double(curr_live_val) > deviation.top ) {
 	                baseline_broken = 1;
-	                //fprintf(stderr, "BROKEN for key: %s\n", key0);
+	                
 	                json_object_array_add(baseline_broken_keys, json_object_new_string(key0));
 	            }
 
@@ -396,6 +402,11 @@ BARTLBY_BASELINE * bartlby_calculate_baseline(long svc_id,
 
 
 	            json_object_object_add(return_object, key0, baseline_new);
+	        } else {
+	        	//Key not found
+	        	json_object_array_add(baseline_broken_keys, json_object_new_string(key0));
+	        	baseline_broken=1;
+	        	
 	        }
             free(baseline_values);
 
@@ -412,13 +423,10 @@ BARTLBY_BASELINE * bartlby_calculate_baseline(long svc_id,
         result_baseline->json_result = return_object;
         result_baseline->baseline_broken = baseline_broken;
 
-        //printf("\t%s\n", json_object_to_json_string_ext(return_object, JSON_C_TO_STRING_PRETTY));
-
-
-        //Cleanup return object - FIXME remove this later
+        
+        //cleanup
         json_object_put(last_records);
-        //json_object_put(return_object);
-
+        
         //initial perf data
         json_object_put(perf_data);
 
@@ -432,8 +440,6 @@ BARTLBY_BASELINE * bartlby_calculate_baseline(long svc_id,
 
 
 void bartlby_baseline_deviation(float  baseline_values[], int baseline_value_count, float tolerance, json_object * data_point, deviation_alg * alg_out, int statistic_algo) {
-    //fprintf(stderr, "ALGO: %d", statistic_algo);
-    //exit;
     switch(statistic_algo) {
         case BARTLBY_STATISTIC_STD_DEVIATION:
             bartlby_baseline_deviation_std(baseline_values, baseline_value_count, tolerance, data_point, alg_out);
@@ -442,10 +448,7 @@ void bartlby_baseline_deviation(float  baseline_values[], int baseline_value_cou
             bartlby_baseline_deviation_exp_smooth(baseline_values, baseline_value_count, tolerance, data_point,alg_out);
         break;
 
-       // default:
-            //fprintf(stdout,"VAL LENGTH: %d\n", baseline_value_count);
-            //fflush(stdout);
-
+       
 
     }
 }
@@ -461,14 +464,10 @@ void bartlby_baseline_deviation_std(float  baseline_values[], int baseline_value
 
             json_object * jso_temp;
             sum = 0;
-            //fprintf(stderr, "LL: %d\n", baseline_value_count);
-            //fflush(stderr);
-            //exit;
             for (x = 0; x < baseline_value_count; x++) {
                 if(json_object_object_get_ex(json_object_array_get_idx(data_point, x), "value", &jso_temp)) {
                 	baseline_values[x] = json_object_get_double(jso_temp);
 
-                	//fprintf(stderr, "VAL: %02f\n", baseline_values[x]);
                 	sum += baseline_values[x];
 
                 	//json_object_put(jso_temp);
@@ -522,8 +521,7 @@ long bartlby_baseline_append_day_data(long svc_id,
         break;
 
         default:
-            //FIXME unable to find data source
-            //fprintf(stderr,"UNABLE TO HANDLE DS\n");
+            _debug("UNABLE to find baseline datasource");
         break;
 
     }
@@ -553,7 +551,7 @@ long bartlby_baseline_append_day_data_from_stathistory(long svc_id,
 
     json_object * data_point;
 
-    char * base_history_path= getConfigValue("statehistory_logdir", cfg); //fixme getconfig
+    char * base_history_path= getConfigValue("statehistory_logdir", cfg); 
 
     if(base_history_path == NULL) {
     	base_history_path=BASE_HISTORY_PATH;
@@ -566,9 +564,9 @@ long bartlby_baseline_append_day_data_from_stathistory(long svc_id,
     tm_info = localtime ( &work_on );
     strftime( time_buffer, 80, "%Y.%m.%d", tm_info );
 
-    //FIXME HISTORY FILE PATH!!!! - should be variable
+    
     sprintf(work_on_file, "%s%ld-%s.history", base_history_path, svc_id, time_buffer);
-    //fprintf(stderr, "%s\n", work_on_file);
+    
 
 
 
@@ -634,7 +632,8 @@ long bartlby_baseline_append_day_data_from_stathistory(long svc_id,
         }
     }
     
-
+    free(base_history_path);
+    
     free(file_contents);
 
 
@@ -677,7 +676,7 @@ void bartlby_baseline_deviation_exp_smooth(float  baseline_values[], int baselin
             }
             avg = sum / baseline_value_count;
 
-            //fprintf(stderr, "SMOOTHED: %10f\n", smoothed);
+            
             top = smoothed * 0.3;
             bottom = smoothed * ( 2 - 0.3);
 
