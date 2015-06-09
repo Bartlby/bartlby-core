@@ -101,9 +101,10 @@ ENDIF()
 check_library_exists(${JSON_LIBRARY}   json_object_object_get_ex    ""   JSON_OLD)
 check_library_exists(${JSON_LIBRARY}   json_object_new_int64    ""   JSON_OLD64)
 
-CHECK_STRUCT_HAS_MEMBER("struct json_object_iter" key json/json.h HAVE_JSON_OBJECT_ITER LANGUAGE C)
+SET(CMAKE_REQUIRED_INCLUDES ${JSON_INCLUDE_DIRS})
+CHECK_STRUCT_HAS_MEMBER("struct json_object_iter" key json.h HAVE_JSON_OBJECT_ITER LANGUAGE C)
 
-MESSAGE(STATUS ${HAVE_JSON_OBJECT_ITER})
+MESSAGE(STATUS ${JSON_INCLUDE_DIRS})
 if(NOT HAVE_JSON_OBJECT_ITER)
 	add_definitions(-DNEEDS_JSON_OBJECT_ITER)
 ENDIF()
