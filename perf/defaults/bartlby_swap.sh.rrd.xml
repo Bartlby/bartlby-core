@@ -5,7 +5,7 @@
 	<ds>
 		<name> fram </name>
 		<type> GAUGE </type>
-		<minimal_heartbeat> 120 </minimal_heartbeat>
+		<minimal_heartbeat> 300 </minimal_heartbeat>
 		<min> NaN </min>
 		<max> NaN </max>
 
@@ -18,7 +18,7 @@
 	<ds>
 		<name> fswap </name>
 		<type> GAUGE </type>
-		<minimal_heartbeat> 120 </minimal_heartbeat>
+		<minimal_heartbeat> 300 </minimal_heartbeat>
 		<min> NaN </min>
 		<max> NaN </max>
 
