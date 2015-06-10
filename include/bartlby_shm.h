@@ -92,6 +92,8 @@
         BARTLBY_FIELD_INT(notify_super_users) \
         BARTLBY_FIELD_CHAR_SIZE(script, 2048) \
         BARTLBY_FIELD_INT(script_enabled) \
+        BARTLBY_FIELD_CHAR_SIZE(baseline, 2048) \
+        BARTLBY_FIELD_INT(baseline_enabled) \
 
     
 

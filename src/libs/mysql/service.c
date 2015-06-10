@@ -62,7 +62,9 @@
                                 prio, \
                                 notify_super_users, \
                                 script, \
-                                script_enabled \
+                                script_enabled, \
+                                baseline, \
+                                baseline_enabled \
                             from services svc %s  \
                             ORDER BY RAND()"
 
@@ -124,7 +126,9 @@
                                 prio, \
                                 notify_super_users, \
                                 script, \
-                                script_enabled \
+                                script_enabled, \
+                                baseline, \
+                                baseline_enabled \
                               )  \
                         values( \
                           NOW(), \
@@ -160,6 +164,8 @@
                           '%s', \
                           %d, \
                           %d, \
+                          '%s', \
+                          '%d', \
                           '%s', \
                           '%d' \
                     )"
@@ -203,7 +209,9 @@
                           prio=%d, \
                           notify_super_users=%d, \
                           script='%s', \
-                          script_enabled=%d \
+                          script_enabled=%d, \
+                          baseline='%s', \
+                          baseline_enabled=%d \
                       where \
                         service_id=%ld"
 
@@ -248,7 +256,9 @@
                             prio, \
                             notify_super_users, \
                             script, \
-                            script_enabled \
+                            script_enabled, \
+                            baseline, \
+                            baseline_enabled \
                         from  \
                             services svc  \
                         where service_id=%ld"
@@ -356,10 +366,19 @@ BARTLBY_SQL_PROTECTION_INIT;
           svc->notify_super_users=atoi(row[38]);
           svc->script_enabled=atoi(row[40]);
 
+          svc->baseline_enabled=atoi(row[42]);
+
 
       		svc->last_state=atoi(row[2]);
       		svc->current_state=atoi(row[2]);
       		
+          
+
+          if(row[41] != NULL) {
+            sprintf(svc->baseline, "%s", row[41]);
+          } else {
+            sprintf(svc->baseline, " ");
+          }
 
           if(row[39] != NULL) {
             sprintf(svc->script, "%s", row[39]);
@@ -639,6 +658,8 @@ BARTLBY_SQL_PROTECTION_INIT;
                                   svc->notify_super_users,
                                   BARTLBY_SQL_PROTECTION(svc->script),
                                   svc->script_enabled,
+                                  BARTLBY_SQL_PROTECTION(svc->baseline),
+                                  svc->baseline_enabled,
                                 	svc->service_id
                                 	
                                 	
@@ -805,7 +826,9 @@ BARTLBY_SQL_PROTECTION_INIT;
                               svc->prio,
                               svc->notify_super_users,
                               BARTLBY_SQL_PROTECTION(svc->script),
-                              svc->script_enabled
+                              svc->script_enabled,
+                              BARTLBY_SQL_PROTECTION(svc->baseline),
+                              svc->baseline_enabled
                             	);
                             	
 	//Log("dbg", sqlupd);
@@ -948,14 +971,19 @@ BARTLBY_SQL_PROTECTION_INIT;
             svcs[i].prio=atoi(row[37]);
             svcs[i].notify_super_users=atoi(row[38]);
             svcs[i].script_enabled=atoi(row[40]);
-
+            svcs[i].baseline_enabled=atoi(row[42]);
 
             
       			svcs[i].last_state=atoi(row[2]);
       			svcs[i].current_state=atoi(row[2]);
       			svcs[i].servicegroup_counter=0;
 
-
+            if(row[41] != NULL) {
+              sprintf(svcs[i].baseline, "%s", row[41]);
+              
+            } else {
+              sprintf(svcs[i].baseline, " ");
+            }
 
             if(row[39] != NULL) {
               sprintf(svcs[i].script, "%s", row[39]);

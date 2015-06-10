@@ -573,7 +573,9 @@ long bartlby_baseline_append_day_data_from_stathistory(long svc_id,
     file_contents = file2str(work_on_file);
     file_contents_dup = file_contents;
 
-
+    if(file_contents == NULL) {
+    	return 0;
+    }
 
     while ((record_token = strsep (&file_contents_dup, "#")) != NULL) {
         if (strlen(record_token) > 4) {

@@ -95,7 +95,9 @@ struct service dummy_service = {
 	.prio = 100,
 	.notify_super_users = 0,	
 	.script="",
-	.script_enabled=0	
+	.script_enabled=0,
+	.baseline="{}",
+	.baseline_enabled=0	
 };
 
 
@@ -173,7 +175,9 @@ void test_service_lib(void *data) {
 	dummy_service.service_id=object_id;
 	memcpy(&modified_object,&dummy_service, sizeof(struct service));
 	memcpy(&returned_object,&dummy_service, sizeof(struct service));
+	
 	snprintf(modified_object.service_name,2048, "modified-unit-test");
+	snprintf(modified_object.baseline, 2048, "{unit_test: 1}");
 	rtc=UpdateService(&modified_object, CONFIG);
 	tt_int_op(rtc, ==, 1);
 	TT_DECLARE("INFO",("... Modified Service, changed name"));
@@ -184,6 +188,9 @@ void test_service_lib(void *data) {
 	rtc=GetServiceById(object_id, &returned_object, CONFIG);
 	tt_int_op(rtc, ==, 0);
 	tt_str_op(returned_object.service_name, ==, modified_object.service_name);
+
+	tt_str_op(returned_object.baseline, ==, modified_object.baseline);
+
 	TT_DECLARE("INFO",("... get service by id %ld", object_id));
 	/******* GETSERVICEBYID ****/
 

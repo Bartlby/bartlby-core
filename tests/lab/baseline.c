@@ -158,7 +158,7 @@ int main(int argc, char ** argv) {
 
     struct service svc;
     svc.service_id=8316;
-    sprintf(svc.current_output, "some plugin output | mem_usage=44.99%;; mem_overhead=41.57MB;; mem_active=1843.20MB;; mem_swap=0.00MB;; mem_swapin=0.00MB;; mem_swapout=0.00MB;; mem_memctl=0.00MB;; test_value1=20.0MB;;");
+    sprintf(svc.current_output, "some plugin output | mem_usage=44.99%;; mem_overhead=41.57MB;; mem_active=1843.20MB;; mem_swap=0.00MB;; mem_swapin=0.00MB;; mem_swapout=0.00MB;; mem_memctl=0.00MB;; test_value=20.0MB;;");
     
     
     json_object * cfg_obj;
