@@ -55,6 +55,7 @@ int mkdir_recursive( char *path, int mode) {
         if(mkdir(tmp, mode) != 0) {
         	return -1;
         }
+        return 0;
 }          
 
 void dump_svc(struct service * svc) {
