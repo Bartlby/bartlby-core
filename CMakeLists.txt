@@ -194,6 +194,7 @@ SET(TEST_SOURCES
 		tests/core.c
 		tests/lua.c
 		tests/triggers.c
+		tests/baseline.c
 		)
 
 find_package (Threads)
