@@ -4,7 +4,7 @@
 
 #include "bartlby_test.h"
 
-#define BASE_HISTORY_PATH "/tmp/bartlby_history"
+#define BASE_HISTORY_PATH "/tmp/bartlby_history/"
 
 
 void bartlby_baseline_create_test_data(long svc_id,
@@ -21,9 +21,11 @@ void bartlby_baseline_create_test_data(long svc_id,
     char work_on_file[1024];
     struct tm * tm_info;
     char * record_buffer;
-    char time_buffer[80];
+    
 
     json_object * jso;
+    char * log_path_copy;
+    char * log_path_dirname;
 
     FILE * fp;
 
@@ -38,10 +40,21 @@ void bartlby_baseline_create_test_data(long svc_id,
     for (i = days_back; i > 0; i--) {
         work_on = current_midnight - (86400 * i);
         tm_info = localtime ( &work_on );
-        strftime( time_buffer, 80, "%Y.%m.%d", tm_info );
+        
 
         
-        sprintf(work_on_file, "%s%ld-%s.history", base_history_path, svc_id, time_buffer);
+        sprintf(work_on_file, "%s/%02d/%02d/%02d/%ld-%02d-%02d-%02d.history", base_history_path, tm_info->tm_year + 1900,tm_info->tm_mon + 1,tm_info->tm_mday, svc_id,tm_info->tm_year + 1900,tm_info->tm_mon + 1,tm_info->tm_mday);
+        
+        log_path_copy=strdup(work_on_file);
+		log_path_dirname=dirname(log_path_copy);
+
+		mkdir_recursive(log_path_dirname, 0777);
+
+		free(log_path_copy);
+
+
+
+
         fp = fopen(work_on_file, "w");
 
 

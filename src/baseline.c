@@ -539,7 +539,6 @@ long bartlby_baseline_append_day_data_from_stathistory(long svc_id,
 
     long records_found = 0;
     struct tm * tm_info;
-    char time_buffer[80];
     char work_on_file[1024];
 
     char * file_contents;
@@ -559,13 +558,15 @@ long bartlby_baseline_append_day_data_from_stathistory(long svc_id,
 
 
 
-
+    //asprintf(&file_path, "%s/%02d/%02d/%02d/%ld-%02d-%02d-%02d.history", cfg_statehistory_dir, tmnow->tm_year + 1900,tmnow->tm_mon + 1,tmnow->tm_mday, svc->service_id,tmnow->tm_year + 1900,tmnow->tm_mon + 1,tmnow->tm_mday);
 
     tm_info = localtime ( &work_on );
-    strftime( time_buffer, 80, "%Y.%m.%d", tm_info );
+
+
+    sprintf(work_on_file, "%s/%02d/%02d/%02d/%ld-%02d-%02d-%02d.history", base_history_path, tm_info->tm_year + 1900,tm_info->tm_mon + 1,tm_info->tm_mday, svc_id,tm_info->tm_year + 1900,tm_info->tm_mon + 1,tm_info->tm_mday);
 
     
-    sprintf(work_on_file, "%s%ld-%s.history", base_history_path, svc_id, time_buffer);
+    
     
 
 

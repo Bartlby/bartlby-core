@@ -43,6 +43,8 @@
 #include <unistd.h>
 #include <unistd.h>
 #include <limits.h>
+#include <libgen.h>
+
 
 #if HAVE_PRCTL_H
 #include <sys/prctl.h>
@@ -426,6 +428,7 @@ void bartlby_trigger( struct service * svc,
 
 //Global :-)
 int _log(int handle, int severity, const char * str,  ...);
+void mkdir_recursive(char *path, int mode);
 
 void bartlby_decode(char * msg, int length);
 void bartlby_encode(char * msg, int length);
