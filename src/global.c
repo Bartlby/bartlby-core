@@ -48,12 +48,16 @@ int mkdir_recursive( char *path, int mode) {
                 if(*p == '/') {
                         *p = 0;
                         if(mkdir(tmp, mode) != 0) {
-                        	return -1;
+                        	if(errno != EEXIST) {
+                        		return -1;
+                        	}
                         }
                         *p = '/';
                 }
         if(mkdir(tmp, mode) != 0) {
-        	return -1;
+        	if(errno != EEXIST) {
+        		return -1;
+        	}
         }
         return 0;
 }          

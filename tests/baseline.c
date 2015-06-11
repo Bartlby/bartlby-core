@@ -4,7 +4,7 @@
 
 #include "bartlby_test.h"
 
-#define BASE_HISTORY_PATH "/tmp/bartlby_history/"
+#define BASE_HISTORY_PATH "./tmp/bartlby_history/"
 
 
 void bartlby_baseline_create_test_data(long svc_id,
@@ -49,6 +49,8 @@ void bartlby_baseline_create_test_data(long svc_id,
 		log_path_dirname=dirname(log_path_copy);
 
 		mkdir_recursive(log_path_dirname, 0777);
+
+		fprintf(stderr, "%s - %s", strerror(errno), work_on_file);
 
 		free(log_path_copy);
 
