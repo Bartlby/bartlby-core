@@ -35,7 +35,7 @@ char config_file[255];
 
 
 
-void mkdir_recursive( char *path, int mode) {
+int mkdir_recursive( char *path, int mode) {
         char tmp[256];
         char *p = NULL;
         size_t len;
@@ -47,10 +47,14 @@ void mkdir_recursive( char *path, int mode) {
         for(p = tmp + 1; *p; p++)
                 if(*p == '/') {
                         *p = 0;
-                        mkdir(tmp, mode);
+                        if(mkdir(tmp, mode) != 0) {
+                        	return -1;
+                        }
                         *p = '/';
                 }
-        mkdir(tmp, mode);
+        if(mkdir(tmp, mode) != 0) {
+        	return -1;
+        }
 }          
 
 void dump_svc(struct service * svc) {

@@ -553,7 +553,7 @@ long bartlby_baseline_append_day_data_from_stathistory(long svc_id,
     char * base_history_path= getConfigValue("statehistory_logdir", cfg); 
 
     if(base_history_path == NULL) {
-    	base_history_path=BASE_HISTORY_PATH;
+    	base_history_path=strdup(BASE_HISTORY_PATH);
     }
 
 
@@ -575,6 +575,7 @@ long bartlby_baseline_append_day_data_from_stathistory(long svc_id,
     file_contents_dup = file_contents;
 
     if(file_contents == NULL) {
+        free(base_history_path);
     	return 0;
     }
 
