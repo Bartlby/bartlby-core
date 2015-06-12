@@ -64,6 +64,7 @@ static void * bartlby_address;
 void bartlby_portier_submit_trap(const char * trap_data);
 void bartlby_show_error(int code, char * msg, int http);
 void bartlby_portier_submit_passive_result(long service_id, int status, const char * message);
+void bartlby_portier_get_baseline(long service_id);
 void bartlby_portier_find_server_id(const char * server_name);
 void bartlby_portier_find_services(long server_id);
 void bartlby_portier_get_plugin_info(long service_id);
@@ -355,6 +356,62 @@ void bartlby_portier_orch_service_status(char * cfgfile, long service_id, int ha
 
 
 }
+void bartlby_portier_get_baseline(long service_id) {
+	int svc_found, x;
+	
+	json_object * jso;
+	BARTLBY_BASELINE * bsl;
+	struct service * svc;
+
+
+	svc_found=0;
+	for(x=0; x<shm_hdr->svccount; x++) {
+		if(svcmap[x].service_id == service_id) {
+			svc_found = 1;
+			svc=&svcmap[x];
+			break;
+		}
+	}
+	if(svc_found == 1) {
+		if(svcmap[x].baseline_enabled == 1) {
+
+			bsl=bartlby_check_baseline(svc, svc->baseline, config_file, NULL);
+			
+			
+
+			if(bsl == NULL) {
+				jso = json_object_new_object();
+				json_object_object_add(jso, "error_code", json_object_new_int(22));
+				json_object_object_add(jso, "error_msg", json_object_new_string("baseline calc. failed"));
+    			printf("%s\n", json_object_to_json_string(jso));
+    			json_object_put(jso);
+    			
+			} else {
+
+				jso = json_object_new_object();
+				json_object_object_add(jso, "error_code", json_object_new_int(svc->service_id));
+			
+				//fprintf(stderr,"\t%s\n", json_object_to_json_string_ext(bsl->json_result, JSON_C_TO_STRING_PRETTY));
+    			json_object_object_add(jso, "baseline", json_object_get(bsl->json_result));
+
+    		
+
+    			printf("%s\n", json_object_to_json_string(jso));
+    			json_object_put(jso);
+				bartlby_baseline_destroy(bsl);
+    		}
+			
+			return;
+		} else {
+			bartlby_show_error(-22, "Service does not have baseline feature enabled", is_http);
+			return;
+		}
+	} else {
+		bartlby_show_error(-22, "Service not found", is_http);
+		return;
+	}
+
+}
 void bartlby_portier_submit_passive_result(long service_id, int status, const char * message) {
 	
 	int svc_found, x;
@@ -585,6 +642,25 @@ int main(int argc, char ** argv) {
 					}
 
 				 }
+
+				 /*
+				METHOD: "get_baseline"
+				PURPOSE: Retrieve current baseline information
+				ON-ERROR: error_code < 0, and "error_msg" is set to a text
+				<< {"method": "get_baseline", "service_id": 1} 
+				>> {"error_code": 0, "baseline": {BASELINE JSON}}
+				*/
+
+				 if(strcmp(json_object_get_string(jso_method), "get_baseline") == 0) {
+					if(json_object_object_get_ex(jso_in, "service_id", &jsoo[0])) {
+							bartlby_portier_get_baseline(json_object_get_int64(jsoo[0]));
+							PORTIER_CLEANUP;
+
+					}
+
+				 }
+
+
 				 /*
 				 METHOD: submit_trap
 				 PURPOSE: Recieve a Trap Message (limit to 4kb)
@@ -822,6 +898,8 @@ int main(int argc, char ** argv) {
 	return 0;
 
 }
+
+
 
 
 
