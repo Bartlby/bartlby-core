@@ -4,12 +4,7 @@ cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 project(bartlby-core)
 
 
-#default variables
-set(MYSQL_HOST localhost)
-set(MYSQL_PASS docker)
-set(MYSQL_USER root)
-set(MYSQL_DB bartlby)
-set(CMAKE_INSTALL_PREFIX /opt/bartlby)
+
 
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE "Release" CACHE STRING
