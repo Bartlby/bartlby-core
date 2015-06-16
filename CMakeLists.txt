@@ -3,6 +3,14 @@
 cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 project(bartlby-core)
 
+
+#default variables
+set(MYSQL_HOST localhost)
+set(MYSQL_PASS docker)
+set(MYSQL_USER root)
+set(MYSQL_DB bartlby)
+set(CMAKE_INSTALL_PREFIX /opt/bartlby)
+
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE "Release" CACHE STRING
       "Choose the type of build, options are: Debug Release"
@@ -96,6 +104,9 @@ ENDIF()
 if(OPENSSL_FOUND)
 add_definitions(-DSSL_ADDON)
 ENDIF()
+
+
+
 
 
 check_library_exists(${JSON_LIBRARY}   json_object_object_get_ex    ""   JSON_OLD)
@@ -203,6 +214,30 @@ find_library(M_LIB m)
 set(LIB_LINK  ${LUA_LIBRARY}  ${OPENSSL_LIBRARIES} 	${CURL_LIBRARY}  dl		${JSON_LIBRARY} 		${SSH_LIBRARY}  ${NETSNMP_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${M_LIB}	)
 
 
+
+
+if(USE_COVERAGE)
+	set(COV_TARGETS " ")
+	
+
+	INCLUDE(cmake/CodeCoverage.cmake)
+	SET(CMAKE_CXX_FLAGS "-g -O0  -fprofile-arcs -ftest-coverage")
+	SET(CMAKE_C_FLAGS "-g -O0  -fprofile-arcs -ftest-coverage")
+	SET(CMAKE_EXE_LINKER_FLAGS "-fprofile-arcs -ftest-coverage")
+
+	SETUP_TARGET_FOR_COVERAGE(
+				coverage  			# Name for custom target.
+				bartlby_test        # Name of the test driver executable that runs the tests.
+				bartlby_testrun
+				" "
+				/var/www/bartlby-ui/test            # Name of output directory.
+			)
+	set(BARTLBY_MYSQL_LIB ${CMAKE_CURRENT_BINARY_DIR}/mysql.so)
+	add_dependencies(coverage mysql bartlby bartlby_test bartlby_portier bartlby_portier_legacy bartlby_shmt)
+ELSE()
+	set(BARTLBY_MYSQL_LIB ${CMAKE_INSTALL_PREFIX}/lib/mysql.so)	
+ENDIF()
+
 #COMPILE TEST BINARY
 set(TEST_CONFIG ${CMAKE_CURRENT_BINARY_DIR}/bartlby.cfg)
 add_executable(bartlby_test EXCLUDE_FROM_ALL ${CLIB_DEPS} ${TEST_SOURCES})
@@ -221,6 +256,10 @@ if(POLICY CMP0037)
 endif()
 add_custom_target(test bartlby_test)
 cmake_policy(POP)
+
+
+
+
 
 
 add_custom_target(update 

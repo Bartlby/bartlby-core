@@ -1,4 +1,4 @@
-data_library=@prefix@/lib/mysql${CMAKE_SHARED_MODULE_SUFFIX}
+data_library=@BARTLBY_MYSQL_LIB@
 max_concurent_checks=6
 max_load=0
 portier_use_ssl=0
