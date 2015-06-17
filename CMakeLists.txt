@@ -45,10 +45,25 @@ if(FULL_FEATURES)
 ENDIF()
 
 
+#save commandline to rebuild this :)
+set(USED_CMD_LINE "cmake ")
+set(MY_CMAKE_FLAGS CMAKE_BUILD_TYPE CMAKE_INSTALL_PREFIX ENABLE_SSL ENABLE_LUA ENABLE_SSH ENABLE_SNMP MYSQL_USER MYSQL_PASS MYSQL_HOST MYSQL_DB FULL_FEATURES USE_COVERAGE)
+FOREACH(cmd_line_loop IN ITEMS ${MY_CMAKE_FLAGS})
+	if(${cmd_line_loop})
+		STRING(CONCAT USED_CMD_LINE ${USED_CMD_LINE} "-D"  ${cmd_line_loop} "=" ${${cmd_line_loop}} " ")
+		#STRING(CONCAT USED_CMD_LINE ${cmd_line_loop})
+		#STRING(CONCAT USED_CMD_LINE " ")
+	endif()
+ENDFOREACH(cmd_line_loop)
+STRING(CONCAT USED_CMD_LINE ${USED_CMD_LINE} " .. ")
+#store to a file aka "config.status"
+FILE(WRITE ${CMAKE_CURRENT_BINARY_DIR}/config.status ${USED_CMD_LINE} )
 
+
+
+MESSAGE("COMMAND LINE USED FOR BUILD:" ${USED_CMD_LINE})
 
 if(ENABLE_SSL)
-
 	include(cmake/findssl.cmake)
 ENDIF()
 include(cmake/findmysql.cmake)
