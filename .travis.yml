@@ -22,6 +22,15 @@ addons:
     build_command_prepend: cd build
     build_command:   make clean all 
     branch_pattern: coverity_scan
+  apt:
+    packages:
+    - libjson0-dev
+    - libjson0
+    - libcurl4-openssl-dev
+    - liblua5.2-dev
+    - libssh-dev
+    - libsnmp-dev
+    - cmake
 
 notifications:
   webhooks:
@@ -35,8 +44,8 @@ notifications:
 
 
 before_install:
-  - apt-get update -qq
-  - apt-get install -y libjson0-dev libjson0 libcurl4-openssl-dev liblua5.2-dev libssh-dev libsnmp-dev cmake
+#  - apt-get update -qq
+#  - apt-get install -y libjson0-dev libjson0 libcurl4-openssl-dev liblua5.2-dev libssh-dev libsnmp-dev cmake
 
 before_script:
     - ./travis/compile.sh
