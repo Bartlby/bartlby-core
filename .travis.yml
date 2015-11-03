@@ -2,9 +2,10 @@ language: c
 sudo: required
 os:
     - linux
-    - osx
+#    - osx
 compiler:
     - gcc
+    - clang
 
 env:
   global:
