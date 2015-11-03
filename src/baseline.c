@@ -37,6 +37,9 @@ baseline
 void bartlby_baseline_destroy(BARTLBY_BASELINE * bsl) {
 
     json_object_put(bsl->json_result);
+    if(bsl != NULL ) {
+     	free(bsl);
+    }
 
 
 }
@@ -106,6 +109,9 @@ BARTLBY_BASELINE * bartlby_check_baseline(struct service * svc, char * config_pa
     json_object * jso_include_keys  = NULL;
 
     devNull = open("/dev/null", O_WRONLY);
+    if(devNull == -1) {
+	return NULL;
+    }
     dup2(devNull, STDERR_FILENO);
 
     //ALGO
