@@ -37,9 +37,7 @@ baseline
 void bartlby_baseline_destroy(BARTLBY_BASELINE * bsl) {
 
     json_object_put(bsl->json_result);
-    if(bsl != NULL ) {
-     	free(bsl);
-    }
+    free(bsl);
 
 
 }
