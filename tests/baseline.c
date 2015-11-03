@@ -20,6 +20,7 @@ void bartlby_baseline_create_test_data(long svc_id,
 
     char work_on_file[1024];
     struct tm * tm_info;
+    struct tm tt;
     char * record_buffer;
     
 
@@ -39,7 +40,7 @@ void bartlby_baseline_create_test_data(long svc_id,
 
     for (i = days_back; i > 0; i--) {
         work_on = current_midnight - (86400 * i);
-        tm_info = localtime ( &work_on );
+        tm_info = localtime_r ( &work_on, &tt );
         
 
         

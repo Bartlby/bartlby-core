@@ -125,6 +125,7 @@ void bartlby_perf_track(struct service * svc,char * return_buffer, int return_by
 		} else {
 			free(perf_trigger);
 			CHECKED_ASPRINTF(&perf_trigger, "%s/%s %ld %s 2>&1 > /dev/null", cfg_perf_dir, svc->plugin, svc->service_id, return_buffer);
+			_debug(perf_trigger);
 
 			//FIXME WORKER MODE -> http://www4.informatik.uni-erlangen.de/DE/Lehre/WS01/V_SP1/Uebung/tsh.c block_signal
 			signal(SIGPIPE,SIG_DFL);

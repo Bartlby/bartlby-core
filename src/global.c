@@ -141,6 +141,7 @@ int service_is_in_time(const char * time_plan) {
 	char * ttok;
 	time_t tnow;
 	struct tm *tmnow;
+	struct tm tt;
 	struct tm fromcheck, tocheck = {0};       
 	int fromts, tots;
 	char in_or_out;
@@ -160,7 +161,7 @@ int service_is_in_time(const char * time_plan) {
 	
 	
 	cur_ts = time(&tnow);
-	tmnow = localtime(&tnow);
+	tmnow = localtime_r(&tnow, &tt);
 	
 	tmp = strdup(time_plan);
 	otmp = tmp;
@@ -317,6 +318,7 @@ int _log(int handle, int severity, const char * str,  ...) {
 	va_list argzeiger;
 	time_t tnow;
 	struct tm *tmnow;
+	struct tm tt;
 	
 	char * logfile;
 	char * logfile_dd;
@@ -333,7 +335,7 @@ int _log(int handle, int severity, const char * str,  ...) {
 	char * upstream_line;
 
 	time(&tnow);
-	tmnow = localtime(&tnow);
+	tmnow = localtime_r(&tnow, &tt);
 	
 	if(strcmp(config_file, "") != 0) {
 		logfile_dd=getConfigValue("logfile", config_file);
