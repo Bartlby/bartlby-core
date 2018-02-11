@@ -614,7 +614,7 @@ int main(int argc, char ** argv) {
 		char * json_input = strstr(inputbuffer, "{");
 		if(json_input == NULL) {
 			bartlby_show_error(-4, "NO JSON OBJECT", is_http);
-			continue;		
+			exit(1);    	
 		}
 		jso_in=json_tokener_parse(json_input);
 		if(jso_in) {
