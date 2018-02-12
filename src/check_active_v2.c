@@ -177,8 +177,9 @@ void bartlby_check_v2(struct service * svc, char * cfgfile, int use_ssl) {
 		close(sd);
 		return;
 	}
-       if(rc<0)
+       if(rc<0) {
        	rc=-1;
+       }
 
 	if(rc==-1){
 		sprintf(svc->current_output, "%s", "AgentV2: Error sending to host");
