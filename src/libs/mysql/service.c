@@ -416,8 +416,18 @@ BARTLBY_SQL_PROTECTION_INIT;
       			sprintf(svc->snmp_info.textmatch, "%s", "");	
       		}
 					
-      		svc->last_notify_send=atoi(row[29]);
-      		svc->last_state_change=atoi(row[30]);
+
+		if(row[29] != NULL) {
+      			svc->last_notify_send=atoi(row[29]);
+		} else {
+      			svc->last_notify_send=0;
+		}
+		if(row[30] != NULL) {
+      			svc->last_state_change=atoi(row[30]);
+		} else {
+      			svc->last_state_change=0;
+		}
+      		
       		
       		svc->service_retain_current=atol(row[31]);
       		svc->service_ack_current=atoi(row[32]);
@@ -1017,8 +1027,17 @@ BARTLBY_SQL_PROTECTION_INIT;
       			svcs[i].check_interval=atol(row[6]);
       			svcs[i].check_interval_original=atol(row[6])*1000;
       			svcs[i].notify_enabled=atoi(row[8]);
+			if(row[29] != NULL) {
       			svcs[i].last_notify_send=atoi(row[29]);
+			} else {
+      			svcs[i].last_notify_send=0;
+			}
+			if(row[30] != NULL) {
       			svcs[i].last_state_change=atoi(row[30]);
+			} else {
+
+      			svcs[i].last_state_change=0;
+			}
       			if(svcs[i].last_notify_send == 0) svcs[i].last_notify_send=time(NULL);
       			if(svcs[i].last_state_change == 0) svcs[i].last_state_change=time(NULL);
       			svcs[i].service_type = atoi(row[9]);

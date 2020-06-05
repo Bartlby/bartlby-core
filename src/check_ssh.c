@@ -108,7 +108,7 @@ void bartlby_check_ssh(struct service * svc, char * cfgfile) {
    rc=ssh_userauth_pubkey(my_ssh_session, NULL, pubstring, pkey);
    //rc=ssh_userauth_try_publickey(my_ssh_session, NULL, pubkey);
    privatekey_free(pkey);
-	 string_free(pubstring);
+	 ssh_string_free(pubstring);
    
    
    if(rc != SSH_AUTH_SUCCESS) {
@@ -119,7 +119,7 @@ void bartlby_check_ssh(struct service * svc, char * cfgfile) {
 	 	
    }
    
-   channel = channel_new(my_ssh_session);;
+   channel = ssh_channel_new(my_ssh_session);;
    
     if (channel == NULL) {
         
@@ -129,13 +129,13 @@ void bartlby_check_ssh(struct service * svc, char * cfgfile) {
 				return;
 	 }
 
-    rc = channel_open_session(channel);
+    rc = ssh_channel_open_session(channel);
     if (rc < 0) {
     		   		
         goto failed;
     }
 		CHECKED_ASPRINTF(&cmd_line, "~/bartlby-plugins/%s %s", svc->plugin, svc->plugin_arguments);
-    rc = channel_request_exec(channel, cmd_line);
+    rc = ssh_channel_request_exec(channel, cmd_line);
     free(cmd_line);
     if (rc < 0) {
         goto failed;
@@ -144,14 +144,14 @@ void bartlby_check_ssh(struct service * svc, char * cfgfile) {
 	memset(buffer, '\0', sizeof(char)*(1024*2));
 	memset(buffer2, '\0', sizeof(char)*(1024*2));
     bytes_read=0;
-    nbytes = channel_read(channel, buffer, sizeof(buffer), 0);
+    nbytes = ssh_channel_read(channel, buffer, sizeof(buffer), 0);
     
     while (nbytes > 0) {
       
       bytes_read += nbytes;
       if(strlen(buffer2)+strlen(buffer) <= 2044) { //0-127|
         strcat(buffer2, buffer);
-        nbytes = channel_read(channel, buffer, sizeof(buffer), 0);
+        nbytes = ssh_channel_read(channel, buffer, sizeof(buffer), 0);
       } else {
         //_log("BUFFER BUFFER");
         break;        
@@ -165,16 +165,16 @@ void bartlby_check_ssh(struct service * svc, char * cfgfile) {
   	
 
 		
-    channel_send_eof(channel);
-    rc=channel_get_exit_status(channel);
+    ssh_channel_send_eof(channel);
+    rc=ssh_channel_get_exit_status(channel);
     
     
-    channel_close(channel);
+    ssh_channel_close(channel);
 
    
     
     
-    channel_free(channel);
+    ssh_channel_free(channel);
     ssh_free(my_ssh_session);
 		
 		
@@ -193,8 +193,8 @@ void bartlby_check_ssh(struct service * svc, char * cfgfile) {
 
 
 failed:
-		channel_close(channel);
-    channel_free(channel);
+		ssh_channel_close(channel);
+    ssh_channel_free(channel);
     ssh_disconnect(my_ssh_session);
     ssh_free(my_ssh_session);
     
