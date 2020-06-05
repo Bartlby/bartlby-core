@@ -89,10 +89,10 @@ void bartlby_check_local(struct service * svc, char * cfgfile) {
 		alarm(svc->service_check_timeout);
 		
 		
-		rmessage_temp=malloc(sizeof(char)*(1024*4));
-		rmessage=malloc(sizeof(char)*(1024*4));
-		memset(rmessage, '\0', sizeof(char)*(1024*4));
-		memset(rmessage_temp, '\0', sizeof(char)*(1024*4));
+		rmessage_temp=malloc(sizeof(char)*(1024*5));
+		rmessage=malloc(sizeof(char)*(1024*5));
+		memset(rmessage, '\0', sizeof(char)*(1024*5));
+		memset(rmessage_temp, '\0', sizeof(char)*(1024*5));
 		round=0;
 		while((c=fgetc(fp)) != EOF && connection_timed_out != 1 && round < 1024*4){
 			rmessage_temp[round]=c;	
